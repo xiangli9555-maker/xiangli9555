@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>Vomi · VO Manager</title>
+<link rel="stylesheet" href="assets/project-fonts.css?v=20260817ad"/>
+<link rel="icon" type="image/png" href="assets/DeltaForceLogo-Triangle.png"/>
+<style>
+:root{
+  --c-primary:#0FF796; --c-primary-dark:#0BD980; --c-primary-glow:rgba(15,247,150,0.18);
+  --c-bg:#0F171C; --c-bg-0:#0F171C; --c-surface:#1F2A32; --c-surface-2:#26333C; --c-surface-3:#2E3B45;
+  --c-sidebar:#0F171C; --c-sidebar-active:rgba(15,247,150,0.10);
+  --c-border:#2E3B45; --c-border-strong:#3D4C57; --c-hairline:#243039;
+  --c-text:#FFFFFF; --c-text-2:#D4DDE3; --c-text-mute:#A1B1BC; --c-text-dim:#6B7A85;
+  --c-info:#60A5FA; --c-warning:#F59E0B; --c-danger:#E87DA0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;overflow:hidden}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--c-surface-3);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--c-border-strong)}
+
+/* ========== TOP BRAND BAR · 64px 品牌信息条 ========== */
+.brand-bar{height:68px;min-height:68px;box-sizing:border-box;background:var(--c-bg-0);border-bottom:1px solid var(--c-border);display:flex;align-items:center;padding:10px 18px;gap:10px;flex-shrink:0;position:relative;overflow:visible}
+.brand-bar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c-primary) 30%,var(--c-primary) 70%,transparent);opacity:.35;pointer-events:none}
+.brand-logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.brand-logo .logo-tri{height:34px;width:auto;display:block;filter:drop-shadow(0 0 8px rgba(15,248,155,.28)) drop-shadow(0 0 20px rgba(15,248,155,.14)) drop-shadow(0 0 40px rgba(15,248,155,.07))}
+.brand-logo .logo-txt{height:13px;width:auto;display:block;filter:brightness(0) invert(1);opacity:.92}
+.brand-divider{width:1px;height:26px;background:rgba(202,225,207,.16)}
+.brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;letter-spacing:.3px}
+.brand-toggle{width:32px;height:32px;flex-shrink:0;background:rgba(31,42,50,.42);border:1px solid var(--c-hairline);border-radius:5px;color:var(--c-text-mute);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+.brand-toggle:hover{background:var(--c-surface);border-color:rgba(15,248,155,.45);color:var(--c-primary)}
+.brand-toggle svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.brand-search{flex:1 1 420px;min-width:220px;max-width:420px;position:relative;margin:0 8px 0 18px}
+.brand-search input{width:100%;height:32px;padding:0 12px 0 32px;border:1px solid var(--c-hairline);border-radius:5px;font-size:13px;color:var(--c-text);background:rgba(31,42,50,.72);outline:none;transition:all .15s;font-family:inherit}
+.brand-search input::placeholder{color:#656668}
+.brand-search input:focus{border-color:rgba(15,248,155,.55);background:rgba(31,42,50,.88)}
+.brand-search::before{content:'';position:absolute;left:11px;top:50%;transform:translateY(-50%);width:13px;height:13px;background:no-repeat center/contain;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A1A1AA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E")}
+.brand-spacer{flex:1}
+.brand-icon-btn{width:34px;height:34px;border-radius:6px;border:1px solid var(--c-border);background:var(--c-surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;color:var(--c-text-mute);position:relative}
+.brand-icon-btn:hover{border-color:var(--c-primary);color:var(--c-primary);background:var(--c-surface-2)}
+.brand-icon-btn .bell-dot{position:absolute;top:6px;right:8px;width:6px;height:6px;border-radius:3px;background:var(--c-warning);border:1.5px solid var(--c-bg-0)}
+.brand-icon-btn.is-disabled{opacity:.38;cursor:not-allowed;color:var(--c-text-dim);border-color:var(--c-border);background:var(--c-surface)}
+.brand-icon-btn.is-disabled:hover{border-color:var(--c-border);color:var(--c-text-dim);background:var(--c-surface)}
+.brand-user{display:flex;align-items:center;gap:8px;cursor:pointer;transition:opacity .15s}
+.brand-user .av{width:32px;height:32px;border-radius:50%;background:var(--c-primary);color:#000;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.08)}
+.brand-user .av img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.brand-user .name{font-size:13px;color:var(--c-text);font-weight:500}
+.brand-user .role{font-size:11px;color:var(--c-text-mute)}
+/* 文案(Writer) 视角：职能用 info 蓝区分 PM */
+.brand-user.is-writer .role{color:var(--c-info)}
+.brand-user.is-writer .av{background:var(--c-surface-2)}
+
+/* Layout */
+.layout{flex:1;display:flex;overflow:hidden}
+.sidebar{width:222px;background:var(--c-sidebar);border-right:1px solid var(--c-hairline);padding:16px 10px;flex-shrink:0;overflow-y:auto;transition:width .2s}
+body.sidebar-collapsed .sidebar{width:48px;padding:16px 4px}
+body.sidebar-collapsed .sidebar .label-text,
+body.sidebar-collapsed .sidebar .nav-sub{display:none}
+/* 收起态：分区标签显示首字母缩写 */
+body.sidebar-collapsed .sidebar .sec-label{padding:10px 0 4px;text-align:center;letter-spacing:0}
+body.sidebar-collapsed .sidebar .sec-label .section-sig{display:none}
+body.sidebar-collapsed .sidebar .sec-label::before{content:attr(data-initial);font-size:10px;font-weight:700;letter-spacing:0;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace}
+body.sidebar-collapsed .sidebar .nav-item{justify-content:center;padding:9px 0}
+body.sidebar-collapsed .sidebar .nav-item svg,
+body.sidebar-collapsed .sidebar .nav-item .badge{display:none}
+body.sidebar-collapsed .sidebar .nav-item::before{content:attr(data-initial);font-size:14px;font-weight:700;letter-spacing:0;color:var(--c-text-2)}
+body.sidebar-collapsed .sidebar .nav-item.active::before{color:var(--c-primary)}
+
+/* 收起时隐藏 brand bar 的 DELTA FORCE 文字，只留三角 logo */
+body.sidebar-collapsed .brand-logo .logo-txt{display:none}
+
+.sec-label{font-size:10px;letter-spacing:1.5px;color:var(--c-text-dim);text-transform:uppercase;padding:14px 10px 6px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.nav-item{width:100%;display:flex;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:6px;font-size:13px;text-align:left;font-family:inherit;transition:all .15s;position:relative}
+.nav-item:hover{background:var(--c-surface);color:var(--c-text-2)}
+.nav-item.active{background:var(--c-sidebar-active);color:var(--c-primary);font-weight:600;box-shadow:inset 2px 0 0 var(--c-primary)}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.nav-item .badge{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:8px;background:var(--c-primary);color:#000;font-weight:700}
+.nav-item .badge.ai{background:rgba(15,247,150,0.15);color:var(--c-primary);border:1px solid rgba(15,247,150,0.3)}
+
+/* 子项（需求汇总下的 Ma5/Yang1） */
+.nav-sub{display:flex;flex-direction:column;padding:2px 0 4px 22px;gap:1px}
+.nav-sub-item{width:100%;display:flex;align-items:center;gap:8px;padding:6px 10px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:5px;font-size:12px;text-align:left;font-family:inherit;transition:all .12s}
+.nav-sub-item:hover{background:var(--c-surface);color:var(--c-text-2)}
+.nav-sub-item.active{color:var(--c-text-mute);background:transparent;font-weight:500}
+.nav-sub.context-active .nav-sub-item.active{color:var(--c-primary);background:var(--c-sidebar-active);font-weight:600}
+.nav-sub-item .dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7;flex-shrink:0}
+.nav-sub-item .count{margin-left:auto;font-size:11px;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;font-weight:500;font-variant-numeric:tabular-nums}
+.nav-sub.context-active .nav-sub-item.active .count{color:var(--c-primary)}
+/* 台词管理下的 CW 子项（头像左 + 中文名/英文 id 上下双行） */
+.nav-sub-cw{padding:4px 0 4px 22px}
+.nav-sub-cw .nav-sub-item{padding:7px 8px;gap:10px;align-items:center}
+.nav-sub-cw .nav-sub-item .cw-ava{width:34px;height:34px;border-radius:50%;background:var(--c-surface) center/cover no-repeat;flex-shrink:0;border:1px solid var(--c-hairline);color:transparent;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.nav-sub-cw .nav-sub-item .cw-text{display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1}
+.nav-sub-cw .nav-sub-item .cw-name{font-size:13px;font-weight:600;color:inherit;letter-spacing:.2px}
+.nav-sub-cw .nav-sub-item .cw-id{font-size:10px;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;font-weight:400;margin-top:2px;letter-spacing:.3px}
+.nav-sub-cw .nav-sub-item.active .cw-id{color:var(--c-primary);opacity:.75}
+.nav-sub-cw .nav-sub-item .count{align-self:center}
+
+/* iframe 主视口 */
+.viewport{flex:1;display:flex;position:relative;overflow:hidden;background:transparent}
+.viewport iframe{flex:1;width:100%;height:100%;border:none;background:transparent;display:block}
+.viewport-loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,23,28,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:var(--c-primary);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;pointer-events:none;opacity:0;transition:opacity .15s}
+.viewport-loader.on{opacity:1}
+.viewport-loader .dot{width:8px;height:8px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:blink 1s infinite;margin-right:10px}
+.viewport-loader .loader-err{display:none;flex-direction:column;gap:8px;max-width:420px;text-align:center;margin-top:14px;color:var(--c-text-2)}
+.viewport-loader .loader-err strong{color:var(--c-warning);font-size:13px;letter-spacing:1px}
+.viewport-loader .loader-err-sub{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:12px;line-height:1.6;color:var(--c-text-mute);letter-spacing:0}
+.viewport-loader .loader-err code{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-primary);background:rgba(15,247,150,0.08);padding:2px 6px;border-radius:3px}
+.viewport-loader.timeout .dot{display:none}
+.viewport-loader.timeout .loader-err{display:flex}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* ================================================================
+   响应式断点（2026-08-18）
+   compact: ≤1500px（笔记本 1470×956）——sidebar/brand-bar 收敛
+   wide-4k: ≥2401px（4K 3840×2160）——内容按屏宽流式撑开
+   normal:  1501-2400px——保持当前视觉基准，不动
+   ================================================================ */
+@media (max-width: 1500px){
+  .brand-bar{height:56px;min-height:56px;padding:8px 14px;gap:8px}
+  .sidebar{width:195px;padding:14px 8px}
+  .brand-search{flex:1 1 340px;max-width:340px;margin:0 6px 0 14px}
+  .nav-item{font-size:12.5px}
+  .sec-label{font-size:10px}
+}
+@media (min-width: 2401px){
+  .brand-bar{height:76px;min-height:76px;padding:12px 24px;gap:14px}
+  .sidebar{width:273px;padding:20px 16px}
+  .brand-search{flex:1 1 520px;max-width:520px;margin:0 12px 0 24px}
+  .nav-item{font-size:14.5px}
+  .sec-label{font-size:12px}
+  /* 主内容区（iframe wrapper）在 4K 上不锁最大宽，让子页自由撑开 */
+  .main-view,.viewport,.iframe-wrap{max-width:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- Brand Bar · 还原为原版（不动） -->
+<header class="brand-bar">
+  <div class="brand-logo">
+    <img src="assets/DeltaForceLogo-Triangle.png" alt="Delta" class="logo-tri"/>
+    <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt"/>
+  </div>
+  <div class="brand-divider"></div>
+  <button class="brand-toggle" id="sidebarToggle" title="收起/展开侧栏" onclick="toggleSidebar()">
+    <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  </button>
+  <div class="brand-subsys" aria-label="Vomi · VO Manager">
+    <span class="brand-vomi-lockup"><img class="vomi-mark" src="assets/vomi-mark.svg?v=20260815g" alt="-Vomi-"/></span>
+    <span class="brand-slogan">包办 Vo, Mi 来打理</span>
+  </div>
+
+  <div class="brand-search">
+    <input type="text" placeholder="搜索任务、声优、GP Event、文件…" id="globalSearch"/>
+  </div>
+  <span class="brand-spacer"></span>
+
+  <button class="brand-icon-btn is-disabled" title="通知 · 待真实通知系统接入后开启" tabindex="-1" aria-disabled="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+  </button>
+  <button class="brand-icon-btn" title="分享" onclick="sharePage()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+  </button>
+  <div class="brand-user" id="brandUser" title="点击切换预览身份（PM / 文案 Writer）" onclick="cycleUser()">
+    <div class="av" id="buAvatar">L</div>
+    <div>
+      <div class="name" id="buName">lycheelli</div>
+      <div class="role" id="buRole">PM</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sec-label section-label active" data-section="mission" data-initial="M"><span class="section-sig" aria-hidden="true"></span>MISSION</div>
+    <button class="nav-item active" data-view="demands" data-initial="D" onclick="switchView(this,'preview-需求汇总-精修版.html')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="label-text">需求汇总</span>
+    </button>
+    <div class="nav-sub label-text context-active" id="demandReleaseSubs">
+      <button class="nav-sub-item active" data-release="" onclick="switchDemandRelease(this,'')"><span class="dot"></span>全部<span class="count" id="cnt-rel-all">—</span></button>
+    </div>
+    <button class="nav-item" data-view="actors" data-initial="T" onclick="switchView(this,'preview-声优库-精修版.html')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span class="label-text">声优库</span>
+    </button>
+    <div class="nav-sub label-text" id="rosterStatusSubs">
+      <button class="nav-sub-item active" data-status="" onclick="switchRosterStatus(this,'')"><span class="dot"></span>全部<span class="count" id="cnt-roster-all">—</span></button>
+      <button class="nav-sub-item" data-status="done" onclick="switchRosterStatus(this,'done')"><span class="dot" style="background:var(--c-primary);box-shadow:0 0 4px var(--c-primary);opacity:1"></span>已选角<span class="count" id="cnt-roster-done">—</span></button>
+      <button class="nav-sub-item" data-status="pending" onclick="switchRosterStatus(this,'pending')"><span class="dot" style="background:var(--c-warning);box-shadow:0 0 4px var(--c-warning);opacity:1"></span>待选角<span class="count" id="cnt-roster-pending">—</span></button>
+    </div>
+
+    <div class="sec-label section-label" data-section="schedule" data-initial="S"><span class="section-sig" aria-hidden="true"></span>SCHEDULE</div>
+    <button class="nav-item" data-view="milestones" data-initial="M" onclick="switchView(this,'preview-版本节点-精修版.html')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span class="label-text">版本节点</span>
+    </button>
+    <button class="nav-item" data-view="calendar" data-initial="S" onclick="switchView(this,'preview-录制档期-精修版.html')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="label-text">录制档期</span>
+    </button>
+
+    <div class="sec-label section-label" data-section="hq" data-initial="H"><span class="section-sig" aria-hidden="true"></span>HQ</div>
+    <button class="nav-item" data-view="ai" data-initial="V" onclick="switchView(this,'preview-AI助手-精修版.html')">
+      <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="label-text">Vo 智能助手</span>
+      <span class="badge ai label-text">AI</span>
+    </button>
+  </aside>
+
+  <div class="viewport">
+    <iframe id="viewFrame" title="内容" onerror="var l=document.getElementById('loader');if(l)l.classList.add('timeout')"></iframe>
+    <div class="viewport-loader" id="loader">
+      <span class="dot"></span>LOADING...
+      <div class="loader-err" id="loaderErr">
+        <strong>页面加载失败</strong>
+        <span class="loader-err-sub">检测到通过文件协议(file://)直接打开，iframe 可能受限。<br>请改用本地服务器：<code>http://127.0.0.1:8088/vo-manager-refined.html</code></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const __BUILD__ = '20260819cw';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+// 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
+const VIEW_SRC = {
+  demands:'preview-需求汇总-精修版.html',
+  actors:'preview-声优库-精修版.html',
+  milestones:'preview-版本节点-精修版.html',
+  calendar:'preview-录制档期-精修版.html',
+  ai:'preview-AI助手-精修版.html'
+};
+const VIEW_KEY = 'vo_shell_view_v1';   // localStorage 持久化当前所在页面
+let _curView = null, _curRelease = '', _restored = null;
+// 统一 loader 控制：显示 → 等 onload 或 5s 超时（超时显示 file:// 提示）
+function showLoader(loader){
+  loader.classList.remove('timeout');
+  loader.classList.add('on');
+}
+function armLoaderTimeout(loader){
+  return setTimeout(()=>{
+    // 若 iframe 仍未加载（file:// 协议常见），显示可读错误提示而非空白
+    if(loader.classList.contains('on')) loader.classList.add('timeout');
+  }, 5000);
+}
+function hideLoader(loader, tid){
+  clearTimeout(tid);
+  loader.classList.remove('on','timeout');
+}
+function syncSidebarContext(view){
+  document.getElementById('demandReleaseSubs')?.classList.toggle('context-active', view==='demands');
+  document.getElementById('rosterStatusSubs')?.classList.toggle('context-active', view==='actors');
+  const sectionByView = {
+    demands:'mission',
+    actors:'roster',
+    milestones:'schedule', calendar:'schedule',
+    ai:'hq'
+  };
+  const currentSection = sectionByView[view] || 'mission';
+  document.querySelectorAll('.section-label').forEach(label=>{
+    label.classList.toggle('active', label.dataset.section===currentSection);
+  });
+}
+/* 统一视图切换：高亮导航 + 同步侧栏上下文 + 切换 iframe + 记录当前页 */
+function applyView(view, release, btn){
+  if(!VIEW_SRC[view]) view = 'demands';
+  release = release || '';
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  const navBtn = btn || document.querySelector('.nav-item[data-view="'+view+'"]');
+  if(navBtn) navBtn.classList.add('active');
+  syncSidebarContext(view);
+  // release 子项高亮：仅当前 view 所属容器
+  const subBoxId = view==='demands' ? 'demandReleaseSubs' : view==='actors' ? 'rosterStatusSubs' : null;
+  const subAttr = view==='actors' ? 'status' : 'release';
+  document.querySelectorAll('.nav-sub-item').forEach(b=>{
+    let on = false;
+    if(subBoxId){ const box = document.getElementById(subBoxId); if(box && box.contains(b)) on = (b.dataset[subAttr] === release); }
+    b.classList.toggle('active', on);
+  });
+  const f = document.getElementById('viewFrame');
+  const loader = document.getElementById('loader');
+  if(loader) showLoader(loader);
+  const tid = loader ? armLoaderTimeout(loader) : null;
+  f.onload = ()=>{ if(loader) hideLoader(loader, tid); };
+  const paramName = view==='actors' ? 'status' : 'release';
+  f.src = VIEW_SRC[view] + '?embed=1&_v='+__BUILD__ + (release ? '&'+paramName+'='+encodeURIComponent(release) : '');
+  _curView = view; _curRelease = release;
+  syncHash(view, release);   // 同步 URL hash（replaceState 不触发 hashchange，无循环）
+}
+/* 记住当前页，刷新后还原 */
+function saveView(view, release){
+  try{ localStorage.setItem(VIEW_KEY, JSON.stringify({view: view || 'demands', release: release || ''})); }catch(e){}
+  _curView = view || 'demands'; _curRelease = release || '';
+}
+/* URL hash 解析：#<view> 或 #<view>/<release> → {view, release}；非法返回 null */
+function hashToState(){
+  const h = (location.hash || '').replace(/^#/, '').trim();
+  if(!h) return null;
+  const parts = h.split('/');
+  const view = parts[0], release = parts.slice(1).join('/');
+  if(VIEW_SRC[view]) return { view, release: release || '' };
+  return null;
+}
+/* 反向同步：把当前视图写入 URL hash（replaceState 不触发 hashchange，避免循环） */
+function syncHash(view, release){
+  const h = release ? view + '/' + release : view;
+  if((location.hash || '').replace(/^#/, '') !== h){
+    history.replaceState(null, '', '#' + h);
+  }
+}
+/* 刷新后还原：优先 URL hash（分享直达），其次 localStorage（同浏览器记忆），最后默认需求汇总。
+   任一步解析异常都安全降级，绝不中断还原。 */
+function restoreView(){
+  let st = null;
+  try { st = hashToState(); } catch(e){ st = null; }
+  if(!st){
+    try{ st = JSON.parse(localStorage.getItem(VIEW_KEY) || 'null'); }catch(e){ st = null; }
+  }
+  _restored = st;
+  if(st && st.view && VIEW_SRC[st.view]) applyView(st.view, st.release || '', null);
+  else applyView('demands', '');
+}
+function switchView(btn, src){
+  const view = btn?.dataset.view || '';
+  saveView(view, '');
+  applyView(view, '', btn);
+}
+/* 需求汇总 · 发布计划子项切换（Ma5/Yang1） */
+function switchDemandRelease(btn, rel){
+  saveView('demands', rel);
+  applyView('demands', rel, document.querySelector('.nav-item[data-view="demands"]'));
+}
+/* 声优库 · 已选角/待选角 子项切换（release 参数复用为 status: '' | 'done' | 'pending'） */
+function switchRosterStatus(btn, status){
+  saveView('actors', status);
+  applyView('actors', status, document.querySelector('.nav-item[data-view="actors"]'));
+}
+/* 声优库 count · 从 /api/voice-roles 拉取，中/英配任一为空=待选角 */
+function loadRosterCounts(){
+  fetch('/api/voice-roles', {cache:'no-store'}).then(r=>r.json()).then(list=>{
+    const rows = Array.isArray(list) ? list : [];
+    // 叠加同源 localStorage 里子页的未保存草稿（新增/编辑/删除），与子页 renderMeter 判定一致
+    let adds = [], edits = {}, deletes = [];
+    try{ adds    = JSON.parse(localStorage.getItem('vo_roster_adds_v1')    || '[]') || []; }catch(_){}
+    try{ edits   = JSON.parse(localStorage.getItem('vo_roster_edits_v1')   || '{}') || {}; }catch(_){}
+    try{ deletes = JSON.parse(localStorage.getItem('vo_roster_deletes_v1') || '[]') || []; }catch(_){}
+    const delSet = new Set(deletes.map(String));
+    // 应用编辑到 API 行
+    const merged = rows.filter(r=>!delSet.has(String(r.id))).map(r=>{
+      const e = edits[String(r.id)] || edits[r.id];
+      return e ? {...r, ...e} : r;
+    });
+    // 追加未保存新增
+    const finalList = merged.concat(Array.isArray(adds) ? adds : []);
+    let done = 0, pending = 0;
+    finalList.forEach(r=>{
+      const cn = (r.cn_va||'').trim();
+      const en = (r.en_va||'').trim();
+      if(!cn || !en) pending++; else done++;
+    });
+    const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+    setTxt('cnt-roster-all', finalList.length);
+    setTxt('cnt-roster-done', done);
+    setTxt('cnt-roster-pending', pending);
+  }).catch(()=>{});
+}
+/* 侧栏 release 筛选 · 从 /api/demands 动态生成（杜绝硬编码对不上） */
+function normReleaseShell(v){ if(!v) return ''; return String(v).replace(/\s+/g,'').replace(/\.0$/,''); }
+function loadReleases(){
+  fetch('/api/demands', {cache:'no-store'}).then(r=>r.json()).then(list=>{
+    const rows = Array.isArray(list) ? list : [];
+    const counts = {};
+    rows.forEach(d=>{
+      const rel = normReleaseShell(d.release_plan);
+      if(rel) counts[rel] = (counts[rel] || 0) + 1;
+    });
+    const rels = Object.keys(counts);
+    const fill = (containerId, handler)=>{
+      const box = document.getElementById(containerId);
+      if(!box) return;
+      const allCount = box.querySelector('.nav-sub-item[data-release=""] .count');
+      if(allCount) allCount.textContent = rows.length;
+      box.querySelectorAll('.dyn-rel').forEach(n=>n.remove());
+      rels.forEach(rel=>{
+        const b = document.createElement('button');
+        b.className = 'nav-sub-item dyn-rel';
+        b.setAttribute('data-release', rel);
+        b.innerHTML = '<span class="dot"></span>'+rel+'<span class="count" id="cnt-rel-'+rel+'">'+counts[rel]+'</span>';
+        b.onclick = ()=> window[handler](b, rel);
+        box.appendChild(b);
+      });
+    };
+    fill('demandReleaseSubs','switchDemandRelease');
+    // 还原已保存的 release 子项高亮（异步填充后补一次）
+    if(_restored && _restored.view==='demands'){
+      document.querySelectorAll('#demandReleaseSubs .nav-sub-item').forEach(b=>{
+        b.classList.toggle('active', b.dataset.release === (_restored.release || ''));
+      });
+    }
+  }).catch(()=>{});
+}
+/* iframe 内 preview 页汇报计数 → 更新侧栏子项数字 */
+window.addEventListener('message', (e)=>{
+  const d = e.data || {};
+  if(d.type === 'release-counts'){
+    const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v ?? '—'; };
+    setTxt('cnt-rel-all', d.total);
+    const counts = d.counts || {};
+    Object.entries(counts).forEach(([rel, cnt])=>{ if(rel==='total'||rel==='type') return; setTxt('cnt-rel-'+normReleaseShell(rel), cnt); });
+  }
+  if(d.type === 'roster-status-counts'){
+    // 声优库子页上报（含未保存草稿；比外壳只读 API 更准确）
+    const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v ?? '—'; };
+    setTxt('cnt-roster-all', d.total);
+    setTxt('cnt-roster-done', d.done);
+    setTxt('cnt-roster-pending', d.pending);
+  }
+  if(d.type === 'cw-counts'){
+    const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v ?? '—'; };
+    setTxt('cnt-cw-all', d.total);
+    Object.entries(d.byCw||{}).forEach(([cwId, cnt])=>{
+      setTxt('cnt-cw-' + cwId, cnt);
+    });
+  }
+});
+document.getElementById('viewFrame').addEventListener('load', ()=>{
+  document.getElementById('loader').classList.remove('on');
+});
+// 初始加载超时保护（file:// 协议下 onload 可能不触发）
+setTimeout(()=>{
+  document.getElementById('loader').classList.remove('on');
+}, 5000);
+loadReleases();
+loadRosterCounts();
+
+/* 还原原版 brand-bar 交互 */
+function toggleSidebar(){
+  document.body.classList.toggle('sidebar-collapsed');
+}
+function toast(msg){
+  let t = document.getElementById('toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(8px);background:var(--c-surface-3);color:var(--c-text);padding:10px 18px;border-radius:8px;border:1px solid var(--c-border-strong);font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(8px)'; }, 2200);
+}
+function sharePage(){
+  const url = location.href;
+  if(navigator.share){ navigator.share({title:document.title,url}).catch(()=>{}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(url).then(()=>toast('链接已复制到剪贴板')).catch(()=>toast('分享：'+url)); }
+  else { toast('分享：'+url); }
+}
+console.log('◉ Vo Manager · iframe shell · v1');
+
+/* ── 登录身份（文案 Writer / PM）──
+   无后端时由 ?user= 决定，预览可 ?user=writer 或 ?user=<文案id>；
+   接入真实 SSO/登录后，只需把 CURRENT_USER 换成登录接口返回值即可。 */
+const USER_PROFILES = {
+  pm:     { id:'pm',     name:'lycheelli', role:'PM',     cw:null },
+  writer: { id:'writer', name:'关学院',    role:'Writer', cw:'bojackgguan' }
+};
+function resolveUser(){
+  const q = new URLSearchParams(location.search).get('user');
+  if(q && USER_PROFILES[q]) return USER_PROFILES[q];
+  if(q) return { id:q, name:q, role:'Writer', cw:q }; // 任意文案 id → 视为 Writer（用其 Q 版头像）
+  return USER_PROFILES.pm;
+}
+function renderUserChip(){
+  const u = CURRENT_USER = resolveUser();
+  const chip = document.getElementById('brandUser');
+  const av = document.getElementById('buAvatar');
+  if(u.cw){
+    av.innerHTML = '<img src="assets/avatars/'+u.cw+'.png" alt="'+u.name+'" onerror="this.style.display=\'none\'">';
+  } else {
+    av.textContent = (u.name||'?').slice(0,1).toUpperCase();
+  }
+  document.getElementById('buName').textContent = u.name;
+  document.getElementById('buRole').textContent = u.role;
+  chip.classList.toggle('is-writer', u.role === 'Writer');
+}
+let _userCycleIdx = 0;
+function cycleUser(){
+  const pool = [USER_PROFILES.pm, USER_PROFILES.writer];
+  _userCycleIdx = (_userCycleIdx + 1) % pool.length;
+  const u = pool[_userCycleIdx];
+  // 用 history.replaceState 同步 ?user=，刷新后保持
+  const url = new URL(location.href); url.searchParams.set('user', u.id);
+  history.replaceState(null, '', url);
+  renderUserChip();
+  toast('预览身份：' + u.name + ' · ' + u.role);
+}
+renderUserChip();
+restoreView();   // 刷新后还原上次所在页面（版本节点/录制档期/…）
+</script>
+
+</body>
+</html>

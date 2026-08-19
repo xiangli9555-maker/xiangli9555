@@ -1,0 +1,76 @@
+# WorkBuddy 内部数据（记忆/日志/导出/截图）
+.workbuddy/
+.archive-removed/
+_rollback/
+
+# 依赖
+node_modules/
+__pycache__/
+
+# 部署产物（用 _build_zip.py 现打）
+*.zip
+
+# 日志
+*.log
+*.log.err
+.dfai-server.log
+
+# AI 生成图片（非项目资产）
+generated-images/
+
+# 临时调试快照数据
+_*_snapshot*.json
+_vo_snapshot_data.json
+_vo_snapshot*.json
+_rebuilt_snapshot*.json
+yang1_page2.json
+
+# 备份文件
+*.bak*
+*.removed*
+*.bak2*
+
+# 根目录临时调试脚本/数据（_ 前缀，仅保留明确指定的构建/演示脚本）
+_*.json
+_*.tsv
+_*.txt
+_*.png
+_align_check.png
+_ce.json
+_rp.json
+_shot.js
+_gen_recipe.js
+_exec_*.py
+_roster_names_*.txt
+_flat_role_list_*.txt
+_category_*.txt
+_category_*.tsv
+_overview_*.json
+_mapping_*.json
+_fields_*.json
+_batch_*.json
+_per_category_*.json
+_demo_*.json
+
+# cw-doc 调试配置
+cw_*.json
+cw_*.js
+
+# 临时服务器/输出/环境
+dfai-live-server.js
+start-server.bat
+read_token_tmp.ps1
+nul
+data/
+outputs/
+scripts/
+package.json
+package-lock.json
+
+# 资产目录内的调试 dump
+assets/_roles_dump.json
+
+# 真实环境变量（保留 .example 模板）
+.env
+deploy/.env
+deploy/backend/.env

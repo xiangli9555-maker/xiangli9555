@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="gf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0FF796"/>
+      <stop offset="100%" stop-color="#00D470"/>
+    </linearGradient>
+  </defs>
+  <!-- favicon：透明底，仅描边三角+声波 -->
+  <polygon points="16,3 29,28 3,28"
+           fill="none"
+           stroke="url(#gf)"
+           stroke-width="2.4"
+           stroke-linejoin="round"/>
+  <rect x="11.5" y="15" width="3.5" height="8"  rx="1.8" fill="#0FF796" opacity=".55"/>
+  <rect x="17"   y="10" width="3.5" height="13" rx="1.8" fill="#0FF796"/>
+  <rect x="22.5" y="16" width="3.5" height="7"  rx="1.8" fill="#0FF796" opacity=".55"/>
+</svg>

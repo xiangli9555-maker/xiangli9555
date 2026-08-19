@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<title>Preview · 版本节点精修版</title>
+<link rel="stylesheet" href="assets/project-fonts.css?v=20260817c"/>
+<style>
+:root{--c-primary:#0FF89B;--c-primary-dark:#0BD980;--c-primary-glow:rgba(15,248,155,0.18);
+  --c-bg:#0F171C;--c-bg-0:#0F171C;--c-surface:#1B2526;--c-surface-2:#26333C;--c-surface-3:#2E3B45;
+  --c-border:#2E3B45;--c-border-strong:#3D4C57;--c-hairline:#243039;
+  --c-text:#EAEBEB;--c-text-2:#919594;--c-text-mute:#919594;--c-text-dim:#656668;
+  --c-info:#CAE1CF;--c-data-white:#CAE1CF;--c-warning:#F4CF67;--c-warning-dim:#D8B654;--c-brand-yellow:#F4CF67;--c-danger:#D699BE;--c-brand-red:#D699BE;--c-green-2:#6BD995;--c-control-dark:#1B2526}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;overflow:hidden}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--c-surface-3);border-radius:4px}
+
+.brand-bar{min-height:64px;background:var(--c-bg-0);border-bottom:1px solid var(--c-border);display:flex;align-items:center;padding:10px 24px;gap:16px;flex-shrink:0;position:relative}
+.brand-bar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c-primary) 30%,var(--c-primary) 70%,transparent);opacity:0.35}
+.brand-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand-logo .logo-tri{height:36px;width:auto;display:block}
+.brand-logo .logo-txt{height:14px;width:auto;display:block;filter:brightness(0) invert(1)}
+.brand-divider{width:1px;height:32px;background:var(--c-border)}
+.brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+.brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
+.brand-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;letter-spacing:.3px}
+.brand-spacer{flex:1}
+.layout{flex:1;display:flex;overflow:hidden}
+.sidebar{order:0}
+.right-panel{order:1}
+.main{order:2}
+.sidebar{width:216px;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:16px 12px;flex-shrink:0;overflow-y:auto}
+.sec-label{font-size:10px;letter-spacing:1.5px;color:var(--c-text-dim);text-transform:uppercase;padding:16px 12px 6px;font-weight:600}
+.nav-item{width:100%;;display:flex;align-items:center;gap:10px;padding:9px 12px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:6px;font-size:13px;text-align:left;font-family:inherit;transition:all .15s}
+.nav-item:hover{background:var(--c-surface);color:var(--c-text-2)}
+.nav-item.active{background:rgba(15,248,155,0.10);color:var(--c-primary);font-weight:600;box-shadow:inset 2px 0 0 var(--c-primary)}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+
+.main{flex:1;padding:18px 22px 22px;overflow:hidden;display:flex;flex-direction:column;gap:14px;min-height:0}
+
+/* Page header */
+.tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
+.tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
+.title-block{display:flex;flex-direction:column;gap:6px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:2.5px;font-weight:600;text-transform:uppercase;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+.eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px}
+.page-title .code{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
+.subtitle{font-size:13px;color:var(--c-text-mute);line-height:1.5;max-width:720px}
+.actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.btn{border:none;font-family:inherit;cursor:pointer;font-size:13px;font-weight:600;border-radius:5px;padding:8px 14px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:.3px}
+.btn-primary{background:var(--c-primary);color:#000}
+.btn-primary:hover{background:var(--c-primary-dark)}
+.btn-outline{background:transparent;color:var(--c-text-2);border:1px solid var(--c-border)}
+.btn-outline:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* Stats strip */
+.stat-strip{display:flex;gap:12px}
+.stat{flex:1;background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:12px 16px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c-primary)}
+.stat.info::before{background:var(--c-info)}
+.stat.warn::before{background:var(--c-warning)}
+.stat.danger::before{background:var(--c-danger)}
+.stat-label{font-size:11px;color:var(--c-text-mute);letter-spacing:.4px;font-family:var(--font-ui);text-transform:none;font-weight:500;margin-bottom:5px}
+.stat-value{font-family:var(--font-data);font-size:20px;font-weight:500;color:var(--c-text);line-height:1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:5px}
+.stat-value .unit{font-size:11px;color:var(--c-text-mute)}
+.stat-sub{font-size:11px;color:var(--c-text-mute);margin-top:5px;font-variant-numeric:tabular-nums}
+.cd-mode{font-weight:600;padding:1px 6px;border-radius:4px;font-variant-numeric:tabular-nums}
+.cd-mode-real{color:var(--c-primary);background:rgba(15,248,155,.12)}
+.cd-mode-est{color:var(--c-text-2);background:rgba(145,149,148,.16)}
+.cd-est-note{color:var(--c-text-mute);font-size:10px;margin-left:3px}
+
+/* Toolbar · 简洁风格（中文标签 + 绿色高亮按钮） */
+.toolbar{display:flex!important;flex-direction:column;gap:6px;align-items:flex-start;padding:0 0 14px}
+.tb-group{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--c-text-mute);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;letter-spacing:0;flex-wrap:wrap}
+.tb-group .tb-label{width:52px;flex-shrink:0;text-align:right}
+.tb-label{color:var(--c-primary);font-weight:500;text-transform:none;letter-spacing:0;font-size:11px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;line-height:26px;padding:0 2px}
+.tb-btn{background:transparent;border:1px solid var(--c-border);color:var(--c-text-2);padding:4px 11px;font-size:12px!important;border-radius:4px;cursor:pointer;transition:all .15s;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-weight:700;line-height:1.35;letter-spacing:0;min-height:26px;box-sizing:border-box}
+.tb-btn:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.tb-btn.on{color:var(--c-primary);border-color:var(--c-primary);background:rgba(15,248,155,0.08)}
+/* 关键节点按钮 · 未选态显示各自 tag 主色描边条 + 悬停加深；选中态各自主色 */
+/* 4 节点配色（PM 2026-08-18 定）：Vo需求锁 BP粉 #D699BE / 声优锁 #F1E9D1 / 台词锁 #D1B36F / VO资源交付 #597D4F */
+.tb-btn.evt-m-lock    :not(.on):hover,.tb-btn.evt-m-lock    {border-left:3px solid #D699BE}
+.tb-btn.evt-m-estimate:not(.on):hover,.tb-btn.evt-m-estimate{border-left:3px solid #F1E9D1}
+.tb-btn.evt-m-script  :not(.on):hover,.tb-btn.evt-m-script  {border-left:3px solid #D1B36F}
+.tb-btn.evt-m-schedule:not(.on):hover,.tb-btn.evt-m-schedule{border-left:3px solid var(--c-text-mute)}
+.tb-btn.evt-m-deliver :not(.on):hover,.tb-btn.evt-m-deliver {border-left:3px solid #597D4F}
+.tb-btn.evt-cat-meeting  :not(.on):hover,.tb-btn.evt-cat-meeting  {border-left:3px solid var(--c-text-mute)}
+.tb-btn.evt-cat-milestone:not(.on):hover,.tb-btn.evt-cat-milestone{border-left:3px solid #D699BE}
+.tb-btn.evt-cat-routine  :not(.on):hover,.tb-btn.evt-cat-routine  {border-left:3px solid #0FF89B}
+.tb-btn.evt-m-lock.on    {color:#D699BE;border-color:#D699BE;background:rgba(214,153,190,0.18)}
+.tb-btn.evt-m-estimate.on{color:#F1E9D1;border-color:#F1E9D1;background:rgba(241,233,209,0.14)}
+.tb-btn.evt-m-script.on  {color:#D1B36F;border-color:#D1B36F;background:rgba(209,179,111,0.16)}
+.tb-btn.evt-m-schedule.on{color:var(--c-text);border-color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.06)}
+.tb-btn.evt-m-deliver.on {color:#8FB47F;border-color:#597D4F;background:rgba(89,125,79,0.28)}
+.tb-btn.evt-cat-meeting.on  {color:var(--c-text);border-color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.06)}
+.tb-btn.evt-cat-milestone.on{color:#D699BE;border-color:#D699BE;background:rgba(214,153,190,0.15)}
+.tb-btn.evt-cat-routine.on  {color:#0FF89B;border-color:#0FF89B;background:rgba(15,248,155,0.15)}
+
+/* ================================================================
+   WEEK-COLUMN TABLE — per-version group × per-week column
+   每个版本一行；周格内蓝=文案策划 / 绿=音频策划 并列节点
+   ================================================================ */
+/* timeline-wrap = 外壳布局容器（永不滚动，确保表头绿线是绝对上边界） */
+.timeline-wrap{flex:1 1 0;display:flex;flex-direction:column;min-height:0;gap:12px;background:var(--c-bg);border:1px solid var(--c-hairline);border-radius:6px;padding:0 12px 12px;overflow:hidden;position:relative}
+/* yc-scroll = 唯一可滚动的内层容器；sticky 表头锁定在此容器的 top:0 = 视觉上 = 绿线位置 */
+/* NOTE: 严禁给此容器加 transform / will-change / filter / contain / perspective —— 会破坏 sticky 表头 */
+.yc-scroll{flex:1 1 0;min-height:0;overflow:auto;overscroll-behavior-y:contain}
+.wk-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;min-width:900px}
+
+/* ---- Header: two-row (phase groups + week sub-labels) ---- */
+.wk-table thead th{position:sticky;top:0;z-index:10;background:var(--c-bg-0);border:1px solid var(--c-border);padding:8px 6px;font-weight:800;color:var(--c-text-2);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:11px;text-align:center;vertical-align:middle}
+.wk-table thead th.th-group{font-size:12px;letter-spacing:1px;padding:10px 6px;color:var(--c-text)}
+.wk-table thead th.th-week{font-size:10px;color:var(--c-text-mute);padding:6px 3px;min-width:74px}
+.wk-table thead th.th-left{text-align:left;padding-left:14px;min-width:100px;color:var(--c-primary);font-size:11px;letter-spacing:2px}
+.wk-table thead th.th-left-wide{min-width:120px}
+.wk-table thead th.th-days{min-width:70px;color:var(--c-text-mute);font-size:10px}
+/* Phase group header colors */
+.th-grp-dev{background:rgba(202,225,207,0.12);color:var(--c-info)!important}
+.th-grp-test{background:rgba(244,207,103,0.12);color:var(--c-warning)!important}
+.th-grp-rel{background:rgba(15,248,155,0.12);color:var(--c-primary)!important}
+.th-grp-w0{background:rgba(27,37,38,0.75);color:var(--c-text-2)!important}
+.th-grp-freeze{background:rgba(244,207,103,0.16);color:var(--c-warning)!important}
+.th-grp-vo{background:rgba(107,217,149,0.12);color:var(--c-green-2)!important}
+
+/* ---- Body rows ---- */
+.wk-table td{border:1px solid var(--c-border);padding:6px 4px;vertical-align:middle;text-align:center}
+
+/* Version label (rowspan across both role rows) */
+.td-ver{background:var(--c-surface-2);text-align:left;padding:10px 14px!important;min-width:110px;white-space:nowrap;vertical-align:middle}
+.td-ver .ver-name{font-size:13px;font-weight:800;color:#fff;line-height:1.2}
+.td-ver .ver-cat{font-size:11px;color:var(--c-text-dim);margin-top:3px}
+
+/* Role label (one per row) */
+.td-role{background:var(--c-surface-2);text-align:center;padding:8px 8px!important;min-width:74px;white-space:nowrap;font-weight:700;font-size:12px;vertical-align:middle}
+.td-role.role-cn{color:var(--c-info);box-shadow:inset 3px 0 0 var(--c-info)}
+.td-role.role-audio{color:var(--c-primary);box-shadow:inset 3px 0 0 var(--c-primary)}
+
+/* Period (days) cell — rowspan */
+.td-days{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:11px;color:var(--c-text-mute);white-space:nowrap;min-width:70px;vertical-align:middle}
+.td-days .d-ver{color:var(--c-text-2);font-weight:700}
+
+/* Week cell — single version row, both roles inline */
+.wk-cell{padding:5px 4px!important;min-width:82px;position:relative;cursor:pointer;transition:background .1s;height:64px;vertical-align:middle}
+.wk-cell:hover{background:var(--c-surface-2)}
+.wk-cell .wc-range{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:10px;font-weight:600;color:var(--c-text-2);line-height:1.2;margin-bottom:3px}
+.wk-cell .wc-line{display:flex;align-items:center;gap:4px;font-size:10px;line-height:1.25;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-cell .wc-line .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.wk-cell .wc-cn{color:var(--c-info)}
+.wk-cell .wc-cn .dot{background:var(--c-info)}
+.wk-cell .wc-au{color:var(--c-primary)}
+.wk-cell .wc-au .dot{background:var(--c-primary)}
+/* Phase bg tints per cell */
+.wk-cell.ph-w0{background:rgba(27,37,38,0.38)}
+.wk-cell.ph-dev{background:rgba(202,225,207,0.08)}
+.wk-cell.ph-test{background:rgba(244,207,103,0.08)}
+.wk-cell.ph-release{background:rgba(15,248,155,0.08)}
+.wk-cell.ph-freeze{background:rgba(244,207,103,0.07)}
+.wk-cell.ph-vo{background:rgba(107,217,149,0.07)}
+.wk-cell.ph-gap{background:transparent}
+.wk-cell.this-week{box-shadow:inset 0 0 0 1.5px var(--c-primary);background:rgba(15,248,155,0.06)!important}
+.wk-cell.past-week{opacity:.42}
+
+/* Holiday row */
+.tr-holiday td{background:rgba(22,101,52,0.15);color:var(--c-warning);font-weight:700;font-size:10px;text-align:center;padding:8px 4px!important}
+.tr-holiday .td-cat-hol{text-align:left;padding:8px 14px!important;background:rgba(22,101,52,0.30);color:var(--c-warning);font-size:10px}
+
+/* Legend */
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:8px 0 0;border-top:1px solid var(--c-hairline);margin-top:2px}
+.legend .li{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--c-text-mute);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;letter-spacing:.3px}
+.legend .sw{width:14px;height:14px;border-radius:3px}
+.legend .ms-sw{width:10px;height:10px;border-radius:50%;border:2px solid var(--c-bg)}
+.legend .role-chip{width:10px;height:10px;border-radius:2px}
+
+/* Detail panel */
+.detail-panel{background:var(--c-bg-0);border:1px solid var(--c-hairline);border-radius:6px;padding:14px 18px;display:flex;flex-direction:column;gap:10px;max-height:220px}
+.dp-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dp-title{font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.dp-title .dp-ver{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:12px;color:var(--c-primary);background:var(--c-primary-glow);padding:2px 8px;border-radius:3px}
+.dp-close{width:24px;height:24px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:4px;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.dp-close:hover{color:var(--c-danger);background:rgba(214,153,190,.1)}
+.dp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.dp-card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:4px;padding:10px 12px;border-left:3px solid var(--c-primary)}
+.dp-card.info{border-left-color:var(--c-info)}
+.dp-card.warn{border-left-color:var(--c-warning)}
+.dp-card.danger{border-left-color:var(--c-danger)}
+.dp-card .dc-label{font-size:10px;color:var(--c-text-mute);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.dc-val{font-size:13px;color:#fff;font-weight:600}
+.dc-sub{font-size:11px;color:var(--c-text-mute);margin-top:3px}
+
+/* ================================================================
+   YEAR CALENDAR (mode = year) — 里程碑 × 阶段分组周表
+   战术风格 · 全站统一系统 UI 字体
+   ================================================================ */
+.yc-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;table-layout:fixed;min-width:1100px;background:var(--c-bg);margin-top:0}
+/* thead = 滚动时的绝对遮罩层：solid 不透明背景封死，杜绝 tbody 内容从任何缝隙透视 */
+.yc-table thead{background:var(--c-bg-0);position:sticky;top:0;z-index:50}
+.yc-table thead th{position:sticky;top:0;z-index:50;background-color:var(--c-bg-0);box-shadow:inset 0 0 0 1px var(--c-border), 0 4px 12px rgba(0,0,0,0.45);padding:8px 6px;font-weight:800!important;color:var(--c-text-2);font-family:var(--font-ui);font-size:11px!important;text-align:center;letter-spacing:.6px!important;line-height:1.35!important;text-transform:none!important}
+.yc-table thead tr:first-child th{top:0;z-index:52;border-bottom:none}
+.yc-table thead tr:nth-child(2) th{top:37px;z-index:51}
+/* tbody：不建立独立堆叠上下文（isolation/transform/contain 都会把 sticky thead 与 tbody 隔到不同合成层
+ * 导致 tbody 绘制在 sticky 之上）；只用普通 z-index 控制层级 */
+.yc-table tbody td{position:relative;z-index:1}
+.yc-table tbody .yc-evt{position:relative;z-index:2}
+.yc-table tbody .yc-evt.pos-first,
+.yc-table tbody .yc-evt.pos-mid,
+.yc-table tbody .yc-evt.pos-last{z-index:3}
+/* 分组标签行（开发期/转测期/发布期）—— 对齐 dfai 版本日历：精简字号、加大内边距、居中 */
+.yc-table thead th.yc-th-group{font-size:12px!important;padding:10px 8px;color:var(--c-text);letter-spacing:1px!important;font-weight:800!important;font-family:var(--font-ui);text-transform:none;border-bottom:none}
+/* 周序号行（第一周/第二周…）—— 参考旧版的紧凑层级 */
+.yc-table thead th.yc-th-week{font-size:10px!important;color:var(--c-text-mute);padding:6px 4px;font-weight:600!important;letter-spacing:.4px!important;text-transform:none;font-family:var(--font-ui)}
+.yc-table thead th.yc-th-year,
+.yc-table thead th.yc-th-goal,
+.yc-table thead th.yc-th-ms,
+.yc-table thead th.yc-th-days{background:var(--c-bg)!important;background-color:var(--c-bg)!important;font-size:11px!important;font-weight:600!important;letter-spacing:.4px!important;color:var(--c-text)}
+/* 年度列（第 1 列） · 战术绿描边，跨年首行显示年份，其余合并省略 */
+.yc-table tbody td.yc-year{background:var(--c-bg);text-align:center;vertical-align:middle;font-weight:800;font-size:14px;color:#fff;letter-spacing:2px;border-right:1px solid var(--c-hairline);padding:8px 6px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-variant-numeric:tabular-nums}
+.yc-table tbody td.yc-year.planned-tag{color:var(--c-text-2);font-size:10px;line-height:1.25;letter-spacing:.6px;font-weight:600}
+.yc-table tbody td.yc-year.empty-year{color:transparent;border-right:1px solid var(--c-hairline)}
+/* Phase group tints on header — 暗色版战术色 */
+/* 表头分组色：sticky 时若用 rgba 会透出下方内容 → 用叠加后计算好的 opaque hex 底色 */
+.yc-table thead th.yc-grp-dev{background:#20384A;color:#B7D7E8}
+.yc-table thead th.yc-grp-test{background:#3B3A27;color:var(--c-warning)}
+.yc-table thead th.yc-grp-rel{background:#0F4938;color:var(--c-primary)}
+.yc-table thead th.yc-grp-w0{background:#202728;color:var(--c-text-2)}
+/* Body cells — 全部走 CSS 变量，字体统一 */
+.yc-table tbody td{box-shadow:inset -1px -1px 0 0 var(--c-border);padding:0;vertical-align:top;height:132px;background:var(--c-bg);color:var(--c-text-2);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:11px;line-height:1.35;letter-spacing:.3px;position:relative}
+/* 内容用 absolute 从 cell 顶部起排，脱离 tr 同行拉平的高度约束，视觉上真正置顶 */
+.yc-table tbody td.yc-cell > .yc-cell-body{position:absolute;left:0;right:0;top:0;padding:8px 10px;display:flex;flex-direction:column}
+/* 节假日格：body 同样从顶部起排，日期与其他格保持一致的置顶位置 */
+.yc-table tbody td.yc-cell.is-holiday > .yc-cell-body{top:0;justify-content:flex-start}
+.yc-table tbody tr:first-child td{box-shadow:inset -1px -1px 0 0 var(--c-border), inset 0 1px 0 0 var(--c-border)}
+.yc-table tbody td:first-child{box-shadow:inset -1px -1px 0 0 var(--c-border), inset 1px 0 0 0 var(--c-border)}
+.yc-table tbody tr:first-child td:first-child{box-shadow:inset -1px -1px 0 0 var(--c-border), inset 1px 1px 0 0 var(--c-border)}
+.yc-table tbody td.yc-ms{background:var(--c-bg);text-align:center;vertical-align:middle;padding:8px 4px}
+.yc-table tbody td.yc-ms .ms-ver{color:#fff;font-size:13px;font-weight:800;letter-spacing:.6px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-variant-numeric:tabular-nums}
+.yc-table tbody td.yc-ms .ms-eq{color:var(--c-text-mute);font-size:10px;font-weight:500;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;margin-top:4px;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.yc-table tbody td.yc-days{background:var(--c-bg);text-align:center;vertical-align:middle;font-weight:600;color:var(--c-text-2);font-size:11px;letter-spacing:.3px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;line-height:1.5;font-variant-numeric:tabular-nums}
+.yc-table tbody td.yc-days .yc-days-ver{display:block;font-size:12px;font-weight:700;color:#fff;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-variant-numeric:tabular-nums}
+.yc-table tbody td.yc-days .yc-days-num{display:block;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:15px;font-weight:800;color:var(--c-primary);margin-top:3px;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+.yc-table tbody td.yc-days .yc-days-num .u{font-size:10px;color:var(--c-text-mute);font-weight:600;margin-left:2px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+/* Data cell (a week) */
+.yc-table tbody td.yc-cell{position:relative;text-align:center;cursor:default;vertical-align:top}
+.yc-table tbody td.yc-cell.is-holiday{vertical-align:top}
+.yc-cell > *{display:block}
+.yc-cell .yc-range{order:-1}
+.yc-cell{padding-top:4px!important}
+.yc-cell .yc-range{display:block;color:var(--c-text-2);font-size:11px;font-weight:700;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;line-height:1.3;letter-spacing:.4px;padding:2px 4px;margin-bottom:2px;background:rgba(15,23,28,0.60);border-radius:2px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+.yc-cell .yc-range .yc-wknum{color:var(--c-warning);font-weight:800;margin-right:2px}
+.yc-cell .yc-note{color:var(--c-text-mute);font-size:10px;line-height:1.3;margin-top:3px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+/* 节假日标签：统一黄框胶囊式样（无论是否整周节假日格，全部同一套，保证所有节假日渲染一致） */
+.yc-cell .yc-note.holiday{background:transparent;border:1px solid rgba(244,207,103,0.45);color:var(--c-warning);border-radius:3px;padding:3px 8px;font-size:11px;font-weight:700;letter-spacing:.5px;margin-top:6px;display:inline-block;text-align:center;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+/* 4 类 phase 单元底色 · 与表头分组同色系，色块统一 α=.10 保持体感一致 */
+.yc-cell.ph-w0     {background:rgba(27,37,38,0.48)}
+.yc-cell.ph-dev    {background:#1C2D3A}
+.yc-cell.ph-test   {background:#303126}
+.yc-cell.ph-release{background:#12382E}
+/* 发布期不再特化 .yc-range 字号/颜色，与其他格保持一致 */
+.yc-cell.ph-release .yc-note{color:var(--c-primary);font-weight:700;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:10px}
+.yc-cell.this-week:not(.empty):not(.overflow):not(.is-holiday){outline:2px solid var(--c-primary);outline-offset:-2px;background:rgba(15,248,155,0.08)!important}
+.yc-cell.empty{background:var(--c-bg)!important;opacity:1}
+.yc-cell.overflow{background:var(--c-bg)!important;opacity:1}
+.yc-cell.past-week:not(.empty):not(.overflow):not(.is-holiday){opacity:.42}
+.yc-cell.overflow .yc-range{background:transparent;color:var(--c-text-mute)}
+/* 连续空/越界/节假日格视觉合并：若当前格是深底空格类，且右邻也是同类，
+   消掉自己右侧的 1px 内阴影分隔线（仅保留下边线，最外圈边框仍存） */
+.yc-table tbody td.yc-cell.empty:has(+ td.yc-cell.empty),
+.yc-table tbody td.yc-cell.empty:has(+ td.yc-cell.overflow),
+.yc-table tbody td.yc-cell.overflow:has(+ td.yc-cell.empty),
+.yc-table tbody td.yc-cell.overflow:has(+ td.yc-cell.overflow),
+.yc-table tbody td.yc-cell.is-holiday:has(+ td.yc-cell.is-holiday),
+.yc-table tbody td.yc-cell.is-holiday:has(+ td.yc-cell.empty),
+.yc-table tbody td.yc-cell.is-holiday:has(+ td.yc-cell.overflow),
+.yc-table tbody td.yc-cell.empty:has(+ td.yc-cell.is-holiday),
+.yc-table tbody td.yc-cell.overflow:has(+ td.yc-cell.is-holiday){box-shadow:inset 0 -1px 0 0 var(--c-border)}
+/* 节假日整周格 · 统一深底 + 居中简约标签，覆盖 phase 底色 */
+/* 仅纯节假日周（无事件/节点）渲染此式样：隐藏空行占位、不显示时间 */
+.yc-cell.is-holiday{background:var(--c-bg)!important;opacity:1}
+.yc-cell.is-holiday .yc-row{display:none}
+.yc-cell.is-holiday .yc-range{background:transparent;color:var(--c-text-mute);font-weight:600}
+.yc-cell.is-holiday .yc-note{background:transparent;border:1px solid rgba(244,207,103,0.45);color:var(--c-warning);border-radius:3px;padding:3px 8px;font-size:11px;font-weight:700;letter-spacing:.5px;margin-top:6px;display:inline-block;text-align:center;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+/* 年历事件框（周格内） */
+.yc-cell .yc-events{display:flex;flex-direction:column;gap:2px;margin-top:3px}
+/* 3 分类分行 · 固定占位保证所有格子结构一致（无事件也保留空行） */
+.yc-cell .yc-row{display:flex;flex-direction:row;flex-wrap:nowrap;gap:2px;margin-top:4px;min-height:22px;position:relative;overflow:visible}
+/* mergeRangeBars 后：first/last 所在的行不再占垂直空间（first 已 absolute；last 只做量位不需高度） */
+.yc-cell .yc-row.yc-row-merged-hidden{min-height:0!important;height:0!important;margin-top:0!important;overflow:visible;padding:0!important}
+/* 归零 row 内非 first 的 chip（first chip 由 JS 转 absolute 保留大条效果；last/mid chip 需归 0 避免 min-height:20 撑起父 row） */
+.yc-cell .yc-row.yc-row-merged-hidden .yc-evt.pos-last,
+.yc-cell .yc-row.yc-row-merged-hidden .yc-evt.pos-mid{min-height:0!important;height:0!important;padding:0!important;border:0!important;line-height:0!important;margin:0!important;visibility:hidden!important;overflow:hidden!important}
+.yc-cell .yc-row.yc-row-empty{background:transparent}
+/* 区间事件跨格：pos-first 作为唯一可见 chip；mid/last 只做"占位撑高"（visibility hidden 保留布局）
+ * pos-first 由 JS(mergeRangeBars) 转 position:absolute，横跨到最后一格的右缘，实现真正连贯的一大条 */
+.yc-cell .yc-evt.pos-first{flex:1 1 auto;text-align:center;position:relative;z-index:3}
+.yc-cell .yc-evt.pos-mid,
+.yc-cell .yc-evt.pos-last{visibility:hidden;flex:1 1 auto;pointer-events:none}
+.yc-cell .yc-evt.pos-only{text-align:center;flex:1 1 auto}
+.yc-cell .yc-row .yc-evt{display:inline-flex;align-items:center;flex:1 1 auto;min-width:0;max-width:100%;text-align:center;justify-content:center}
+.yc-cell .yc-row-routine   .yc-evt{font-weight:600}
+.yc-cell .yc-evt{display:block;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:11px;font-weight:600;line-height:1.3;padding:3px 6px;border-radius:3px;border:1px solid transparent;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;min-height:20px}
+.yc-cell .yc-evt.evt-meeting{background:rgba(202,225,207,0.14);color:var(--c-info);border-color:rgba(202,225,207,0.35)}
+.yc-cell .yc-evt.evt-critical{background:rgba(214,153,190,0.16);color:var(--c-danger);border-color:rgba(214,153,190,0.55);font-weight:700}
+.yc-cell .yc-evt.evt-major{background:rgba(244,207,103,0.14);color:var(--c-warning);border-color:rgba(244,207,103,0.35)}
+/* 4 节点 chip · 各自主色（PM 2026-08-18 定色）：Vo需求锁 BP粉 / 声优锁 F1E9D1 / 台词锁 D1B36F / VO资源交付 597D4F */
+.yc-cell .yc-evt.evt-m-lock    {background:rgba(214,153,190,0.22);color:#D699BE;border-color:#D699BE;font-weight:800}
+.yc-cell .yc-evt.evt-m-estimate{background:rgba(241,233,209,0.14);color:#F1E9D1;border-color:rgba(241,233,209,0.55);font-weight:500}
+.yc-cell .yc-evt.evt-m-script  {background:rgba(209,179,111,0.18);color:#D1B36F;border-color:rgba(209,179,111,0.65);font-weight:700}
+.yc-cell .yc-evt.evt-m-schedule{background:transparent;color:var(--c-text-2);border-color:rgba(255,255,255,0.20);font-weight:600}
+.yc-cell .yc-evt.evt-m-deliver {background:rgba(89,125,79,0.28);color:#8FB47F;border-color:#597D4F;font-weight:800}
+/* 3 区间条 · 弱化为低调元数据：无背景无边框 + 灰字 + 左侧一根 2px 细条 */
+.yc-cell .yc-evt.evt-r-cast,
+.yc-cell .yc-evt.evt-r-cn-ing,
+.yc-cell .yc-evt.evt-r-vo-ing{background:transparent;border:0;border-radius:0;font-weight:500;font-size:10px;color:var(--c-text-mute);letter-spacing:.2px;padding:2px 4px 2px 8px;min-height:0;position:relative;justify-content:flex-start;text-align:left}
+.yc-cell .yc-evt.evt-r-cast::before,
+.yc-cell .yc-evt.evt-r-cn-ing::before,
+.yc-cell .yc-evt.evt-r-vo-ing::before{content:'';position:absolute;left:2px;top:4px;bottom:4px;width:2px;border-radius:1px}
+.yc-cell .yc-evt.evt-r-cn-ing::before{background:var(--c-text-mute)}
+.yc-cell .yc-evt.evt-r-cast::before,
+.yc-cell .yc-evt.evt-r-vo-ing::before{background:var(--c-text-mute)}
+/* Planned 版本：仅通过版本名字体颜色区分 */
+.yc-table tbody tr.planned td.yc-ms .ms-ver{color:var(--c-text-2);font-weight:600}
+.yc-table tbody tr.planned td.yc-ms .ms-eq{color:var(--c-text-mute)}
+.yc-table tbody tr.planned .yc-cell{opacity:.72}
+/* 年份分组带 · 战术色 */
+.yc-table tbody tr.yc-year-band td{background:var(--c-bg-0);color:var(--c-primary);text-align:left;font-weight:700;font-size:11px;padding:8px 14px;letter-spacing:3px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;text-transform:uppercase;border-top:1px solid var(--c-primary);border-bottom:1px solid var(--c-primary)}
+
+/* ================================================================
+   DAY-CELL CALENDAR (mode = day) — 单版本切片 · 日格表
+   行 = 版本×阶段的每一周；子行 = 空白日期行 + 文案 + 音频 + PM
+   ================================================================ */
+.day-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;min-width:900px}
+.day-table thead th{position:sticky;top:0;z-index:10;background:var(--c-bg-0);border:1px solid var(--c-border);padding:8px 6px;font-weight:800;color:var(--c-text-2);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:11px;text-align:center;letter-spacing:1px}
+.day-table thead th.th-day{font-size:11px;color:var(--c-primary);min-width:96px;letter-spacing:1px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+.day-table thead th.th-day.weekend{color:var(--c-text-mute)}
+.day-table thead th.th-year{min-width:56px;color:var(--c-primary);letter-spacing:1.5px;font-size:11px}
+.day-table thead th.th-phase{text-align:left;padding:10px 12px!important;min-width:120px;color:var(--c-primary);letter-spacing:2px;font-size:11px}
+.day-table thead th.th-role{min-width:70px;color:var(--c-text-2);letter-spacing:1px}
+.day-table td{border:1px solid var(--c-border);padding:5px 6px;vertical-align:middle;font-size:11px;height:32px}
+/* Phase label (rowspan across 4 sub-rows per week) */
+.day-table td.td-year{background:var(--c-bg-0);text-align:center;vertical-align:middle;border-right:1px solid var(--c-primary);padding:12px 6px!important;white-space:nowrap;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+.day-table td.td-year .dy-year{font-size:14px;font-weight:700;color:var(--c-primary);letter-spacing:2px;writing-mode:vertical-rl;text-orientation:mixed;line-height:1.4}
+.day-table td.td-year .dy-hint{font-size:10px;color:var(--c-warning);letter-spacing:.6px;writing-mode:vertical-rl;margin-top:6px}
+.day-table td.td-phase{background:var(--c-surface-2);text-align:center;font-weight:800;vertical-align:middle;padding:12px 8px!important;white-space:nowrap;line-height:1.5}
+.day-table td.td-phase .p-ver{font-size:13px;color:var(--c-primary);font-weight:800;letter-spacing:.6px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+.day-table td.td-phase .p-name{font-size:12px;color:var(--c-text-2);margin-top:4px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;letter-spacing:.5px}
+.day-table td.td-phase .p-wk{font-size:11px;color:var(--c-text-mute);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;margin-top:4px;letter-spacing:.5px}
+.day-table td.td-phase.pd-w0{background:rgba(27,37,38,0.78)}
+.day-table td.td-phase.pd-dev{background:rgba(202,225,207,0.12);color:var(--c-data-white)}
+.day-table td.td-phase.pd-test{background:rgba(244,207,103,0.12);color:var(--c-warning)}
+.day-table td.td-phase.pd-release{background:rgba(15,248,155,0.12);color:var(--c-primary)}
+.day-table td.td-phase.pd-freeze{background:rgba(244,207,103,0.16);color:var(--c-warning)}
+/* Role label cell */
+.day-table td.td-role{background:var(--c-surface-2);text-align:center;font-weight:700;font-size:11px;padding:6px 8px!important}
+.day-table td.td-role.role-cn{color:var(--c-info);box-shadow:inset 3px 0 0 var(--c-info)}
+.day-table td.td-role.role-audio{color:var(--c-primary);box-shadow:inset 3px 0 0 var(--c-primary)}
+.day-table td.td-role.role-pm{color:var(--c-warning);box-shadow:inset 3px 0 0 var(--c-warning)}
+/* Day cell — date row */
+.day-table td.td-date{background:var(--c-bg-0);color:var(--c-text-mute);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:11px;text-align:center;padding:6px 4px!important;letter-spacing:.3px}
+.day-table td.td-date .td-date-num{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:11px;line-height:1.2;letter-spacing:.3px}
+.day-table td.td-date .td-date-hol{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:10px;line-height:1.3;color:var(--c-warning);font-weight:700;margin-top:2px;letter-spacing:.5px}
+/* 节假日日期格统一橙色 */
+.day-table td.td-date.holiday{background:rgba(244,207,103,0.14);color:var(--c-warning)}
+.day-table td.td-date.holiday.today{background:rgba(244,207,103,0.22);box-shadow:inset 0 0 0 2px var(--c-primary)}
+.day-table td.td-slot.holiday{background:rgba(244,207,103,0.06)}
+.day-table td.td-slot.holiday:hover{background:rgba(244,207,103,0.12)}
+.day-table td.td-date.today{color:var(--c-primary);font-weight:700;background:rgba(15,248,155,0.10)}
+.day-table td.td-date.weekend{color:var(--c-text-dim)}
+/* Day cell — role task slot (editable placeholder) */
+.day-table td.td-slot{cursor:text;color:var(--c-text-2);font-size:11px;line-height:1.35;padding:6px 6px!important;transition:background .1s;min-height:32px;position:relative}
+.day-table td.td-slot:hover{background:var(--c-surface-2)}
+.day-table td.td-slot.today{background:rgba(15,248,155,0.05)}
+.day-table td.td-slot.weekend{background:rgba(101,102,104,0.05)}
+.day-table td.td-slot.empty::before{content:'+ 添加';color:var(--c-text-dim);font-size:10px;opacity:0;transition:opacity .12s}
+.day-table td.td-slot.empty:hover::before{opacity:1}
+.day-table td.td-slot .evt-chip{display:block;font-size:10px;font-weight:600;line-height:1.25;padding:2px 5px;border-radius:2px;border:1px solid transparent;letter-spacing:.2px;margin-top:1px;text-align:left}
+.day-table td.td-slot .evt-chip.evt-meeting{background:rgba(202,225,207,0.14);color:var(--c-info);border-color:rgba(202,225,207,0.35)}
+.day-table td.td-slot .evt-chip.evt-critical{background:rgba(214,153,190,0.16);color:var(--c-danger);border-color:rgba(214,153,190,0.55);font-weight:700}
+.day-table td.td-slot .evt-chip.evt-major{background:rgba(244,207,103,0.14);color:var(--c-warning);border-color:rgba(244,207,103,0.35)}
+.day-table td.td-slot .evt-chip.evt-m-lock    {background:rgba(214,153,190,0.22);color:#D699BE;border-color:#D699BE;font-weight:800}
+.day-table td.td-slot .evt-chip.evt-m-estimate{background:rgba(241,233,209,0.16);color:#F1E9D1;border-color:rgba(241,233,209,0.55);font-weight:500}
+.day-table td.td-slot .evt-chip.evt-m-script  {background:rgba(209,179,111,0.20);color:#D1B36F;border-color:rgba(209,179,111,0.65);font-weight:700}
+.day-table td.td-slot .evt-chip.evt-m-schedule{background:rgba(202,225,207,0.12);color:#CAE1CF;border-color:rgba(202,225,207,0.35);font-weight:700}
+.day-table td.td-slot .evt-chip.evt-m-deliver {background:rgba(89,125,79,0.28);color:#8FB47F;border-color:#597D4F;font-weight:800}
+
+/* Version selector chip in Ma/Yang/Hou colors */
+.ver-family-ma{color:#CAE1CF}
+.ver-family-yang{color:#F4CF67}
+.ver-family-hou{color:#0FF89B}
+.ver-family-race{color:#6BD995}
+
+/* ================================================================
+   RIGHT PANEL — 本周聚焦 + 未来30天时间轴 + 版本进度
+   ================================================================ */
+.right-panel{width:260px;flex-shrink:0;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:18px 15px 18px;overflow:hidden;display:flex;flex-direction:column;gap:24px}
+.rp-section{display:flex;flex-direction:column;gap:12px}
+.rp-sec-title{font-size:15px!important;letter-spacing:.2px!important;color:transparent;font-family:var(--font-ui);font-weight:600!important;padding:1px 0 1px 33px;line-height:1.2!important;text-transform:none;position:relative;display:flex;align-items:center;min-height:24px;background:linear-gradient(90deg,#0FF89B 0%,rgba(15,248,155,.55) 35%,rgba(15,248,155,.22) 65%,rgba(15,248,155,0) 100%);-webkit-background-clip:text;background-clip:text}
+.rp-sec-title::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:24px;height:24px;background-color:#6bd995;-webkit-mask:url('assets/DeltaForceLogo-Triangle.png') no-repeat center/contain,linear-gradient(90deg,#000 45%,transparent 100%);mask:url('assets/DeltaForceLogo-Triangle.png') no-repeat center/contain,linear-gradient(90deg,#000 45%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}
+.rp-sec-title::after{content:'';position:absolute;left:33px;right:0;bottom:-5px;height:1px;background:linear-gradient(90deg, rgba(202,225,207,.34), rgba(202,225,207,.10) 58%, transparent 92%)}
+.rp-empty{font-size:11px;color:var(--c-text-dim);font-style:italic;padding:4px 0}
+/* 开发倒计时（距转测 W1 还剩几周） */
+.rp-thisweek{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.rp-tw-item{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:5px;padding:10px 12px;border-left:3px solid var(--c-primary);display:flex;flex-direction:column;gap:4px}
+.rp-tw-ver{font-size:13px;font-weight:500;color:var(--c-text);font-family:var(--font-ui);font-variant-numeric:tabular-nums}
+.rp-tw-phase{font-size:11px;color:var(--c-text-mute);font-weight:500;margin-left:6px;font-family:var(--font-ui)}
+.rp-tw-cd{display:flex;align-items:baseline;gap:5px;margin-top:2px}
+.rp-tw-cd-num{font-family:var(--font-data);font-size:20px;font-weight:500;color:var(--c-primary);line-height:1;font-variant-numeric:tabular-nums}
+.rp-tw-cd-unit{font-size:11px;color:var(--c-text-2);font-weight:500}
+.rp-tw-cd-sub{font-size:11px;color:var(--c-text-mute);line-height:1.35;font-family:var(--font-ui)}
+/* 未来60天时间轴 · 2 色收敛：文案关注(蓝) / 音频关注(灰白)。cn+audio 双关注 → 优先蓝色 */
+.rp-timeline{display:flex;flex-direction:column;gap:0;position:relative;padding-left:10px;margin-top:6px}
+.rp-timeline::before{content:'';position:absolute;left:3px;top:6px;bottom:6px;width:1px;background:var(--c-hairline)}
+.rp-tl-item{position:relative;padding:0 0 14px 14px}
+.rp-tl-dot{position:absolute;left:-8px;top:4px;width:9px;height:9px;border-radius:50%;border:2px solid var(--c-bg);z-index:2}
+/* A. 文案关注（cn）：Vo需求锁/声优锁(cn+audio优先)/台词锁(cn+audio优先) → 品牌黄实心 */
+/* 时间轴 dot · 4 节点各自主色（PM 2026-08-18 定色） */
+.rp-tl-dot.evt-m-lock    {border-color:#D699BE;background:#D699BE;box-shadow:0 0 6px rgba(214,153,190,0.6)}
+.rp-tl-dot.evt-m-estimate{border-color:#F1E9D1;background:#F1E9D1;box-shadow:0 0 6px rgba(241,233,209,0.55)}
+.rp-tl-dot.evt-m-script  {border-color:#D1B36F;background:#D1B36F;box-shadow:0 0 6px rgba(209,179,111,0.6)}
+.rp-tl-dot.evt-m-schedule{border-color:var(--c-text-mute);background:var(--c-bg)}
+.rp-tl-dot.evt-m-deliver {border-color:#597D4F;background:#597D4F;box-shadow:0 0 6px rgba(89,125,79,0.6)}
+.rp-tl-dot.evt-r-cast,
+.rp-tl-dot.evt-r-cn-ing,
+.rp-tl-dot.evt-r-vo-ing{border-color:var(--c-text-mute);background:var(--c-bg)}
+.rp-tl-date{font-family:var(--font-data);font-size:11px;color:var(--c-text-mute);letter-spacing:0;font-variant-numeric:tabular-nums}
+.rp-tl-hint{color:var(--c-text-dim);font-size:10.5px;font-weight:400;margin-left:2px}
+.rp-tl-wk{color:var(--c-text-dim);margin-left:4px}
+.rp-tl-label{font-size:12px;font-weight:500;line-height:1.35;margin-top:2px;color:var(--c-text)}
+/* 时间轴 label 色 · 与 dot 一致 */
+.rp-tl-label.evt-m-lock    {color:#D699BE;font-weight:600}
+.rp-tl-label.evt-m-estimate{color:#F1E9D1;font-weight:500}
+.rp-tl-label.evt-m-script  {color:#D1B36F;font-weight:400}
+.rp-tl-label.evt-m-deliver {color:#8FB47F;font-weight:600}
+.rp-tl-label.evt-m-schedule,
+.rp-tl-label.evt-r-cast,
+.rp-tl-label.evt-r-cn-ing,
+.rp-tl-label.evt-r-vo-ing{color:var(--c-text-2);font-weight:500}
+/* 子事项（Vo 需求锁周内 3 小事项 / 反填 / 录制定档期）：低调灰点，标签次级色 */
+.rp-tl-dot.evt-s-thu-alloc,.rp-tl-dot.evt-s-est10,.rp-tl-dot.evt-s-sched-win{border-color:var(--c-text-dim);background:transparent}
+.rp-tl-label.evt-s-thu-alloc,.rp-tl-label.evt-s-est10,.rp-tl-label.evt-s-sched-win{color:var(--c-text-mute);font-weight:400;font-size:11.5px}
+/* 版本进度卡 */
+.rp-progress{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.rp-pg-card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:5px;padding:10px 12px}
+.rp-pg-head{display:flex;justify-content:space-between;align-items:baseline}
+.rp-pg-name{font-size:13px;font-weight:500;color:var(--c-text);font-family:var(--font-ui);font-variant-numeric:tabular-nums}
+.rp-pg-pct{font-size:12px;color:var(--c-primary);font-weight:500;font-family:var(--font-data);font-variant-numeric:tabular-nums}
+.rp-pg-bar{height:5px;background:var(--c-bg-0);border-radius:3px;margin:7px 0 6px;overflow:hidden}
+.rp-pg-fill{height:100%;background:linear-gradient(90deg,var(--c-primary-dark),var(--c-primary));border-radius:3px}
+.rp-pg-next{font-size:11px;color:var(--c-text-mute);line-height:1.35}
+
+/* Tooltip */
+.tt{position:fixed;background:var(--c-surface-2);border:1px solid var(--c-border-strong);border-radius:6px;padding:10px 14px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:320px;pointer-events:none;opacity:0;transition:opacity .15s;font-size:12px;line-height:1.5}
+.tt.show{opacity:1}
+.tt-title{font-weight:700;color:#fff;margin-bottom:4px}
+.tt-desc{color:var(--c-text-2);font-size:11px}
+.tt-date{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:10px;color:var(--c-primary);margin-top:4px;font-variant-numeric:tabular-nums}
+/* ── embed 模式：隐藏自身顶栏+侧栏，交由外壳渲染 ── */
+body.embed{background:transparent !important;background-color:transparent !important}
+html:has(body.embed){background:transparent !important;background-color:transparent !important}
+body.embed .brand-bar,
+body.embed aside.sidebar{display:none !important}
+body.embed .layout{padding-left:0}
+/* 注意：.main / .right-panel 维持 flex 自然布局（right-panel 固定宽 + main 自动占满），不可设 width:100% 否则 main 被挤出裁剪 */
+/* HTML 级 embed 兼容：script 早于 body 时先把类打到 <html>，body 之后 CSS 继承 */
+html.embed{background:transparent !important}
+html.embed .brand-bar,
+html.embed aside.sidebar{display:none !important}
+html.embed .layout{padding-left:0}
+/* 通用底图玻璃层：保留阶段色，同时让年历底图可见 */
+.timeline-wrap,.right-panel{background:rgba(15,23,28,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.yc-table{background:transparent}
+.yc-table tbody td.yc-year,.yc-table tbody td.yc-ms,.yc-table tbody td.yc-days{background:rgba(15,23,28,.72)!important}
+
+/* ================================================================
+   响应式断点（2026-08-18）
+   compact: ≤1500px（笔记本）——right-panel 收窄、main 内边距紧凑
+   wide-4k: ≥2401px（4K）——right-panel 加宽让 60 天时间轴呼吸，年历字号 +1 档
+   normal:  1501-2400px——保持当前基准
+   ================================================================ */
+@media (max-width: 1500px){
+  .right-panel{width:220px;padding:14px 12px;gap:18px}
+  .main{padding:14px 16px 16px;gap:12px}
+  .yc-table{font-size:10.5px;min-width:900px}
+  .rp-tl-label{font-size:11.5px}
+  .rp-tl-date{font-size:10.5px}
+}
+@media (min-width: 2401px){
+  .right-panel{width:340px;padding:24px 20px;gap:28px}
+  .main{padding:26px 32px 32px;gap:20px}
+  .yc-table{font-size:13px}
+  .yc-table thead th{font-size:13px!important;padding:12px 8px}
+  .rp-tl-label{font-size:14px}
+  .rp-tl-date{font-size:12.5px}
+  .rp-tl-hint{font-size:12px}
+  .stat-num{font-size:26px!important}
+  .stat-label{font-size:11.5px!important}
+  .tb-btn{font-size:12.5px;padding:6px 12px}
+}
+</style>
+<script>
+// embed 模式：在 body 构造之前先给 <html> 打类，避免顶栏/侧栏一闪即隐或不隐
+(function(){
+  try{
+    var qs = new URLSearchParams(location.search);
+    var inFrame = (window.top !== window.self);
+    if(qs.get('embed')==='1' || inFrame){
+      document.documentElement.classList.add('embed');
+    }
+  }catch(e){ document.documentElement.classList.add('embed'); }
+})();
+</script>
+</head>
+<body>
+
+<!-- Brand Bar -->
+<header class="brand-bar">
+  <div class="brand-logo">
+    <img src="assets/DeltaForceLogo-Triangle.png" alt="Delta" class="logo-tri"/>
+    <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt"/>
+  </div>
+  <div class="brand-divider"></div>
+  <button class="brand-toggle" title="收起/展开侧栏" onclick="document.body.classList.toggle('sidebar-collapsed')">
+    <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  </button>
+  <div class="brand-subsys">版本节点</div>
+  <span class="brand-spacer"></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sec-label">◉ MISSION</div>
+    <button class="nav-item" onclick="parent.switchView?.(null,'preview-需求汇总-精修版.html')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>需求汇总</span></button>
+    <div class="sec-label">◉ TALENT</div>
+    <button class="nav-item" onclick="parent.switchView?.(null,'preview-声优库-精修版.html')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>声优库</span></button>
+    <div class="sec-label">◉ SCHEDULE</div>
+    <button class="nav-item active" style="background:rgba(15,248,155,0.10);color:var(--c-primary);font-weight:600;box-shadow:inset 2px 0 0 var(--c-primary)" onclick="parent.switchView?.(this,'preview-版本节点-精修版.html')"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>版本节点</span></button>
+    <button class="nav-item" onclick="parent.switchView?.(null,'preview-录制档期-精修版.html')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>录制档期</span></button>
+    <div class="sec-label">◉ HQ</div>
+    <button class="nav-item" onclick="parent.switchView?.(null,'preview-资产库-精修版.html')"><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg><span>音频资产库</span></button>
+    <button class="nav-item" onclick="parent.switchView?.(null,'preview-AI助手-精修版.html')"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg><span>Vo 智能助手</span></button>
+  </aside>
+
+  <main class="main">
+    <!-- Header -->
+    <div class="tactical-header">
+      <div class="title-block">
+        <div class="eyebrow"><span class="sig"></span>RELEASE CALENDAR</div>
+        <h1 class="page-title">版本节点</h1>
+      </div>
+      <div class="actions" style="display:none!important">
+        <button class="btn btn-outline" onclick="scrollToToday()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 回到今天</button>
+        <button class="btn btn-outline" onclick="toggleDetail()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 详情面板</button>
+      </div>
+    </div>
+
+    <!-- Stats strip · 4 张实时卡：全部按 TODAY 动态计算，视角过滤联动 -->
+    <div class="stat-strip">
+      <div class="stat info">
+        <div class="stat-label">当前推进版本</div>
+        <div class="stat-value" id="statCurVer">—<span class="unit"></span></div>
+        <div class="stat-sub" id="statCurVerSub">计算中…</div>
+      </div>
+      <div class="stat danger">
+        <div class="stat-label">本周待办</div>
+        <div class="stat-value" id="statRange">0<span class="unit">条</span></div>
+        <div class="stat-sub" id="statRangeSub">计算中…</div>
+      </div>
+      <div class="stat warn">
+        <div class="stat-label">本周节点</div>
+        <div class="stat-value" id="statNext">0<span class="unit">个</span></div>
+        <div class="stat-sub" id="statNextSub">计算中…</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">下一节点</div>
+        <div class="stat-value" id="statCd">—<span class="unit"></span></div>
+        <div class="stat-sub" id="statCdSub">计算中…</div>
+      </div>
+    </div>
+
+    <!-- Toolbar · 简洁风格 -->
+    <div class="toolbar">
+      <div class="tb-group" id="nodeGroup"><span class="tb-label">关键节点</span>
+        <button class="tb-btn on" id="ndAll"      onclick="setNodeFilter(null)">全部</button>
+        <button class="tb-btn evt-m-lock"     id="ndLock"     onclick="setNodeFilter('m-lock')">Vo需求锁</button>
+        <button class="tb-btn evt-m-estimate" id="ndEstimate" onclick="setNodeFilter('m-estimate')">声优锁</button>
+        <button class="tb-btn evt-m-script"   id="ndScript"   onclick="setNodeFilter('m-script')">台词锁</button>
+        <button class="tb-btn evt-m-deliver"  id="ndDeliver"  onclick="setNodeFilter('m-deliver')">VO资源交付</button>
+      </div>
+      <div class="tb-group" id="filterGroup"><span class="tb-label">版本</span>
+        <button class="tb-btn on" data-ver="all" onclick="setFilter('all')">全部</button>
+        <!-- 版本按钮由 buildFilterButtons() 动态注入 -->
+      </div>
+      <div class="tb-group" id="roleGroup"><span class="tb-label">角色</span>
+        <button class="tb-btn" id="roleCn" onclick="setRoleFilter('cn')">文案关注</button>
+        <button class="tb-btn" id="roleAudio" onclick="setRoleFilter('audio')">音频关注</button>
+      </div>
+      <div class="tb-group" style="display:none"><span class="tb-label">数据源</span>
+        <span id="dataSourceLabel" style="color:var(--c-text-mute);font-size:11px">加载中…</span>
+      </div>
+      <div class="tb-group" style="display:none"><span class="tb-label">时间范围</span>
+        <span id="rangeLabel" style="color:var(--c-text-2);font-size:11px">本周 — 2028/01/09</span>
+      </div>
+    </div>
+
+    <!-- Timeline container: 年历（唯一视图） -->
+    <div class="timeline-wrap" id="timelineWrap">
+      <div class="yc-scroll" id="ycScroll">
+      <table class="yc-table" id="ycTable">
+        <thead id="ycHead"></thead>
+        <tbody id="ycBody"></tbody>
+      </table>
+      </div>
+      <div class="legend" id="legend">
+        <div class="li"><span class="sw" style="background:rgba(202,225,207,0.18);border:1px solid #CAE1CF"></span> 开发期</div>
+        <div class="li"><span class="sw" style="background:rgba(244,207,103,0.18);border:1px solid #F4CF67"></span> 转测期</div>
+        <div class="li"><span class="sw" style="background:rgba(15,248,155,0.16);border:1px solid #0FF89B"></span> 发布期</div>
+        <div class="li"><span class="sw" style="background:rgba(244,207,103,0.12);border:1px solid #F4CF67"></span> 冻结</div>
+        <div class="li"><span class="sw" style="background:#1B2526;border:1px solid #656668"></span> 启动周</div>
+        <span style="flex:1"></span>
+        <div class="li"><span class="role-chip" style="background:var(--c-info)"></span> 文案策划</div>
+        <div class="li"><span class="role-chip" style="background:var(--c-primary)"></span> 音频策划</div>
+        <div class="li"><span class="role-chip" style="background:var(--c-warning)"></span> PM</div>
+        <span style="flex:1"></span>
+        <div class="li"><span class="role-chip" style="background:rgba(202,225,207,0.35);border:1px solid var(--c-info)"></span> 会议</div>
+        <div class="li"><span class="role-chip" style="background:rgba(244,207,103,0.15);border:1px solid var(--c-warning)"></span> 法定节假日</div>
+        <div class="li" style="border-left:2px solid var(--c-primary);padding-left:6px;height:10px"></div> 本周
+      </div>
+    </div>
+
+    <!-- Detail panel -->
+    <div class="detail-panel" id="detailPanel" style="display:none">
+      <div class="dp-head">
+        <div class="dp-title" id="dpTitle"><span class="dp-ver" id="dpVer">—</span> <span id="dpName">选择一个版本查看详情</span></div>
+        <button class="dp-close" onclick="document.getElementById('detailPanel').style.display='none'">&times;</button>
+      </div>
+      <div class="dp-grid" id="dpGrid"></div>
+    </div>
+  </main>
+
+  <!-- Right panel: 开发倒计时 + 未来60天时间轴 + 版本进度 -->
+  <aside class="right-panel" id="rightPanel">
+    <div class="rp-section">
+      <div class="rp-sec-title">开发倒计时</div>
+      <div class="rp-thisweek" id="rpThisWeek"></div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-sec-title">未来 60 天时间轴</div>
+      <div class="rp-timeline" id="rpTimeline"></div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-sec-title">版本进度</div>
+      <div class="rp-progress" id="rpProgress"></div>
+    </div>
+  </aside>
+</div>
+
+<!-- Tooltip element -->
+<div class="tt" id="tooltip"></div>
+
+<script>
+// ── embed 模式检测：嵌在外壳 iframe 内时隐藏自身顶栏+侧栏 ──
+(function(){
+  try{
+    var qs = new URLSearchParams(location.search);
+    var inFrame = (window.top !== window.self);
+    if(qs.get('embed')==='1' || inFrame){
+      document.documentElement.classList.add('embed');
+      document.body && document.body.classList.add('embed');
+    }
+  }catch(e){ /* cross-origin top ref → 视为嵌入 */
+    document.documentElement.classList.add('embed');
+    document.body && document.body.classList.add('embed');
+  }
+})();
+
+// ================================================================
+// VERSION TIMELINE DATA — 项目发布计划（PM 维护）
+// 注意：里程碑节点已移除，改为「文案策划 / 音频策划」并列双节点（单版本一行）
+// ================================================================
+const TODAY = new Date();
+
+function d(s){ const p=String(s).split(/[/\-]/).map(Number); return new Date(p[0],p[1]-1,p[2]||1) }
+function fmt(dd){ return `${dd.getFullYear()}/${dd.getMonth()+1}/${dd.getDate()}` }
+function fmtShort(dd){ return `${dd.getMonth()+1}.${dd.getDate()}` }
+function diffDays(a,b){ return Math.round((b-a)/86400000) }
+function mondayOf(date){ const r=new Date(date); const dw=(r.getDay()+6)%7; r.setDate(r.getDate()-dw); r.setHours(0,0,0,0); return r }
+
+const WEEK_NAMES = ['第0周','第一周','第二周','第三周','第四周','第五周','第六周','第七周','第八周','第九周','第十周',
+  '第十一周','第十二周','第十三周','第十四周','第十五周','第十六周'];
+
+const PHASE_GROUP_MAP = {
+  w0:   { label:'启动期', cls:'th-grp-w0' },
+  dev:  { label:'开发期', cls:'th-grp-dev' },
+  freeze:{label:'冻结', cls:'th-grp-freeze' },
+  test: { label:'转测期', cls:'th-grp-test' },
+  release:{label:'发布期', cls:'th-grp-rel' },
+  vo:   { label:'Vo整理', cls:'th-grp-vo' },
+};
+
+// 每个阶段里，文案策划 / 音频策划 各自要做的节点（默认按阶段推导，可在 VERSIONS 里按需覆盖）
+const ROLE_ACTIONS = {
+  w0:      { cn:'需求确认 · 台词框架',     audio:'声优档期 · 音频排期' },
+  dev:     { cn:'台词制作 · 交付',          audio:'音频制作 · 音效' },
+  freeze:  { cn:'台词冻结',                 audio:'音频冻结' },
+  test:    { cn:'台词封板 · 修正',          audio:'音频合入 · 修正' },
+  release: { cn:'台词发布',                 audio:'音频发布' },
+  vo:      { cn:'VO录制',                  audio:'音频录制' },
+};
+
+// VERSIONS 只从发布计划 API / data/release-plans.json 权威数据加载；失败时显示空态，不伪造 fallback。
+let VERSIONS = [];
+
+// 仅保留发布计划标识映射；状态、周期与详情必须来自真实发布计划数据。
+const VER_META = {
+  'Ma_4.0':  { id:'ma4',   name:'Ma4.0',   family:'ma',   category:{main:'',sub:''} },
+  'Ma_5.0':  { id:'ma5',   name:'Ma5.0',   family:'ma',   category:{main:'',sub:''} },
+  'Yang_1.0':{ id:'yang1', name:'Yang1.0', family:'yang', category:{main:'',sub:''} },
+  'Yang_2.0':{ id:'yang2', name:'Yang2.0', family:'yang', category:{main:'',sub:''} },
+  'Yang_3.0':{ id:'yang3', name:'Yang3.0', family:'yang', category:{main:'',sub:''} },
+  'Yang_4.0':{ id:'yang4', name:'Yang4.0', family:'yang', category:{main:'',sub:''} },
+  'Yang_5.0':{ id:'yang5', name:'Yang5.0', family:'yang', category:{main:'',sub:''} },
+  'Hou_1.0': { id:'hou1',  name:'Hou1.0',  family:'hou',  category:{main:'',sub:''} },
+};
+// 仅允许展示发布计划池真实返回的版本；不再渲染按截图推断的未来占位版本。
+const VER_ORDER = ['Ma_4.0','Ma_5.0','Yang_1.0','Yang_2.0','Yang_3.0','Yang_4.0','Yang_5.0','Hou_1.0'];
+
+// 中国法定节假日：
+//  · 内置 2026-2028 完整数据作兜底（来源：DFAI 年度概览 + 国务院放假安排），离线即用；
+//  · 运行时尝试从公开节假日 API（timor.tech）自动补全/校验，失败则仅用内置数据。
+// 仅收录"放假"区间；调休补班日属工作日，不影响"节假日周跳过"逻辑。
+let HOLIDAYS = [
+  // ====== 2026 年（国务院办公厅 2025-11 公布）======
+  { short:'元旦', label:'元旦',   start:'2026/1/1',  end:'2026/1/3' },
+  { short:'春节', label:'春节',   start:'2026/1/29', end:'2026/2/4' },   // 除夕1/29(四)→初七2/4(三)，8天
+  { short:'清明', label:'清明节', start:'2026/4/4',  end:'2026/4/6' },
+  { short:'劳动', label:'劳动节', start:'2026/5/1',  end:'2026/5/5' },
+  { short:'端午', label:'端午节', start:'2026/5/29', end:'2026/5/31' },
+  { short:'中秋', label:'中秋节', start:'2026/9/25', end:'2026/9/27' },
+  { short:'国庆', label:'国庆节', start:'2026/10/1', end:'2026/10/7' },
+  // ====== 2027 年 ======
+  { short:'元旦', label:'元旦',   start:'2027/1/1',  end:'2027/1/3' },
+  { short:'春节', label:'春节',   start:'2027/2/5',  end:'2027/2/13' },  // 除夕2/5(五)→初八2/13(六)，9天
+  { short:'清明', label:'清明节', start:'2027/4/5',  end:'2027/4/7' },
+  { short:'劳动', label:'劳动节', start:'2027/5/1',  end:'2027/5/5' },
+  { short:'端午', label:'端午节', start:'2027/5/28', end:'2027/5/30' },
+  { short:'中秋', label:'中秋节', start:'2027/9/20', end:'2027/9/22' },
+  { short:'国庆', label:'国庆节', start:'2027/10/1', end:'2027/10/7' },
+  // ====== 2028 年 ======
+  { short:'元旦', label:'元旦',   start:'2028/1/1',  end:'2028/1/3' },
+  { short:'春节', label:'春节',   start:'2028/1/25', end:'2028/2/1' },   // 除夕1/25(二)→正月初七2/1(一)，8天
+  { short:'清明', label:'清明节', start:'2028/4/4',  end:'2028/4/6' },
+  { short:'劳动', label:'劳动节', start:'2028/5/1',  end:'2028/5/5' },
+  { short:'端午', label:'端午节', start:'2028/6/19', end:'2028/6/21' },
+  { short:'中秋', label:'中秋节', start:'2028/9/14', end:'2028/9/16' },
+  { short:'国庆', label:'国庆节', start:'2028/10/1', end:'2028/10/7' },
+];
+
+// 运行时补充/校验节假日数据：内置已覆盖 2026-2028 全部法定节假日；
+// timor.tech API 仅作增量补充（如国务院临时调整），失败不影响核心功能。
+async function loadHolidaysAuto(){
+  const years = [2026, 2027, 2028, 2029];       // 全量尝试，内置数据已够用
+  let changed = false;
+  try {
+    for(const y of years){
+      // 不再按 haveYear 早退：2027/2028 仅硬编码了春节兜底，仍需拉取其余节假日；
+      // 重复项（如同名春节）由 flush 去重拦截
+      const r = await fetch(`https://timor.tech/api/holiday/year/${y}`, {cache:'no-cache'});
+      if(!r.ok) continue;
+      const j = await r.json();
+      if(!j || j.code !== 0 || !j.holiday) continue;
+      // 取所有 holiday:true 的放假日，按日期排序
+      const days = Object.values(j.holiday)
+        .filter(e => e.holiday === true)
+        .map(e => ({ name:e.name, date:e.date.replace(/-/g,'/') }))
+        .sort((a,b) => d(a.date).getTime() - d(b.date).getTime());
+      // 同 name 连续日期归并为区间
+      let cur = null;
+      const flush = () => {
+        if(!cur) return;
+        const rs = d(cur.start).getTime(), re = d(cur.end).getTime();
+        // 去重：若已有同名且区间相交的兜底项（如硬编码春节），不重复写入
+        const dup = HOLIDAYS.some(h => h.label === cur.name && d(h.start).getTime() <= re && d(h.end).getTime() >= rs);
+        if(!dup){ HOLIDAYS.push({ short:cur.name.slice(0,2), label:cur.name, start:cur.start, end:cur.end }); changed = true; }
+      };
+      for(const e of days){
+        if(cur && cur.name === e.name && (d(e.date).getTime() - d(cur.end).getTime()) === 86400000){
+          cur.end = e.date;
+        } else {
+          flush();
+          cur = { name:e.name, start:e.date, end:e.date };
+        }
+      }
+      flush();
+    }
+  } catch(e){
+    console.warn('节假日 API 拉取失败，沿用内置数据：', e);
+  }
+  return changed;
+}
+
+let RANGE_END    = d('2028/1/9');   // 覆盖到 Hou1.0 发布周结束
+const VIEW_START = mondayOf(TODAY);
+
+// ================================================================
+// 关键节点引擎（PM 规则 · 2026-08-18 修订：4 节点新公式 · 已删除录制定档会）
+// 输入：VERSIONS[]  输出：EVENTS = [{date, label, tag, forVer, role}]
+// 规则（4 节点，从 dev.start 锚定）：
+//   1. Vo需求锁 = dev.start 所在周 周四
+//   2. 粗估会      = Vo需求锁 +21 天（后 3 周 周四）  ← v2 旧公式，参考
+//   3. 台词交付会  = 粗估会  +14 天（后 2 周 周四）
+//   4. VO资源交付  = dev.end 前一周 周五（开发周倒数第 2 周周五）
+// 分类：A.重点会议 meeting={2,3}；B.重要节点 milestone={1,4}
+// 角色：文案(cn)=1,2,3；音频(audio)=2,3,4
+// 备注：录制定档不再是固定会议节点，改由 automation "录制定档·每日10:30检查未填档期" 循环执行。
+// ================================================================
+let EVENTS = [];
+function thursdayOf(date){ const m=mondayOf(date); const t=new Date(m); t.setDate(t.getDate()+3); return t; }
+function fridayOf(date){ const m=mondayOf(date); const f=new Date(m); f.setDate(f.getDate()+4); return f; }
+function shiftWeeks(date, w){ const r=new Date(date); r.setDate(r.getDate()+w*7); return r; }
+function addDaysN(date, n){ const r=new Date(date); r.setDate(r.getDate()+n); return r; }
+// 累加 N 个工作日：从 startDate 起，向后逐日走，遇周末/法定节假日跳过不计，直到消耗 N 个工作日。返回目标日（该工作日当天）。
+// 与 workingDaysBetween/workingDaysUntil 语义配套：n=0 返回 startDate 本身；n=1 返回下一个工作日。
+function addWorkDaysN(startDate, n){
+  let cur = new Date(startDate.getTime());
+  if(n <= 0) return cur;
+  let rem = n;
+  const oneDay = 86400000;
+  while(rem > 0){
+    cur = new Date(cur.getTime() + oneDay);
+    const dow = cur.getDay();
+    if(dow === 0 || dow === 6) continue;
+    if(holidayOnDay(cur)) continue;
+    rem--;
+  }
+  return cur;
+}
+// 判断某周（以周一为起点）是否为"节假日周"：规则（PM 2026-08-18）——
+// 该周（周一~周日 7 天）内被法定节假日覆盖的天数 > 2 天才算节假日周（跳过不计工作周）。
+// 例：中秋 09-25~09-27 落在周 09-21 的周五/六/日 → 3 天 > 2 → 跳过；
+//     只有周一 1 天调休 → 1 天 ≤ 2 → 不跳过。
+function weekIsHoliday(mon){
+  const wkMon = mondayOf(mon);
+  let hitDays = 0;
+  for(let i = 0; i < 7; i++){ // 整周 7 天
+    const day = new Date(wkMon.getTime() + i*86400000);
+    if(holidayOnDay(day)) hitDays++;
+  }
+  return hitDays > 2;
+}
+// 从 fromDate 出发，向前(w<0)/向后(w>0) 位移 |w| 个"工作周"，规则：整周与法定节假日相交则免费跳过、不计工作周数。
+// 返回目标周的周一（会议/交付日再由 thursdayOf / fridayOf 计算）
+function shiftWorkWeeks(fromDate, w){
+  let cur = mondayOf(fromDate);
+  if(w === 0) return cur;
+  const step = w < 0 ? -1 : 1;
+  let remaining = Math.abs(w);
+  while(remaining > 0){
+    cur = new Date(cur.getTime() + step*7*86400000);
+    if(weekIsHoliday(cur)) continue;
+    remaining--;
+  }
+  return cur;
+}
+
+// 4 节点 · 2 分类 · 2 视角（PM 2026-08-18 修订 v4：术语更新 + 工作日累加公式）
+// 链条：
+//   1. Vo需求锁 = mondayOf(shiftWorkWeeks(dev.end, -11))（跳节假日周）
+//      · 子事项 s-thu-alloc  = 周四 11:30 需求分配会 + 自动生成台词表（周三 12:00 拉 TAPD 由 automation 静默触发，不进时间轴）
+//   2. 声优锁（原"粗估会"）= 从 lockDay 累加 24 个工作日 → 落在的那个自然周的周四
+//      · 子事项 s-est10      = 当天 10:00 反填声优预约
+//      · 子事项 s-sched-win  = 声优锁次日 → +21 天 · 每日 10:30 检查未填档期
+//   3. 台词锁（原"台词交付会"）= 从 lockDay 累加 (24+10=34) 个工作日 → 落在的那个自然周的周四
+//   4. VO资源交付= dev.end - 7 天 那周的周五
+// 分类：A.重点会议 meeting={2,3}；B.重要节点 milestone={1,4}
+// 角色：文案(cn)=1,2,3；音频(audio)=2,3,4
+function computeEvents(){
+  const out = [];
+  for(const v of VERSIONS){
+    const devPh = v.phases.find(p=>p.type==='dev');
+    if(!devPh) continue;
+    const devStart = d(devPh.start);
+    const devEnd   = d(devPh.end);
+    const lockDay     = mondayOf(shiftWorkWeeks(devEnd, -11)); // 1. Vo需求锁（dev.end 倒数第 11 工作周·周一，跳节假日周）
+    const estimateDay = thursdayOf(addWorkDaysN(lockDay, 24)); // 2. 声优锁（lockDay +24 工作日 → 该自然周的周四）
+    const scriptDay   = thursdayOf(addWorkDaysN(lockDay, 34)); // 3. 台词锁（lockDay +34 工作日 → 该自然周的周四；即声优锁 +10 工作日的那周周四）
+    const deliverDay  = fridayOf(addDaysN(devEnd, -7));        // 4. VO资源交付（dev.end 前一周 周五）
+    const shortVer    = v.name.replace('.0','');
+    out.push({ date:lockDay,     short:`→${shortVer} Vo需求锁`,     full:`${v.name} · Vo需求锁 · 周一提醒策划提单`,         tag:'m-lock',     categories:['milestone'], forVer:v.id, roles:['cn'] });
+    out.push({ date:estimateDay, short:`→${shortVer} 声优锁`,   full:`${v.name} · 声优锁（原粗估会）`,               tag:'m-estimate', categories:['meeting'],   forVer:v.id, roles:['cn','audio'] });
+    out.push({ date:scriptDay,   short:`→${shortVer} 台词锁`,   full:`${v.name} · 台词锁（原台词交付会）`,           tag:'m-script',   categories:['meeting'],   forVer:v.id, roles:['cn','audio'] });
+    out.push({ date:deliverDay,  short:`→${shortVer} VO资源交付`,   full:`${v.name} · VO资源交付`,                          tag:'m-deliver',  categories:['milestone'], forVer:v.id, roles:['audio'] });
+    // 子事项（仅在左侧 60 天时间轴列出，不进主体年历矩阵）
+    // s-wed（周三拉 TAPD 预告）已从时间轴移除——由 automation 静默触发，不占用户视觉焦点
+    out.push({ date:addDaysN(lockDay, 3), subTask:true, short:`${shortVer} 需求分配会`, full:`${v.name} · 周四 11:30 book 需求分配会 + 自动生成台词表`, tag:'s-thu-alloc', categories:['subtask'], forVer:v.id, roles:['cn','audio'] });
+    out.push({ date:estimateDay,          subTask:true, short:`${shortVer} 反填声优预约`, full:`${v.name} · 声优锁当天 10:00 系统自动反填声优预约列`, tag:'s-est10',     categories:['subtask'], forVer:v.id, roles:['cn','audio'] });
+    // 录制定档期：声优锁次日 → 声优锁 +21 天（3 周），每天 10:30 循环检查未填档期，时间轴折叠为一条区间
+    out.push({ range:[addDaysN(estimateDay,1), addDaysN(estimateDay,21)], subTask:true, short:`录制定档期`, full:`${v.name} · 录制定档期 · 每日 10:30 检查未填档期`, tag:'s-sched-win', categories:['subtask'], forVer:v.id, roles:['audio'] });
+  }
+  for(const e of out) if(!e.date && e.range) e.date = e.range[0];
+  return out;
+}
+function eventsInRange(startDate, endDate){
+  return EVENTS.filter(e => e.date >= startDate && e.date <= endDate);
+}
+function eventsOnDay(day){
+  return EVENTS.filter(e => e.date.getTime() === day.getTime());
+}
+// 视角过滤：null=不过滤；'cn'=只显示文案相关；'audio'=只显示音频相关
+function eventMatchesRole(e){
+  if(!roleFilter) return true;
+  return e.roles && e.roles.includes(roleFilter);
+}
+// 关键节点单选过滤：null=不过滤；否则仅显示 e.tag === nodeFilter 的事件
+function eventMatchesNode(e){
+  if(!nodeFilter) return true;
+  return e.tag === nodeFilter;
+}
+// 分类过滤：null=不过滤；否则要求事件的 categories 数组包含 catFilter
+function eventMatchesCat(e){
+  if(!catFilter) return true;
+  return Array.isArray(e.categories) && e.categories.includes(catFilter);
+}
+// 三个过滤维度组合
+function eventVisible(e){ return !e.subTask && eventMatchesRole(e) && eventMatchesNode(e) && eventMatchesCat(e); }
+// 时间轴专用：允许 subTask 但仍受 role/node/cat 三维筛选
+function eventVisibleTimeline(e){ return eventMatchesRole(e) && eventMatchesNode(e) && eventMatchesCat(e); }
+// 事件是否与给定周(Mon-Sun)相交（点事件按 date 命中，区间事件按 range 相交）
+function eventOverlapsWeek(e, wkMon, wkSun){
+  if(e.range){ return e.range[0] <= wkSun && e.range[1] >= wkMon; }
+  return e.date >= wkMon && e.date <= wkSun;
+}
+// 取版本全部周（含 monDate/sunDate/phaseType/idx），供右侧栏与进度卡复用
+function getVersionWeeks(ver){
+  const out = [];
+  for(const ph of ver.phases){
+    const ps = d(ph.start);
+    const wkMon = mondayOf(ps);
+    for(let i=0; i<ph.weeks; i++){
+      const mon = new Date(wkMon.getTime() + i*7*86400000);
+      const sun = new Date(mon.getTime() + 6*86400000);
+      out.push({ monDate:mon, sunDate:sun, phaseType:ph.type, idx:i });
+    }
+  }
+  return out;
+}
+
+// 判断某一天是否在法定节假日区间内，返回 HOLIDAYS 项 或 null
+function holidayOnDay(day){
+  const dt = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime();
+  for(const h of HOLIDAYS){
+    if(d(h.start).getTime() <= dt && dt <= d(h.end).getTime()) return h;
+  }
+  return null;
+}
+// 只计工作日（周一~周五）且去除法定节假日的天数
+function workingDaysBetween(startDate, endDate){
+  let n = 0;
+  const oneDay = 86400000;
+  for(let t = startDate.getTime(); t <= endDate.getTime(); t += oneDay){
+    const day = new Date(t);
+    const dow = day.getDay();
+    if(dow === 0 || dow === 6) continue; // 周日/周六
+    if(holidayOnDay(day)) continue;      // 法定节假日
+    n++;
+  }
+  return n;
+}
+// 倒计时专用：从 fromDate 到 toDate 的工作日**距离**（不含起点，含终点）
+// 例：今天=周二，目标=同周周三 → 1；目标=下周一 → 4
+function workingDaysUntil(fromDate, toDate){
+  const oneDay = 86400000;
+  const startNext = new Date(fromDate.getTime() + oneDay);
+  return workingDaysBetween(startNext, toDate);
+}
+let currentFilter = 'all';  // 'all' 或版本 verId 组成的 Set
+let currentMode   = 'year';  // 'year' | 'day'
+let activeVerId   = null;    // 日历模式选中的版本 id
+let roleFilter    = null;    // null | 'cn' | 'audio'（视角）
+let nodeFilter    = null;    // null | 'm-lock'|'m-estimate'|'m-script'|'m-deliver'
+let catFilter     = null;    // null | 'meeting' | 'milestone' | 'routine'（分类过滤，与关键节点单选叠加）
+let GRID_WEEKS    = [];      // 全局缓存，供 stats 使用
+
+// 阶段规范化：把 API phases 对象转成 UI 需要的数组
+function phaseObjToArr(phases){
+  if(!phases) return null;
+  const out = [];
+  const push = (type, seg, label) => {
+    if(!seg || !seg.start || !seg.end) return;
+    const s = seg.start.replace(/-/g,'/');
+    const e = seg.end.replace(/-/g,'/');
+    // weeks = 完整周数（阶段是整周对齐的：start 是周一、end 是周日）
+    const weeks = Math.round((d(e) - d(s))/86400000 / 7) + 1;
+    out.push({type, label, start:s, end:e, weeks});
+  };
+  // 使用 dev_weeks / test_weeks 直接读官方周数（避免推算）
+  if(phases.w0)      out.push({type:'w0',      label:'启动周',       start:phases.w0.start.replace(/-/g,'/'),      end:phases.w0.end.replace(/-/g,'/'),      weeks:1});
+  if(phases.dev)     out.push({type:'dev',     label:'开发期',       start:phases.dev.start.replace(/-/g,'/'),     end:phases.dev.end.replace(/-/g,'/'),     weeks:phases.dev_weeks||1});
+  if(phases.test)    out.push({type:'test',    label:'转测期',     start:phases.test.start.replace(/-/g,'/'),    end:phases.test.end.replace(/-/g,'/'),    weeks:phases.test_weeks||1});
+  if(phases.release){
+    // 发布分国内/海外双周：release.end 延伸 7 天为海外周（若上游未显式提供）
+    const rs = phases.release.start.replace(/-/g,'/');
+    const re = phases.release.end.replace(/-/g,'/');
+    const reEndD = new Date(re); reEndD.setDate(reEndD.getDate() + 7);
+    const reEndS = `${reEndD.getFullYear()}/${reEndD.getMonth()+1}/${reEndD.getDate()}`;
+    out.push({type:'release', label:'发布期', start:rs, end:reEndS, weeks:2});
+  }
+  return out;
+}
+
+// 每版「★对外正式包确认」日期缓存（键=version.id，值=Date）；updateStats 用于「距对外包」倒计时。
+// 数据源：DFAI 版本日历 /api/calendar/entries（★ 对外正式包确认 节点），2026-08-17 经浏览器登录态拉取固化。
+// 仅 Ma4/Ma5/Yang1 已创建该节点；Yang2~Hou1 在 DFAI 暂无条目 → 回退 lastPh.end（显示「距结束」），属真实状态不伪造。
+const PACK_CONFIRM_BY_VER = {
+  ma4:   d('2026/8/26'),
+  ma5:   d('2026/10/28'),
+  yang1: d('2027/1/13'),
+};
+async function loadPackConfirm(){
+  // 通过 dfai-live-server 代理拉 DF 版本日历「对外正式包确认」条目；
+  // 静态环境（无 :4173）静默失败 → updateStats 回退用 lastPh.end
+  if(!VERSIONS.length) return;
+  const releaseIds = VERSIONS.filter(v=>!v.planned && v.tapdId).map(v=>v.tapdId).join(',');
+  if(!releaseIds) return;
+  try {
+    const r = await fetch(`/api/calendar-entries?releaseId=${encodeURIComponent(releaseIds)}`, {cache:'no-cache'});
+    if(!r.ok) return; // 服务未跑 or 无 token → 静默回退
+    const j = await r.json();
+    const rows = j.data || j.entries || j.rows || [];
+    if(!Array.isArray(rows)) return;
+    // 严格匹配 title 含「对外正式包确认」；start_time 为准（YYYY-MM-DD HH:MM:SS）
+    for(const ver of VERSIONS){
+      if(!ver.tapdId) continue;
+      const hit = rows.find(row => String(row.release_id||'') === String(ver.tapdId) && /对外正式包确认/.test(row.title||''));
+      if(hit && hit.start_time){
+        const s = (hit.start_time||'').slice(0,10).replace(/-/g,'/');
+        PACK_CONFIRM_BY_VER[ver.id] = d(s);
+      }
+    }
+    console.log('[pack-confirm] loaded', Object.keys(PACK_CONFIRM_BY_VER).length, '个版本');
+  } catch(e){ /* 静默 */ }
+}
+
+async function loadReleasePlans(){
+  const label = document.getElementById('dataSourceLabel');
+  // 优先走 /api/release-plans（后端实时代理 dfai.woa.com/aiapi/calendar/release-plans，5min 缓存）；
+  // 后端未跑或 token 缺失（503）→ 回退静态 data/release-plans.json 快照
+  let j = null, src = 'static';
+  try {
+    const rApi = await fetch('/api/release-plans', {cache:'no-cache'});
+    if(rApi.ok){
+      const cand = await rApi.json();
+      if(cand && cand.success && Array.isArray(cand.data)){ j = cand; src = 'live'; }
+    }
+  } catch(_){/* 静默回退 */}
+  try {
+    if(!j){
+      const r = await fetch('data/release-plans.json', {cache:'no-cache'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      j = await r.json();
+    }
+    if(!j.success || !Array.isArray(j.data)) throw new Error('响应格式异常');
+    // 从 API 数据映射成 UI VERSIONS
+    const byLabel = {};
+    for(const p of j.data){
+      const lab = (p.label||'').replace(/[【】]/g,'').trim();
+      byLabel[lab] = p;
+    }
+    const out = [];
+    for(const key of VER_ORDER){
+      const meta = VER_META[key];
+      if(!meta) continue;
+      let phasesObj = null, planned = false;
+      const plan = byLabel[key];
+      if(!plan) continue;
+      phasesObj = plan.phases;
+      const arr = phaseObjToArr(phasesObj);
+      if(!arr || !arr.length) continue;
+      out.push({...meta, phases:arr, planned, tapdId: plan?.id || '', detail:{
+        release:meta.name, status:plan?.status || '',
+        devWeeks:phasesObj.dev_weeks, testWeeks:phasesObj.test_weeks, relWeeks:1,
+        voiceLead:'', note:'',
+      }});
+    }
+    VERSIONS = out;
+    EVENTS = computeEvents();
+    const liveCnt = VERSIONS.filter(v=>!v.planned).length;
+    const planCnt = VERSIONS.filter(v=>v.planned).length;
+    label.textContent = `${liveCnt} API · ${planCnt} 规划 · ${EVENTS.length} 节点 · ${src}`;
+    label.style.color = 'var(--c-primary)';
+  } catch(e){
+    console.warn('release-plans.json 加载失败，走 fallback：', e);
+    label.textContent = '发布计划数据不可用';
+    label.style.color = 'var(--c-warning)';
+    VERSIONS = [];
+    EVENTS = [];
+  }
+}
+
+
+// ================================================================
+// YEAR CALENDAR — 里程碑 × 阶段分组周表（对齐 dfai 年度版本节奏）
+// 列结构：年度 | 里程碑 | 开发期(maxDev) | 转测期(maxTest) | 发布期(国内+海外) | 工作日
+// 每版本 dev/test 周数不同 → 列数按全局 max(dev)/max(test) 补齐；表头周序号「第N周」各阶段独立从第一周起算
+//   （开发第一~N周 / 转测第一~M周 / 发布第一~二周，各自独立编号）
+// ================================================================
+function renderTimeline(){
+  const thead = document.getElementById('ycHead');
+  const tbody = document.getElementById('ycBody');
+  const vers = VERSIONS.filter(filterVer);
+
+  // 列数由实际数据驱动：取全部渲染版本的最大开发周/测试周数（至少 4），避免周数超过 4 时丢失周（如 Ma5 测 5 周、Yang1 开 5 周）
+  const maxDev  = Math.max(4, ...vers.map(v => (v.phases.find(p=>p.type==='dev')?.weeks) || 0));
+  const maxTest = Math.max(4, ...vers.map(v => (v.phases.find(p=>p.type==='test')?.weeks) || 0));
+  const totalCols = 1 + 1 + maxDev + maxTest + 2 + 1; // 年度+里程碑+dev+test+release(国内+海外)+工作日
+
+  if(!vers.length){
+    thead.innerHTML = '';
+    tbody.innerHTML = `<tr><td colspan="${totalCols}" style="text-align:center;color:var(--c-text-mute);padding:32px;background:var(--c-surface)">无匹配版本</td></tr>`;
+    updateStats(); return;
+  }
+
+  // 固定列数：开发期 maxDev 周 / 转测期 maxTest 周 / 发布期 2 周（maxDev/maxTest 由上方数据驱动计算）
+
+  // --- Colgroup：控制列宽比例（固定列紧凑 + 周列均分剩余空间） ---
+  // table-layout:fixed + colgroup → 固定列给精确 px，所有周列（dev/test/release 国内海外）统一宽度
+  const WEEK_W = 88; // 所有周列宽（px）· dev/test/release 全部一致
+  let cg = '<colgroup>';
+  cg += '<col style="width:56px">';   // 年度
+  cg += '<col style="width:92px">';    // 里程碑
+  for(let i=0; i<maxDev; i++)  cg += `<col style="width:${WEEK_W}px">`;   // 开发期各周（严格等宽）
+  for(let i=0; i<maxTest; i++) cg += `<col style="width:${WEEK_W}px">`;   // 转测期各周
+  cg += `<col style="width:${WEEK_W}px">`;    // 发布-国内
+  cg += `<col style="width:${WEEK_W}px">`;    // 发布-海外
+  cg += '<col style="width:76px">';    // 工作日
+  cg += '</colgroup>';
+
+  // --- Header (2 rows) ---
+  // Row1: 年度|里程碑|开发期(colspan=maxDev)|转测期(colspan=maxTest)|发布期(colspan=2:国内+海外)|工作日(rowspan)
+  let hRow1 = '<tr>'
+    + '<th class="yc-th-year" rowspan="2">年度</th>'
+    + '<th class="yc-th-ms" rowspan="2">里程碑</th>'
+    + `<th class="yc-th-group yc-grp-dev" colspan="${maxDev}">开发期</th>`
+    + `<th class="yc-th-group yc-grp-test" colspan="${maxTest}">转测期</th>`
+    + '<th class="yc-th-group yc-grp-rel" colspan="2">发布期</th>'
+    + '<th class="yc-th-days" rowspan="2">开发工作日</th>'
+    + '</tr>';
+  // 周序号放在表头第二行（各阶段各自从第一周起算：开发/转测/发布均从「第一周」开始独立编号）
+  const CN = ['零','一','二','三','四','五','六','七','八','九','十','十一','十二','十三'];
+  let hRow2 = '<tr>';
+  for(let i=0; i<maxDev; i++)  hRow2 += `<th class="yc-th-week yc-grp-dev">第${CN[i+1]||i+1}周</th>`;
+  for(let i=0; i<maxTest; i++) hRow2 += `<th class="yc-th-week yc-grp-test">第${CN[i+1]||i+1}周</th>`;
+  hRow2 += `<th class="yc-th-week yc-grp-rel">第一周</th>`;
+  hRow2 += `<th class="yc-th-week yc-grp-rel">第二周</th>`;
+  hRow2 += '</tr>';
+  // 注入 colgroup（控制列宽比例）+ thead 内容
+  const tableEl = document.getElementById('ycTable');
+  // 移除旧 colgroup（重建时清理）
+  const oldCg = tableEl.querySelector('colgroup');
+  if(oldCg) oldCg.remove();
+  tableEl.insertAdjacentHTML('afterbegin', cg);
+  thead.innerHTML = hRow1 + hRow2;
+
+  // --- Body: one row per version ---
+  tbody.innerHTML = '';
+  GRID_WEEKS = []; // reuse for stats
+
+  // 年份分组：预先算每个版本所属年份 + 连续同年段长度（用于 rowSpan 合并）
+  // totalCols 已在函数前部按数据驱动计算
+  const yearBandLabel = (y) => y===2027 ? '2027 初版待确认' : (y===2028||y===2029 ? y+' 待确认' : y);
+  const verYears = vers.map(v => {
+    const rp = v.phases.find(p=>p.type==='release') || v.phases[v.phases.length-1];
+    return d(rp.start).getFullYear();
+  });
+  // 每个版本对应的「本段首行」下标 → 该段总行数（用于 rowSpan）
+  const yearRunSpan = new Array(vers.length).fill(0); // 只在段首行填写具体 span
+  let runStart = 0;
+  for(let i=1; i<=vers.length; i++){
+    if(i===vers.length || verYears[i] !== verYears[runStart]){
+      yearRunSpan[runStart] = i - runStart;
+      runStart = i;
+    }
+  }
+
+  for(let vi=0; vi<vers.length; vi++){
+    const ver = vers[vi];
+    const relYear = verYears[vi];
+
+    const tr = document.createElement('tr');
+    if(ver.planned) tr.classList.add('planned');
+
+    // Column 1: 年度（每段首行插入一个 rowSpan 单元格，段内其余行不追加单元格；只显示 4 位年份，副标题「待确认」按 PM 要求全部去掉）
+    if(yearRunSpan[vi] > 0){
+      const tdYear = document.createElement('td');
+      tdYear.className = 'yc-year';
+      tdYear.rowSpan = yearRunSpan[vi];
+      tdYear.innerHTML = `<div style="font-size:13px;color:var(--c-primary);letter-spacing:1.5px">${relYear}</div>`;
+      tr.appendChild(tdYear);
+    }
+
+    // Column 2: 里程碑 = 版本名 + N+M+K 公式
+    const devW = ver.phases.find(p=>p.type==='dev')?.weeks || 0;
+    const testW = ver.phases.find(p=>p.type==='test')?.weeks || 0;
+    const relW = ver.phases.find(p=>p.type==='release')?.weeks || 1;
+    const tdMs = document.createElement('td');
+    tdMs.className = 'yc-ms';
+    tdMs.innerHTML = `<div class="ms-ver">${ver.name}</div><div class="ms-eq">${devW}+${testW}+${relW}</div>`;
+    tr.appendChild(tdMs);
+
+    // Weeks 顺序：dev[0..maxDev-1] + test[0..maxTest-1] + release[国内, 海外]
+    // maxDev/maxTest 已由全部版本最大周数驱动，故不再有周数溢出/挤占；周数不足的版本以空格对齐，不截断、不丢周
+    const slots = [];
+    for(let i=0;i<maxDev;i++)  slots.push({phase:'dev', idx:i});
+    for(let i=0;i<maxTest;i++) slots.push({phase:'test', idx:i});
+    slots.push({phase:'release', idx:0}); // 国内
+    slots.push({phase:'release', idx:1}); // 海外
+
+    // 预先计算每个 slot 对应周是否与 HOLIDAYS 相交（全量判定：无论是否有事件/节点/倒数周，只要相交即算节假日）
+    const slotHolOverlap = slots.map(slot => {
+      const ph2 = ver.phases.find(p=>p.type===slot.phase);
+      if(!ph2 || slot.idx >= ph2.weeks) return null;
+      if(slot.phase === 'release') return null;
+      const ph2Start = d(ph2.start);
+      const wkM = new Date(ph2Start.getTime() + slot.idx*7*86400000);
+      const wkS = new Date(wkM.getTime() + 6*86400000);
+      for(const h of HOLIDAYS){
+        const hs = d(h.start), he = d(h.end);
+        if(hs <= wkS && he >= wkM) return { label: h.label, wkM, wkS, holStart: hs, holEnd: he };
+      }
+      return null;
+    });
+    // 合并连续节假日：所有连续的节假日周无条件合并为一个 colspan 格（无论同名或不同名节假日背靠背）
+    // 合并后标签显示首个节假日名称 + 首末日期范围
+    const slotMerge = slots.map(()=>({skip:false,span:1}));
+    for(let s=0; s<slots.length; s++){
+      const h = slotHolOverlap[s]; if(!h) continue;
+      if(slotMerge[s].skip) continue;
+      let span = 1;
+      for(let t=s+1; t<slots.length; t++){
+        const h2 = slotHolOverlap[t]; if(!h2) break;  // 遇到非节假日周即终止合并
+        span++;
+        slotMerge[t].skip = true;
+      }
+      slotMerge[s].span = span;
+    }
+
+    for(let si=0; si<slots.length; si++){
+      const slot = slots[si];
+      if(slotMerge[si].skip) continue; // 被前一个节假日格合并了
+      const td = document.createElement('td');
+      const ph = ver.phases.find(p=>p.type===slot.phase);
+      if(!ph){
+        td.className = 'yc-cell empty';
+        tr.appendChild(td);
+        continue;
+      }
+      // 越界周（slot.idx >= ph.weeks）：仍显示日期占位（对齐时间轴），不显示事件
+      const isOverflow = slot.idx >= ph.weeks;
+      // 若本格为合并节假日头，设 colspan（所有节假日周，含事件周）
+      if(slotHolOverlap[si] && slotMerge[si].span > 1){
+        td.colSpan = slotMerge[si].span;
+      }
+      // Compute this week's Mon-Sun（若为合并节假日格：wkSun 取合并末周的周日）
+      const phStart = d(ph.start);
+      const wkMon = new Date(phStart.getTime() + slot.idx*7*86400000);
+      const spanCount = (slotHolOverlap[si] ? slotMerge[si].span : 1);
+      const wkSun = new Date(wkMon.getTime() + (spanCount*7 - 1)*86400000);
+      const isThisWeek = wkMon.getTime() === VIEW_START.getTime();
+      const isPast = wkSun < TODAY && !isThisWeek;
+      const isHol = !!slotHolOverlap[si];
+      let cls = 'yc-cell ph-' + slot.phase;
+      if(isThisWeek) cls += ' this-week';
+      if(isPast)     cls += ' past-week';
+      if(isOverflow) cls += ' overflow';
+      // 所有节假日周 → 统一深底节假日格（不计入事项/时间）
+      if(isHol) cls += ' is-holiday';
+      td.className = cls;
+      // Build cell content
+      const rangeStr = fmtShort(wkMon) + '-' + fmtShort(wkSun);
+      // 事件：本周内、且该事件日期落在本行 phase 时段（会议往前推 4-10 周会落在上一版本时段，恰好归属那一行）
+      const phStart2 = d(ph.start), phEnd2 = d(ph.end);
+      // 点事件按 date 落在本行 phase 时段筛选；区间事件与本周相交、且该事件"锚点"(range[0])所属版本行 = 当前 ver 时才显示
+      const wkEvents = EVENTS.filter(ev => {
+        if(!eventVisible(ev)) return false;
+        if(!eventOverlapsWeek(ev, wkMon, wkSun)) return false;
+        if(ev.range){
+          // 区间事件仅归属其自身版本（forVer 对齐当前 ver 行），避免跨版本行泛滥
+          return ev.forVer === ver.id;
+        }
+        // 点事件按落在本 phase 时段筛选（会议往前推的落到上一版本行）
+        return ev.date >= phStart2 && ev.date <= phEnd2;
+      });
+      // 节假日标签：所有与节假日相交的周一律显示黄框标签（即便当周有会议/节点，也不计入事项/时间）
+      // 合并格：取合并范围内所有节假日的最早起点→最晚终点，标签显示首个节假日名
+      let note = '';
+      if(slot.phase !== 'release' && slotHolOverlap[si]){
+        const span = slotMerge[si].span || 1;
+        let firstHol = slotHolOverlap[si];
+        let lastHol = slotHolOverlap[si];
+        // 向后扫描所有被合并的 slot，找最宽日期范围
+        for(let t=1; t<span; t++){
+          const ht = slotHolOverlap[si+t]; if(!ht) continue;
+          if(ht.holStart < firstHol.holStart) firstHol = ht;
+          if(ht.holEnd > lastHol.holEnd) lastHol = ht;
+        }
+        note = `${firstHol.label} · ${fmtShort(firstHol.holStart)}-${fmtShort(lastHol.holEnd)}`;
+      }
+      // 发布期不再输出 "M.D 版本名" 副标（PM 2026-07-29 要求去掉，仅保留 range 日期）
+      // 节假日周一律不计入事项：跳过事件渲染
+      let evtHtml = '';
+      if(!isOverflow && !isHol){
+        // PM 2026-07-29 16:57：不再固定 5 行分类分行，改为按「版本优先级 → tag 优先级」从上向下顺序排列，每条事项独占一行
+        // 版本优先级 = VERSIONS 数组索引（Ma4 < Ma5 < Yang1 < …）；同版本内按 tag 顺序（区间在前、6 节点按链条时序）
+        const TAG_ORDER = ['m-lock','m-estimate','m-script','m-deliver'];
+        const verIdxOf = (id) => { const i = VERSIONS.findIndex(v=>v.id===id); return i<0 ? 999 : i; };
+        const seen = new Set();
+        const rows = [];
+        const sorted = [...wkEvents].sort((a,b) => {
+          const va = verIdxOf(a.forVer) - verIdxOf(b.forVer);
+          if(va) return va;
+          return TAG_ORDER.indexOf(a.tag) - TAG_ORDER.indexOf(b.tag);
+        });
+        // 判断区间事件在本周格的位置：mid（既非首也非末） → 跳过，不生成占位行
+        const posOfRange = (ev) => {
+          const verStart = mondayOf(d(ver.phases[0].start));
+          const verEnd   = d(ver.phases[ver.phases.length-1].end);
+          const effStart = ev.range[0] < verStart ? verStart : ev.range[0];
+          const effEnd   = ev.range[1] > verEnd   ? verEnd   : ev.range[1];
+          const isFirst = effStart >= wkMon && effStart <= wkSun;
+          const isLast  = effEnd   >= wkMon && effEnd   <= wkSun;
+          return isFirst && isLast ? 'only' : isFirst ? 'first' : isLast ? 'last' : 'mid';
+        };
+        for(const ev of sorted){
+          if(seen.has(ev.tag+'|'+ev.forVer)) continue;
+          seen.add(ev.tag+'|'+ev.forVer);
+          // 区间事件在中段格（mid）/ 末格（last）→ 不渲染占位（避免撑开事项与日期的距离）；
+          // mergeRangeBars 只需 pos-first / pos-only，last 位置从 tr 里 last 周 td 的 right 边取
+          if(ev.range){
+            const p = posOfRange(ev);
+            if(p === 'mid' || p === 'last') continue;
+          }
+          rows.push(ev);
+        }
+        const chipOf = (ev) => {
+          let pos = '';
+          let hideLabel = false;
+          if(ev.range){
+            // 区间事件的 range 可能超出本版本行的 phase 时段。用版本行整体起止裁剪出"有效区间"再判首末格
+            const verStart = mondayOf(d(ver.phases[0].start));
+            const verEnd   = d(ver.phases[ver.phases.length-1].end);
+            const effStart = ev.range[0] < verStart ? verStart : ev.range[0];
+            const effEnd   = ev.range[1] > verEnd   ? verEnd   : ev.range[1];
+            const isFirst = effStart >= wkMon && effStart <= wkSun;
+            const isLast  = effEnd   >= wkMon && effEnd   <= wkSun;
+            pos = isFirst && isLast ? ' pos-only' : isFirst ? ' pos-first' : isLast ? ' pos-last' : ' pos-mid';
+            hideLabel = (pos === ' pos-mid');
+          }
+          const tip = ev.range?fmtShort(ev.range[0])+'→'+fmtShort(ev.range[1]):fmtShort(ev.date)+'(周'+'日一二三四五六'[ev.date.getDay()]+')';
+          const label = hideLabel ? '' : ev.short.replace(/^→/,'');
+          // 区间事件给 first 挂 data-rk 便于 mergeRangeBars 分组；data-rk-end 提供 last cell 的锚点日期（YYYY/M/D）
+          let dataAttrs = '';
+          if(ev.range){
+            dataAttrs = ` data-rk="${ver.id}|${ev.tag}"`;
+            if(pos === ' pos-first' || pos === ' pos-only'){
+              const verEnd2 = d(ver.phases[ver.phases.length-1].end);
+              const effEnd2 = ev.range[1] > verEnd2 ? verEnd2 : ev.range[1];
+              dataAttrs += ` data-rk-end="${effEnd2.getFullYear()}/${effEnd2.getMonth()+1}/${effEnd2.getDate()}"`;
+            }
+          }
+          return `<span class="yc-evt evt-${ev.tag}${pos}"${dataAttrs} title="${ev.full} · ${tip}">${label}</span>`;
+        };
+        // 每条事项独占一行，从上到下按版本优先级排列
+        evtHtml = rows.map(ev => `<div class="yc-row yc-row-single">${chipOf(ev)}</div>`).join('');
+      }
+      // 越界格（本版本 dev/test 周数不足）：不显示日期/事件，仅作为对齐占位，避免与相邻真格日期重复
+      if(isOverflow){
+        td.innerHTML = '';
+      } else if(isHol){
+        // 节假日周：深底 + 日期 + 黄框标签，事项一律不计入/不显示
+        td.innerHTML = `<div class="yc-cell-body">`
+          + `<div class="yc-range">${rangeStr}</div>`
+          + (note ? `<div class="yc-note holiday">${note}</div>` : '')
+          + `</div>`;
+      } else {
+        td.innerHTML = `<div class="yc-cell-body">`
+          + `<div class="yc-range">${rangeStr}</div>`
+          + (note ? `<div class="yc-note holiday">${note}</div>` : '')
+          + evtHtml
+          + `</div>`;
+      }
+      td.dataset.ver = ver.id;
+      td.dataset.phase = slot.phase;
+      td.dataset.week = `${wkMon.getFullYear()}/${wkMon.getMonth()+1}/${wkMon.getDate()}`;
+      GRID_WEEKS.push({verId:ver.id, phaseType:slot.phase, monDate:wkMon, sunDate:wkSun});
+      tr.appendChild(td);
+    }
+
+    // Last column: 开发工作日 —— 固定 10（上版 2 周发布期，剔除周末+节假日的常量）+ 本版本 dev 全期工作日
+    // 口径（PM 2026-07-29 17:01）：简化为常量 10 + 本版 dev 工作日；首版 Ma4 同样计入 10（视为常态化上版发布期承接）
+    const devPh = ver.phases.find(p => p.type === 'dev');
+    const REL_CONST = 10;
+    let workDays = REL_CONST;
+    if(devPh) workDays += workingDaysBetween(d(devPh.start), d(devPh.end));
+    const tdDays = document.createElement('td');
+    tdDays.className = 'yc-days';
+    tdDays.innerHTML = `<span class="yc-days-ver">${ver.name}</span><span class="yc-days-num">${workDays}<span class="u">天</span></span>`;
+    tr.appendChild(tdDays);
+
+    tbody.appendChild(tr);
+  }
+
+  updateStats();
+  // 区间事件跨格视觉合并：pos-first 用绝对定位覆盖到 pos-last 右缘 · 中间 chip 隐藏
+  requestAnimationFrame(mergeRangeBars);
+}
+
+function mergeRangeBars(){
+  const tbody = document.getElementById('ycBody');
+  if(!tbody) return;
+  // 让 tr 成为 offsetParent，tr 建立 relative
+  tbody.querySelectorAll('tr').forEach(tr => { tr.style.position = 'relative'; });
+  // 清理旧标记
+  tbody.querySelectorAll('.yc-row-merged-hidden').forEach(r => r.classList.remove('yc-row-merged-hidden'));
+  void tbody.offsetHeight;
+  // 新版：pos-mid / pos-last 不渲染，只处理 pos-first (data-rk-end 指向 range 终点日期，找该 tr 的对应 td 量右缘)
+  tbody.querySelectorAll('.yc-evt.pos-first[data-rk-end]').forEach(first => {
+    first.style.cssText = '';
+    const tr = first.closest('tr'); if(!tr) return;
+    const endStr = first.dataset.rkEnd;
+    // 该 tr 里 data-week 匹配 range 终点所在周 monday 的 td
+    // 逐个 td 找：sunDate >= endDate 且 monDate <= endDate
+    const endDate = (function(s){ const p=s.split('/'); return new Date(+p[0], +p[1]-1, +p[2]); })(endStr);
+    let lastTd = null;
+    for(const td of tr.querySelectorAll('td.yc-cell[data-week]')){
+      const parts = td.dataset.week.split('/');
+      const mon = new Date(+parts[0], +parts[1]-1, +parts[2]);
+      const sun = new Date(mon.getTime() + 6*86400000);
+      if(mon <= endDate && endDate <= sun){ lastTd = td; break; }
+    }
+    if(!lastTd) return;
+    const trRect = tr.getBoundingClientRect();
+    const fR = first.getBoundingClientRect();
+    const tdR = lastTd.getBoundingClientRect();
+    // 判断是否区间条（r-*）—— 弱化处理：无背景/无边框，只用左侧细色条
+    const isRange = /\bevt-r-/.test(first.className);
+    Object.assign(first.style, {
+      position: 'absolute',
+      left: (fR.left - trRect.left) + 'px',
+      top:  (fR.top  - trRect.top)  + 'px',
+      width:  (tdR.right - fR.left - 10)  + 'px',
+      height: fR.height + 'px',
+      margin: '0',
+      padding: isRange ? '2px 4px 2px 10px' : '3px 10px',
+      borderRadius: isRange ? '0' : '3px',
+      borderStyle: isRange ? 'none' : 'solid',
+      borderWidth: isRange ? '0' : '1px',
+      background: isRange ? 'transparent' : '',
+      zIndex: '5',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: isRange ? 'flex-start' : 'center',
+      textAlign: isRange ? 'left' : 'center',
+    });
+    // first 所在行也归零（chip 已 absolute，父行不再需要占空间）
+    const firstRow = first.closest('.yc-row'); if(firstRow) firstRow.classList.add('yc-row-merged-hidden');
+  });
+}
+// 窗口尺寸变化重跑合并
+window.addEventListener('resize', () => { requestAnimationFrame(mergeRangeBars); });
+
+function buildWeekCells(vws){
+  const frag = document.createDocumentFragment();
+  for(const w of vws){
+    const td = document.createElement('td');
+    const isThisWeek = w.monDate.getTime() === VIEW_START.getTime();
+    const isPast = w.sunDate < TODAY && !isThisWeek;
+    let cls = 'wk-cell ph-' + w.phaseType;
+    if(isThisWeek) cls += ' this-week';
+    if(isPast) cls += ' past-week';
+    td.className = cls;
+    td.dataset.range = fmtShort(w.monDate)+'-'+fmtShort(w.sunDate);
+    const ra = ROLE_ACTIONS[w.phaseType] || {cn:'—',audio:'—'};
+    td.innerHTML = `<div class="wc-range">${fmtShort(w.monDate)}-${fmtShort(w.sunDate)}</div>`
+      + `<div class="wc-line wc-cn"><span class="dot"></span>${ra.cn}</div>`
+      + `<div class="wc-line wc-au"><span class="dot"></span>${ra.audio}</div>`;
+    frag.appendChild(td);
+  }
+  return frag;
+}
+
+function renderHolidayRow(tbody, h, totalCols){
+  const tr = document.createElement('tr');
+  tr.className = 'tr-holiday';
+  const tdLab = document.createElement('td');
+  tdLab.className = 'td-cat-hol';
+  tdLab.colSpan = 1;
+  tdLab.textContent = h.label;
+  tr.appendChild(tdLab);
+  const emptyCols = totalCols - 2; // minus 版本, 周期
+  for(let i=0; i<emptyCols; i++){
+    tr.appendChild(document.createElement('td'));
+  }
+  const tdD = document.createElement('td');
+  tdD.className = 'td-days';
+  tdD.textContent = fmtShort(d(h.start))+'-'+fmtShort(d(h.end));
+  tr.appendChild(tdD);
+  tbody.appendChild(tr);
+}
+
+// ================================================================
+// HELPERS · 筛选 = 版本多选（发布计划）
+// ================================================================
+function filterVer(ver){
+  if(currentFilter === 'all') return true;
+  if(currentFilter instanceof Set) return currentFilter.has(ver.id);
+  return true;
+}
+
+function buildFilterButtons(){
+  const grp = document.getElementById('filterGroup');
+  // 清掉除了「全部」按钮外的所有版本按钮
+  const kids = Array.from(grp.querySelectorAll('.tb-btn'));
+  kids.forEach(b => { if(b.dataset.ver !== 'all') b.remove(); });
+  // 筛选栏只展示本次权威发布计划数据真实返回的版本。
+  VERSIONS.forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'tb-btn';
+    btn.dataset.ver = v.id;
+    btn.textContent = v.name;
+    btn.onclick = () => setFilter(v.id);
+    grp.appendChild(btn);
+  });
+}
+
+function setFilter(f){
+  if(f === 'all'){
+    currentFilter = 'all';
+  } else {
+    // 版本 id：多选切换
+    if(!(currentFilter instanceof Set)) currentFilter = new Set();
+    if(currentFilter.has(f)) currentFilter.delete(f);
+    else currentFilter.add(f);
+    if(currentFilter.size === 0) currentFilter = 'all';
+  }
+  // 刷新按钮状态
+  document.querySelectorAll('#filterGroup .tb-btn').forEach(b => {
+    const v = b.dataset.ver;
+    let on = false;
+    if(v === 'all')                on = currentFilter === 'all';
+    else if(currentFilter instanceof Set) on = currentFilter.has(v);
+    b.classList.toggle('on', on);
+  });
+  if(currentMode === 'year') renderTimeline();
+  else renderDayView();
+  renderRightPanel();
+}
+
+// 视角筛选：null=不过滤 / 'cn'=策划关注 / 'audio'=音频关注（互斥切换）
+function setRoleFilter(r){
+  roleFilter = (roleFilter === r) ? null : r;
+  document.getElementById('roleCn').classList.toggle('on', roleFilter==='cn');
+  document.getElementById('roleAudio').classList.toggle('on', roleFilter==='audio');
+  rerenderView();
+  renderRightPanel();
+}
+
+// 事项筛选：null=全部 / 6 个 tag 之一（单选切换；再次点同一按钮回全部）
+function setNodeFilter(tag){
+  nodeFilter = (nodeFilter === tag) ? null : tag;
+  const map = {'m-lock':'ndLock','m-estimate':'ndEstimate','m-script':'ndScript','m-schedule':'ndSchedule','m-deliver':'ndDeliver'};
+  document.getElementById('ndAll').classList.toggle('on', nodeFilter===null);
+  Object.entries(map).forEach(([t,id]) => { const el=document.getElementById(id); if(el) el.classList.toggle('on', nodeFilter===t); });
+  rerenderView();
+  renderRightPanel();
+}
+// 分类筛选：null=全部 / meeting|milestone（互斥切换）
+function setCatFilter(c){
+  catFilter = (catFilter === c) ? null : c;
+  document.getElementById('catMeeting').classList.toggle('on', catFilter==='meeting');
+  document.getElementById('catMilestone').classList.toggle('on', catFilter==='milestone');
+  rerenderView();
+  renderRightPanel();
+}
+
+function rerenderView(){
+  // 日历视图已废除，仅保留年历
+  renderTimeline();
+}
+
+function scrollToToday(){
+  const el = document.querySelector('.yc-cell.this-week');
+  if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function updateStats(){
+  // ① 当前推进版本：dev/test 段包含 TODAY 的最早版本；否则取下一个开始的版本
+  const inProg = VERSIONS.filter(v => !v.planned).find(v => {
+    const dev = v.phases.find(p=>p.type==='dev'), test = v.phases.find(p=>p.type==='test');
+    if(dev && TODAY >= d(dev.start) && TODAY <= d(dev.end)) return true;
+    if(test && TODAY >= d(test.start) && TODAY <= d(test.end)) return true;
+    return false;
+  });
+  const nextVer = inProg || VERSIONS.filter(v => !v.planned).find(v => {
+    const dev = v.phases.find(p=>p.type==='dev');
+    return dev && d(dev.start) > TODAY;
+  });
+  const cv = document.getElementById('statCurVer');
+  const cvSub = document.getElementById('statCurVerSub');
+  if(nextVer){
+    const nowPh = nextVer.phases.find(p => TODAY >= d(p.start) && TODAY <= d(p.end));
+    // 阶段标签：按实际阶段显示（dev=开发期 / test=测试期 / release=发布期）
+    const PHASE_NAMES = { dev:'开发期', test:'测试期', release:'发布期', w0:'启动周' };
+    const phaseLabel = nowPh ? (PHASE_NAMES[nowPh.type] || nowPh.type) : '未开始';
+    const lastPh = nextVer.phases[nextVer.phases.length-1];
+    // 「距结束」= 距该版本「★对外正式包确认」的工作日；无该条目时回退用 lastPh.end
+    const endDate = PACK_CONFIRM_BY_VER[nextVer.id] || d(lastPh.end);
+    const daysToEnd = workingDaysUntil(TODAY, endDate);
+    const usePack = !!PACK_CONFIRM_BY_VER[nextVer.id];
+    const endLabel = usePack ? '距对外包' : '距结束';
+    cv.innerHTML = `${nextVer.name}<span class="unit">${nowPh?'':'即将开始'}</span>`;
+    const modeCls = usePack ? 'cd-mode-real' : 'cd-mode-est';
+    const estNote = usePack ? '' : ' <span class="cd-est-note">（估）</span>';
+    cvSub.innerHTML = `${phaseLabel} · <span class="cd-mode ${modeCls}">${endLabel} ${daysToEnd} 工作日</span>${estNote}`;
+  } else {
+    cv.innerHTML = `—<span class="unit"></span>`;
+    cvSub.textContent = '暂无进行中/临近版本';
+  }
+
+  // ② 下一节点：EVENTS 里未来最近的点事件（受视角/分类过滤联动），倒计时用工作日
+  const nowMon = mondayOf(TODAY);
+  const nextEvt = EVENTS.filter(e => !e.range && eventVisible(e) && e.date >= TODAY)
+    .sort((a,b) => a.date - b.date)[0];
+  const cd = document.getElementById('statCd');
+  const cdSub = document.getElementById('statCdSub');
+  if(nextEvt){
+    const wd = workingDaysUntil(TODAY, nextEvt.date);
+    cd.innerHTML = `${wd}<span class="unit">工作日</span>`;
+    const label = nextEvt.short.replace(/^→/, '');
+    cdSub.textContent = `${label} · ${fmtShort(nextEvt.date)}`;
+  } else {
+    cd.innerHTML = `—<span class="unit"></span>`;
+    cdSub.textContent = '暂无后续节点';
+  }
+
+  // ③ 本周节点：EVENTS 里 date 落在本周(周一-周日)的会议/里程碑数量（受视角过滤联动）
+  const wkSun = new Date(nowMon.getTime() + 6*86400000);
+  const wkPoints = EVENTS.filter(e => !e.range && eventVisible(e) && e.date >= nowMon && e.date <= wkSun);
+  const nx = document.getElementById('statNext');
+  const nxSub = document.getElementById('statNextSub');
+  nx.innerHTML = `${wkPoints.length}<span class="unit">个</span>`;
+  if(wkPoints.length){
+    // 副标：显示前 2 个节点名
+    const labels = wkPoints.slice(0,2).map(e => e.short.replace(/^→/, '')).join(' · ');
+    nxSub.textContent = wkPoints.length > 2 ? `${labels} +${wkPoints.length-2}` : labels;
+  } else {
+    nxSub.textContent = roleFilter ? '本周该视角无节点' : '本周无关键节点';
+  }
+
+  // ④ 本周待办：EVENTS 里子事项（subTask）与本周相交的数量（提醒/预告/分配会/反填/录制定档期）
+  const wkSubs = EVENTS.filter(e => e.subTask && eventVisibleTimeline(e) && (
+    e.range ? (e.range[0] <= wkSun && e.range[1] >= nowMon)
+            : (e.date >= nowMon && e.date <= wkSun)
+  ));
+  const rg = document.getElementById('statRange');
+  const rgSub = document.getElementById('statRangeSub');
+  rg.innerHTML = `${wkSubs.length}<span class="unit">条</span>`;
+  if(wkSubs.length){
+    const tagLabel = { 's-thu-alloc':'需求分配会', 's-est10':'反填声优', 's-sched-win':'录制定档期' };
+    const uniqTags = [...new Set(wkSubs.map(e=>tagLabel[e.tag]||e.tag))];
+    rgSub.textContent = uniqTags.join(' · ');
+  } else {
+    rgSub.textContent = '本周无子事项';
+  }
+}
+
+// ================================================================
+// RIGHT PANEL — 本周聚焦 / 未来30天时间轴 / 版本进度
+// ================================================================
+function renderRightPanel(){
+  renderThisWeek();
+  renderTimeline30();
+  renderProgress();
+}
+
+// 开发倒计时：显示当前版本 + 后续 2 个版本，距离本版本「转测 W1（周一）」还剩几周
+// 规则：若版本已进入转测/发布（test.start <= TODAY），跳过；只显示 dev 或更早阶段的版本
+// 「几周」= 从本周一开始，到 test.start 那周的周一，跨越的完整周数（>=0）
+function renderThisWeek(){
+  const box = document.getElementById('rpThisWeek');
+  // 按发布时间顺序（VERSIONS 已按 release-plans.json 顺序），过滤：仍未进入转测 & 非 planned
+  const nowMon = mondayOf(TODAY);
+  const cands = VERSIONS.filter(v => !v.planned).map(ver => {
+    const testPh = ver.phases.find(p => p.type === 'test');
+    if(!testPh) return null;
+    const testStart = d(testPh.start);
+    const testMon = mondayOf(testStart);
+    // 已到转测/发布 → 跳过
+    if(testMon.getTime() <= nowMon.getTime()) return null;
+    // 计算"工作周"数：从本周一逐周向前走到 testMon，跳过节假日周
+    let weeksLeft = 0;
+    let cur = new Date(nowMon.getTime());
+    while(cur.getTime() < testMon.getTime()){
+      cur = new Date(cur.getTime() + 7*86400000);
+      if(weekIsHoliday(cur)) continue; // 节假日周不计
+      weeksLeft++;
+    }
+    return { ver, testStart, testMon, weeksLeft };
+  }).filter(Boolean);
+  const items = cands.slice(0, 3); // 当前 + 后 2 个
+  if(!items.length){ box.innerHTML = '<div class="rp-empty">所有版本已进入转测</div>'; return; }
+  box.innerHTML = items.map(it => {
+    // 判断"当前所处阶段"用于副标签
+    const nowPh = it.ver.phases.find(p => {
+      const s = d(p.start), e = d(p.end);
+      return TODAY >= s && TODAY <= e;
+    });
+    const PHASE_NAMES = { dev:'开发期', test:'测试期', release:'发布期', w0:'启动周' };
+    const phaseLabel = nowPh ? (PHASE_NAMES[nowPh.type] || nowPh.type) : '未开始';
+    return `
+    <div class="rp-tw-item">
+      <div class="rp-tw-ver">${it.ver.name}<span class="rp-tw-phase">${phaseLabel}</span></div>
+      <div class="rp-tw-cd">
+        <span class="rp-tw-cd-num">${it.weeksLeft}</span><span class="rp-tw-cd-unit">周</span>
+      </div>
+      <div class="rp-tw-cd-sub">距转测 W1 · ${fmtShort(it.testStart)}</div>
+    </div>`;
+  }).join('');
+}
+
+// 未来 60 天时间轴：按日期排序列出 4 大节点 + Vo 子事项（周三预告/需求分配会/反填声优/录制定档期）
+// 4 节点用 date；子事项 subTask 由 eventVisibleTimeline 单独放行，s-sched-win 用 range 区间条
+function renderTimeline30(){
+  const box = document.getElementById('rpTimeline');
+  const end = new Date(TODAY); end.setDate(end.getDate()+60);
+  // 各 tag 对应的明确时点（automation 排期）；只保留时间，具体动作说明由 short/label 承担，避免时间轴视觉冗余
+  const TIME_HINT = {
+    'm-lock':      '10:00',
+    'm-estimate':  '11:30',
+    'm-script':    '11:30',
+    'm-deliver':   '',
+    's-thu-alloc': '11:30',
+    's-est10':     '10:00',
+    's-sched-win': '每日 10:30',
+  };
+  const evs = EVENTS.filter(e => {
+    if(!eventVisibleTimeline(e)) return false;
+    if(e.range){ return e.range[0] <= end && e.range[1] >= TODAY; }
+    return e.date >= TODAY && e.date <= end;
+  }).sort((a,b)=>(a.date||a.range[0])-(b.date||b.range[0]));
+  if(!evs.length){ box.innerHTML = '<div class="rp-empty">未来 60 天无事项</div>'; return; }
+  // 版本名前缀（区间事项 short 缺前缀，补上以便看清是哪个版本）
+  const verShort = (forVer) => { const v = VERSIONS.find(x=>x.id===forVer); return v ? v.name.replace('.0','') : ''; };
+  box.innerHTML = evs.map(e => {
+    const hint = TIME_HINT[e.tag] ? ` <span class="rp-tl-hint">· ${TIME_HINT[e.tag]}</span>` : '';
+    if(e.range){
+      const [s,ee] = e.range;
+      const label = `${verShort(e.forVer)} ${e.short}`.trim();
+      return `<div class="rp-tl-item ${e.tag}">
+        <div class="rp-tl-dot evt-${e.tag}"></div>
+        <div class="rp-tl-body">
+          <div class="rp-tl-date">${fmtShort(s)} → ${fmtShort(ee)}${hint}</div>
+          <div class="rp-tl-label evt-${e.tag}">${label}</div>
+        </div>
+      </div>`;
+    }
+    const dd = e.date;
+    // 6 节点 short 已带 →版本名 前缀，只去掉箭头保留版本名
+    const label = e.short.replace(/^→/, '');
+    return `<div class="rp-tl-item ${e.tag}">
+      <div class="rp-tl-dot evt-${e.tag}"></div>
+      <div class="rp-tl-body">
+        <div class="rp-tl-date">${fmt(dd)} <span class="rp-tl-wk">周${'日一二三四五六'[dd.getDay()]}</span>${hint}</div>
+        <div class="rp-tl-label evt-${e.tag}">${label}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// 版本进度卡：当前版本 + 后续 2 个版本，进度% + 下一节点倒计时（受视角过滤）
+function renderProgress(){
+  const box = document.getElementById('rpProgress');
+  // 「当前 + 后 2 个」= 按发布时间顺序，dev 段尚未结束（或即将开始）的前 3 个非 planned 版本
+  const vers = VERSIONS.filter(v => {
+    if(v.planned) return false;
+    const lastPh = v.phases[v.phases.length-1];
+    return d(lastPh.end) >= TODAY; // 尚未完全结束
+  }).slice(0, 3);
+  if(!vers.length){ box.innerHTML = '<div class="rp-empty">暂无进行中版本</div>'; return; }
+  box.innerHTML = vers.map(ver => {
+    const firstPh = ver.phases[0], lastPh = ver.phases[ver.phases.length-1];
+    const s = d(firstPh.start), e = d(lastPh.end);
+    const total = diffDays(s,e) || 1;
+    const elapsed = diffDays(s, TODAY);
+    const pct = Math.max(0, Math.min(100, Math.round(elapsed/total*100)));
+    const nev = EVENTS.filter(ev => ev.forVer===ver.id && ev.date>=TODAY && eventVisible(ev))
+                       .sort((a,b)=>a.date-b.date)[0];
+    const cd = nev ? diffDays(TODAY, nev.date) : null;
+    return `<div class="rp-pg-card">
+      <div class="rp-pg-head"><span class="rp-pg-name">${ver.name}</span><span class="rp-pg-pct">${pct}%</span></div>
+      <div class="rp-pg-bar"><div class="rp-pg-fill" style="width:${pct}%"></div></div>
+      <div class="rp-pg-next">${nev ? `下一节点 · ${nev.short} · ${cd}天后` : '无后续节点'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ================================================================
+// DETAIL PANEL & TOOLTIP
+// ================================================================
+function showDetail(ver){
+  const dp = document.getElementById('detailPanel');
+  dp.style.display = 'flex';
+  document.getElementById('dpVer').textContent = ver.detail.release || ver.name;
+  document.getElementById('dpName').textContent = ver.name.replace(ver.detail.release+' ','');
+
+  const grid = document.getElementById('dpGrid');
+  const dt = ver.detail;
+  grid.innerHTML = '';
+  const cards = [
+    {label:'状态', val:dt.status, cls: dt.status.includes('开发')?'info':(dt.status.includes('已发布')?'':'warn')},
+    {label:'开发周期', val:(dt.devWeeks||'?')+' 周', cls:''},
+    {label:'测试周期', val:(dt.testWeeks||'?')+' 周', cls:''},
+    {label:'发布窗口', val:(dt.relWeeks||'?')+' 周', cls:''},
+    {label:'语音负责人', val:dt.voiceLead||'待定', cls:'vo'},
+    {label:'备注', val:dt.note||'', cls:''},
+  ];
+  cards.forEach(c => {
+    if(!c.val) return;
+    const card = document.createElement('div');
+    card.className = `dp-card${c.cls?' '+c.cls:''}`;
+    card.innerHTML = `<div class="dc-label">${c.label}</div><div class="dc-val">${c.val}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function toggleDetail(){
+  const dp = document.getElementById('detailPanel');
+  dp.style.display = dp.style.display === 'none' ? 'flex' : 'none';
+}
+
+// Click handler — year mode (yc-cell / yc-ms)
+const tt = document.getElementById('tooltip');
+document.getElementById('ycBody').addEventListener('click', (e)=>{
+  const cell = e.target.closest('.yc-cell');
+  if(cell && !cell.classList.contains('empty')){
+    e.stopPropagation();
+    const range = cell.querySelector('.yc-range')?.textContent || '';
+    const note  = cell.querySelector('.yc-note')?.textContent || '';
+    tt.innerHTML = `<div class="tt-title">${range}</div>`
+      + (note ? `<div class="tt-desc">${note}</div>` : '')
+      + `<div class="tt-date">版本：${cell.dataset.ver} · ${cell.dataset.phase}</div>`;
+    tt.style.left = Math.min(e.clientX + 12, window.innerWidth - 340) + 'px';
+    tt.style.top = (e.clientY - 10) + 'px';
+    tt.classList.add('show');
+    clearTimeout(tt._hideTt);
+    tt._hideTt = setTimeout(()=>tt.classList.remove('show'), 2800);
+    return;
+  }
+  const msCell = e.target.closest('.yc-ms');
+  if(msCell){
+    const verName = msCell.querySelector('.ms-ver')?.textContent;
+    const ver = VERSIONS.find(v => v.name === verName);
+    if(ver) showDetail(ver);
+  }
+});
+document.addEventListener('click', ()=>tt.classList.remove('show'));
+
+// ================================================================
+// MODE SWITCH: 日历已废除，仅保留年历（保留函数骨架以防外部残留调用）
+// ================================================================
+function setMode(m){
+  currentMode = 'year';
+  renderTimeline();
+  setTimeout(scrollToToday,200);
+  renderRightPanel();
+}
+
+function setActiveVer(id){ /* deprecated: 日历视图已废 */ }
+
+function buildVerSelector(){ /* deprecated: 日历视图已废 */ }
+
+// ================================================================
+// DAY-CELL CALENDAR — 单版本切片：行=版本×阶段的每周（4子行）× 列=周一~周日
+// ================================================================
+function scrollToTodayDay(){
+  const el = document.querySelector('.day-table td.td-date.today');
+  if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function renderDayView(){
+  const thead = document.getElementById('dayHead');
+  const tbody = document.getElementById('dayBody');
+  const ver = VERSIONS.find(v=>v.id===activeVerId);
+  if(!ver){
+    thead.innerHTML='';
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--c-text-mute);padding:32px">请选择版本</td></tr>';
+    return;
+  }
+
+  // Header: 年度 | 版本节点 | 分工 | 周一~周日
+  thead.innerHTML = '<tr>'
+    + '<th class="th-year">年度</th>'
+    + '<th class="th-phase">版本节点</th>'
+    + '<th class="th-role">分工</th>'
+    + '<th class="th-day">周一</th>'
+    + '<th class="th-day">周二</th>'
+    + '<th class="th-day">周三</th>'
+    + '<th class="th-day">周四</th>'
+    + '<th class="th-day">周五</th>'
+    + '<th class="th-day weekend">周六</th>'
+    + '<th class="th-day weekend">周日</th>'
+    + '</tr>';
+
+  tbody.innerHTML = '';
+  const todayTs = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate()).getTime();
+
+  // 单版本视图：第一列年度贯穿全部行，取 release 阶段年份
+  const relPh0 = ver.phases.find(p=>p.type==='release') || ver.phases[ver.phases.length-1];
+  const dayVerYear = d(relPh0.start).getFullYear();
+  // 预算所有 phase 的周数（用于年度列 rowSpan）
+  let dayTotalWeeks = 0;
+  for(const ph2 of ver.phases){
+    const ps2 = d(ph2.start), pe2 = d(ph2.end);
+    const wkMon2 = mondayOf(ps2);
+    const wkEndRaw2 = new Date(pe2);
+    const fwd2 = (7 - pe2.getDay()) % 7;
+    if(fwd2 > 0) wkEndRaw2.setDate(wkEndRaw2.getDate() + fwd2);
+    let cur2 = new Date(wkMon2), n=0;
+    while(cur2 <= wkEndRaw2){ n++; cur2.setDate(cur2.getDate()+7); }
+    dayTotalWeeks += n;
+  }
+  const dayTotalRows = dayTotalWeeks * 4;
+  let dayYearInserted = false; // 首行插入 rowspan 单元格后即置 true
+
+  for(const ph of ver.phases){
+    const ps = d(ph.start), pe = d(ph.end);
+    const wkMon = mondayOf(ps);
+    const wkEndRaw = new Date(pe);
+    const fwd = (7 - pe.getDay()) % 7;
+    if(fwd > 0) wkEndRaw.setDate(wkEndRaw.getDate() + fwd);
+
+    // Collect weeks (Mondays) covered by this phase
+    const weeks = [];
+    let cur = new Date(wkMon);
+    while(cur <= wkEndRaw){ weeks.push(new Date(cur)); cur.setDate(cur.getDate()+7); }
+    if(!weeks.length) continue;
+
+    for(let wi=0; wi<weeks.length; wi++){
+      const mon = weeks[wi];
+      const wkIdx = Math.round((mon.getTime() - wkMon.getTime())/86400000/7);
+      // 「节点周免节假日」：仅当本周含任何事件（会议/critical，受角色关注过滤）时，整周不显示节假日。
+      // （dev 末两周不再特殊豁免，按真实节假日数据正常显示）
+      const wkSunLocal = new Date(mon.getTime() + 6*86400000);
+      const hasEventInWeek = eventsInRange(mon, wkSunLocal).some(ev => eventVisible(ev));
+      const suppressHoliday = hasEventInWeek;
+      const rows = []; // 4 rows per week
+      // Row 1: phase label (only on first row of first week per phase — spans all 4 rows × N weeks? too much. simpler: label repeats per week)
+      const tr1 = document.createElement('tr'); // date row
+      // 年度列 · 仅在最顶行插入一次，rowSpan=全表行数
+      if(!dayYearInserted){
+        const tdY = document.createElement('td');
+        tdY.className = 'td-year';
+        tdY.rowSpan = dayTotalRows;
+        tdY.innerHTML = `<div class="dy-year">${dayVerYear}</div>`;
+        tr1.appendChild(tdY);
+        dayYearInserted = true;
+      }
+      if(wi===0){
+        const tdP = document.createElement('td');
+        tdP.className = 'td-phase pd-' + ph.type;
+        tdP.rowSpan = weeks.length * 4;
+        tdP.innerHTML = `<div class="p-ver">${ver.name}</div><div class="p-name">${ph.label}</div><div class="p-wk">${ph.weeks}w</div>`;
+        tr1.appendChild(tdP);
+      }
+      // 空白角色列（日期行的分工格留空，做上下分区）
+      const tdRoleEmpty = document.createElement('td');
+      tdRoleEmpty.className = 'td-role';
+      tdRoleEmpty.style.background = 'var(--c-bg-0)';
+      tr1.appendChild(tdRoleEmpty);
+      // 7 日期格
+      for(let di=0; di<7; di++){
+        const day = new Date(mon.getTime() + di*86400000);
+        const isToday = day.getTime() === todayTs;
+        const isWeekend = di>=5;
+        const hol = suppressHoliday ? null : holidayOnDay(day);
+        const td = document.createElement('td');
+        let cls = 'td-date' + (isToday?' today':'') + (isWeekend?' weekend':'') + (hol?' holiday':'');
+        td.className = cls;
+        const dateStr = `${day.getFullYear()}/${day.getMonth()+1}/${day.getDate()}`;
+        td.innerHTML = hol
+          ? `<div class="td-date-num">${dateStr}</div><div class="td-date-hol">${hol.short}</div>`
+          : dateStr;
+        if(hol) td.title = hol.label;
+        tr1.appendChild(td);
+      }
+      tbody.appendChild(tr1);
+
+      // Row 2/3/4: 文案 / 音频 / PM
+      const roles = [
+        { key:'cn',    label:'文案', cls:'role-cn' },
+        { key:'audio', label:'音频', cls:'role-audio' },
+        { key:'pm',    label:'PM',   cls:'role-pm' },
+      ];
+      for(const r of roles){
+        const tr = document.createElement('tr');
+        const tdR = document.createElement('td');
+        tdR.className = 'td-role ' + r.cls;
+        tdR.textContent = r.label;
+        tr.appendChild(tdR);
+        for(let di=0; di<7; di++){
+          const day = new Date(mon.getTime() + di*86400000);
+          const isToday = day.getTime() === todayTs;
+          const isWeekend = di>=5;
+          const hol = suppressHoliday ? null : holidayOnDay(day);
+          const ts = day.getTime();
+          const td = document.createElement('td');
+          let cls = 'td-slot empty';
+          if(isToday)  cls += ' today';
+          if(isWeekend)cls += ' weekend';
+          if(hol)      cls += ' holiday';
+          td.className = cls;
+          td.dataset.date = `${day.getFullYear()}/${day.getMonth()+1}/${day.getDate()}`;
+          td.dataset.role = r.key;
+          td.dataset.ver = ver.id;
+          td.dataset.phase = ph.type;
+          if(hol) td.title = hol.label;
+          // 匹配当日事件（按 role + 角色关注过滤）
+          const dayEvts = eventsOnDay(day).filter(e => e.roles && e.roles.includes(r.key) && eventVisible(e));
+          if(dayEvts.length){
+            cls = cls.replace(' empty','');
+            td.className = cls;
+            td.innerHTML = dayEvts.map(e => `<span class="evt-chip evt-${e.tag}" title="${e.full}">${e.short.replace(/^→/,'')}</span>`).join('');
+          }
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+    }
+  }
+}
+
+// ================================================================
+// INIT
+// ================================================================
+(async function init(){
+  await loadReleasePlans();
+  // 异步拉「对外正式包确认」（不阻塞首屏，成功后重刷 stats + 右侧栏）
+  loadPackConfirm().then(() => {
+    updateStats();
+    renderRightPanel();
+  }).catch(()=>{});
+  buildVerSelector();
+  buildFilterButtons();
+  // 默认年历模式
+  renderTimeline();
+  renderRightPanel();
+  setTimeout(scrollToToday, 300);
+  // 节假日：内置 2026 已即时生效；后台自动补全 2027/2028，成功则重算节点链并重绘
+  loadHolidaysAuto().then(changed => {
+    if(changed && VERSIONS.length){
+      EVENTS = computeEvents();
+      rerenderView();
+      const label = document.getElementById('dataSourceLabel');
+      if(label) label.textContent = `${VERSIONS.filter(v=>!v.planned).length} API · ${VERSIONS.filter(v=>v.planned).length} 规划 · ${EVENTS.length} 节点 · 含自动节假日`;
+    }
+  }).catch(()=>{});
+  console.log('◉ 版本节点 · v17 (右侧栏+角色关注+倒数周免节假日) · '+VERSIONS.length+' 版本');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>游戏语音需求管理系统 — 开发交接文档</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1E1E2E;background:#F5F6FA}
+
+.layout{display:flex;min-height:100vh}
+
+/* TOC */
+.toc{width:260px;background:#1E1E2F;color:#C8C8D4;padding:24px 20px;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;flex-shrink:0}
+.toc-title{font-size:14px;font-weight:700;color:#FFF;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:8px}
+.toc-title .badge{background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#FFF;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.toc ol{list-style:none;counter-reset:section}
+.toc li{counter-increment:section}
+.toc li a{display:block;padding:8px 10px;color:#A0A0B4;font-size:12px;text-decoration:none;border-radius:6px;transition:all .15s;line-height:1.4}
+.toc li a:hover{background:rgba(255,255,255,0.06);color:#E0E0EC}
+.toc li a::before{content:counter(section) ". ";color:#707088;font-family:'JetBrains Mono',monospace;font-size:11px}
+.toc-foot{margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;color:#707088;line-height:1.6}
+
+/* MAIN */
+.content{flex:1;margin-left:260px;padding:40px 60px;max-width:calc(100% - 260px)}
+.header{margin-bottom:36px;padding-bottom:24px;border-bottom:2px solid #E5E8EE}
+.header h1{font-size:28px;font-weight:700;color:#1E1E2E;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.header .meta{font-size:12px;color:#707888;display:flex;gap:20px;flex-wrap:wrap;margin-top:12px}
+.header .meta b{color:#1E1E2E;margin-right:4px}
+.header .banner{margin-top:14px;padding:12px 16px;background:linear-gradient(135deg,#EEF0FF,#F5F0FF);border-left:3px solid #6366F1;border-radius:6px;font-size:13px;color:#4C1D95}
+
+h2{font-size:22px;font-weight:700;margin:36px 0 14px;color:#1E1E2E;padding-bottom:8px;border-bottom:1px solid #E5E8EE;counter-reset:h3;display:flex;align-items:center;gap:8px}
+h2::before{content:counter(h2)". ";counter-increment:h2;color:#6366F1;font-family:'JetBrains Mono',monospace;font-size:18px}
+h3{font-size:16px;font-weight:600;margin:24px 0 10px;color:#1E1E2E}
+h4{font-size:14px;font-weight:600;margin:16px 0 8px;color:#4C1D95}
+p{margin-bottom:10px;color:#3E3E4E}
+
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:#F0F1F5;padding:2px 6px;border-radius:4px;color:#6366F1}
+pre{background:#1E1E2F;color:#E0E0EC;padding:14px 18px;border-radius:8px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;margin:12px 0}
+pre code{background:none;color:inherit;padding:0}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px;background:#FFF;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+thead th{background:#F8F9FC;padding:10px 14px;font-weight:600;color:#707888;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid #E5E8EE}
+tbody td{padding:8px 14px;border-bottom:1px solid #F0F1F5;color:#1E1E2E;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#FAFBFF}
+td code{font-size:11px}
+
+/* CALLOUTS */
+.callout{padding:14px 18px;border-radius:8px;margin:14px 0;font-size:13px}
+.callout-danger{background:#FEF2F2;border-left:3px solid #DC2626;color:#7F1D1D}
+.callout-warning{background:#FEF7E0;border-left:3px solid #F59E0B;color:#78350F}
+.callout-info{background:#EEF0FF;border-left:3px solid #6366F1;color:#3730A3}
+.callout-success{background:#ECFDF5;border-left:3px solid #10B981;color:#064E3B}
+.callout b{font-weight:600}
+
+/* LIST */
+ul,ol{margin:8px 0 12px 22px}
+li{margin-bottom:4px;color:#3E3E4E}
+
+/* CHECKLIST */
+.checklist{list-style:none;margin-left:0}
+.checklist li{padding:6px 10px;border-radius:4px;transition:background .15s;cursor:pointer;display:flex;align-items:center;gap:8px}
+.checklist li:hover{background:#F8F9FC}
+.checklist li::before{content:'☐';color:#9098A8;font-family:'JetBrains Mono',monospace;font-size:14px}
+.checklist li.done{color:#9098A8;text-decoration:line-through}
+.checklist li.done::before{content:'☑';color:#10B981}
+
+/* PILL */
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;margin-right:4px}
+.pill-red{background:#FEE2E2;color:#991B1B}
+.pill-blue{background:#DBEAFE;color:#1E40AF}
+.pill-green{background:#D1FAE5;color:#065F46}
+.pill-purple{background:#E9D5FF;color:#6B21A8}
+.pill-yellow{background:#FEF3C7;color:#78350F}
+
+/* DIAGRAM */
+.flow{background:#FFF;padding:20px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center;line-height:2;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin:14px 0;color:#1E1E2E}
+.flow .arrow{color:#6366F1;font-weight:bold}
+.flow .loop{color:#8B5CF6;font-size:11px;font-style:italic;margin-top:6px}
+
+/* TOP LINK */
+.back-top{position:fixed;bottom:24px;right:24px;width:44px;height:44px;border-radius:22px;background:#6366F1;color:#FFF;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 4px 12px rgba(99,102,241,0.3);cursor:pointer;transition:transform .15s;font-size:16px}
+.back-top:hover{transform:translateY(-3px)}
+
+/* Reset counter */
+h2{counter-increment:h2}
+body{counter-reset:h2}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- TOC -->
+  <aside class="toc">
+    <div class="toc-title">📋 目录 <span class="badge">v1.0</span></div>
+    <ol>
+      <li><a href="#s1">产品概述</a></li>
+      <li><a href="#s2">数据模型</a></li>
+      <li><a href="#s3">核心功能规格</a></li>
+      <li><a href="#s4">第三方集成</a></li>
+      <li><a href="#s5">权限控制矩阵</a></li>
+      <li><a href="#s6">API 路由约定</a></li>
+      <li><a href="#s7">前端技术栈</a></li>
+      <li><a href="#s8">部署与环境</a></li>
+      <li><a href="#s9">验收标准与红线</a></li>
+      <li><a href="#s10">里程碑</a></li>
+      <li><a href="#appendix">附录：字段映射</a></li>
+    </ol>
+    <div class="toc-foot">
+      <b style="color:#A0A0B4">配套原型：</b><br/>
+      <a href="./互动原型-语音需求管理系统.html" style="color:#A5B4FC;text-decoration:none">→ 互动原型-语音需求管理系统.html</a>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="header">
+      <h1>🎙 游戏语音需求管理系统</h1>
+      <div style="font-size:15px;color:#606878;font-weight:500">开发交接文档</div>
+      <div class="meta">
+        <span><b>文档版本：</b>v1.0</span>
+        <span><b>发布日期：</b>2026-07-17</span>
+        <span><b>产品负责人：</b>lycheelli (PM)</span>
+        <span><b>协作方：</b>文案策划 · 音频策划 · 前后端工程师</span>
+      </div>
+      <div class="banner">
+        📎 <b>配套交付物</b>：交互式原型 <code>互动原型-语音需求管理系统.html</code>（浏览器打开可直接操作五大模块）
+      </div>
+    </div>
+
+    <!-- ============ 1. 产品概述 ============ -->
+    <h2 id="s1">产品概述</h2>
+    <p>一站式游戏语音需求管理系统，覆盖「需求录入 → 台词编写 → 声优匹配 → 录制排期 → 音频归档」全流程。</p>
+
+    <h3>五模块闭环</h3>
+    <div class="flow">
+      📋 需求汇总 <span class="arrow">→</span> 📝 台词管理 <span class="arrow">→</span> 🎤 声优库 <span class="arrow">→</span> 📅 录制档期 <span class="arrow">→</span> 🎧 VO 资产库
+      <div class="loop">↑ 音频反哺需求验收，形成闭环 ↑</div>
+    </div>
+
+    <h3>目标用户</h3>
+    <table>
+      <thead><tr><th>角色</th><th>主要职责</th></tr></thead>
+      <tbody>
+        <tr><td><b>PM</b></td><td>统筹版本节点、跟踪需求进度</td></tr>
+        <tr><td><b>文案策划</b></td><td>填写文案台词（中/英）</td></tr>
+        <tr><td><b>音频策划</b></td><td>分配声优、上传录制版台词与音频</td></tr>
+        <tr><td><b>管理员</b></td><td>维护声优库、系统权限</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ 2. 数据模型 ============ -->
+    <h2 id="s2">数据模型</h2>
+
+    <h3>2.1 <code>demands</code>（需求表）</h3>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>BIGINT</td><td>PK, AUTO_INCREMENT</td><td>需求 ID</td></tr>
+        <tr><td><code>version</code></td><td>VARCHAR(32)</td><td>NOT NULL, INDEX</td><td>版本号（Yang1..Yang5）</td></tr>
+        <tr><td><code>area</code></td><td>ENUM</td><td>NOT NULL, INDEX</td><td>业务区域（AI / SOL / MP）</td></tr>
+        <tr><td><code>task_name</code></td><td>VARCHAR(128)</td><td>NOT NULL</td><td>任务名</td></tr>
+        <tr><td><code>description</code></td><td>TEXT</td><td></td><td>需求概括</td></tr>
+        <tr><td><code>video_sync</code></td><td>TINYINT(1)</td><td>DEFAULT 0</td><td>是否音画同步</td></tr>
+        <tr><td><code>req_planner</code></td><td>VARCHAR(32)</td><td>NOT NULL</td><td>需求策划</td></tr>
+        <tr><td><code>script_planner</code></td><td>VARCHAR(32)</td><td></td><td>文案策划</td></tr>
+        <tr><td><code>en_writer</code></td><td>VARCHAR(32)</td><td></td><td>英文文案</td></tr>
+        <tr><td><code>status</code></td><td>ENUM</td><td>DEFAULT 'pending'</td><td>pending / progress / done / sync</td></tr>
+      </tbody>
+    </table>
+    <p><b>索引</b>：<code>idx_ver_area(version, area)</code>、<code>idx_status(status)</code></p>
+
+    <h3>2.2 <code>script_lines</code>（台词表）</h3>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>BIGINT</td><td>PK</td><td></td></tr>
+        <tr><td><code>demand_id</code></td><td>BIGINT</td><td>FK, INDEX</td><td>关联需求</td></tr>
+        <tr><td><code>no</code></td><td>VARCHAR(16)</td><td>NOT NULL</td><td>序号（如 001）</td></tr>
+        <tr><td><code>voice_actor_id</code></td><td>BIGINT</td><td>FK, NOT NULL</td><td>声优 ID（<span class="pill pill-red">枚举，禁止自由文本</span>）</td></tr>
+        <tr><td><code>text_cn</code> / <code>text_en</code></td><td>TEXT</td><td></td><td>文案台词-中/英</td></tr>
+        <tr><td><code>recorded_text_cn</code> / <code>recorded_text_en</code></td><td>TEXT</td><td></td><td>录制版台词-中/英</td></tr>
+        <tr><td><code>trigger_condition</code></td><td>VARCHAR(64)</td><td></td><td>触发条件</td></tr>
+        <tr><td><code>emotion</code></td><td>VARCHAR(32)</td><td></td><td>语言情绪</td></tr>
+        <tr><td><code>gp_audio_event</code></td><td>VARCHAR(64)</td><td>INDEX</td><td>GP Audio Event 事件码</td></tr>
+        <tr><td><code>remark</code></td><td>VARCHAR(255)</td><td></td><td>备注</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.3 <code>voice_actors</code>（声优库）</h3>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>BIGINT</td><td>PK</td><td></td></tr>
+        <tr><td><code>name</code></td><td>VARCHAR(64)</td><td>NOT NULL, UNIQUE</td><td>姓名（唯一）</td></tr>
+        <tr><td><code>role_type</code></td><td>ENUM</td><td>NOT NULL, INDEX</td><td>干员 / 指挥官 / 路人角色</td></tr>
+        <tr><td><code>languages</code></td><td>VARCHAR(64)</td><td>NOT NULL</td><td>中文 / 英文 / 中英双语</td></tr>
+        <tr><td><code>current_schedule</code></td><td>VARCHAR(64)</td><td></td><td>当前档期区间</td></tr>
+        <tr><td><code>available</code></td><td>TINYINT(1)</td><td>DEFAULT 1</td><td>是否可接新角色</td></tr>
+        <tr><td><code>portfolio_url</code></td><td>VARCHAR(255)</td><td>NOT NULL</td><td><span class="pill pill-red">必填</span> 选角资料 URL</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.4 <code>audio_assets</code>（资产库）</h3>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>BIGINT</td><td>PK</td><td></td></tr>
+        <tr><td><code>script_line_id</code></td><td>BIGINT</td><td>FK, NOT NULL</td><td>关联台词</td></tr>
+        <tr><td><code>language</code></td><td>ENUM('cn','en')</td><td>NOT NULL, INDEX</td><td>语言</td></tr>
+        <tr><td><code>file_url</code></td><td>VARCHAR(255)</td><td>NOT NULL</td><td>COS/OSS URL</td></tr>
+        <tr><td><code>file_name</code> / <code>duration</code> / <code>file_size</code></td><td></td><td></td><td>元数据</td></tr>
+        <tr><td><code>version</code> / <code>gp_audio_event</code> / <code>voice_actor_id</code></td><td></td><td>INDEX</td><td>冗余便于全局检索</td></tr>
+        <tr><td><code>uploaded_by</code></td><td>VARCHAR(32)</td><td>NOT NULL</td><td>上传人</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.5 <code>script_line_history</code>（台词变更留痕表）</h3>
+    <div class="callout callout-warning">
+      🚨 <b>红线</b>：修改台词必须留痕。字段变更前后端拦截，diff 写入本表。必须记录：<code>text_cn</code>、<code>text_en</code>、<code>recorded_text_cn</code>、<code>recorded_text_en</code>、<code>voice_actor_id</code>。
+    </div>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>BIGINT</td><td>PK</td></tr>
+        <tr><td><code>script_line_id</code></td><td>BIGINT</td><td>关联台词</td></tr>
+        <tr><td><code>field_name</code></td><td>VARCHAR(32)</td><td>变更字段名</td></tr>
+        <tr><td><code>old_value</code> / <code>new_value</code></td><td>TEXT</td><td>旧值 / 新值</td></tr>
+        <tr><td><code>modified_by</code></td><td>VARCHAR(32)</td><td>修改人</td></tr>
+        <tr><td><code>modified_at</code></td><td>DATETIME</td><td>修改时间</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2.6 <code>recording_schedules</code>（录制档期表）</h3>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>BIGINT</td><td>PK</td></tr>
+        <tr><td><code>record_date</code></td><td>DATE, INDEX</td><td>录制日期</td></tr>
+        <tr><td><code>voice_actor_id</code></td><td>BIGINT, FK</td><td>声优</td></tr>
+        <tr><td><code>language</code></td><td>ENUM('cn','en')</td><td>语种</td></tr>
+        <tr><td><code>script_line_id</code></td><td>BIGINT, FK</td><td>关联台词（可空）</td></tr>
+        <tr><td><code>duration</code></td><td>DECIMAL(4,1)</td><td>时长（小时）</td></tr>
+        <tr><td><code>status</code></td><td>ENUM</td><td>pending / progress / done</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ 3. 核心功能规格 ============ -->
+    <h2 id="s3">核心功能规格</h2>
+
+    <h3>3.1 侧边栏树形导航</h3>
+    <pre><code>📋 需求汇总（可展开）
+   ├─ Yang1 / Yang2 / Yang3 / Yang4 / Yang5
+📝 台词管理（可展开）
+   ├─ AI / SOL / MP
+🎤 声优库（可展开）
+   ├─ 干员 / 指挥官 / 路人角色
+📅 录制档期（无子集，直接进入日历页）
+🎧 VO 资产库（无子集，直接进入资产列表页）</code></pre>
+    <ul>
+      <li>点击一级菜单 → 展开/收起子集，chevron 图标 90 度旋转</li>
+      <li>点击子集 → 高亮 active，主内容区加载对应数据</li>
+      <li>URL 路由记录当前 tab（便于分享/刷新还原）</li>
+    </ul>
+
+    <h3>3.2 需求汇总页</h3>
+    <ul>
+      <li>顶部 filter：AREA / 状态 / 策划人（动态生成）+ 搜索 + 重置</li>
+      <li>表格列：任务名、AREA、需求概括、音画同步（黄标）、需求策划、文案策划、状态、操作</li>
+      <li>点击「查看台词 →」跳转到台词管理页对应 AREA</li>
+      <li>分页 20 条/页，大数据量启用虚拟滚动</li>
+    </ul>
+
+    <h3>3.3 台词管理页</h3>
+    <div class="callout callout-danger">
+      🚨 <b>硬约束</b>：声优列必须是 <code>&lt;select&gt;</code>，options 来自声优库 API。<b>禁止 <code>&lt;input type="text"&gt;</code></b>。
+    </div>
+    <ul>
+      <li>URL：<code>/scripts/:area</code>（area ∈ AI / SOL / MP）</li>
+      <li>10 列固定表头，严禁增删列</li>
+      <li>可编辑列（inline，blur 时保存）：
+        <ul>
+          <li>文案台词-中/英 → 角色 <span class="pill pill-blue">文案策划 / admin</span></li>
+          <li>录制版台词-中/英 → 角色 <span class="pill pill-purple">音频策划 / admin</span></li>
+          <li>其他 → <span class="pill pill-yellow">admin</span></li>
+        </ul>
+      </li>
+      <li>保存前后端写入 <code>script_line_history</code></li>
+      <li>底部实时统计：<b>每 20 词 = 1 句</b>（中文按字符计，英文按空格分词）</li>
+    </ul>
+
+    <h3>3.4 声优库</h3>
+    <div class="callout callout-danger">
+      🚨 <b>硬约束</b>：新增声优必须上传选角资料（PDF/JPG/PNG）。未上传即被拦截。
+    </div>
+    <ul>
+      <li>URL：<code>/voice-actors/:type</code>（type ∈ 干员/指挥官/路人角色）</li>
+      <li>新增流程：先上传文件到 COS 拿 URL → 再 POST <code>/api/voice-actors</code></li>
+      <li>Toggle「可接新角色」实时保存</li>
+    </ul>
+
+    <h3>3.5 录制档期（日历视图）</h3>
+    <div class="callout callout-danger">
+      🚨 <b>硬约束</b>：必须用可视化日历组件（Ant Design <code>Calendar</code> / FullCalendar / react-big-calendar），不允许列表替代。
+    </div>
+    <ul>
+      <li>月视图，每日格子展示彩色圆点：
+        <ul>
+          <li><span style="display:inline-block;width:10px;height:10px;border-radius:5px;background:#3B82F6;vertical-align:middle"></span> 中文录制</li>
+          <li><span style="display:inline-block;width:10px;height:10px;border-radius:5px;background:#EF4444;vertical-align:middle"></span> 英文录制</li>
+          <li><span style="display:inline-block;width:10px;height:10px;border-radius:5px;background:#8B5CF6;vertical-align:middle"></span> 中+英</li>
+        </ul>
+      </li>
+      <li>点击某日 → 弹窗/侧栏展示当日排期详情</li>
+      <li>支持月份切换 + 按声优/语言筛选</li>
+    </ul>
+
+    <h3>3.6 VO 资产库</h3>
+    <ul>
+      <li>URL：<code>/assets</code>，独立于任何需求/声优</li>
+      <li>顶部 filter：声优 / GP Event / 版本 / 文件名搜索</li>
+      <li>行复选框 + 全选 + 顶部「批量下载 ZIP (N)」</li>
+      <li>后端流式打包 ZIP：<code>POST /api/assets/batch-download</code></li>
+    </ul>
+
+    <!-- ============ 4. 第三方集成 ============ -->
+    <h2 id="s4">第三方集成</h2>
+
+    <h3>4.1 腾讯文档 API（可选）</h3>
+    <ul>
+      <li>用途：将 TAPD 已收集的需求同步到 <code>demands</code></li>
+      <li>OAuth2.0 授权 + 定时同步（30min）或触发式</li>
+      <li>字段映射写在 <code>config/tencent_doc_mapping.yaml</code></li>
+    </ul>
+
+    <h3>4.2 COS / OSS</h3>
+    <ul>
+      <li>三个 bucket：<code>voice-portfolio</code> / <code>voice-assets</code> / <code>voice-temp</code></li>
+      <li>前端直传：后端签名凭证 → 前端上传 → 后端登记</li>
+      <li>下载：后端生成 15 分钟签名 URL</li>
+    </ul>
+
+    <h3>4.3 通知（可选）</h3>
+    <ul>
+      <li>企业微信机器人 / 邮件 SMTP</li>
+      <li>触发：新排期 → 声优 + 音频；状态变更 → 需求策划；音频上传完成 → 文案</li>
+    </ul>
+
+    <!-- ============ 5. 权限矩阵 ============ -->
+    <h2 id="s5">权限控制矩阵</h2>
+    <table>
+      <thead><tr><th>操作</th><th style="text-align:center">文案策划</th><th style="text-align:center">音频策划</th><th style="text-align:center">管理员</th></tr></thead>
+      <tbody style="text-align:center">
+        <tr><td style="text-align:left">查看需求汇总</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td style="text-align:left">新建/编辑需求</td><td>❌</td><td>❌</td><td>✅</td></tr>
+        <tr><td style="text-align:left">编辑「文案台词」列</td><td>✅</td><td>❌</td><td>✅</td></tr>
+        <tr><td style="text-align:left">编辑「录制版台词」列</td><td>❌</td><td>✅</td><td>✅</td></tr>
+        <tr><td style="text-align:left">修改声优下拉</td><td>❌</td><td>✅</td><td>✅</td></tr>
+        <tr><td style="text-align:left">新增/删除声优</td><td>❌</td><td>❌</td><td>✅</td></tr>
+        <tr><td style="text-align:left">Toggle 声优档期开关</td><td>❌</td><td>✅</td><td>✅</td></tr>
+        <tr><td style="text-align:left">新增/修改档期</td><td>❌</td><td>✅</td><td>✅</td></tr>
+        <tr><td style="text-align:left">上传音频</td><td>❌</td><td>✅</td><td>✅</td></tr>
+        <tr><td style="text-align:left">批量下载</td><td>✅</td><td>✅</td><td>✅</td></tr>
+        <tr><td style="text-align:left">删除资产</td><td>❌</td><td>❌</td><td>✅</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-info">
+      💡 <b>实现建议</b>：后端中间件 <code>requireRole(['script_writer','admin'])</code>；前端 <code>&lt;PermissionGate role="..."&gt;</code> 组件包裹敏感按钮；用户角色存 JWT，服务端 double check。
+    </div>
+
+    <!-- ============ 6. API 路由 ============ -->
+    <h2 id="s6">API 路由约定</h2>
+    <p>Base URL: <code>/api/v1</code> · 认证: <code>Authorization: Bearer &lt;JWT&gt;</code> · 响应: <code>{ code, data, message }</code></p>
+
+    <h3>需求 (demands)</h3>
+    <pre><code>GET    /api/v1/demands?version=&area=&status=&planner=&keyword=&page=&size=
+GET    /api/v1/demands/:id
+POST   /api/v1/demands
+PATCH  /api/v1/demands/:id
+DELETE /api/v1/demands/:id            (admin only)</code></pre>
+
+    <h3>台词 (script_lines)</h3>
+    <pre><code>GET    /api/v1/script-lines?demand_id= or ?area=
+GET    /api/v1/script-lines/:id
+POST   /api/v1/script-lines
+PATCH  /api/v1/script-lines/:id       (触发 script_line_history 留痕)
+DELETE /api/v1/script-lines/:id       (admin only)
+GET    /api/v1/script-lines/:id/history</code></pre>
+
+    <h3>声优 (voice_actors)</h3>
+    <pre><code>GET    /api/v1/voice-actors?role_type=&available=
+POST   /api/v1/voice-actors           (portfolio_url 必填)
+PATCH  /api/v1/voice-actors/:id
+DELETE /api/v1/voice-actors/:id       (admin only)</code></pre>
+
+    <h3>排期 (recording_schedules)</h3>
+    <pre><code>GET    /api/v1/schedules?year=&month=&voice_actor_id=&language=
+POST   /api/v1/schedules
+PATCH  /api/v1/schedules/:id
+DELETE /api/v1/schedules/:id</code></pre>
+
+    <h3>资产 (audio_assets)</h3>
+    <pre><code>GET    /api/v1/assets?voice_actor_id=&gp_audio_event=&version=&keyword=
+POST   /api/v1/assets                 (script_line_id + file 二段上传)
+GET    /api/v1/assets/:id/download    (302 → COS 签名 URL)
+POST   /api/v1/assets/batch-download  (body: { asset_ids: [] })
+DELETE /api/v1/assets/:id             (admin only)</code></pre>
+
+    <!-- ============ 7. 技术栈 ============ -->
+    <h2 id="s7">前端组件与技术栈建议</h2>
+    <table>
+      <thead><tr><th>类别</th><th>推荐</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td>框架</td><td><b>React 18 + TypeScript</b></td><td>Vue 3 亦可</td></tr>
+        <tr><td>组件库</td><td><b>Ant Design 5</b></td><td>Table / Form / Select / Modal / Calendar 全部到位</td></tr>
+        <tr><td>状态管理</td><td>Zustand or Redux Toolkit</td><td>项目规模小推荐 Zustand</td></tr>
+        <tr><td>路由</td><td>React Router v6</td><td>嵌套路由匹配侧边栏子集</td></tr>
+        <tr><td>请求</td><td>Axios + React Query</td><td>缓存 + 重试</td></tr>
+        <tr><td>日历</td><td>Ant <code>Calendar</code> 或 FullCalendar</td><td>后者更强大</td></tr>
+        <tr><td>表格</td><td>Ant <code>Table</code> 或 TanStack Table</td><td>大数据虚拟滚动</td></tr>
+        <tr><td>上传</td><td>Ant <code>Upload</code> + COS SDK</td><td></td></tr>
+        <tr><td>打包</td><td>Vite</td><td>HMR 快</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ 8. 部署 ============ -->
+    <h2 id="s8">部署与环境</h2>
+    <h3>环境</h3>
+    <ul>
+      <li><b>Dev</b>：本地开发，Mock 数据</li>
+      <li><b>Staging</b>：内网测试，真实 COS</li>
+      <li><b>Prod</b>：生产，域名 <code>voice.example.com</code></li>
+    </ul>
+    <h3>环境变量</h3>
+    <pre><code>DATABASE_URL=mysql://...
+REDIS_URL=redis://...
+COS_SECRET_ID=...
+COS_SECRET_KEY=...
+COS_BUCKET_PORTFOLIO=...
+COS_BUCKET_ASSETS=...
+JWT_SECRET=...
+TENCENT_DOC_APPID=...        (可选)
+WECOM_WEBHOOK=...            (可选)</code></pre>
+
+    <!-- ============ 9. 验收 ============ -->
+    <h2 id="s9">验收标准与红线</h2>
+
+    <h3>🚨 五条红线</h3>
+    <div class="callout callout-danger">
+      <ol style="margin:0 0 0 20px">
+        <li><b>声优名称必须枚举化</b>——只能 <code>&lt;select&gt;</code>，禁止 <code>&lt;input&gt;</code></li>
+        <li><b>修改台词必须留痕</b>——每次 PATCH 必须写入 <code>script_line_history</code></li>
+        <li><b>日历视图必须可视化</b>——不允许列表替代</li>
+        <li><b>新增声优必须上传选角资料</b>——后端校验 <code>portfolio_url</code> 非空</li>
+        <li><b>权限硬约束</b>——前端隐藏 + 后端拒绝，双重防线</li>
+      </ol>
+    </div>
+
+    <h3>验收 Checklist</h3>
+    <ul class="checklist">
+      <li onclick="this.classList.toggle('done')">五模块闭环全部可用</li>
+      <li onclick="this.classList.toggle('done')">侧边栏树形导航可展开/收起，子集切换正确</li>
+      <li onclick="this.classList.toggle('done')">需求汇总按 Yang1..Yang5 正确过滤</li>
+      <li onclick="this.classList.toggle('done')">台词表格声优列为下拉框，选项来自声优库</li>
+      <li onclick="this.classList.toggle('done')">文案 / 音频角色只能编辑对应列</li>
+      <li onclick="this.classList.toggle('done')">台词编辑历史可查</li>
+      <li onclick="this.classList.toggle('done')">声优新增无选角资料时被拦截</li>
+      <li onclick="this.classList.toggle('done')">声优 toggle 开关实时保存</li>
+      <li onclick="this.classList.toggle('done')">日历显示当月所有排期，圆点颜色正确</li>
+      <li onclick="this.classList.toggle('done')">日历点击某日展示详情</li>
+      <li onclick="this.classList.toggle('done')">日历支持月份切换 + 声优/语言筛选</li>
+      <li onclick="this.classList.toggle('done')">VO 资产库全局检索 + 批量下载 ZIP</li>
+      <li onclick="this.classList.toggle('done')">音频试听 / 单个下载可用</li>
+      <li onclick="this.classList.toggle('done')">单元测试覆盖率 ≥ 60%</li>
+    </ul>
+    <div class="callout callout-info">💡 提示：点击可勾选 / 取消勾选，用于自查</div>
+
+    <!-- ============ 10. 里程碑 ============ -->
+    <h2 id="s10">里程碑</h2>
+    <table>
+      <thead><tr><th>阶段</th><th>内容</th><th style="text-align:center">预估</th><th>交付物</th></tr></thead>
+      <tbody>
+        <tr><td><b>M1</b></td><td>数据库建表 + Mock 数据 + API 骨架</td><td style="text-align:center">3d</td><td>DB Schema + Swagger</td></tr>
+        <tr><td><b>M2</b></td><td>权限系统 + 登录 + JWT</td><td style="text-align:center">2d</td><td>登录页 + 权限中间件</td></tr>
+        <tr><td><b>M3</b></td><td>需求汇总 + 台词管理页</td><td style="text-align:center">5d</td><td>需求 / 台词两个页面</td></tr>
+        <tr><td><b>M4</b></td><td>声优库 + 文件上传</td><td style="text-align:center">3d</td><td>声优管理 + COS 集成</td></tr>
+        <tr><td><b>M5</b></td><td>录制档期日历</td><td style="text-align:center">3d</td><td>日历视图 + 排期 CRUD</td></tr>
+        <tr><td><b>M6</b></td><td>VO 资产库 + 批量下载</td><td style="text-align:center">3d</td><td>检索 + ZIP 打包</td></tr>
+        <tr><td><b>M7</b></td><td>腾讯文档同步 + 通知</td><td style="text-align:center">3d</td><td>定时任务 + 企微机器人</td></tr>
+        <tr><td><b>M8</b></td><td>联调 + 测试 + 上线</td><td style="text-align:center">4d</td><td>生产环境部署</td></tr>
+        <tr style="background:#EEF0FF"><td><b>合计</b></td><td></td><td style="text-align:center"><b>~26d</b></td><td></td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ 附录 ============ -->
+    <h2 id="appendix">附录：字段映射（前端 ↔ 后端）</h2>
+    <table>
+      <thead><tr><th>前端字段</th><th>后端字段</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>ver</code></td><td><code>version</code></td><td>版本</td></tr>
+        <tr><td><code>area</code></td><td><code>area</code></td><td>AI / SOL / MP</td></tr>
+        <tr><td><code>name</code></td><td><code>task_name</code></td><td>任务名</td></tr>
+        <tr><td><code>summary</code></td><td><code>description</code></td><td>需求概括</td></tr>
+        <tr><td><code>sync</code></td><td><code>video_sync</code></td><td>音画同步</td></tr>
+        <tr><td><code>planner</code></td><td><code>req_planner</code></td><td>需求策划</td></tr>
+        <tr><td><code>writer</code></td><td><code>script_planner</code></td><td>文案策划</td></tr>
+        <tr><td><code>va</code></td><td><code>voice_actor.name</code></td><td>声优（联表）</td></tr>
+        <tr><td><code>zh</code> / <code>en</code></td><td><code>text_cn</code> / <code>text_en</code></td><td>文案台词</td></tr>
+        <tr><td><code>zh_rec</code> / <code>en_rec</code></td><td><code>recorded_text_cn</code> / <code>recorded_text_en</code></td><td>录制版</td></tr>
+        <tr><td><code>trigger</code></td><td><code>trigger_condition</code></td><td>触发条件</td></tr>
+        <tr><td><code>mood</code></td><td><code>emotion</code></td><td>情绪</td></tr>
+        <tr><td><code>event</code></td><td><code>gp_audio_event</code></td><td>GP Event</td></tr>
+        <tr><td><code>note</code></td><td><code>remark</code></td><td>备注</td></tr>
+        <tr><td><code>link</code></td><td><code>portfolio_url</code></td><td>选角资料</td></tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:60px;padding:20px;background:#FFF;border-radius:8px;text-align:center;color:#9098A8;font-size:12px">
+      文档结束 · 有疑问 <b style="color:#6366F1">@lycheelli</b>
+    </div>
+
+  </main>
+
+</div>
+
+<a class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="返回顶部">↑</a>
+
+</body>
+</html>

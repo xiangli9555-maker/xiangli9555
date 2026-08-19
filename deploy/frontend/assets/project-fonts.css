@@ -1,0 +1,552 @@
+:root {
+  --font-ui: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  --font-display: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  --font-data: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+
+  /* DELTA FORCE UI typography: restrained, condensed, information-first. */
+  --type-micro: 11px;
+  --type-caption: 12px;
+  --type-control: 13px;
+  --type-table: 13px;
+  --type-body: 14px;
+  --type-panel: 15px;
+  --type-section: 17px;
+  --type-kpi: 20px;
+  --type-page: 22px;
+
+  --line-tight: 1.15;
+  --line-ui: 1.35;
+  --line-body: 1.5;
+
+  --tracking-tight: 0;
+  --tracking-ui: .15px;
+  --tracking-label: .6px;
+}
+
+/* ---------- Base ---------- */
+html,
+body {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-body) !important;
+  line-height: var(--line-body) !important;
+  font-weight: 500 !important;
+  letter-spacing: var(--tracking-tight) !important;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+button,
+input,
+select,
+textarea,
+option,
+table,
+kbd {
+  font-family: var(--font-ui) !important;
+  font-synthesis: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Neutralize legacy inline Inter / JetBrains declarations without touching icon fonts. */
+body [style*="JetBrains Mono"],
+body [style*="font-family:Inter"],
+body [style*="font-family:'Inter'"],
+body [style*="font-family: 'Inter'"] {
+  font-family: var(--font-ui) !important;
+}
+
+/* ---------- Brand shell ---------- */
+.brand-subsys {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  width: 176px !important;
+  height: 48px !important;
+  flex: 0 0 176px !important;
+  align-self: center !important;
+  overflow: visible !important;
+}
+.brand-vomi-lockup {
+  position: relative !important;
+  width: 176px !important;
+  height: 30px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 30px !important;
+  overflow: visible !important;
+}
+.brand-product-name {
+  font-family: var(--font-display) !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  font-weight: 600 !important;
+  color: #0FF89B !important;
+  letter-spacing: 0 !important;
+  position: relative !important;
+  z-index: 1 !important;
+  padding: 0 5px !important;
+  background: var(--c-bg-0, #0F171C) !important;
+  text-shadow: 0 0 8px rgba(15,248,155,.28), 0 0 20px rgba(15,248,155,.14), 0 0 40px rgba(15,248,155,.07) !important;
+}
+.brand-product-sub {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-micro) !important;
+  line-height: 1 !important;
+  font-weight: 500 !important;
+  color: #919594 !important;
+  letter-spacing: 0 !important;
+  margin: 0 !important;
+}
+.brand-vomi-lockup .vomi-mark {
+  position: static !important;
+  width: 176px !important;
+  height: 30px !important;
+  display: block !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  flex: 0 0 176px !important;
+  pointer-events: none !important;
+}
+.brand-slogan {
+  display: block !important;
+  width: 176px !important;
+  margin: 0 !important;
+  font-family: var(--font-ui) !important;
+  font-size: 11px !important;
+  line-height: 15px !important;
+  font-weight: 500 !important;
+  color: #919594 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  flex: 0 0 15px !important;
+}
+.brand-slogan::before { display:none !important; }
+.brand-search input,
+.search-input,
+.tb-search,
+.sched-input,
+.fx-select,
+.va-form input,
+.va-form select,
+.va-form textarea,
+.input-row input {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-control) !important;
+  line-height: var(--line-ui) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Current section signal: only the section containing the active page breathes. */
+.section-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.section-sig,
+.eyebrow .sig {
+  width: 6px !important;
+  height: 6px !important;
+  flex: 0 0 6px !important;
+  border-radius: 50% !important;
+}
+.section-sig {
+  background: #656668 !important;
+  box-shadow: inset 0 0 0 1px rgba(202,225,207,.18) !important;
+  opacity: .72 !important;
+  animation: none !important;
+}
+.section-label.active .section-sig,
+.eyebrow .sig {
+  background: #0FF89B !important;
+  box-shadow: 0 0 6px rgba(15,248,155,.58) !important;
+  opacity: .92;
+  animation: missionMicroPulse 2.4s ease-in-out infinite !important;
+}
+.section-label.active { color: #919594 !important; }
+@keyframes missionMicroPulse {
+  0%,100% { opacity:.92; transform:scale(1); box-shadow:0 0 5px rgba(15,248,155,.48); }
+  50% { opacity:.46; transform:scale(.82); box-shadow:0 0 9px rgba(15,248,155,.72); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-label.active .section-sig,
+  .eyebrow .sig { animation:none !important; }
+}
+
+/* ---------- Navigation / tabs ---------- */
+.nav-item,
+.nav-sub-item,
+.view-tab,
+.tab,
+.tb-btn,
+.chip-filter,
+.chip-status,
+.chip-cw {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-control) !important;
+  line-height: var(--line-tight) !important;
+  font-weight: 500 !important;
+  letter-spacing: var(--tracking-ui) !important;
+}
+.nav-item.active,
+.nav-sub-item.active,
+.view-tab.active,
+.view-tab.on,
+.tab.active,
+.tab.on {
+  font-weight: 500 !important;
+}
+.sec-label,
+.cmd-group-label {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-micro) !important;
+  line-height: var(--line-tight) !important;
+  font-weight: 500 !important;
+  letter-spacing: var(--tracking-label) !important;
+}
+
+/* ---------- Titles ---------- */
+.page-title {
+  font-family: var(--font-display) !important;
+  font-size: var(--type-page) !important;
+  line-height: var(--line-tight) !important;
+  font-weight: 700 !important;
+  letter-spacing: .25px !important;
+  color: #EAEBEB !important;
+}
+.sheet-title,
+.chat-title,
+.detail-head h3,
+.modal-head h3,
+.cal-month h2,
+.rp-sec-title,
+.dp-title {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-section) !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+  letter-spacing: var(--tracking-ui) !important;
+}
+.col-head,
+.card-head,
+.detail-head,
+.cmd-title,
+.d-title,
+.head-title,
+.modal-title,
+.wiz-title,
+.sched-head .t,
+.rec-pop-head,
+.va-section-hd,
+.va-import .va-import-hd {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-panel) !important;
+  line-height: var(--line-ui) !important;
+  font-weight: 500 !important;
+  letter-spacing: var(--tracking-ui) !important;
+}
+
+/* ---------- Labels / metadata ---------- */
+.eyebrow,
+.kpi-label,
+.stat-label,
+.tb-label,
+.field-label,
+.d-label,
+.row-header,
+.code,
+.badge,
+.chip-num,
+.story-tag,
+.ver-tag,
+.head-title,
+.doc-fields .fld,
+.yc-th-week,
+.th-week,
+.dow,
+.ag-name {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-micro) !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+  letter-spacing: var(--tracking-label) !important;
+  text-transform: none !important;
+}
+.subtitle,
+.kpi-meta,
+.stat-sub,
+.file-meta,
+.gp-txt,
+.va-lang,
+.msg-time,
+.chat-sub,
+.foot-meta,
+.dc-sub,
+.cw-id,
+.count,
+.result-summary,
+.story-meta,
+.actor-sub,
+.sched-hint,
+.wc-line,
+.yc-note,
+.rp-tl-date,
+.rp-tl-wk,
+.rp-pg-next,
+.tt-date,
+.tt-desc,
+.role-en,
+.va-studio,
+.slot-role,
+.slot-studio,
+.actor-cov-item .story,
+.va-hint,
+.va-tip,
+.va-import-status,
+.va-import-hint {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-caption) !important;
+  line-height: var(--line-ui) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+/* ---------- Body copy ---------- */
+p,
+li,
+.msg-bubble,
+.d-body,
+.dc-val,
+.field-value,
+.doc-empty-sub,
+.conflict-txt,
+.actor-cov-item,
+.va-batch-item,
+.file-name,
+.va-name-s,
+.actor-name,
+.person,
+.cw-name,
+.story-name,
+.task-name,
+.clarify {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-body) !important;
+  line-height: var(--line-body) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+/* ---------- Tables ---------- */
+.main table,
+.sched-table,
+.actor-table,
+#rosterTable,
+.wk-table,
+.yc-table,
+.day-table {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-table) !important;
+  line-height: var(--line-ui) !important;
+  font-weight: 500 !important;
+  font-variant-numeric: tabular-nums;
+}
+.main table th,
+.sched-table th,
+.actor-table th,
+#rosterTable th,
+.wk-table th,
+.yc-table th,
+.day-table th {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-caption) !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+  letter-spacing: .25px !important;
+  text-transform: none !important;
+  text-shadow: none !important;
+}
+.main table td,
+.sched-table td,
+.actor-table td,
+#rosterTable td,
+.wk-table td,
+.yc-table td,
+.day-table td {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-table) !important;
+  line-height: var(--line-ui) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Demand table is the densest production view. */
+.demand-table th,
+.demand-table td,
+.demand-table .rp-tag,
+.demand-table .area,
+.demand-table .story-title,
+.demand-table .va-status,
+.demand-table .vs,
+.demand-table .person,
+.demand-table .cw-name,
+.demand-table .ve-chip,
+.demand-table .ve-empty,
+.demand-table .ve-unsynced {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-table) !important;
+  line-height: var(--line-ui) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+.demand-table th,
+.demand-table .th-ve-cat {
+  font-size: var(--type-caption) !important;
+  line-height: 1.2 !important;
+  letter-spacing: .2px !important;
+}
+
+/* ---------- Controls / buttons ---------- */
+.btn,
+.tool-btn,
+.actor-btn,
+.mini-btn,
+.wiz-row select,
+.rec-row select,
+.va-import button {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-control) !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+  letter-spacing: var(--tracking-ui) !important;
+}
+/* Preserve visual icon sizing; do not inherit text-control sizing. */
+.brand-toggle,
+.brand-icon-btn,
+.icon-btn,
+.modal-close,
+.rec-pop-x,
+.cal-nav button,
+.sched-del,
+.tool-btn.tb-gender {
+  font-family: var(--font-ui) !important;
+}
+
+/* ---------- Chips / operational tags ---------- */
+.ve-chip,
+.area,
+.vs,
+.va-status,
+.rp-tag,
+.chip,
+.sg,
+.busy-tip,
+.head-count,
+.select-count,
+.role-badge,
+.lang-badge,
+.status-badge,
+.mod,
+.emo,
+.tag,
+.actor-status,
+.actor-tag-lang,
+.rec-chip,
+.va-batch-item .cat-sel,
+.va-batch-item .gender-sel {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-caption) !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+/* ---------- Data / KPI ---------- */
+.title-count,
+.kpi-value,
+.stat-value,
+.meter-value,
+.actor-stat .val,
+.actor-lines-total,
+.rp-tw-cd-num,
+.ddl-value > span:first-child,
+.cva-item .v,
+.yc-days-num {
+  font-family: var(--font-data) !important;
+  font-size: var(--type-kpi) !important;
+  line-height: 1.15 !important;
+  font-weight: 500 !important;
+  letter-spacing: .2px !important;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-value .unit,
+.stat-value .unit,
+.meter-value .unit,
+.actor-stat .unit,
+.actor-lines-total .unit,
+.ddl-value .unit {
+  font-family: var(--font-ui) !important;
+  font-size: var(--type-micro) !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+.code,
+.rp-tag,
+.head-count,
+.file-meta,
+.gp-txt,
+.player-name,
+.player-time,
+.stories-cnt,
+.sort-prio,
+.count,
+.wc-range,
+.yc-range,
+.td-date,
+.d-list-row .val,
+.no-cell,
+.gp-event,
+.slot-time,
+.day-num {
+  font-family: var(--font-data) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Remove pseudo-bold residue ---------- */
+.title-kpis .kpi b,
+.filter-row .flabel,
+.cva-plan,
+.clarify-cell b,
+.ve-chip .ve-x,
+.td-ver .ver-name,
+.yc-year,
+.ms-ver,
+.td-phase,
+.p-ver,
+.evt-m-deliver,
+.evt-m-lock,
+.actor-name,
+.slot-actor,
+.role,
+.va-name,
+.casting-pending {
+  font-family: var(--font-ui) !important;
+  font-weight: 500 !important;
+}
+
+/* Display face is deliberately rare, matching the game UI hierarchy. */
+.page-title,
+.brand-product-name {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+}

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<title>Preview · 录制档期精修版</title>
+<link rel="stylesheet" href="assets/project-fonts.css?v=20260817c"/>
+<style>
+:root{--c-primary:#0FF796;--c-primary-dark:#0BD980;--c-primary-glow:rgba(15,247,150,0.18);
+  --c-bg:#0F171C;--c-bg-0:#0F171C;--c-surface:#1F2A32;--c-surface-2:#26333C;--c-surface-3:#2E3B45;
+  --c-border:#2E3B45;--c-border-strong:#3D4C57;--c-hairline:#243039;
+  --c-text:#FFFFFF;--c-text-2:#D4DDE3;--c-text-mute:#A1B1BC;--c-text-dim:#6B7A85;
+  --c-info:#60A5FA;--c-warning:#F59E0B;--c-danger:#EF4444}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter','JetBrains Mono',-apple-system,"PingFang SC",sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;overflow:hidden}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--c-surface-3);border-radius:4px}
+
+.brand-bar{min-height:64px;background:var(--c-bg-0);border-bottom:1px solid var(--c-border);display:flex;align-items:center;padding:10px 24px;gap:16px;flex-shrink:0;position:relative}
+.brand-bar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c-primary) 30%,var(--c-primary) 70%,transparent);opacity:0.35}
+.brand-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand-logo .logo-tri{height:36px;width:auto;display:block}
+.brand-logo .logo-txt{height:14px;width:auto;display:block;filter:brightness(0) invert(1)}
+.brand-divider{width:1px;height:32px;background:var(--c-border)}
+.brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+.brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
+.brand-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:'Inter',sans-serif;letter-spacing:.3px}
+.brand-spacer{flex:1}
+.layout{flex:1;display:flex;overflow:hidden}
+.sidebar{width:216px;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:16px 12px;flex-shrink:0;overflow-y:auto}
+.sec-label{font-size:10px;letter-spacing:1.5px;color:var(--c-text-dim);text-transform:uppercase;padding:16px 12px 6px;font-weight:600}
+.nav-item{width:100%;display:flex;align-items:center;gap:10px;padding:9px 12px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:6px;font-size:13px;text-align:left;font-family:inherit;transition:all .15s}
+.nav-item:hover{background:var(--c-surface);color:var(--c-text-2)}
+.nav-item.active{background:rgba(15,247,150,0.10);color:var(--c-primary);font-weight:600;box-shadow:inset 2px 0 0 var(--c-primary)}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+
+.main{flex:1;padding:18px 22px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+
+.tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
+.tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
+.title-block{display:flex;flex-direction:column;gap:6px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;color:var(--c-primary);letter-spacing:2.5px;font-weight:600;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px}
+.page-title .code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
+.subtitle{font-size:12.5px;color:var(--c-text-mute);line-height:1.5;max-width:640px}
+.actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.btn{border:none;font-family:inherit;cursor:pointer;font-size:12.5px;font-weight:600;border-radius:5px;padding:8px 14px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.3px}
+.btn-primary{background:var(--c-primary);color:#000}
+.btn-primary:hover{background:var(--c-primary-dark)}
+.btn-outline{background:transparent;color:var(--c-text-2);border:1px solid var(--c-border)}
+.btn-outline:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* 战术工具栏 */
+.toolbar{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.tb-group{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;letter-spacing:0.6px}
+.tb-label{color:var(--c-primary);font-weight:600;text-transform:uppercase;letter-spacing:1.5px;font-size:10px}
+.tb-btn{background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-mute);padding:5px 10px;font-size:11px;border-radius:3px;cursor:pointer;transition:all .12s;font-family:inherit;letter-spacing:0.3px}
+.tb-btn:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.tb-btn.on{color:var(--c-primary);border-color:var(--c-primary);background:var(--c-primary-glow)}
+
+/* 战术仪表条 */
+.stat-strip{display:flex;gap:12px}
+.stat{flex:1;background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:12px 16px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c-primary)}
+.stat.info::before{background:var(--c-info)}
+.stat.warn::before{background:var(--c-warning)}
+.stat-label{font-size:10px;color:var(--c-text-mute);letter-spacing:1.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;font-weight:600;margin-bottom:6px}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
+.stat-value .unit{font-size:11px;color:var(--c-text-mute)}
+.stat-sub{font-size:11px;color:var(--c-text-mute);margin-top:6px}
+
+/* 布局：日历 + 侧栏 */
+.wrap{display:grid;grid-template-columns:1fr 320px;gap:14px;flex:1;min-height:0}
+
+/* 日历卡片 */
+.cal-card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:16px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline)}
+.cal-month{display:flex;align-items:center;gap:10px}
+.cal-month h2{font-size:20px;color:#fff;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px}
+.cal-nav{display:flex;gap:4px}
+.cal-nav button{width:30px;height:30px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-mute);cursor:pointer;border-radius:3px;font-size:14px;line-height:1;font-family:inherit;transition:all .12s}
+.cal-nav button:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.cal-today{background:var(--c-primary-glow);color:var(--c-primary);border:1px solid var(--c-primary);padding:0 10px;font-size:11px;height:30px;border-radius:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px}
+
+.legend{display:flex;gap:12px;font-size:11px;color:var(--c-text-mute)}
+.legend .li{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;letter-spacing:0.3px}
+.legend .sw{width:10px;height:10px;border-radius:2px}
+
+.cal-grid{flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--c-hairline);border:1px solid var(--c-hairline);border-radius:4px;overflow:hidden;font-family:'JetBrains Mono',monospace}
+.dow{background:var(--c-bg-0);padding:8px;text-align:center;font-size:10px;color:var(--c-text-mute);font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.day{background:var(--c-bg);padding:6px 8px;min-height:88px;position:relative;display:flex;flex-direction:column;gap:3px;cursor:pointer;transition:background .12s;overflow:hidden}
+.day:hover{background:var(--c-surface-2)}
+.day.other{background:var(--c-bg-0);opacity:0.4}
+.day.today{background:rgba(15,247,150,0.06);box-shadow:inset 0 0 0 1px var(--c-primary)}
+.day.selected{background:rgba(15,247,150,0.10);box-shadow:inset 0 0 0 1px var(--c-primary)}
+.day-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-mute);font-weight:600;margin-bottom:2px}
+.day.today .day-num{color:var(--c-primary);font-weight:700}
+.slot{background:var(--c-surface-2);border-left:2px solid var(--c-primary);border-radius:2px;padding:2px 6px;font-size:10px;color:var(--c-text-2);display:flex;justify-content:space-between;gap:4px;line-height:1.3;transition:all .12s}
+.slot:hover{background:var(--c-surface-3);transform:translateX(1px)}
+.slot.cn{border-left-color:var(--c-primary)}
+.slot.en{border-left-color:var(--c-info)}
+.slot.both{border-left-color:var(--c-warning)}
+.slot .name{color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px}
+.slot .time{color:var(--c-text-dim);font-size:9px;font-family:'JetBrains Mono',monospace}
+.day-more{font-size:9.5px;color:var(--c-text-dim);text-align:center;margin-top:auto;font-family:'JetBrains Mono',monospace;letter-spacing:0.4px}
+
+/* 右侧：当日详情 + 冲突 */
+.side{display:flex;flex-direction:column;gap:14px;min-height:0}
+.side-card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:14px 16px}
+.side-head{font-size:10.5px;color:var(--c-primary);letter-spacing:2px;font-family:'JetBrains Mono',monospace;font-weight:600;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.side-head .date{color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px}
+.slot-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--c-hairline)}
+.slot-row:last-child{border-bottom:none;padding-bottom:0}
+.slot-row:first-child{padding-top:0}
+.slot-time{width:52px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-mute);letter-spacing:0.3px}
+.slot-info{flex:1}
+.slot-actor{color:#fff;font-size:12.5px;font-weight:600;line-height:1.3}
+.slot-role{color:var(--c-text-mute);font-size:11px;margin-top:2px}
+.slot-studio{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--c-text-dim);margin-top:3px;letter-spacing:0.3px}
+.slot-flag{width:22px;height:22px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;flex-shrink:0;margin-top:1px}
+.flag-cn{background:var(--c-primary-glow);color:var(--c-primary)}
+.flag-en{background:rgba(96,165,250,0.15);color:var(--c-info)}
+.flag-both{background:rgba(245,158,11,0.15);color:var(--c-warning)}
+
+.conflict{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:4px;margin-bottom:6px}
+.conflict-icon{color:var(--c-danger);flex-shrink:0}
+.conflict-icon svg{width:18px;height:18px}
+.conflict-txt{font-size:11.5px;color:var(--c-text-2);line-height:1.4}
+.conflict-txt b{color:#fff}
+
+
+/* Embed 模式：iframe 内隐藏自身 brand-bar/sidebar，仅显示主内容 */
+body.embed{background:transparent !important;background-color:transparent !important}
+html:has(body.embed){background:transparent !important;background-color:transparent !important}
+body.embed .brand-bar,
+body.embed aside.sidebar{display:none !important}
+body.embed .layout{padding-left:0}
+body.embed .main,
+body.embed .mid{width:100%}
+
+
+/* ===== 3B 档期草稿 ===== */
+.sched-section{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden}
+.sched-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--c-hairline)}
+.sched-head .t{font-size:13px;color:#fff;font-weight:600;display:flex;align-items:center;gap:8px}
+.sched-head .t svg{width:16px;height:16px;stroke:var(--c-primary);fill:none;stroke-width:1.8}
+.sched-table{width:100%;border-collapse:collapse;font-size:13px}
+.sched-table th{text-align:left;padding:10px 14px;font-size:10.5px;letter-spacing:1px;color:var(--c-text-mute);text-transform:uppercase;font-family:'JetBrains Mono',monospace;font-weight:600;border-bottom:1px solid var(--c-border);background:var(--c-bg-0)}
+.sched-table td{padding:10px 14px;border-bottom:1px solid var(--c-hairline);color:var(--c-text-2);vertical-align:middle}
+.sched-table tr:last-child td{border-bottom:none}
+.sched-table tr:hover td{background:var(--c-surface-2)}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace}
+.tag.cn{background:var(--c-primary-glow);color:var(--c-primary)}
+.tag.en{background:rgba(96,165,250,0.15);color:var(--c-info)}
+.sched-input{background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text);border-radius:4px;padding:5px 8px;font-size:12.5px;font-family:inherit;width:100%}
+.sched-input:focus{outline:none;border-color:var(--c-primary)}
+.sched-demand{min-width:210px;max-width:280px}
+.sched-del{background:transparent;border:none;color:var(--c-text-dim);cursor:pointer;font-size:15px;line-height:1}
+.sched-del:hover{color:var(--c-danger)}
+.empty-hint{text-align:center;color:var(--c-text-dim);padding:48px 0;font-size:13px}
+.empty-hint b{color:var(--c-primary)}
+.side-card .agg-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--c-hairline);font-size:12.5px}
+.side-card .agg-row:last-child{border-bottom:none}
+.side-card .agg-row .k{color:var(--c-text-mute)}
+.side-card .agg-row .v{color:#fff;font-family:'JetBrains Mono',monospace;font-weight:600}
+.side-card .agg-row .v small{color:var(--c-text-dim);font-weight:400}
+.modal-mask{position:fixed;inset:0;background:rgba(8,12,16,0.72);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:200;padding:24px}
+.modal-mask.on{display:flex}
+.modal{background:var(--c-surface);border:1px solid var(--c-border-strong);border-radius:8px;width:560px;max-width:100%;max-height:88vh;overflow:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--c-hairline)}
+.modal-head h3{font-size:15px;color:#fff;font-weight:700;display:flex;align-items:center;gap:8px}
+.modal-head h3 svg{width:18px;height:18px;stroke:var(--c-primary);fill:none;stroke-width:1.8}
+.modal-close{background:transparent;border:none;color:var(--c-text-mute);font-size:20px;cursor:pointer;line-height:1}
+.modal-close:hover{color:#fff}
+.modal-body{padding:18px 20px}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--c-hairline);display:flex;justify-content:flex-end;gap:8px}
+.wiz-row{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--c-hairline);border-radius:6px;margin-bottom:10px;background:var(--c-bg-0)}
+.wiz-row .chk{width:16px;height:16px;accent-color:var(--c-primary)}
+.wiz-row .plan{font-weight:600;color:#fff;width:92px;flex-shrink:0}
+.wiz-row .meta{font-size:11.5px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;flex:1;line-height:1.5}
+.wiz-row .meta b{color:var(--c-text-2)}
+.wiz-row select{background:var(--c-surface-2);border:1px solid var(--c-border);color:var(--c-text);border-radius:4px;padding:4px 6px;font-size:11.5px;font-family:inherit}
+.wiz-global{display:flex;align-items:center;gap:14px;padding:10px 12px;background:var(--c-bg-0);border-radius:6px;margin-bottom:14px;font-size:12px;color:var(--c-text-mute)}
+.wiz-global label{display:flex;align-items:center;gap:6px;color:var(--c-text-2)}
+.wiz-global input[type=number]{width:64px;background:var(--c-surface-2);border:1px solid var(--c-border);color:var(--c-text);border-radius:4px;padding:4px 6px;font-family:'JetBrains Mono',monospace}
+.wiz-empty{text-align:center;color:var(--c-text-dim);padding:24px 0;font-size:13px}
+
+/* ============================================================
+ * 详情区字体统一（2026-07-24 · 与左侧栏 .nav-item 同规格）
+ * ============================================================ */
+.main, .main table, .main td, .main th, .main p, .main li, .main .wrap{
+  font-family:'Inter','JetBrains Mono',-apple-system,"PingFang SC",sans-serif;
+}
+.main table{font-size:13px}
+.main th{font-size:13px;letter-spacing:.6px}
+.main td{font-size:13px}
+
+/* ==================== 视图切换 tab + 演员汇总视图 ==================== */
+.view-tabs{display:flex;align-items:center;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--c-hairline);padding-bottom:0}
+.view-tab{display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;color:var(--c-text-dim);padding:10px 14px;font-size:13px;font-family:inherit;font-weight:500;letter-spacing:.4px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .12s,border-color .12s}
+.view-tab:hover{color:var(--c-text-2)}
+.view-tab.active{color:var(--c-primary);border-bottom-color:var(--c-primary)}
+.view-tab svg{opacity:.8}
+.view-tab .tab-hint{font-size:10px;color:var(--c-warning);font-family:'JetBrains Mono',monospace;margin-left:4px}
+.view-tab-spacer{flex:1}
+.view-release{display:flex;align-items:center;gap:8px;padding-bottom:6px}
+.view-release .tb-label{font-size:10.5px;letter-spacing:1.5px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace}
+.view-release select{background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:5px 10px;border-radius:4px;font-size:12px;font-family:inherit;cursor:pointer}
+.view-release select:hover{border-color:var(--c-primary)}
+.view-pane{display:none}
+.view-pane.active{display:block}
+
+/* 演员汇总 · 工具栏 */
+.actor-toolbar{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.actor-toolbar .tb-group{display:flex;align-items:center;gap:6px}
+.actor-toolbar .tb-label{font-size:10.5px;letter-spacing:1.5px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;margin-right:2px}
+.actor-toolbar .tb-btn{background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text-2);padding:5px 12px;font-size:12px;font-family:inherit;border-radius:3px;cursor:pointer;transition:all .12s}
+.actor-toolbar .tb-btn:hover{border-color:var(--c-primary);color:var(--c-text)}
+.actor-toolbar .tb-btn.on{background:rgba(15,247,150,.14);border-color:var(--c-primary);color:var(--c-primary)}
+
+/* 演员汇总 · KPI 条 */
+.actor-stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.actor-stat{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:12px 16px}
+.actor-stat .lbl{font-size:10.5px;letter-spacing:1.5px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;margin-bottom:6px}
+.actor-stat .val{font-size:20px;font-weight:700;color:var(--c-text);letter-spacing:.5px}
+.actor-stat .val .unit{font-size:11px;color:var(--c-text-dim);margin-left:4px;font-weight:400;letter-spacing:1px}
+.actor-stat.warn .val{color:var(--c-warning)}
+.actor-stat.ok .val{color:var(--c-primary)}
+.actor-stat.info .val{color:var(--c-info)}
+
+/* 演员汇总 · 表格 */
+.actor-table-wrap{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden}
+.actor-table{width:100%;border-collapse:collapse}
+.actor-table th{background:var(--c-bg-0);color:var(--c-text-mute);font-size:10.5px;letter-spacing:1.5px;font-family:'JetBrains Mono',monospace;text-align:left;padding:12px 14px;font-weight:600;border-bottom:1px solid var(--c-hairline);text-transform:uppercase}
+.actor-table td{padding:14px 14px;border-bottom:1px solid var(--c-hairline);vertical-align:top}
+.actor-table tr:hover td{background:rgba(15,247,150,.03)}
+.actor-table tr:last-child td{border-bottom:none}
+.actor-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(15,247,150,.28),rgba(96,165,250,.28));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;font-family:inherit}
+.actor-avatar.en{background:linear-gradient(135deg,rgba(96,165,250,.35),rgba(15,247,150,.22))}
+.actor-name{font-weight:600;color:var(--c-text);font-size:13.5px;letter-spacing:.3px}
+.actor-tag-lang{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10.5px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;font-weight:600}
+.actor-tag-lang.cn{background:rgba(15,247,150,.14);color:var(--c-primary)}
+.actor-tag-lang.en{background:rgba(96,165,250,.15);color:var(--c-info)}
+.actor-coverage{display:flex;flex-direction:column;gap:4px}
+.actor-cov-item{display:flex;gap:8px;font-size:12px;align-items:baseline}
+.actor-cov-item .role{color:var(--c-text);font-weight:500}
+.actor-cov-item .story{color:var(--c-text-dim);font-size:11px}
+.actor-cov-item .est{color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:auto}
+.actor-lines-total{font-size:16px;font-weight:700;color:var(--c-text);font-family:'JetBrains Mono',monospace;text-align:right}
+.actor-lines-total .unit{font-size:10px;color:var(--c-text-mute);font-weight:400;margin-left:2px;letter-spacing:1px}
+.actor-status{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:3px;font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;font-weight:600}
+.actor-status .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.actor-status.pending{background:rgba(255,210,76,.15);color:var(--c-warning)}
+.actor-status.booked{background:rgba(15,247,150,.14);color:var(--c-primary)}
+.actor-status.conflict{background:rgba(214,153,190,.16);color:var(--c-danger)}
+.actor-btn{background:var(--c-bg-0);border:1px solid var(--c-primary);color:var(--c-primary);padding:5px 12px;font-size:11.5px;font-family:inherit;border-radius:3px;cursor:pointer;font-weight:600;letter-spacing:.3px;transition:all .12s;white-space:nowrap}
+.actor-btn:hover{background:var(--c-primary);color:#000}
+.actor-btn.secondary{border-color:var(--c-hairline);color:var(--c-text-2)}
+.actor-btn.secondary:hover{background:var(--c-hairline);color:var(--c-text)}
+.actor-empty{padding:60px 20px;text-align:center;color:var(--c-text-mute);font-size:13px;line-height:1.8}
+
+/* 通用底图玻璃层 */
+.toolbar,.stat,.cal-card,.side-card,.sched-section{background:rgba(31,42,50,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.day{background:rgba(15,23,28,.76)}
+
+/* 响应式断点（2026-08-18） */
+@media (max-width: 1500px){
+  .main{padding:14px 16px 16px;gap:12px}
+  .page-title{font-size:20px}
+}
+@media (min-width: 2401px){
+  .main{padding:26px 32px 32px;gap:20px}
+  .page-title{font-size:26px}
+  .day{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<div class="brand-bar">
+  <div class="brand-logo">
+    <img src="assets/DeltaForceLogo-Triangle.png" alt="Delta" class="logo-tri"/>
+    <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt"/>
+  </div>
+  <div class="brand-divider"></div>
+  <button class="brand-toggle" title="收起/展开侧栏" onclick="document.body.classList.toggle('sidebar-collapsed')">
+    <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  </button>
+  <div class="brand-subsys" aria-label="Vomi · VO Manager">
+    <span class="brand-vomi-lockup"><img class="vomi-mark" src="assets/vomi-mark.svg?v=20260815g" alt="-Vomi-"/></span>
+    <span class="brand-slogan">包办 Vo, Mi 来打理</span>
+  </div>
+  <div class="brand-spacer"></div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sec-label">MISSION</div>
+    <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>需求汇总</button>
+    <div class="sec-label">ROSTER</div>
+    <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>声优库</button>
+    <div class="sec-label">SCHEDULE</div>
+    <button class="nav-item active"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>录制档期</button>
+    <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg>音频资产库</button>
+    <div class="sec-label">HQ</div>
+    <button class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>Vo 智能助手</button>
+  </aside>
+
+  <main class="main">
+    <div class="tactical-header">
+      <div class="title-block">
+        <div class="eyebrow"><span class="sig"></span>Recording Ops · Sched 07</div>
+        <h1 class="page-title">录制档期 <span class="code">// 2026 · JUL</span></h1>
+        <div class="subtitle">草稿仅保存在本机 · 点击“发布草稿”后进入正式排期与需求 Max · <b style="color:var(--c-text-2)">正式数据只认数据库</b>。</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" onclick="exportSchedule()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出档期</button>
+        <button class="btn btn-outline" onclick="addEmptySched()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增排期</button>
+        <button id="publishDraftsBtn" class="btn btn-outline" onclick="publishScheduleDrafts()"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 14v6h14v-6"/></svg><span>发布草稿</span></button>
+        <button class="btn btn-primary" onclick="openDraftWizard()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>从澄清看板生成草稿</button>
+      </div>
+    </div>
+
+    <!-- 视图切换 tab：档期日历 / 演员汇总 -->
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="sched" onclick="switchScheduleView('sched')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        档期日历
+      </button>
+      <button class="view-tab" data-view="actors" onclick="switchScheduleView('actors')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        角色汇总
+        <span class="tab-hint" id="actorTabHint"></span>
+      </button>
+      <div class="view-tab-spacer"></div>
+      <div class="view-release" id="viewReleaseFilter">
+        <span class="tb-label">RELEASE</span>
+        <select id="actorReleaseSel" onchange="renderActorRollup()">
+          <option value="">暂无数据</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 视图 A：档期日历 -->
+    <div id="viewSched" class="view-pane active">
+    <!-- KPI 战术条 -->
+    <div class="stat-strip">
+      <div class="stat">
+        <div class="stat-label">场数 · 总草稿</div>
+        <div class="stat-value">0<span class="unit">/ 场</span></div>
+        <div class="stat-sub">—</div>
+      </div>
+      <div class="stat info">
+        <div class="stat-label">时长 · 预估总</div>
+        <div class="stat-value">0<span class="unit">h</span></div>
+        <div class="stat-sub">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">棚 · 已排</div>
+        <div class="stat-value">0<span class="unit">家</span></div>
+        <div class="stat-sub">—</div>
+      </div>
+      <div class="stat warn">
+        <div class="stat-label">冲突 · 同档期同棚</div>
+        <div class="stat-value" style="color:var(--c-danger)">0<span class="unit">个</span></div>
+        <div class="stat-sub" style="color:var(--c-danger)">—</div>
+      </div>
+    </div>
+
+    <!-- 工具栏 -->
+    <div class="toolbar">
+      <div class="tb-group">
+        <span class="tb-label">VIEW</span>
+        <button class="tb-btn on">MONTH</button>
+        <button class="tb-btn">WEEK</button>
+        <button class="tb-btn">DAY</button>
+      </div>
+      <div class="tb-group">
+        <span class="tb-label">LANG</span>
+        <button class="tb-btn on">全部</button>
+        <button class="tb-btn">中配</button>
+        <button class="tb-btn">英配</button>
+      </div>
+      <div class="tb-group">
+        <span class="tb-label">STUDIO</span>
+        <button class="tb-btn on">全部</button>
+        <button class="tb-btn">8082</button>
+        <button class="tb-btn">居然翁</button>
+        <button class="tb-btn">叽咔</button>
+        <button class="tb-btn">SIDE</button>
+      </div>
+      <div style="margin-left:auto" class="legend">
+        <span class="li"><span class="sw" style="background:var(--c-primary)"></span>中配</span>
+        <span class="li"><span class="sw" style="background:var(--c-info)"></span>英配</span>
+        <span class="li"><span class="sw" style="background:var(--c-warning)"></span>中+英</span>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <!-- 左：档期草稿表 -->
+      <div class="sched-section">
+        <div class="sched-head">
+          <div class="t"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>档期草稿 · 录制排期</div>
+          <div class="code" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-mute)" id="schedCount">0 场</div>
+        </div>
+        <div id="schedBody"></div>
+      </div>
+
+      <!-- 右：澄清来源 + 操作 -->
+      <div class="side">
+        <div class="side-card">
+          <div class="side-head"><span class="sig"></span>澄清来源 · 聚合</div>
+          <div id="aggBody"></div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;justify-content:center" onclick="openDraftWizard()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>从澄清看板生成草稿</button>
+        </div>
+      </div>
+    </div>
+    </div><!-- /#viewSched -->
+
+    <!-- 视图 B：演员汇总（跨 story 按演员归组 → 预约档期前置） -->
+    <div id="viewActors" class="view-pane">
+      <div class="actor-toolbar">
+        <div class="tb-group">
+          <span class="tb-label">LANG</span>
+          <button class="tb-btn on" data-lang="all" onclick="setActorLang('all',this)">全部</button>
+          <button class="tb-btn" data-lang="cn" onclick="setActorLang('cn',this)">中配</button>
+          <button class="tb-btn" data-lang="en" onclick="setActorLang('en',this)">英配</button>
+        </div>
+        <div class="tb-group">
+          <span class="tb-label">状态</span>
+          <button class="tb-btn on" data-status="all" onclick="setActorStatus('all',this)">全部</button>
+          <button class="tb-btn" data-status="pending" onclick="setActorStatus('pending',this)">未约</button>
+          <button class="tb-btn" data-status="booked" onclick="setActorStatus('booked',this)">已约</button>
+        </div>
+        <div class="tb-group" style="margin-left:auto">
+          <input id="actorSearch" placeholder="搜索游戏角色 / story" oninput="renderActorRollup()" style="background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:6px 10px;border-radius:4px;font-size:12px;min-width:200px"/>
+        </div>
+      </div>
+
+      <div class="actor-stat-strip" id="actorStatStrip"></div>
+
+      <div class="actor-table-wrap">
+        <table class="actor-table">
+          <thead>
+            <tr>
+              <th style="width:40px"></th>
+              <th style="min-width:130px">游戏角色</th>
+              <th style="width:56px">语种</th>
+              <th style="min-width:280px">覆盖需求（Story）</th>
+              <th style="width:100px;text-align:right">预估句数</th>
+              <th style="width:90px">档期状态</th>
+              <th style="width:120px">操作</th>
+            </tr>
+          </thead>
+          <tbody id="actorTbody"></tbody>
+        </table>
+        <div id="actorEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无角色数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
+      </div>
+    </div><!-- /#viewActors -->
+  </main>
+</div>
+
+
+
+<script>
+(function(){
+  try{
+    var qs = new URLSearchParams(window.location.search);
+    if(qs.get('embed')==='1'){
+      document.body.classList.add('embed');
+    }
+  }catch(e){}
+})();
+</script>
+
+<!-- 3B 生成向导 -->
+<div class="modal-mask" id="wizMask">
+  <div class="modal">
+    <div class="modal-head">
+      <h3><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>从澄清看板生成档期草稿</h3>
+      <button class="modal-close" onclick="closeDraftWizard()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="wiz-global">
+        <label>每句时长 <input id="wizRate" type="number" min="1" value="25"/> 秒</label>
+        <label>默认录音棚
+          <select id="wizStudio"><option>8082</option><option>居然翁</option><option>叽咔</option><option>SIDE</option><option>待定</option></select>
+        </label>
+      </div>
+      <div id="wizRows"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeDraftWizard()">取消</button>
+      <button class="btn btn-primary" onclick="confirmDraftWizard()">生成草稿</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== 视图切换 + 角色汇总（Role Rollup） ====================
+// 数据源：GET /api/demands → voice_estimates（同 release 内按角色归组）
+// 【显示规则 2026-08-14】除声优库外，全站以"游戏角色名"为主体，演员名仅作 tooltip 溯源。
+// 归组键 = (lang, role)：同一角色的中/英配分开算一行；covers = 出现在哪些 story；actor = 演员名（tooltip 显示）。
+let ACTOR_STATE = { lang: 'all', status: 'all', release: '', demands: [], loaded: false };
+function actorEsc(s){ return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c])); }
+
+function switchScheduleView(view){
+  const tabs = document.querySelectorAll('.view-tab');
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.view === view));
+  document.getElementById('viewSched').classList.toggle('active', view === 'sched');
+  document.getElementById('viewActors').classList.toggle('active', view === 'actors');
+  document.getElementById('viewReleaseFilter').style.display = view === 'actors' ? 'flex' : 'none';
+  if(view === 'actors' && !ACTOR_STATE.loaded){ loadActorData(); }
+}
+// 默认隐藏 release 筛选（sched 视图不需要）
+document.addEventListener('DOMContentLoaded', ()=>{
+  const rf = document.getElementById('viewReleaseFilter'); if(rf) rf.style.display='none';
+});
+
+function setActorLang(lang, btn){
+  ACTOR_STATE.lang = lang;
+  document.querySelectorAll('.actor-toolbar [data-lang]').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
+  renderActorRollup();
+}
+function setActorStatus(st, btn){
+  ACTOR_STATE.status = st;
+  document.querySelectorAll('.actor-toolbar [data-status]').forEach(b => b.classList.toggle('on', b.dataset.status === st));
+  renderActorRollup();
+}
+
+async function loadActorData(){
+  try{
+    const r = await fetch('/api/demands', {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    ACTOR_STATE.demands = Array.isArray(j) ? j : (j.data || []);
+    ACTOR_STATE.loaded = true;
+    // release 选项只来自真实 demands 数据，不展示任何预设版本。
+    const releases = Array.from(new Set(ACTOR_STATE.demands.map(d=>(d.release_plan||'').trim()).filter(Boolean))).sort();
+    const sel = document.getElementById('actorReleaseSel');
+    if(sel){
+      sel.innerHTML = releases.length ? releases.map(r=>`<option value="${actorEsc(r)}">${actorEsc(r)}</option>`).join('') : '<option value="">暂无数据</option>';
+      ACTOR_STATE.release = releases.includes(ACTOR_STATE.release) ? ACTOR_STATE.release : (releases[0] || '');
+      sel.value = ACTOR_STATE.release;
+    }
+    renderActorRollup();
+  }catch(e){
+    document.getElementById('actorTbody').innerHTML = '';
+    const empty = document.getElementById('actorEmpty');
+    empty.style.display = 'block';
+    empty.innerHTML = '⚠️ 无法加载需求数据：' + e.message;
+  }
+}
+
+// 按 (lang, role) 归组：一行 = 同一游戏角色的中配/英配之一
+// 返回 [{role, lang, actor, covers:[{story,est}], total, status}, ...]
+function aggregateActors(demands, release){
+  const map = new Map();  // key = lang + '|' + role
+  demands.forEach(dem => {
+    if((dem.release_plan||'') !== release) return;
+    let ves = dem.voice_estimates;
+    if(typeof ves === 'string'){ try{ ves = JSON.parse(ves); }catch(_){ ves = []; } }
+    if(!Array.isArray(ves)) return;
+    ves.forEach(v => {
+      const role  = (v.role || '').trim() || '(未指定角色)';
+      const est   = parseInt(v.est_lines || v.est || 0, 10) || 0;
+      const story = (dem.task_name || '').trim();
+      // 中配
+      const cn = (v.cn_va || '').trim();
+      if(cn && cn !== 'N/A'){
+        const k = 'cn|' + role;
+        if(!map.has(k)) map.set(k, { role, lang: 'cn', actor: cn, covers: [], total: 0, status: 'pending' });
+        const g = map.get(k);
+        // actor 冲突时用 " / " 拼接（同一角色不同 story 换了演员，罕见但要能看出来）
+        if(g.actor.indexOf(cn) < 0) g.actor = g.actor ? (g.actor + ' / ' + cn) : cn;
+        g.covers.push({ story, est });
+        g.total += est;
+      }
+      // 英配
+      const en = (v.en_va || '').trim();
+      if(en && en !== 'N/A'){
+        const k = 'en|' + role;
+        if(!map.has(k)) map.set(k, { role, lang: 'en', actor: en, covers: [], total: 0, status: 'pending' });
+        const g = map.get(k);
+        if(g.actor.indexOf(en) < 0) g.actor = g.actor ? (g.actor + ' / ' + en) : en;
+        g.covers.push({ story, est });
+        g.total += est;
+      }
+    });
+  });
+  // “已约”只认recording_schedules正式数据；未发布草稿不参与。
+  const sched = window.PUBLISHED_SCHEDULES || [];
+  const bookedRoles = new Set();
+  sched.forEach(s => {
+    const lang = s.lang === '英配' ? 'en' : 'cn';
+    (s.roles || []).forEach(r => bookedRoles.add(lang + '|' + r));
+    if(s.role_cn) bookedRoles.add('cn|' + s.role_cn);
+    if(s.role_en) bookedRoles.add('en|' + s.role_en);
+    if(s.role)    bookedRoles.add(lang + '|' + s.role);
+  });
+  const list = [...map.values()];
+  list.forEach(a => { if(bookedRoles.has(a.lang+'|'+a.role)) a.status = 'booked'; });
+  list.sort((a,b) => b.total - a.total);
+  return list;
+}
+
+function renderActorRollup(){
+  ACTOR_STATE.release = document.getElementById('actorReleaseSel').value;
+  const all = aggregateActors(ACTOR_STATE.demands, ACTOR_STATE.release);
+  // 应用筛选
+  const q = (document.getElementById('actorSearch').value || '').trim().toLowerCase();
+  const list = all.filter(a => {
+    if(ACTOR_STATE.lang !== 'all' && a.lang !== ACTOR_STATE.lang) return false;
+    if(ACTOR_STATE.status !== 'all' && a.status !== ACTOR_STATE.status) return false;
+    if(q){
+      const hay = (a.role + ' ' + a.covers.map(c=>c.story).join(' ')).toLowerCase();
+      if(hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+
+  // KPI 条：角色总数 / 预估句数总计 / 中英分布 / 已排档期
+  const totalRoles = list.length;
+  const totalLines = list.reduce((s,a)=>s+a.total, 0);
+  const bookedCnt = list.filter(a=>a.status==='booked').length;
+  const cnCnt = list.filter(a=>a.lang==='cn').length;
+  document.getElementById('actorStatStrip').innerHTML = `
+    <div class="actor-stat ok"><div class="lbl">角色总数</div><div class="val">${totalRoles}<span class="unit">项</span></div></div>
+    <div class="actor-stat ok"><div class="lbl">预估句数总计</div><div class="val">${totalLines.toLocaleString()}<span class="unit">句</span></div></div>
+    <div class="actor-stat info"><div class="lbl">中/英分布</div><div class="val">${cnCnt}<span class="unit">中</span> · ${totalRoles-cnCnt}<span class="unit">英</span></div></div>
+    <div class="actor-stat warn"><div class="lbl">已排档期</div><div class="val">${bookedCnt}<span class="unit">/ ${totalRoles}</span></div></div>
+  `;
+
+  // 角色表
+  const empty = document.getElementById('actorEmpty');
+  const tbody = document.getElementById('actorTbody');
+  if(!list.length){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    empty.innerHTML = ACTOR_STATE.demands.length === 0
+      ? '⏳ 数据加载中或当前 release 无声优预估。<br/>先到「需求汇总」页点表头「声优预估 ↻」同步。'
+      : `当前筛选下无匹配角色（release=${ACTOR_STATE.release}）。`;
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = list.map(a => {
+    const initial = (a.role || '?').charAt(0);
+    const covHtml = a.covers.map(c => `
+      <div class="actor-cov-item">
+        <span class="story">${escHtmlSafe(c.story)}</span>
+        <span class="est">${c.est}句</span>
+      </div>`).join('');
+    const statusLabel = a.status === 'booked' ? '已约' : '未约';
+    const statusIcon = a.status === 'booked' ? '✓' : '○';
+    // actor 名放 title tooltip；hasActor 决定是否显示黄色小灯
+    const actorTip = a.actor ? `${a.lang==='cn'?'中配':'英配'}演员：${a.actor}` : `${a.lang==='cn'?'中配':'英配'} · 待选角`;
+    return `
+      <tr title="${escAttr(actorTip)}">
+        <td><div class="actor-avatar ${a.lang}">${escHtmlSafe(initial)}</div></td>
+        <td><div class="actor-name">${escHtmlSafe(a.role)}</div>${a.actor ? '' : '<div style="font-size:10.5px;color:var(--c-warning);font-family:\'JetBrains Mono\',monospace;margin-top:2px">· 待选角</div>'}</td>
+        <td><span class="actor-tag-lang ${a.lang}">${a.lang==='cn'?'中配':'英配'}</span></td>
+        <td><div class="actor-coverage">${covHtml}</div></td>
+        <td><div class="actor-lines-total">${a.total}<span class="unit">句</span></div></td>
+        <td><span class="actor-status ${a.status}"><span class="dot"></span>${statusIcon} ${statusLabel}</span></td>
+        <td>
+          ${a.status==='pending'
+            ? `<button class="actor-btn" onclick="bookActor('${escAttr(a.role)}','${a.lang}')">预约档期</button>`
+            : `<button class="actor-btn secondary" onclick="switchScheduleView('sched')">查看档期</button>`}
+        </td>
+      </tr>`;
+  }).join('');
+  // tab hint = 未约角色数
+  const pendingN = all.filter(a=>a.status==='pending').length;
+  document.getElementById('actorTabHint').textContent = pendingN ? `${pendingN} 未约` : '';
+}
+
+function escHtmlSafe(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escAttr(s){ return String(s==null?'':s).replace(/['"\\]/g, '\\$&'); }
+
+// 预约档期：跳到 sched 视图并预填角色（把 role 塞进 localStorage 作提示，档期草稿 wizard 可读取）
+// key 保留 vo_actor_prefill 名称（下游兼容），语义已改为"角色预填"
+function bookActor(role, lang){
+  try{
+    localStorage.setItem('vo_actor_prefill', JSON.stringify({role, lang, release: ACTOR_STATE.release, ts: Date.now()}));
+  }catch(_){}
+  switchScheduleView('sched');
+  if(typeof flashInfo === 'function') flashInfo(`已切至档期视图，为角色「${role}」预约档期（${lang==='cn'?'中配':'英配'} · ${ACTOR_STATE.release}）`);
+}
+</script>
+
+<script>
+// ===== 3B 档期草稿 =====
+(function(){
+  var LS='vo_schedule_drafts_v2', LEGACY_LS='vo_schedule_v1', CLARIFY='vo_clarify_v1', RATE_DEFAULT=25;
+  var PUBLISHED_ROWS=[];
+  // ===== KV 云备份：revision乐观锁，冲突时保留本地草稿并提示 =====
+  var KV_REV={};
+  function kvPush(key){
+    var v=null, base=Number(KV_REV[key]||0);
+    try{ v=localStorage.getItem(key); }catch(_){ return Promise.resolve(false); }
+    return fetch('/api/kv/'+encodeURIComponent(key), {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({value:v,base_revision:base})
+    }).then(function(r){
+      return r.json().catch(function(){return{}}).then(function(j){
+        if(r.status===409){ KV_REV[key]=Number(j.current_revision||base); toast('数据冲突：云端已有更新，本地草稿未覆盖；请刷新后合并',true); return false; }
+        if(!r.ok||j.ok===false) return false;
+        KV_REV[key]=Number(j.revision||base+1); return true;
+      });
+    }).catch(function(){ return false; });
+  }
+  function kvPull(key){
+    return fetch('/api/kv/'+encodeURIComponent(key), {cache:'no-store'})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){ if(j) KV_REV[key]=Number(j.revision||0); return (j && j.exists) ? j.value : null; })
+      .catch(function(){ return null; });
+  }
+  function loadSched(){
+    try{
+      var current=localStorage.getItem(LS);
+      if(current) return JSON.parse(current)||[];
+      var legacy=JSON.parse(localStorage.getItem(LEGACY_LS)||'[]')||[];
+      if(legacy.length){ localStorage.setItem(LS,JSON.stringify(legacy)); localStorage.removeItem(LEGACY_LS); }
+      return legacy;
+    }catch(e){return[]}
+  }
+  // 草稿只存在本机，不再写KV；只有显式发布后才进入recording_schedules。
+  function saveSched(a){ try{localStorage.setItem(LS,JSON.stringify(a));return true;}catch(e){toast('草稿保存失败：本地存储不可用',true);return false;} }
+  function loadPublishedSchedules(){
+    return fetch('/api/schedules',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
+      .then(function(rows){PUBLISHED_ROWS=Array.isArray(rows)?rows:[];window.PUBLISHED_SCHEDULES=PUBLISHED_ROWS;renderSched();if(typeof renderActorRollup==='function')renderActorRollup();return PUBLISHED_ROWS;})
+      .catch(function(e){toast('正式档期读取失败：'+e.message,true);return[];});
+  }
+  function loadClarify(){ try{return JSON.parse(localStorage.getItem(CLARIFY))||{}}catch(e){return{}} }
+  var DEMAND_OPTIONS=[];
+  function loadDemandOptions(){ return fetch('/api/demands',{cache:'no-store'}).then(function(r){return r.ok?r.json():[]}).then(function(a){DEMAND_OPTIONS=Array.isArray(a)?a:[];renderSched();}).catch(function(){DEMAND_OPTIONS=[];}); }
+  function demandSel(r){
+    var cur=String(r.demandId||r.demand_id||'');
+    var opts='<option value="">— 未关联需求 —</option>'+DEMAND_OPTIONS.map(function(d){var v=String(d.id);return '<option value="'+esc(v)+'"'+(cur===v?' selected':'')+'>'+esc(d.task_name||('需求 '+v))+'</option>';}).join('');
+    return '<select class="sched-input sched-demand" title="关联需求（用于汇总末次录制时间）" onchange="SCHED.upd(\''+r.id+'\',\'demandId\',this.value)">'+opts+'</select>';
+  }
+  function uid(){ return 's'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}); }
+  function fmtH(h){ h=+h||0; return h>=1? h.toFixed(1): Math.round(h*60)+'m'; }
+
+  function aggregate(){
+    var c=loadClarify(); var plans={}; var order=[];
+    Object.keys(c).forEach(function(id){
+      var r=c[id]; var p=r.release||'未指定';
+      if(!plans[p]){ plans[p]={plan:p,cn:0,en:0,lines:0,n:0}; order.push(p); }
+      plans[p].cn += (+r.cn||0); plans[p].en += (+r.en||0);
+      plans[p].lines += (+r.lines||0); plans[p].n += 1;
+    });
+    return order.map(function(k){return plans[k];});
+  }
+
+  function renderSched(){
+    var rows=loadSched();
+    document.getElementById('schedCount').textContent=rows.length+' 草稿 · '+PUBLISHED_ROWS.length+' 已发布';
+    var pb=document.getElementById('publishDraftsBtn'); if(pb){pb.disabled=!rows.length;pb.querySelector('span').textContent=rows.length?'发布草稿 · '+rows.length:'发布草稿';}
+    var body=document.getElementById('schedBody');
+    if(!rows.length){
+      body.innerHTML='<div class="empty-hint">暂无档期草稿 · 点右上「<b>从澄清看板生成草稿</b>」一键从需求汇总的澄清看板生成</div>';
+      renderAgg(); updateKPI(); return;
+    }
+    var html='<table class="sched-table"><thead><tr>'
+      +'<th>发布计划</th><th>关联需求</th><th>声优类型</th><th>预估时长</th><th>粗估句数</th>'
+      +'<th>录音棚</th><th>日期</th><th>时段</th><th>发布后状态</th><th>操作</th></tr></thead><tbody>';
+    rows.forEach(function(r){
+      html+='<tr data-id="'+r.id+'">'
+        +'<td>'+esc(r.plan)+'</td>'
+        +'<td>'+demandSel(r)+'</td>'
+        +'<td><span class="tag '+(r.vaType==='en'?'en':'cn')+'">'+(r.vaType==='en'?'英配':'中配')+'</span></td>'
+        +'<td><span style="font-family:JetBrains Mono,monospace">'+fmtH(r.estHours)+' h</span></td>'
+        +'<td style="font-family:JetBrains Mono,monospace">'+esc(r.lines)+'</td>'
+        +'<td><input class="sched-input" value="'+esc(r.studio)+'" onchange="SCHED.upd(\''+r.id+'\',\'studio\',this.value)"/></td>'
+        +'<td><input class="sched-input" type="date" value="'+esc(r.date)+'" onchange="SCHED.upd(\''+r.id+'\',\'date\',this.value)"/></td>'
+        +'<td><input class="sched-input" value="'+esc(r.slot)+'" placeholder="上午/下午/晚" onchange="SCHED.upd(\''+r.id+'\',\'slot\',this.value)"/></td>'
+        +'<td>'+statusSel(r)+'</td>'
+        +'<td><button class="sched-del" style="color:var(--c-primary);margin-right:4px" title="发布这一条草稿" onclick="SCHED.publishOne(\''+r.id+'\')">发布</button><button class="sched-del" title="删除草稿" onclick="SCHED.del(\''+r.id+'\')">✕</button></td>'
+        +'</tr>';
+    });
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    renderAgg(); updateKPI();
+  }
+  function statusSel(r){
+    var v=r.status||'draft';
+    return '<select class="sched-input" style="width:auto" onchange="SCHED.upd(\''+r.id+'\',\'status\',this.value)">'
+      +'<option value="draft"'+(v==='draft'?' selected':'')+'>草稿</option>'
+      +'<option value="confirmed"'+(v==='confirmed'?' selected':'')+'>已确认</option>'
+      +'<option value="done"'+(v==='done'?' selected':'')+'>已完成</option>'
+      +'</select>';
+  }
+  function renderAgg(){
+    var agg=aggregate(); var b=document.getElementById('aggBody');
+    if(!agg.length){ b.innerHTML='<div class="wiz-empty">未检测到澄清数据。<br/>请先在「需求汇总」填写各需求的声优需求 / 粗估句数。</div>'; return; }
+    var html='';
+    agg.forEach(function(a){
+      var hrs=((+a.lines||0)*RATE_DEFAULT/3600).toFixed(1);
+      html+='<div class="agg-row"><span class="k">'+esc(a.plan)+'</span>'
+        +'<span class="v">中 '+a.cn+' · 英 '+a.en+' <small>· '+a.lines+'句/'+hrs+'h</small></span></div>';
+    });
+    b.innerHTML=html;
+  }
+  function updateKPI(){
+    var rows=loadSched();
+    var totH=rows.reduce(function(s,r){return s+(+r.estHours||0);},0);
+    var conf=countConflicts(rows);
+    setStat(0, rows.length, '/ 场', false);
+    setStat(1, totH.toFixed(1), 'h', false);
+    setStat(2, uniqStudios(rows), '家', false);
+    setStat(3, conf, '个', conf>0);
+  }
+  function uniqStudios(rows){ var s={}; rows.forEach(function(r){ if(r.studio&&r.studio!=='待定') s[r.studio]=1; }); return Object.keys(s).length; }
+  function countConflicts(rows){
+    var m={}, c=0;
+    rows.forEach(function(r){ if(!r.date||!r.studio||r.studio==='待定') return; var k=r.date+'|'+r.studio+'|'+(r.slot||''); m[k]=(m[k]||0)+1; if(m[k]===2) c++; });
+    return c;
+  }
+  function setStat(i,val,unit,danger){
+    var stats=document.querySelectorAll('.stat-strip .stat'); if(!stats[i]) return;
+    var v=stats[i].querySelector('.stat-value'); v.innerHTML=val+'<span class="unit">'+unit+'</span>';
+    var sub=stats[i].querySelector('.stat-sub');
+    if(danger){ v.style.color='var(--c-danger)'; sub.style.color='var(--c-danger)'; sub.textContent='同档期同棚冲突'; }
+    else { v.style.color=''; sub.style.color=''; sub.textContent='—'; }
+  }
+
+  function validateDraft(r){
+    if(!(r.demandId||r.demand_id)) return '请选择关联需求';
+    if(!r.date) return '请填写录制日期';
+    if(!r.vaType) return '请选择中配或英配';
+    return '';
+  }
+  function publishRows(rows){
+    if(!rows.length){toast('没有可发布的草稿');return Promise.resolve();}
+    var invalid=rows.map(function(r){return {id:r.id,error:validateDraft(r)}}).filter(function(x){return x.error});
+    if(invalid.length){toast('有 '+invalid.length+' 条草稿未完成：'+invalid[0].error,true);return Promise.resolve();}
+    var btn=document.getElementById('publishDraftsBtn'); if(btn)btn.disabled=true;
+    return fetch('/api/schedules/publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({drafts:rows})})
+      .then(function(r){return r.json().catch(function(){return{}}).then(function(j){if(!r.ok&&r.status!==207)throw Error(j.error||('HTTP '+r.status));return j;});})
+      .then(function(j){
+        var ids=new Set((j.published||[]).map(function(x){return String(x.client_draft_id)}));
+        var remain=loadSched().filter(function(x){return !ids.has(String(x.id));}); saveSched(remain);
+        if((j.failed||[]).length) toast('已发布 '+ids.size+' 条，'+j.failed.length+' 条失败：'+j.failed[0].error,true);
+        else toast('已发布 '+ids.size+' 条正式档期');
+        return loadPublishedSchedules();
+      }).catch(function(e){toast('发布失败：'+e.message,true);}).finally(function(){if(btn)btn.disabled=false;renderSched();});
+  }
+  var SCHED={
+    upd:function(id,key,val){ var rows=loadSched(); var r=rows.find(function(x){return x.id===id;}); if(!r) return; r[key]=val; saveSched(rows); renderSched(); },
+    del:function(id){ saveSched(loadSched().filter(function(x){return x.id!==id;})); renderSched(); },
+    publishOne:function(id){var r=loadSched().find(function(x){return x.id===id;});return publishRows(r?[r]:[]);},
+    publishAll:function(){return publishRows(loadSched());},
+    open:function(){
+      var agg=aggregate(); var wr=document.getElementById('wizRows');
+      if(!agg.length){ wr.innerHTML='<div class="wiz-empty">未检测到澄清数据 · 请先在需求汇总填写声优需求 / 粗估句数</div>'; }
+      else{
+        var html='';
+        agg.forEach(function(a){
+          var hrs=((+a.lines||0)*RATE_DEFAULT/3600).toFixed(1);
+          html+='<div class="wiz-row"><input type="checkbox" class="chk" data-plan="'+esc(a.plan)+'" data-cn="'+a.cn+'" data-en="'+a.en+'" data-lines="'+a.lines+'" checked>'
+            +'<span class="plan">'+esc(a.plan)+'</span>'
+            +'<span class="meta">中 <b>'+a.cn+'</b> · 英 <b>'+a.en+'</b> · <b>'+a.lines+'</b>句 · ≈<b>'+hrs+'h</b></span>'
+            +'<select class="wiz-split"><option value="type">按声优类型</option><option value="count">按声优数</option></select></div>';
+        });
+        wr.innerHTML=html;
+      }
+      document.getElementById('wizMask').classList.add('on');
+    },
+    close:function(){ document.getElementById('wizMask').classList.remove('on'); },
+    confirm:function(){
+      var rate=+document.getElementById('wizRate').value||RATE_DEFAULT;
+      var studio=document.getElementById('wizStudio').value;
+      var rows=loadSched();
+      var checks=document.querySelectorAll('#wizRows .chk:checked');
+      if(!checks.length){ toast('请至少选择一个发布计划'); return; }
+      checks.forEach(function(chk){
+        var plan=chk.dataset.plan, lines=+chk.dataset.lines||0, cn=+chk.dataset.cn||0, en=+chk.dataset.en||0;
+        var split=chk.parentElement.querySelector('.wiz-split').value;
+        var totalH=lines*rate/3600;
+        if(split==='count'){
+          var tot=Math.max(cn+en,1); var perL=Math.max(Math.round(lines/tot),0), perH=+(totalH/tot).toFixed(2);
+          for(var i=0;i<cn;i++) rows.push(mkSess(plan,'cn',perL,perH,studio));
+          for(var j=0;j<en;j++) rows.push(mkSess(plan,'en',perL,perH,studio));
+        } else {
+          var half=Math.round(lines/2), halfH=+(totalH/2).toFixed(2);
+          if(cn>0) rows.push(mkSess(plan,'cn',half,halfH,studio));
+          if(en>0) rows.push(mkSess(plan,'en',lines-half,+(totalH-halfH).toFixed(2),studio));
+        }
+      });
+      saveSched(rows); SCHED.close(); renderSched();
+      toast('已生成 '+rows.length+' 场草稿 · 在表格补全录音棚/日期/时段');
+    },
+    addEmpty:function(){ var rows=loadSched(); rows.push({id:uid(),plan:'',demandId:'',vaType:'cn',lines:0,estHours:0,studio:'待定',date:'',slot:'',status:'draft'}); saveSched(rows); renderSched(); },
+    export:function(){
+      var rows=loadSched(); if(!rows.length){ toast('暂无档期可导出'); return; }
+      var head=['发布计划','关联需求ID','声优类型','粗估句数','预估时长(h)','录音棚','日期','时段','状态'];
+      var lines=rows.map(function(r){ return [r.plan,r.demandId||'',r.vaType==='en'?'英配':'中配',r.lines,r.estHours,r.studio,r.date,r.slot,r.status].map(function(x){return '"'+String(x==null?'':x).replace(/"/g,'""')+'"';}).join(','); });
+      var csv='﻿'+head.join(',')+'\n'+lines.join('\n');
+      var blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob); a.download='VO录制档期草稿.csv'; a.click();
+      toast('已导出 '+rows.length+' 场档期 CSV');
+    }
+  };
+  function mkSess(plan,vaType,lines,estHours,studio){ return {id:uid(),plan:plan,demandId:'',vaType:vaType,lines:lines,estHours:estHours,studio:studio,date:'',slot:'',status:'draft'}; }
+  function toast(m,isConflict){ var t=document.createElement('div'); t.textContent=m; t.style.cssText='position:fixed;bottom:16px;right:20px;max-width:460px;font-family:JetBrains Mono,monospace;font-size:11.5px;letter-spacing:.5px;background:var(--c-surface);border:1px solid '+(isConflict?'rgba(214,153,190,.55)':'var(--c-hairline)')+';padding:7px 12px;border-radius:4px;color:'+(isConflict?'#D699BE':'var(--c-primary)')+';z-index:500;transition:opacity .3s;opacity:1'; document.body.appendChild(t); setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},300);},isConflict?8000:2400); }
+  window.openDraftWizard=SCHED.open; window.closeDraftWizard=SCHED.close; window.confirmDraftWizard=SCHED.confirm;
+  window.addEmptySched=SCHED.addEmpty; window.exportSchedule=SCHED.export; window.publishScheduleDrafts=SCHED.publishAll;
+  document.getElementById('wizMask').addEventListener('click',function(e){ if(e.target===this) SCHED.close(); });
+  renderSched();
+  loadDemandOptions();
+  // 启动：草稿仅本机；正式档期只读recording_schedules。KV不再承载档期草稿。
+  kvPull(CLARIFY).then(function(remoteClar){
+    try{if(remoteClar && !Object.keys(loadClarify()).length)localStorage.setItem(CLARIFY,remoteClar);}catch(_){}
+    return loadPublishedSchedules();
+  }).then(renderSched);
+})();
+</script>
+
+
+<!-- ============ 独立预览页导航（embed 模式下由外壳 switchView 负责，此处仅 standalone 生效） ============ -->
+<script>
+(function(){
+  if(document.body.classList.contains("embed")) return;   // 嵌在 Vo Manager 外壳内时交给外壳处理
+  var MAP = {
+    "需求汇总":"preview-需求汇总-精修版.html",
+    "声优库":"preview-声优库-精修版.html",
+    "录制档期":"preview-录制档期-精修版.html",
+    "音频资产库":"preview-资产库-精修版.html",
+    "vo资产库":"preview-资产库-精修版.html",
+    "vo智能助手":"preview-AI助手-精修版.html",
+    "vohq助手":"preview-AI助手-精修版.html",
+    "vo助手":"preview-AI助手-精修版.html"
+  };
+  var cur = (location.pathname.split("/").pop()||"").toLowerCase();
+  var items = document.querySelectorAll("aside.sidebar .nav-item");
+  for(var i=0;i<items.length;i++){
+    var btn = items[i];
+    var label = (btn.textContent||"").replace(/\s+/g,"").toLowerCase();
+    var target = MAP[label];
+    if(!target) continue;
+    if(target.toLowerCase()===cur){ btn.classList.add("active"); continue; }
+    btn.style.cursor="pointer";
+    btn.addEventListener("click", function(t){ return function(){ window.location.href = t; }; }(target));
+  }
+})();
+</script>
+
+</body>
+</html>

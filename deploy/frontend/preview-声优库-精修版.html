@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<title>Preview · 声优库精修版 · Vo Manager</title>
+<link rel="stylesheet" href="assets/project-fonts.css?v=20260817c"/>
+<style>
+:root{
+  --c-primary:#0FF796; --c-primary-dark:#0BD980; --c-primary-glow:rgba(15,247,150,0.18);
+  --c-bg:#192229; --c-bg-0:#0F171C; --c-surface:#1F2A32; --c-surface-2:#26333C; --c-surface-3:#2E3B45;
+  --c-sidebar:#192229; --c-sidebar-active:rgba(15,247,150,0.10);
+  --c-border:#2E3B45; --c-border-strong:#3D4C57;
+  --c-text:#FFFFFF; --c-text-2:#D4DDE3; --c-text-mute:#A1B1BC; --c-text-dim:#6B7A85;
+  --c-info:#60A5FA; --c-warning:#FFD24C; --c-danger:#D699BE;
+  /* 精修：多加一个 hairline 更细的边 */
+  --c-hairline:#243039;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter','JetBrains Mono',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{display:flex;flex-direction:column;overflow:hidden}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--c-surface-3);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--c-border-strong)}
+
+/* ==================== BRAND BAR ==================== */
+.brand-bar{min-height:64px;background:var(--c-bg-0);border-bottom:1px solid var(--c-border);display:flex;align-items:center;padding:10px 24px;gap:16px;flex-shrink:0;position:relative}
+.brand-bar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c-primary) 30%,var(--c-primary) 70%,transparent);opacity:0.35}
+.brand-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand-logo .logo-tri{height:36px;width:auto;display:block}
+.brand-logo .logo-txt{height:14px;width:auto;display:block;filter:brightness(0) invert(1)}
+.brand-divider{width:1px;height:32px;background:var(--c-border)}
+.brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+.brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
+.brand-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:'Inter',sans-serif;letter-spacing:.3px}
+.brand-spacer{flex:1}
+/* ==================== LAYOUT ==================== */
+.layout{flex:1;display:flex;overflow:hidden}
+.sidebar{width:216px;background:var(--c-sidebar);border-right:1px solid var(--c-hairline);padding:16px 12px;flex-shrink:0;overflow-y:auto}
+.sec-label{font-size:10px;letter-spacing:1.5px;color:var(--c-text-dim);text-transform:uppercase;padding:16px 12px 6px;font-weight:600}
+.nav-item{width:100%;display:flex;align-items:center;gap:10px;padding:9px 12px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:6px;font-size:13px;text-align:left;font-family:inherit;transition:all .15s}
+.nav-item:hover{background:var(--c-surface);color:var(--c-text-2)}
+.nav-item.active{background:var(--c-sidebar-active);color:var(--c-primary);font-weight:600;box-shadow:inset 2px 0 0 var(--c-primary)}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+.nav-sub{display:flex;flex-direction:column;padding-left:28px;gap:1px;margin-top:2px}
+.nav-sub-item{display:flex;align-items:center;gap:10px;padding:6px 10px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:5px;font-size:12.5px;text-align:left;font-family:inherit;transition:all .12s}
+.nav-sub-item:hover{background:var(--c-surface);color:var(--c-text-2)}
+.nav-sub-item.active{color:var(--c-primary);background:var(--c-sidebar-active)}
+.nav-sub-item .dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:0.7}
+.nav-sub-item .dot.dot-ok{background:var(--c-primary);opacity:1;box-shadow:0 0 4px var(--c-primary)}
+.nav-sub-item .dot.dot-warn{background:var(--c-warning);opacity:1;box-shadow:0 0 4px var(--c-warning)}
+.nav-sub-item .count{margin-left:auto;font-size:10.5px;color:var(--c-text-dim);font-weight:600;font-variant-numeric:tabular-nums}
+.nav-sub-item.active .count{color:var(--c-primary)}
+
+/* ==================== MAIN ==================== */
+.main{flex:1;padding:18px 22px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+
+/* 战术标题栏 */
+.tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
+.tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
+.title-block{display:flex;flex-direction:column;gap:6px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;color:var(--c-primary);letter-spacing:2.5px;font-weight:600;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px}
+.page-title .code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
+.title-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.title-count{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums;display:inline-flex;align-items:baseline}
+.title-count .unit{font-size:12px;color:var(--c-text-mute);margin-left:8px;font-weight:500;font-family:'Inter',sans-serif;letter-spacing:.2px}
+.title-kpis{display:none}
+.subtitle{font-size:12.5px;color:var(--c-text-mute);line-height:1.5;max-width:640px}
+.subtitle b{color:var(--c-text-2)}
+
+/* 顶部行动条 */
+.actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.btn{border:none;font-family:inherit;cursor:pointer;font-size:12.5px;font-weight:600;border-radius:5px;padding:8px 14px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.3px}
+.btn-primary{background:var(--c-primary);color:#000}
+.btn-primary:hover{background:var(--c-primary-dark);transform:translateY(-1px);box-shadow:0 4px 12px var(--c-primary-glow)}
+.btn-sync{background:rgba(15,248,155,0.10);color:var(--c-primary);border:1px solid var(--c-primary)}
+.btn-sync:hover{background:rgba(15,248,155,0.18);transform:translateY(-1px)}
+.btn-sync:disabled{opacity:.55;cursor:wait;transform:none}
+.sync-status{font-size:12px;font-weight:600;letter-spacing:.3px;white-space:nowrap}
+.sync-status.ok{color:var(--c-primary)}
+.sync-status.err{color:var(--c-danger)}
+.btn-outline{background:transparent;color:var(--c-text-2);border:1px solid var(--c-border)}
+.btn-outline:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* 编制分布 · 简化两行版 */
+/* 战术风编制分布 · 沉着冷静 · 灰阶为主，主色仅作 hover 微光 */
+.roster-meter{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.meter-value{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:2px}
+.meter-value .unit{font-size:12px;color:var(--c-text-mute);margin-left:6px;font-weight:500}
+.meter-bar{width:100%;height:6px;background:var(--c-bg-0);border-radius:2px;display:flex;overflow:hidden;border:1px solid var(--c-hairline);position:relative}
+.meter-seg{height:100%;transition:background .18s;position:relative;cursor:default}
+.meter-seg:not(:last-child){border-right:1px solid rgba(15,247,150,.15)}
+.meter-seg:hover{filter:brightness(1.2) saturate(1.1)}
+.meter-legend{display:flex;flex-wrap:wrap;gap:0;font-size:11.5px;color:var(--c-text-mute);align-items:center;font-family:'JetBrains Mono',monospace;letter-spacing:.3px}
+.meter-legend .li{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;padding:2px 14px;border-right:1px solid var(--c-hairline)}
+.meter-legend .li:last-child{border-right:none}
+.meter-legend .li:first-child{padding-left:0}
+.meter-legend .sw{width:3px;height:12px;flex-shrink:0;background:var(--c-text-dim);opacity:.9;border-radius:1px}
+.meter-legend .li b{color:var(--c-text-2);font-weight:700;margin-left:2px;font-family:'JetBrains Mono',monospace}
+.meter-legend .li:hover{color:var(--c-text-2)}
+.meter-legend .li:hover .sw{opacity:1;filter:brightness(1.15)}
+
+/* 工具行（表格外） */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tb-search{background:var(--c-surface);border:1px solid var(--c-border);color:#fff;border-radius:5px;padding:7px 12px;font-size:13px;min-width:220px;flex:0 0 auto;outline:none;font-family:inherit;transition:border-color .15s}
+.tb-search:focus{border-color:var(--c-primary)}
+.tb-search::placeholder{color:var(--c-text-dim)}
+.tb-chips{display:flex;gap:6px;flex-wrap:wrap}
+
+/* 卡片 & 表格 */
+.card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0}
+
+.tool-btn{background:transparent;border:1px solid var(--c-border);color:var(--c-text-mute);cursor:pointer;padding:6px 12px;border-radius:5px;font-size:12.5px;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:all .12s;line-height:1.2}
+.tool-btn:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.tool-btn.active{color:var(--c-primary);border-color:var(--c-primary);background:var(--c-primary-glow)}
+.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 4px}
+.tool-btn.tb-gender{padding:5px 10px;font-size:15px;line-height:1;font-family:'Segoe UI Symbol','Apple Symbols',sans-serif}
+.tool-btn.tb-gender .g-male  {color:#5A7A8E;text-shadow:0 0 4px rgba(90,122,142,.4)}
+.tool-btn.tb-gender .g-female{color:#B87A9C;text-shadow:0 0 4px rgba(184,122,156,.4)}
+.tool-btn.tb-gender[data-gender="男"].active{color:#5A7A8E;border-color:#5A7A8E;background:rgba(90,122,142,.15)}
+.tool-btn.tb-gender[data-gender="男"].active .g-male{text-shadow:0 0 8px rgba(90,122,142,.7)}
+.tool-btn.tb-gender[data-gender="女"].active{color:#B87A9C;border-color:#B87A9C;background:rgba(184,122,156,.15)}
+.tool-btn.tb-gender[data-gender="女"].active .g-female{text-shadow:0 0 8px rgba(184,122,156,.7)}
+.tool-btn.primary{color:#000;background:var(--c-primary);border-color:var(--c-primary);font-weight:600}
+.tool-btn.primary:hover{background:var(--c-primary-dark)}
+.tool-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+/* 编辑模式圆形按钮（放在筛选栏末尾） */
+.tool-btn.tb-edit{width:30px;height:30px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--c-text-mute)}
+.tool-btn.tb-edit svg{width:13px;height:13px;stroke-linecap:round;stroke-linejoin:round}
+.tool-btn.tb-edit:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.tool-btn.tb-edit.active{color:#000;background:var(--c-primary);border-color:var(--c-primary);box-shadow:0 0 8px rgba(15,247,150,.45)}
+/* 编辑模式态：可编辑单元格高亮虚线框 */
+body.edit-mode #rosterTable td.ed{outline:1px dashed rgba(15,247,150,.4);outline-offset:-2px;cursor:text}
+body.edit-mode #rosterTable td.ed:hover{outline-color:var(--c-primary);background:rgba(15,247,150,.06)}
+body.edit-mode #rosterTable td.rec-cell{cursor:pointer}
+body.edit-mode #rosterTable td.gender-cell{outline:1px dashed rgba(15,247,150,.4);outline-offset:-2px;cursor:pointer}
+
+.table-wrap{overflow:auto;flex:1}
+table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+thead{position:sticky;top:0;background:var(--c-bg-0);z-index:5}
+th{padding:12px 12px;text-align:left;font-size:12.5px;color:var(--c-primary);font-weight:900;border-bottom:1px solid var(--c-hairline);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;font-family:'Inter','JetBrains Mono',sans-serif;text-shadow:0 0 8px rgba(15,247,150,.15)}
+td{padding:0 12px;height:44px;border-bottom:1px solid var(--c-hairline);vertical-align:middle;color:var(--c-text-2);text-align:left}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:var(--c-surface-2)}
+
+/* Card footer（保留：底部键位提示条） */
+.card-foot{padding:9px 16px;border-top:1px solid var(--c-hairline);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--c-text-mute);background:var(--c-bg-0);font-family:'JetBrains Mono',monospace;flex-wrap:wrap;gap:8px}
+.card-foot .keys{display:flex;gap:12px}
+.card-foot kbd{background:var(--c-surface);border:1px solid var(--c-border);border-radius:3px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--c-text-2)}
+
+/* 表格斑马纹（更易看清） */
+#rosterTable tbody tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+#rosterTable tbody tr:hover td{background:rgba(15,247,150,.04)}
+
+/* Embed 模式：iframe 内隐藏自身 brand-bar/sidebar，仅显示主内容 */
+body.embed{background:transparent !important;background-color:transparent !important}
+html:has(body.embed){background:transparent !important;background-color:transparent !important}
+body.embed .brand-bar,
+body.embed aside.sidebar{display:none !important}
+body.embed .layout{padding-left:0}
+body.embed .main,
+body.embed .mid{width:100%}
+
+/* 可编辑单元格（就地编辑） */
+#rosterTable td.ed{cursor:text;position:relative;transition:box-shadow .12s,background .12s}
+#rosterTable td.ed:hover{background:rgba(15,247,150,.05);box-shadow:inset 0 0 0 1px rgba(15,247,150,.25)}
+#rosterTable td.ed:focus{outline:none;background:rgba(15,247,150,.1);box-shadow:inset 0 0 0 2px var(--c-primary);color:#fff!important;white-space:pre-wrap}
+#rosterTable td.ed:empty::before{content:attr(data-placeholder);color:var(--c-text-dim);opacity:.55}
+
+/* 角色信息列 · 两态（v3） */
+#rosterTable td.casting-cell{position:relative;text-align:left;vertical-align:middle}
+/* 性别符号 */
+#rosterTable td.gender-cell{font-size:16px;line-height:1;font-family:'Segoe UI Symbol','Apple Symbols','Arial',sans-serif}
+/* 战术风男女配色（2026-07-23 用户定稿 · 方案 A）
+     ♂ 战术钢蓝     #5A7A8E → HUD 数据/军舰漆冷色
+     ♀ 复古玫瑰粉   #B87A9C → 粉紫灰调，降饱和的女性色（军事美学 + 女性化）
+     ⚲ 中性         #6B7A85 → 冷灰，装备待激活态 */
+#rosterTable td.gender-cell .g-male  {color:#5A7A8E;font-weight:700;text-shadow:0 0 5px rgba(90,122,142,.4)}
+#rosterTable td.gender-cell .g-female{color:#B87A9C;font-weight:700;text-shadow:0 0 5px rgba(184,122,156,.4)}
+#rosterTable td.gender-cell .g-neu   {color:#6B7A85;font-weight:700;opacity:.7}
+/* 待选角态：红字加粗 */
+#rosterTable td.casting-pending{color:var(--c-warning);font-weight:700;font-size:12px;letter-spacing:.5px;cursor:pointer;transition:background .12s}
+#rosterTable td.casting-pending:hover{background:rgba(255,210,76,.10)}
+#rosterTable td.casting-pending .cast-txt{display:inline-block}
+/* 已选角态：✓ 对钩图标（主色） */
+#rosterTable td.casting-done{cursor:pointer}
+#rosterTable td.casting-done .check-icon{display:inline-flex;align-items:center;justify-content:center;color:var(--c-primary);transition:transform .12s,filter .12s}
+#rosterTable td.casting-done:hover .check-icon{transform:scale(1.2);filter:drop-shadow(0 0 6px var(--c-primary))}
+/* 透明灰对钩：xlsx 现有数据，仅数据齐全无详细资料 */
+#rosterTable td.casting-done-dim{cursor:default}
+#rosterTable td.casting-done-dim .check-icon{color:var(--c-text-dim);opacity:.5}
+#rosterTable td.casting-done-dim:hover .check-icon{transform:scale(1.1);opacity:.75;filter:none}
+/* 悬浮透明玻璃卡片 tooltip（两态通用） */
+#rosterTable td.casting-cell .doc-preview{position:fixed;right:auto;left:auto;padding:16px 18px;width:400px;background:rgba(25,34,41,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(15,247,150,.4);border-radius:6px;box-shadow:0 12px 44px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .18s;z-index:9999;text-align:left;font-size:11.5px;line-height:1.75;color:var(--c-text);white-space:pre-wrap;font-family:'Inter',sans-serif;overflow:visible;transform:none}
+#rosterTable td.casting-cell:hover .doc-preview{opacity:1}
+#rosterTable td.casting-cell .doc-preview::before{content:attr(data-note)}
+#rosterTable td.casting-cell .doc-preview.doc-preview-empty{color:var(--c-text-mute);font-style:italic}
+#rosterTable td.casting-cell .doc-preview.doc-preview-empty::before{content:''}
+
+/* 行右键菜单 */
+.row-menu{position:fixed;display:none;min-width:150px;background:rgba(25,34,41,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--c-border);border-radius:5px;box-shadow:0 12px 40px rgba(0,0,0,.55);padding:4px;z-index:300;font-size:12.5px;font-family:'Inter',sans-serif}
+.row-menu.show{display:block}
+.row-menu-item{display:flex;align-items:center;gap:8px;padding:8px 12px;color:var(--c-text-2);cursor:pointer;border-radius:3px;transition:background .12s,color .12s}
+.row-menu-item:hover{background:var(--c-surface-2);color:#fff}
+.row-menu-item.danger{color:var(--c-danger)}
+.row-menu-item.danger:hover{background:rgba(239,68,68,.15);color:#ff6b6b}
+.row-menu-item svg{stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+#rosterTable td.ed[data-placeholder="待选角"]:empty::before{color:var(--c-warning);opacity:.9;font-weight:500}
+#rosterTable td.rec-cell{padding:6px 10px;line-height:1.4;cursor:pointer;transition:background .12s,box-shadow .12s;position:relative}
+#rosterTable td.rec-cell:hover{background:rgba(15,247,150,.05);box-shadow:inset 0 0 0 1px rgba(15,247,150,.25)}
+#rosterTable td.rec-cell:empty::before{content:attr(data-placeholder);color:inherit;opacity:.7}
+#rosterTable td.rec-cell[data-placeholder="待选角"]:empty::before{color:var(--c-warning);opacity:.9;font-weight:500}
+#rosterTable td.rec-cell{padding-top:8px;padding-bottom:8px}
+#rosterTable td.rec-cell .rec-chip{display:block;width:fit-content;max-width:100%;background:rgba(96,165,250,.14);color:var(--c-info);border:1px solid rgba(96,165,250,.35);border-radius:3px;padding:2px 8px;font-size:11px;margin:2px 0;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* 录制档期结构化编辑弹层 */
+.rec-pop-mask{position:fixed;inset:0;background:rgba(8,12,16,0.72);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:200;padding:24px}
+.rec-pop-mask.show{display:flex}
+.rec-pop{width:min(520px,94vw);max-height:80vh;background:var(--c-surface);border:1px solid var(--c-border-strong);border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,0.7);display:flex;flex-direction:column;overflow:hidden}
+.rec-pop-head{padding:14px 18px;border-bottom:1px solid var(--c-hairline);display:flex;align-items:center;background:var(--c-bg-0);font-size:14px;font-weight:600;color:#fff}
+.rec-pop-x{margin-left:auto;background:transparent;border:none;color:var(--c-text-mute);cursor:pointer;font-size:16px;line-height:1;padding:2px 8px;border-radius:3px}
+.rec-pop-x:hover{color:#fff;background:var(--c-surface-2)}
+.rec-pop-body{padding:14px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.rec-row{display:flex;align-items:center;gap:6px;padding:8px;border:1px solid var(--c-hairline);border-radius:5px;background:var(--c-bg-0);flex-wrap:wrap}
+.rec-row select.rec-sel{background:var(--c-surface);border:1px solid var(--c-border);color:#fff;padding:5px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .12s;cursor:pointer;color-scheme:dark}
+.rec-row select.rec-sel:focus{border-color:var(--c-primary)}
+.rec-row .rec-date-group{display:flex;gap:4px;flex:1 1 auto;min-width:190px}
+.rec-row .rec-date-group select.rec-sel{flex:1;min-width:60px}
+.rec-row .rec-time-group{display:flex;align-items:center;gap:4px}
+.rec-row select.rec-hour{width:64px}
+.rec-row select.rec-min{width:62px}
+.rec-row .rec-sep{color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;font-size:12px}
+.rec-row .rec-allday{display:flex;align-items:center;gap:4px;color:var(--c-text-mute);font-size:11.5px;cursor:pointer;white-space:nowrap}
+.rec-row .rec-allday input{accent-color:var(--c-primary)}
+.rec-row .rec-del{background:transparent;border:1px solid var(--c-border);color:var(--c-text-mute);cursor:pointer;padding:4px 8px;border-radius:3px;font-size:11px}
+.rec-row .rec-del:hover{color:var(--c-danger);border-color:var(--c-danger)}
+.rec-pop-empty{padding:16px;text-align:center;color:var(--c-text-dim);font-size:12px;border:1px dashed var(--c-border);border-radius:5px}
+.rec-pop-foot{padding:12px 18px;border-top:1px solid var(--c-hairline);display:flex;gap:8px;align-items:center;background:var(--c-bg-0)}
+
+/* 新建声优表单弹层 */
+.va-pop{width:min(680px,94vw)}
+.va-form{padding:16px 18px;gap:12px}
+.va-form .va-row{display:flex;gap:12px;flex-wrap:wrap}
+.va-form label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--c-text-dim);flex:1 1 220px;min-width:0;font-weight:500}
+.va-form label.va-full{flex:1 1 100%}
+.va-form label.req{color:var(--c-primary)}
+.va-form label.req::after{content:' *';color:var(--c-primary);font-weight:700}
+.va-form label.opt{color:var(--c-text-dim)}
+.va-form .va-req{color:var(--c-warning);margin-left:2px}
+.va-form input,.va-form select,.va-form textarea{background:var(--c-bg-0);border:1px solid var(--c-border);color:#fff;border-radius:4px;padding:7px 10px;font-family:inherit;font-size:13px;outline:none;transition:border-color .12s;width:100%}
+.va-form input:focus,.va-form select:focus,.va-form textarea:focus{border-color:var(--c-primary)}
+.va-form select{color-scheme:dark}
+.va-form textarea{resize:vertical;min-height:60px;line-height:1.5;font-family:inherit}
+.va-section-hd{font-size:11px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-top:6px;padding-bottom:6px;border-bottom:1px solid var(--c-hairline);display:flex;align-items:center;gap:8px}
+.va-section-hd.req{color:var(--c-primary)}
+.va-section-hd.req::before{content:'';width:3px;height:12px;background:var(--c-primary);border-radius:2px}
+.va-section-hd.opt{color:var(--c-text-mute)}
+.va-section-hd.opt::before{content:'';width:3px;height:12px;background:var(--c-text-mute);border-radius:2px;opacity:.6}
+.va-hint{font-size:11px;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.va-hint.ok{color:var(--c-primary)}
+.va-tip{font-size:11px;color:var(--c-text-dim);line-height:1.55;padding:8px 12px;background:var(--c-bg-0);border:1px dashed var(--c-border);border-radius:4px}
+/* 在线文档导入 */
+.va-import{border:1px dashed var(--c-border);border-radius:6px;padding:10px 12px;background:var(--c-bg-0);display:flex;flex-direction:column;gap:8px}
+.va-import .va-import-hd{font-size:11px;letter-spacing:1.5px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--c-info);display:flex;align-items:center;gap:8px}
+.va-import .va-import-hd::before{content:'';width:3px;height:12px;background:var(--c-info);border-radius:2px}
+.va-import .va-import-row{display:flex;gap:8px}
+.va-import input{flex:1;background:var(--c-bg-0);border:1px solid var(--c-border);color:#fff;border-radius:4px;padding:7px 10px;font-size:12px;outline:none;font-family:inherit}
+.va-import input:focus{border-color:var(--c-info)}
+.va-import button{background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.5);color:var(--c-info);border-radius:4px;padding:7px 14px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.va-import button:hover{background:rgba(96,165,250,.24)}
+.va-import button:disabled{opacity:.5;cursor:wait}
+.va-import .va-import-status{font-size:11px;color:var(--c-text-dim);line-height:1.5;font-family:'JetBrains Mono',monospace;min-height:0}
+.va-import .va-import-status.ok{color:var(--c-primary)}
+.va-import .va-import-status.err{color:var(--c-danger)}
+.va-import .va-import-hint{font-size:11px;color:var(--c-text-dim);align-self:center;font-family:'JetBrains Mono',monospace}
+/* 多角色批量导入弹层 */
+.va-batch-pop{width:min(760px,95vw);max-height:82vh;display:flex;flex-direction:column}
+.va-batch-body{padding:14px 18px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.va-batch-toolbar{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--c-text-dim);padding-bottom:8px;border-bottom:1px solid var(--c-hairline)}
+.va-batch-toolbar label{display:flex;gap:6px;align-items:center;cursor:pointer;color:var(--c-text-2)}
+.va-batch-hint{font-family:'JetBrains Mono',monospace}
+.va-batch-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px}
+.va-batch-item{display:grid;grid-template-columns:22px 78px 1fr 60px 44px;gap:10px;padding:10px 12px;background:var(--c-bg-0);border:1px solid var(--c-border);border-radius:5px;transition:border-color .12s;font-size:12.5px;align-items:center}
+.va-batch-item:hover{border-color:var(--c-primary)}
+.va-batch-item.dup{opacity:.55;border-style:dashed}
+.va-batch-item input[type=checkbox]{accent-color:var(--c-primary);margin:0}
+.va-batch-item .cat-sel,.va-batch-item .gender-sel{background:rgba(15,247,150,.10);border:1px solid rgba(15,247,150,.35);color:var(--c-primary);border-radius:3px;padding:2px 4px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.4px;text-align:center;outline:none;cursor:pointer;color-scheme:dark;-webkit-appearance:menulist;appearance:menulist}
+.va-batch-item .gender-sel{background:rgba(255,255,255,.04);border-color:var(--c-border);color:var(--c-text-2);font-family:inherit;font-size:12px;letter-spacing:0}
+.va-batch-item .cat-sel:hover,.va-batch-item .gender-sel:hover{border-color:var(--c-primary)}
+.va-batch-item .role{color:#fff;font-weight:600;letter-spacing:.3px}
+.va-batch-item .role .en{color:var(--c-text-dim);font-weight:400;font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:6px}
+.va-batch-item .voice{color:var(--c-text-dim);font-size:11px;font-family:inherit;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;grid-column:3/6;padding-top:4px}
+.va-batch-item .status{font-size:10.5px;text-align:center;font-family:'JetBrains Mono',monospace}
+.va-batch-item .status.dup-tag{color:var(--c-warning)}
+.va-batch-foot{display:flex;justify-content:flex-end;gap:8px;padding-top:8px;border-top:1px solid var(--c-hairline)}
+
+/* ============================================================
+ * 详情区字体统一（2026-07-24 · 与左侧栏 .nav-item 同规格）
+ * ============================================================ */
+.main, .main table, .main td, .main th, .main p, .main li{
+  font-family:'Inter','JetBrains Mono',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+}
+.main table{font-size:13px}
+.main th{font-size:13px;letter-spacing:.6px}
+.main td{font-size:13px}
+
+/* 通用底图玻璃层 */
+.roster-meter,.card{background:rgba(31,42,50,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.card-foot{background:rgba(15,23,28,.72)}
+
+/* 响应式断点（2026-08-18） */
+@media (max-width: 1500px){
+  .main{padding:14px 16px 16px;gap:12px}
+  .page-title{font-size:20px}
+  table{font-size:12.5px}
+  table td,table th{padding:6px 8px}
+}
+@media (min-width: 2401px){
+  .main{padding:26px 32px 32px;gap:20px}
+  .page-title{font-size:26px}
+  table{font-size:14px}
+  table td,table th{padding:10px 12px}
+}
+</style>
+<!-- 声优库数据源（file:// 打开时的兜底：内联 window.ROSTER；http 打开则同时可 fetch assets/roster.json，二者一致） -->
+<script src="assets/roster.js"></script>
+</head>
+<body>
+
+<div class="brand-bar">
+  <div class="brand-logo">
+    <img src="assets/DeltaForceLogo-Triangle.png" alt="Delta" class="logo-tri"/>
+    <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt"/>
+  </div>
+  <div class="brand-divider"></div>
+  <button class="brand-toggle" title="收起/展开侧栏" onclick="document.body.classList.toggle('sidebar-collapsed')">
+    <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  </button>
+  <div class="brand-subsys" aria-label="Vomi · VO Manager">
+    <span class="brand-vomi-lockup"><img class="vomi-mark" src="assets/vomi-mark.svg?v=20260815g" alt="-Vomi-"/></span>
+    <span class="brand-slogan">包办 Vo, Mi 来打理</span>
+  </div>
+  <div class="brand-spacer"></div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sec-label">MISSION</div>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      需求汇总
+    </button>
+    <div class="sec-label">ROSTER</div>
+    <button class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      声优库
+    </button>
+    <div class="nav-sub" id="rosterStatusNav">
+      <button class="nav-sub-item active" data-status="" onclick="setRosterStatus('',this)"><span class="dot"></span>All<span class="count" id="navCntAll">—</span></button>
+      <button class="nav-sub-item" data-status="done" onclick="setRosterStatus('done',this)"><span class="dot dot-ok"></span>已选角<span class="count" id="navCntDone">—</span></button>
+      <button class="nav-sub-item" data-status="pending" onclick="setRosterStatus('pending',this)"><span class="dot dot-warn"></span>待选角<span class="count" id="navCntPending">—</span></button>
+    </div>
+    <div class="sec-label">SCHEDULE</div>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      录制档期
+    </button>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg>
+      VO 资产库
+    </button>
+    <div class="sec-label">HQ</div>
+    <button class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>Vo 智能助手</button>
+  </aside>
+
+  <main class="main">
+    <!-- Header：标题 + 总量 + 新建声优 -->
+    <div class="tactical-header">
+      <div class="title-block">
+        <div class="title-row">
+          <h1 class="page-title">声优库</h1>
+          <div class="title-count" id="meterTotal">—<span class="unit">/ 声优 · 6 大类</span></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="openAddVA()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          新建声优
+        </button>
+        <button class="btn btn-sync" id="btnSyncRoster" onclick="syncRosterToBackend()">
+          <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+          保存到系统
+        </button>
+        <span id="rosterSyncStatus" class="sync-status"></span>
+      </div>
+    </div>
+
+    <!-- Roster meter · 大类分布（由 roster.json 动态渲染） -->
+    <div class="roster-meter">
+      <div class="meter-bar" id="meterBar"></div>
+      <div class="meter-legend" id="meterLegend"></div>
+    </div>
+
+    <!-- 工具行：搜索 + 分类芯片 + 密度 + 新增 -->
+    <div class="toolbar">
+      <input id="rosterSearch" class="tb-search" placeholder="搜索：角色 / 声优 / 录音棚" oninput="renderRoster()"/>
+      <div class="tb-chips">
+        <button class="tool-btn active" data-cat="" onclick="setRosterCat('',this)">全部</button>
+        <button class="tool-btn" data-cat="指挥官" onclick="setRosterCat('指挥官',this)">指挥官</button>
+        <button class="tool-btn" data-cat="干员" onclick="setRosterCat('干员',this)">干员</button>
+        <button class="tool-btn" data-cat="Boss" onclick="setRosterCat('Boss',this)">Boss</button>
+        <button class="tool-btn" data-cat="AI兵" onclick="setRosterCat('AI兵',this)">AI兵</button>
+        <button class="tool-btn" data-cat="NPC" onclick="setRosterCat('NPC',this)">NPC</button>
+        <button class="tool-btn" data-cat="AI系统音" onclick="setRosterCat('AI系统音',this)">AI系统音</button>
+        <span class="chip-divider"></span>
+        <button class="tool-btn tb-gender" data-gender="男" onclick="setRosterGender('男',this)" title="筛选男性"><span class="g-male">♂</span></button>
+        <button class="tool-btn tb-gender" data-gender="女" onclick="setRosterGender('女',this)" title="筛选女性"><span class="g-female">♀</span></button>
+        <span class="chip-divider"></span>
+        <button id="editModeBtn" class="tool-btn tb-edit" onclick="toggleEditMode(this)" title="编辑模式：允许直接就地修改声优/地点/棚/性别等" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Table card：角色 → 中/英配声优 权威映射（单元格就地编辑） -->
+    <div class="card">
+      <div class="table-wrap">
+        <table id="rosterTable">
+          <thead>
+            <tr>
+              <th style="width:88px">大类</th>
+              <th style="min-width:200px">游戏角色（中）</th>
+              <th style="min-width:160px">Role (EN)</th>
+              <th style="width:56px">性别</th>
+              <th style="min-width:110px">中配声优</th>
+              <th style="min-width:170px">地点 / 录音棚 · 中</th>
+              <th style="min-width:150px">英配声优</th>
+              <th style="min-width:170px">地点 / 录音棚 · 英</th>
+              <th style="min-width:200px">角色信息</th>
+              <th style="min-width:180px">备注</th>
+            </tr>
+          </thead>
+          <tbody id="rosterTbody">
+            <tr><td colspan="10" style="text-align:center;color:var(--c-text-dim);padding:48px 0">加载中…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-foot">
+        <div>显示 <span id="rowCount">0</span> 行 · 点绿色单元格即可编辑 · 录制时间统一在「录制档期」页管理</div>
+        <div class="keys">
+          <span><kbd>Tab</kbd> 下一格</span>
+          <span><kbd>Enter</kbd> 保存</span>
+          <span><kbd>Esc</kbd> 撤销</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 录制档期结构化编辑弹层 -->
+<!-- 行右键菜单 -->
+<div id="rowMenu" class="row-menu" onclick="event.stopPropagation()">
+  <div class="row-menu-item danger" onclick="deleteRosterRow(_rowMenuRid)">
+    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+    删除本行
+  </div>
+</div>
+
+<div id="recPopMask" class="rec-pop-mask" onclick="if(event.target===this) closeRecPicker()">
+  <div class="rec-pop" onclick="event.stopPropagation()">
+    <div class="rec-pop-head">
+      <span id="recPopTitle">录制档期</span>
+      <button class="rec-pop-x" onclick="closeRecPicker()">✕</button>
+    </div>
+    <div class="rec-pop-body" id="recPopBody"></div>
+    <div class="rec-pop-foot">
+      <button class="btn btn-outline" onclick="addRecRow()">+ 添加档期</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-outline" onclick="closeRecPicker()">取消</button>
+      <button class="btn btn-primary" onclick="saveRecPicker()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新建声优表单弹层 -->
+<div id="vaPopMask" class="rec-pop-mask" onclick="if(event.target===this) closeVaForm()">
+  <div class="rec-pop va-pop" onclick="event.stopPropagation()">
+    <div class="rec-pop-head">
+      <span>新建声优 · 角色资料录入</span>
+      <button class="rec-pop-x" onclick="closeVaForm()">✕</button>
+    </div>
+    <div class="rec-pop-body va-form">
+
+      <!-- 选角资料导入：企业微信文档「菜单 → 导出为 → Word」得到 .docx → 上传自动填表 -->
+      <div class="va-import">
+        <div class="va-import-hd">从选角资料导入</div>
+        <div class="va-import-row">
+          <input type="file" id="vaDocFile" accept=".docx" style="display:none" onchange="importVaFromFile(event)"/>
+          <button type="button" onclick="document.getElementById('vaDocFile').click()">选择 Word 文件 (.docx)</button>
+          <span class="va-import-hint">企业微信文档「菜单 → 导出为 → Word」得到 .docx</span>
+        </div>
+        <div class="va-import-status" id="vaDocStatus"></div>
+      </div>
+
+      <!-- 必填区 -->
+      <div class="va-section-hd req">必填信息</div>
+
+      <div class="va-row">
+        <label class="req">大类
+          <select id="vaCategory">
+            <option value="">— 选择大类 —</option>
+            <option>指挥官</option>
+            <option>干员</option>
+            <option>Boss</option>
+            <option>AI兵</option>
+            <option>NPC</option>
+            <option>AI系统音</option>
+          </select>
+        </label>
+        <label class="req">性别
+          <select id="vaGender">
+            <option value="">— 选择性别 —</option>
+            <option>男</option>
+            <option>女</option>
+            <option>无性别 / 中性</option>
+          </select>
+        </label>
+        <label class="req">游戏角色（中）
+          <input id="vaRoleCn" placeholder="如：01红狼 / 卡米"/>
+        </label>
+        <label class="req">Role (EN)
+          <input id="vaRoleEn" placeholder="Kai / Cami"/>
+        </label>
+      </div>
+
+      <div class="va-row">
+        <label class="va-full req">基本信息
+          <textarea id="vaBasicInfo" rows="2" placeholder="年龄段 / 口音要求 / 音色描述（低沉/清亮/沙哑…）…"></textarea>
+        </label>
+      </div>
+
+      <div class="va-row">
+        <label class="va-full req">角色的人设 &amp; 背景故事
+          <textarea id="vaPersona" rows="3" placeholder="要求能较全面地展现人物性格 …"></textarea>
+        </label>
+      </div>
+
+      <div class="va-row">
+        <label class="req">中试音台词（至少 5 句）
+          <textarea id="vaLinesCn" rows="6" placeholder="每行一句，回车换句…"></textarea>
+          <div class="va-hint" id="vaLinesCnHint">已 0 句</div>
+        </label>
+        <label class="req">英试音台词（至少 5 句）
+          <textarea id="vaLinesEn" rows="6" placeholder="One line per sentence…"></textarea>
+          <div class="va-hint" id="vaLinesEnHint">已 0 句</div>
+        </label>
+      </div>
+
+      <!-- 选填区 -->
+      <div class="va-section-hd opt">选填</div>
+
+      <div class="va-row">
+        <label class="va-full opt">参考效果的音视频链接
+          <input id="vaRefLinks" placeholder="B 站 / YouTube / 网盘 URL，多个用换行或空格分隔"/>
+        </label>
+      </div>
+
+      <div class="va-row">
+        <label class="va-full opt">其他备注
+          <textarea id="vaNotes" rows="2" placeholder="其他补充说明 / 试音要求 / 联系方式…"></textarea>
+        </label>
+      </div>
+
+      <div class="va-tip">
+        提示：保存后声优/地点/棚/性别等在表格中就地编辑；录制时间统一在「录制档期」页管理。声优字段留空时会显示"待选角"黄色占位。
+      </div>
+    </div>
+    <div class="rec-pop-foot">
+      <div style="flex:1;color:var(--c-warning);font-size:11.5px" id="vaFormError"></div>
+      <button class="btn btn-outline" onclick="closeVaForm()">取消</button>
+      <button class="btn btn-primary" onclick="submitVaForm()">保存声优</button>
+    </div>
+  </div>
+</div>
+
+<!-- 多角色批量导入 · 清单弹层 -->
+<div id="vaBatchMask" class="rec-pop-mask" onclick="if(event.target===this) closeVaBatch()">
+  <div class="rec-pop va-batch-pop" onclick="event.stopPropagation()">
+    <div class="rec-pop-head">
+      <span>多角色导入 · 选择要入库的 NPC</span>
+      <button class="rec-pop-x" onclick="closeVaBatch()">✕</button>
+    </div>
+    <div class="rec-pop-body va-batch-body">
+      <div class="va-batch-toolbar">
+        <label><input type="checkbox" id="vaBatchAll" checked onchange="toggleVaBatchAll(this.checked)"/> 全选</label>
+        <span class="va-batch-hint" id="vaBatchHint"></span>
+      </div>
+      <div id="vaBatchList" class="va-batch-list"></div>
+      <div class="va-batch-foot">
+        <button class="btn btn-outline" onclick="closeVaBatch()">取消</button>
+        <button class="btn btn-primary" onclick="submitVaBatch()">导入所选</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ Roster 数据源加载 ============
+// 数据源顺序：window.ROSTER（roster.js 内联）→ fetch(assets/roster.json)
+// 之后叠加 localStorage 'vo_roster_edits_v1' 里 PM 在网页上的编辑（保留原始数据不动）
+window.ROSTER = window.ROSTER || null;
+let ROSTER_CAT = '';
+let ROSTER_STATUS = ''; // '' = All / 'done' / 'pending'
+let ROSTER_GENDER = ''; // '' = 全部 / '男' / '女'
+let ROSTER_LIST = [];   // 合并后的最终数据
+const CAT_COLORS = {'指挥官':'#60A5FA','干员':'#F59E0B','Boss':'#EF4444','AI兵':'#0FF796','NPC':'#D4DDE3','AI系统音':'#3D4C57'};
+
+async function loadRoster(){
+  let list = window.ROSTER;
+  if(!Array.isArray(list) || !list.length){
+    try{
+      const r = await fetch('assets/roster.json', {cache:'no-store'});
+      if(r.ok) list = await r.json();
+    }catch(e){ /* file:// 下会 fail，交给下面兜底 */ }
+  }
+  if(!Array.isArray(list) || !list.length){
+    document.getElementById('rosterTbody').innerHTML =
+      '<tr><td colspan="10" style="text-align:center;color:var(--c-warning);padding:32px 0">未能加载 roster.json — 请通过 http 打开或确认 assets/roster.js 已引入</td></tr>';
+    return;
+  }
+  // 叠加编辑
+  try{
+    const edits = JSON.parse(localStorage.getItem('vo_roster_edits_v1')||'{}')||{};
+    list = list.map(r=>{ const e = edits[r.id]; return e ? Object.assign({}, r, e) : r; });
+  }catch(_){}
+  // 叠加"本页新增"（vo_roster_adds_v1，仅本页录入的新声优，roster.json 不含）
+  try{
+    const adds = JSON.parse(localStorage.getItem('vo_roster_adds_v1')||'[]')||[];
+    const edits = JSON.parse(localStorage.getItem('vo_roster_edits_v1')||'{}')||{};
+    for(const a of adds){
+      const e = edits[a.id]; list.push(e ? Object.assign({}, a, e) : a);
+    }
+  }catch(_){}
+  // 过滤本页已删除的行（vo_roster_deletes_v1 = 数字 id 数组）
+  try{
+    const del = JSON.parse(localStorage.getItem('vo_roster_deletes_v1')||'[]')||[];
+    if(del.length){
+      const dset = new Set(del.map(Number));
+      list = list.filter(r => !dset.has(Number(r.id)));
+    }
+  }catch(_){}
+  ROSTER_LIST = list;
+  renderMeter();
+  renderRoster();
+}
+
+// ============ 保存到系统（声优库 → 后端 voice_roles 表）============
+// 闭环：网页里的编辑/新增/删除先存 localStorage，点「保存到系统」后回写后端 DB；
+// 生成台词表时后端实时读 voice_roles，Tab1 的 A/B 列即可拿到最新声优库信息。
+// 以 role_cn 作为匹配键（绕开 roster.json id 与 DB id 不一致）。
+function flashRoster(msg, ok){
+  const el = document.getElementById('rosterSyncStatus');
+  if(!el) return;
+  el.textContent = msg;
+  el.className = 'sync-status ' + (ok ? 'ok' : 'err');
+  clearTimeout(flashRoster._t);
+  flashRoster._t = setTimeout(()=>{ el.textContent=''; el.className='sync-status'; }, 5000);
+}
+
+async function syncRosterToBackend(){
+  const btn = document.getElementById('btnSyncRoster');
+  if(btn) btn.disabled = true;
+  flashRoster('正在保存到系统…', true);
+  try{
+    const base = (typeof VA_API_BASE !== 'undefined' && VA_API_BASE) ? VA_API_BASE : '';
+    // 1) 读取后端当前 voice_roles（role_cn → row）
+    const dbRes = await fetch(base + '/api/voice-roles', {cache:'no-store'});
+    if(!dbRes.ok) throw new Error('读取声优库失败 ('+dbRes.status+')');
+    const db = await dbRes.json();
+    const dbByCn = new Map(db.map(r=>[r.role_cn, r]));
+
+    const cur = ROSTER_LIST || [];
+    const curCn = new Set(cur.map(r=>r.role_cn));
+    let patched=0, posted=0, deleted=0, skipped=0;
+
+    const toPayload = (e)=>({
+      module: e.category || '',
+      role_cn: e.role_cn || '',
+      gender: e.gender || '',
+      role_en: e.role_en || '',
+      cn_va: e.cn_va || '',
+      cn_loc: e.cn_location || '',
+      cn_studio: e.cn_studio || '',
+      en_va: e.en_va || '',
+      en_loc: e.en_location || '',
+      en_studio: e.en_studio || ''
+    });
+    const FIELDS = ['module','role_cn','gender','role_en','cn_va','cn_loc','cn_studio','en_va','en_loc','en_studio'];
+
+    // 2) upsert：当前列表逐条按 role_cn 匹配 DB
+    for(const e of cur){
+      if(!e.role_cn) continue;
+      const p = toPayload(e);
+      const hit = dbByCn.get(e.role_cn);
+      if(hit){
+        const same = FIELDS.every(k => (hit[k]||'') === (p[k]||''));
+        if(!same){
+          const r = await fetch(base + '/api/voice-roles/'+hit.id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p)});
+          if(!r.ok) throw new Error('更新角色失败: '+e.role_cn);
+          patched++;
+        } else skipped++;
+      } else {
+        const r = await fetch(base + '/api/voice-roles', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p)});
+        if(!r.ok) throw new Error('新增角色失败: '+e.role_cn);
+        posted++;
+      }
+    }
+
+    // 3) 删除 DB 中存在但当前列表已移除的角色
+    for(const d of db){
+      if(!curCn.has(d.role_cn)){
+        const r = await fetch(base + '/api/voice-roles/'+d.id, {method:'DELETE'});
+        if(r.ok) deleted++;
+      }
+    }
+
+    // 4) 清空本页 localStorage 编辑缓存（已持久化到系统）
+    ['vo_roster_edits_v1','vo_roster_adds_v1','vo_roster_deletes_v1'].forEach(k=>{
+      try{ localStorage.removeItem(k); }catch(_){}
+    });
+
+    flashRoster('已保存到系统 ✓ 更新 '+patched+' / 新增 '+posted+' / 删除 '+deleted+' / 未变 '+skipped, true);
+  }catch(err){
+    flashRoster('保存失败：'+err.message, false);
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
+
+function renderMeter(){
+  const total = ROSTER_LIST.length;
+  const cnt = {};
+  let pending = 0;
+  for(const r of ROSTER_LIST){
+    cnt[r.category] = (cnt[r.category]||0) + 1;
+    if((!r.cn_va) || (!r.en_va)) pending++;   // 与排序 isPending 保持一致
+  }
+  const done = total - pending;
+  document.getElementById('meterTotal').innerHTML = total + '<span class="unit">/ 声优 · ' + Object.keys(cnt).length + ' 大类</span>';
+  // 同步侧栏子导航 count（All / 已选角 / 待选角）
+  const nA=document.getElementById('navCntAll');     if(nA) nA.textContent = total;
+  const nD=document.getElementById('navCntDone');    if(nD) nD.textContent = done;
+  const nP=document.getElementById('navCntPending'); if(nP) nP.textContent = pending;
+  // 上报给外壳侧栏（含未保存 localStorage 草稿；与子页顶部一致）
+  try{ if(window.parent && window.parent !== window){
+    window.parent.postMessage({type:'roster-status-counts', total, done, pending}, '*');
+  }}catch(e){}
+  const order = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
+  // 用户定制战术色板 v2（2026-07-23）：6 色按大类顺序固定映射
+  const PALETTE = {
+    '指挥官':  '#727665',  // 军橄榄     —— 权威主力
+    '干员':    '#CEA06C',  // 沙棕金     —— 战力
+    'Boss':    '#E9E6DF',  // 米白       —— 强度反差
+    'AI兵':    '#D3DFDD',  // 浅冰       —— 机械
+    'NPC':     '#474C40',  // 深橄榄     —— 环境
+    'AI系统音':'#608980'   // 青灰蓝     —— 系统
+  };
+  const visible = order.filter(c=>cnt[c]);
+  const bar = visible.map(c=>{
+    const w = (cnt[c]/total*100).toFixed(2);
+    const bg = PALETTE[c] || '#6B7A85';
+    return `<div class="meter-seg" style="background:${bg};width:${w}%" title="${c}：${cnt[c]}"></div>`;
+  }).join('');
+  document.getElementById('meterBar').innerHTML = bar;
+  // legend：小竖条用对应大类色 + 大类名 + 数量
+  document.getElementById('meterLegend').innerHTML = visible.map(c =>
+    `<span class="li"><span class="sw" style="background:${PALETTE[c]||'#6B7A85'}"></span>${c} <b>${cnt[c]}</b></span>`
+  ).join('');
+}
+
+function setRosterCat(cat, btn){
+  ROSTER_CAT = cat;
+  document.querySelectorAll('.toolbar .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRoster();
+}
+
+// 性别芯片：点击切换 · 再点一次清除
+function setRosterGender(g, btn){
+  if(ROSTER_GENDER === g){
+    ROSTER_GENDER = '';
+    if(btn) btn.classList.remove('active');
+  } else {
+    ROSTER_GENDER = g;
+    document.querySelectorAll('.toolbar .tb-gender').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+  }
+  renderRoster();
+}
+
+// 编辑模式：切 body.edit-mode，让 renderRoster 生成可编辑单元格；再点退出
+function toggleEditMode(btn){
+  const on = !document.body.classList.contains('edit-mode');
+  document.body.classList.toggle('edit-mode', on);
+  if(btn){
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('title', on ? '编辑模式已开启：点击退出' : '编辑模式：允许直接就地修改声优/地点/棚/性别等');
+  }
+  renderRoster();
+}
+
+// 侧栏子导航：All / 已选角 / 待选角
+function setRosterStatus(status, btn){
+  ROSTER_STATUS = status;
+  document.querySelectorAll('#rosterStatusNav .nav-sub-item').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderRoster();
+}
+
+function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// 性别 → Unicode 符号（♂ 浅蓝 / ♀ 浅粉 / 无性别·中性 灰色 ⚲）
+function genderIcon(g){
+  const v = String(g||'').trim();
+  if(v==='男' || v.toLowerCase()==='m' || v.toLowerCase()==='male')   return '<span class="g-male"   title="男">♂</span>';
+  if(v==='女' || v.toLowerCase()==='f' || v.toLowerCase()==='female') return '<span class="g-female" title="女">♀</span>';
+  if(v.includes('中性') || v.includes('无性别'))                      return '<span class="g-neu"    title="无性别 / 中性">⚲</span>';
+  return v ? escHtml(v) : '<span style="color:var(--c-text-dim)">—</span>';
+}
+
+function renderRoster(){
+  const q = (document.getElementById('rosterSearch').value||'').trim().toLowerCase();
+  const tbody = document.getElementById('rosterTbody');
+  let list = ROSTER_LIST;
+  if(ROSTER_CAT) list = list.filter(r => r.category === ROSTER_CAT);
+  if(ROSTER_STATUS === 'pending')   list = list.filter(r => (!r.cn_va) || (!r.en_va));
+  else if(ROSTER_STATUS === 'done') list = list.filter(r => r.cn_va && r.en_va);
+  if(ROSTER_GENDER) list = list.filter(r => (r.gender||'').trim() === ROSTER_GENDER);
+  if(q){
+    list = list.filter(r =>
+      (r.role_cn||'').toLowerCase().includes(q) ||
+      (r.role_en||'').toLowerCase().includes(q) ||
+      (r.cn_va||'').toLowerCase().includes(q) ||
+      (r.en_va||'').toLowerCase().includes(q) ||
+      (r.cn_studio||'').toLowerCase().includes(q) ||
+      (r.en_studio||'').toLowerCase().includes(q) ||
+      (r.casting_note||'').toLowerCase().includes(q) ||
+      (Array.isArray(r.rec_time_cn) ? r.rec_time_cn.join(' ') : (r.rec_time_cn||'')).toLowerCase().includes(q) ||
+      (Array.isArray(r.rec_time_en) ? r.rec_time_en.join(' ') : (r.rec_time_en||'')).toLowerCase().includes(q)
+    );
+  }
+  // ===== 排序规则（2026-07-23 用户定稿）=====
+  // 1) 待选角行永远置顶（中/英配声优任一为空 = 待选角；'N/A' 视为已确定，不算待选角）
+  // 2) 待选角内部按新建时间倒序（_added=true 优先，其次 id 大的靠前）
+  // 3) 已确定行按大类顺序分组（指挥官 → 干员 → Boss → AI兵 → NPC → AI系统音），组内保持 roster 原始 id 顺序
+  const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'AI系统音':6};
+  const isPending = r => (!r.cn_va) || (!r.en_va);
+  list = list.slice().sort((a,b)=>{
+    const pa = isPending(a), pb = isPending(b);
+    if(pa !== pb) return pa ? -1 : 1;                     // 待选角置顶
+    if(pa && pb){                                          // 待选角内部：新建优先 + 大 id 优先
+      if(!!a._added !== !!b._added) return a._added ? -1 : 1;
+      return (Number(b.id)||0) - (Number(a.id)||0);
+    }
+    // 已确定：按大类顺序 → 组内按 id 升序
+    const ca = CAT_ORDER[a.category]||99, cb = CAT_ORDER[b.category]||99;
+    if(ca !== cb) return ca - cb;
+    return (Number(a.id)||0) - (Number(b.id)||0);
+  });
+  document.getElementById('rowCount').textContent = list.length;
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--c-text-dim);padding:32px 0">无匹配记录</td></tr>';
+    return;
+  }
+  const catBadge = c => {
+    const color = CAT_COLORS[c] || '#6B7A85';
+    return `<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;background:${color}22;color:${color};border:1px solid ${color}66">${escHtml(c||'')}</span>`;
+  };
+  // 通用可编辑单元格（v3 · 2026-07-23：不再显示"待选角"，只有"角色信息"列显示待选角）
+  //   空值 → 灰色 "—"；N/A → 灰斜体 "N/A"；有值 → 常规色
+  const edCell = (v, rid, field, opts) => {
+    opts = opts || {};
+    const raw = (v==null?'':String(v));
+    const isNA = raw==='N/A';
+    const isEmpty = !raw;
+    const isAI = raw==='AI生成';
+    const display = isNA ? '<span style="color:var(--c-text-dim);font-style:italic;opacity:.7">N/A</span>' : (isEmpty ? '' : escHtml(raw));
+    let color = '';
+    if(isAI) color = 'color:var(--c-info);';
+    else if(isEmpty) color = 'color:var(--c-text-dim);';
+    else if(opts.dim) color = 'color:var(--c-text-2);';
+    const placeholder = isEmpty ? '—' : '';
+    return `<td class="ed" data-rid="${rid}" data-field="${field}" data-orig="${escHtml(raw)}" contenteditable="${document.body.classList.contains('edit-mode')?'true':'false'}" spellcheck="false" style="${color}${opts.extraStyle||''}" data-placeholder="${placeholder}">${display}</td>`;
+  };
+  // 「地点 / 录音棚」合并单元格（v3 · 2026-07-23）
+  const locStudioCell = (loc, studio, rid, side, pending) => {
+    const l = (loc==null?'':String(loc));
+    const s = (studio==null?'':String(studio));
+    const bothNA = l==='N/A' && s==='N/A';
+    const isEmpty = (!l||l==='N/A') && (!s||s==='N/A');
+    const isTrueEmpty = !l && !s;                       // 完全未录入
+    const isAI = (l==='AI生成' || s==='AI生成');
+    let display;
+    if(bothNA){
+      display = '<span style="color:var(--c-text-dim);font-style:italic;opacity:.7">N/A</span>';
+    } else {
+      display = isEmpty ? '' :
+        escHtml([l && l!=='N/A' ? l : '', s && s!=='N/A' ? s : ''].filter(Boolean).join(' · '));
+    }
+    let color = 'color:var(--c-text-2);';
+    if(isAI) color = 'color:var(--c-info);';
+    else if(isEmpty && !bothNA) color = 'color:var(--c-text-dim);';
+    const placeholder = (isEmpty && !bothNA) ? '—' : '';
+    return `<td class="ed" data-rid="${rid}" data-field="loc_studio_${side}" data-loc="${escHtml(l)}" data-studio="${escHtml(s)}" data-orig="${escHtml(display)}" contenteditable="${document.body.classList.contains('edit-mode')?'true':'false'}" spellcheck="false" style="${color}" data-placeholder="${placeholder}">${display}</td>`;
+  };
+  // 录制时间单元格：结构化多档期（日期 + 起 - 止）
+  //   数据存于 localStorage 的 rec_time_cn / rec_time_en 字段（字符串数组）
+  //   格式：'YYYY-MM-DD HH:MM-HH:MM' 或 'YYYY-MM-DD 全天'
+  //   点击 cell → 弹出 popover 编辑器，可增删多行
+  const timeCell = (arr, rid, field, pending, naVa) => {
+    const times = Array.isArray(arr) ? arr : (arr ? String(arr).split(/[\n;；]+/).map(x=>x.trim()).filter(Boolean) : []);
+    const isEmpty = !times.length;
+    let color = 'color:var(--c-text-2);';
+    if(isEmpty) color = 'color:var(--c-text-dim);';
+    // N/A 声优的行：录制时间列显示灰色斜体 N/A（明确"不做该语种"，不点击编辑）
+    if(naVa && isEmpty){
+      return `<td class="rec-cell" style="color:var(--c-text-dim);font-style:italic;opacity:.7">N/A</td>`;
+    }
+    const placeholder = '点击添加档期';
+    const chipsHtml = times.map(t => `<span class="rec-chip">${escHtml(t)}</span>`).join('');
+    return `<td class="rec-cell rec-picker" data-rid="${rid}" data-field="${field}" data-times='${JSON.stringify(times).replace(/'/g,"&#39;")}' style="${color}" data-placeholder="${placeholder}" onclick="openRecPicker(this,event)">${chipsHtml}</td>`;
+  };
+  // 选角信息（自由文本）
+  // 角色信息列（v4 · 2026-07-23）：三态
+  //   pending=true → 红色"待选角"（hover 预览 + 双击下 Word）
+  //   pending=false + 有完整 casting_note → 荧光绿主色 ✓ 对钩（本页新建完整流程）
+  //   pending=false + 无 casting_note → 透明灰 ✓ 对钩（xlsx 现有角色 / 数据齐全但未走详细选角流程）
+  const castingCell = (v, rid, pending, role_cn) => {
+    const raw = (v==null?'':String(v));
+    const hasContent = !!raw;
+    const tooltipHtml = hasContent
+      ? `<span class="doc-preview" data-note="${escHtml(raw)}"></span>`
+      : `<span class="doc-preview doc-preview-empty">老演员数据，详细选角资料待后期更新</span>`;
+    if(pending){
+      return `<td class="casting-cell casting-pending" data-rid="${rid}" data-role="${escHtml(role_cn||'')}" ondblclick="downloadCastingNote(${rid})" title="双击下载选角资料 · 悬浮预览">
+        <span class="cast-txt">待选角</span>
+        ${tooltipHtml}
+      </td>`;
+    }
+    // 已选角完毕：对钩图标 —— 有详细资料=荧光绿，无资料=透明灰
+    const doneClass = hasContent ? 'casting-done' : 'casting-done casting-done-dim';
+    const dblAttr = hasContent ? `ondblclick="downloadCastingNote(${rid})"` : '';
+    const titleAttr = hasContent ? '悬浮预览资料 · 双击下载 Word' : '老演员数据 · 详细选角资料待后期更新';
+    return `<td class="casting-cell ${doneClass}" data-rid="${rid}" data-role="${escHtml(role_cn||'')}" ${dblAttr} title="${titleAttr}">
+      <span class="check-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" opacity=".35"/><path d="M8.5 12.3l2.6 2.6L16 9.6" stroke-width="1.8"/></svg></span>
+      ${tooltipHtml}
+    </td>`;
+  };
+  tbody.innerHTML = list.map(r => {
+    // 是否"待选角"：仅当声优字段完全为空(未录入)才是 pending
+    // 'N/A' = 已明确"不做该语种"，属于已确定状态，不算 pending（例：蝶父亲/塔里克 英配 N/A）
+    const pendingCn = !r.cn_va;
+    const pendingEn = !r.en_va;
+    const naCn = r.cn_va === 'N/A';
+    const naEn = r.en_va === 'N/A';
+    // 角色信息「待选角」判定（用户定稿 2026-07-23）：只要中/英配任一未定就算待选角
+    // 与顶部 KPI / 排序 isPending 保持一致；只有 cn_va + en_va 都填(或 N/A) 才视为"已选角"
+    const pendingCast = pendingCn || pendingEn;
+    return `
+    <tr data-rid="${r.id}" oncontextmenu="openRowMenu(event,${r.id})">
+      <td>${catBadge(r.category)}</td>
+      <td>${escHtml(r.role_cn)}</td>
+      <td style="color:var(--c-text-2);font-family:'JetBrains Mono',monospace;font-size:11px">${escHtml(r.role_en||'')}</td>
+      <td class="gender-cell">${genderIcon(r.gender)}</td>
+      ${edCell(r.cn_va,   r.id,'cn_va', {pending: pendingCn})}
+      ${locStudioCell(r.cn_location, r.cn_studio, r.id, 'cn', pendingCn)}
+      ${edCell(r.en_va,   r.id,'en_va', {pending: pendingEn})}
+      ${locStudioCell(r.en_location, r.en_studio, r.id, 'en', pendingEn)}
+      ${castingCell(r.casting_note, r.id, pendingCast, r.role_cn)}
+      ${edCell(r.remark, r.id, 'remark', {extraStyle:'font-size:11.5px;'})}
+    </tr>`;
+  }).join('');
+}
+
+// 事件委托：tbody 只挂一次，无论重渲染多少次都不会失效
+function initCellEdit(){
+  const tbody = document.getElementById('rosterTbody');
+  if(!tbody || tbody._edBound) return;
+  tbody._edBound = true;
+
+  // focusin 冒泡版 focus：单元格取得焦点时记原值 + 全选
+  tbody.addEventListener('focusin', (e)=>{
+    const td = e.target.closest('td.ed'); if(!td) return;
+    td.dataset.orig = td.textContent.trim();
+    requestAnimationFrame(()=>{
+      try{
+        const range = document.createRange(); range.selectNodeContents(td);
+        const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      }catch(_){}
+    });
+  });
+
+  // keydown：Enter=提交，Esc=撤销
+  tbody.addEventListener('keydown', (e)=>{
+    const td = e.target.closest('td.ed'); if(!td) return;
+    if(e.key==='Enter'){ e.preventDefault(); td.blur(); }
+    else if(e.key==='Escape'){ e.preventDefault(); td.textContent = td.dataset.orig || ''; td.blur(); }
+  });
+
+  // focusout 冒泡版 blur：失焦时 diff → 存 localStorage → 闪绿
+  tbody.addEventListener('focusout', (e)=>{
+    const td = e.target.closest('td.ed'); if(!td) return;
+    const rid = Number(td.dataset.rid);
+    const field = td.dataset.field;
+    const orig = td.dataset.orig || '';
+    const val = td.textContent.replace(/\r?\n/g,' ').trim();
+    if(val === orig) return;
+
+    if(field==='loc_studio_cn' || field==='loc_studio_en'){
+      // 复合字段：拆成 location + studio 两个字段
+      const side = field==='loc_studio_cn' ? 'cn' : 'en';
+      const parts = val.split(/\s*[\/·、,，]\s*/).filter(Boolean);
+      const loc = parts[0] || '';
+      const studio = parts.slice(1).join(' ') || '';
+      saveCellEdit(rid, side+'_location', loc);
+      saveCellEdit(rid, side+'_studio',   studio);
+      const row = ROSTER_LIST.find(r=>r.id===rid);
+      if(row){ row[side+'_location']=loc; row[side+'_studio']=studio; }
+      const clean = [loc, studio].filter(x=>x && x!=='N/A').join(' · ');
+      td.textContent = clean;
+      td.dataset.orig = clean;
+      td.dataset.loc = loc;
+      td.dataset.studio = studio;
+      td.style.color = clean ? 'var(--c-text-2)' : 'var(--c-text-dim)';
+    } else {
+      saveCellEdit(rid, field, val);
+      const row = ROSTER_LIST.find(r=>r.id===rid);
+      if(row){ row[field] = val; }
+      if(val==='AI生成') td.style.color = 'var(--c-info)';
+      else if(!val || val==='N/A') td.style.color = 'var(--c-text-dim)';
+      else td.style.color = (field==='cn_va'||field==='en_va') ? '' : 'var(--c-text-2)';
+    }
+
+    td.style.transition = 'background .4s';
+    td.style.background = 'rgba(15,247,150,.18)';
+    setTimeout(()=>{ td.style.background=''; }, 420);
+  });
+}
+
+// ==================== 录制档期结构化编辑器 ====================
+// 数据格式：字符串数组，每项形如
+//   '2026-07-25 14:00-17:00'   或
+//   '2026-07-25 全天'
+// 内部编辑时拆成 { date, from, to, allDay } 结构
+let REC_CTX = null;   // { td, rid, field, rows:[{date,from,to,allDay}] }
+
+// 从字符串解析回结构
+function parseRecItem(s){
+  s = String(s||'').trim();
+  if(!s) return null;
+  // 全天
+  let m = s.match(/^(\d{4}-\d{2}-\d{2})\s*(?:全天|all\s*day)$/i);
+  if(m) return { date:m[1], from:'', to:'', allDay:true };
+  // 日期 + HH:MM-HH:MM
+  m = s.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{1,2}:\d{2})\s*[-–~至]\s*(\d{1,2}:\d{2})$/);
+  if(m) return { date:m[1], from:pad(m[2]), to:pad(m[3]), allDay:false };
+  // 兜底：仅日期
+  m = s.match(/^(\d{4}-\d{2}-\d{2})$/);
+  if(m) return { date:m[1], from:'', to:'', allDay:false };
+  // 无法解析：塞到 date 里，让用户在编辑器里修
+  return { date:'', from:'', to:'', allDay:false, raw:s };
+}
+function pad(t){ const [h,m] = String(t).split(':'); return String(h).padStart(2,'0') + ':' + (m||'00'); }
+function formatRecItem(r){
+  if(!r.date) return r.raw || '';
+  if(r.allDay) return r.date + ' 全天';
+  if(r.from && r.to) return r.date + ' ' + r.from + '-' + r.to;
+  return r.date;
+}
+
+function openRecPicker(td, ev){
+  if(ev) ev.stopPropagation();
+  const times = (()=>{ try{ return JSON.parse(td.dataset.times.replace(/&#39;/g,"'")); }catch(_){ return []; } })();
+  REC_CTX = {
+    td,
+    rid: Number(td.dataset.rid),
+    field: td.dataset.field,
+    rows: times.map(parseRecItem).filter(Boolean)
+  };
+  if(!REC_CTX.rows.length) REC_CTX.rows.push({ date:'', from:'', to:'', allDay:false });
+  const side = td.dataset.field === 'rec_time_cn' ? '中配' : '英配';
+  const roleCn = td.closest('tr')?.querySelector('td:nth-child(2) b')?.textContent || '';
+  document.getElementById('recPopTitle').textContent = `录制档期 · ${side}${roleCn?' · '+roleCn:''}`;
+  drawRecPop();
+  document.getElementById('recPopMask').classList.add('show');
+}
+
+// 下拉选项生成器
+function _optRange(from, to, cur, pad2){
+  let out = '<option value="">—</option>';
+  for(let n=from; n<=to; n++){
+    const v = pad2 ? String(n).padStart(2,'0') : String(n);
+    out += `<option value="${v}"${String(cur)===v?' selected':''}>${v}</option>`;
+  }
+  return out;
+}
+function _dateParts(dateStr){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr||''));
+  return m ? { y:m[1], m:m[2], d:m[3] } : { y:'', m:'', d:'' };
+}
+function _timeParts(timeStr){
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(timeStr||''));
+  return m ? { h:m[1].padStart(2,'0'), mi:m[2] } : { h:'', mi:'' };
+}
+
+function drawRecPop(){
+  const body = document.getElementById('recPopBody');
+  if(!REC_CTX.rows.length){
+    body.innerHTML = '<div class="rec-pop-empty">点下方「+ 添加档期」新增一条</div>';
+    return;
+  }
+  const now = new Date();
+  const curY = now.getFullYear();
+  const curM = now.getMonth() + 1;   // 1-12
+  // 年份规则（2026-07-23 用户定稿）：
+  //   默认只显示当年；10 月起（curM >= 10）追加下一年，方便提前预定明年档期
+  //   若行内已存的老年份不在上述范围（如历史 2025 存量），仍并入选项，防丢数据
+  const yearOpts = (cur) => {
+    const yearSet = new Set();
+    yearSet.add(curY);
+    if(curM >= 10) yearSet.add(curY + 1);
+    if(cur && /^\d{4}$/.test(cur)) yearSet.add(Number(cur));   // 兼容老数据
+    const years = [...yearSet].sort((a,b)=>a-b);
+    let out = '<option value="">—</option>';
+    for(const y of years){
+      out += `<option value="${y}"${String(cur)===String(y)?' selected':''}>${y}</option>`;
+    }
+    return out;
+  };
+  body.innerHTML = REC_CTX.rows.map((r,i)=>{
+    const dp = _dateParts(r.date);
+    // 年份默认预填当年：若行内 date 未定 → dp.y 空 → 用当年
+    // 同步把默认年份写进 rows[i]._y，saveRecPicker 时 formatRecItem 用它组合日期
+    if(!dp.y){ dp.y = String(curY); r._y = String(curY); }
+    const fp = _timeParts(r.from);
+    const tp = _timeParts(r.to);
+    const dis = r.allDay ? 'disabled' : '';
+    // 分钟：0/15/30/45
+    const mins = ['00','15','30','45'];
+    const minOpts = (cur) => '<option value="">—</option>' + mins.map(m=>`<option value="${m}"${cur===m?' selected':''}>${m}</option>`).join('');
+    return `
+    <div class="rec-row" data-i="${i}">
+      <div class="rec-date-group">
+        <select class="rec-sel" onchange="recRowSetDate(${i},'y',this.value)" title="年">${yearOpts(dp.y)}</select>
+        <select class="rec-sel" onchange="recRowSetDate(${i},'m',this.value)" title="月">${_optRange(1,12,dp.m,true)}</select>
+        <select class="rec-sel" onchange="recRowSetDate(${i},'d',this.value)" title="日">${_optRange(1,31,dp.d,true)}</select>
+      </div>
+      <div class="rec-time-group">
+        <select class="rec-sel rec-hour" onchange="recRowSetTime(${i},'from','h',this.value)" ${dis} title="起·时">${_optRange(0,23,fp.h,true)}</select>
+        <span class="rec-sep">:</span>
+        <select class="rec-sel rec-min"  onchange="recRowSetTime(${i},'from','mi',this.value)" ${dis} title="起·分">${minOpts(fp.mi)}</select>
+        <span class="rec-sep" style="margin:0 4px">—</span>
+        <select class="rec-sel rec-hour" onchange="recRowSetTime(${i},'to','h',this.value)"   ${dis} title="止·时">${_optRange(0,23,tp.h,true)}</select>
+        <span class="rec-sep">:</span>
+        <select class="rec-sel rec-min"  onchange="recRowSetTime(${i},'to','mi',this.value)"   ${dis} title="止·分">${minOpts(tp.mi)}</select>
+      </div>
+      <label class="rec-allday"><input type="checkbox" ${r.allDay?'checked':''} onchange="recRowChange(${i},'allDay',this.checked)"/>全天</label>
+      <button class="rec-del" onclick="recRowDel(${i})" title="删除">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// 年/月/日 select 更改 → 组合为 YYYY-MM-DD
+function recRowSetDate(i, key, val){
+  if(!REC_CTX || !REC_CTX.rows[i]) return;
+  const row = REC_CTX.rows[i];
+  const dp = _dateParts(row.date);
+  // 若 dp.y 空，且 row._y 有预填年份（当年），先应用它作为默认
+  if(!dp.y && row._y) dp.y = row._y;
+  dp[key] = key==='y' ? val : String(val||'').padStart(2,'0');
+  // 更新 _y 记忆（若用户主动改年）
+  if(key==='y' && val) row._y = val;
+  row.date = (dp.y && dp.m && dp.d) ? `${dp.y}-${dp.m}-${dp.d}` : '';
+}
+// 起/止 时/分 select 更改 → 组合为 HH:MM
+function recRowSetTime(i, which, key, val){
+  if(!REC_CTX || !REC_CTX.rows[i]) return;
+  const cur = _timeParts(REC_CTX.rows[i][which]);
+  cur[key] = String(val||'').padStart(2,'0');
+  REC_CTX.rows[i][which] = (cur.h && cur.mi) ? `${cur.h}:${cur.mi}` : '';
+}
+function recRowChange(i, key, val){
+  if(!REC_CTX || !REC_CTX.rows[i]) return;
+  REC_CTX.rows[i][key] = val;
+  if(key==='allDay' && val){ REC_CTX.rows[i].from=''; REC_CTX.rows[i].to=''; drawRecPop(); }
+  else if(key==='allDay' && !val){ drawRecPop(); }
+}
+function recRowDel(i){ REC_CTX.rows.splice(i,1); drawRecPop(); }
+function addRecRow(){ REC_CTX.rows.push({ date:'', from:'', to:'', allDay:false }); drawRecPop(); }
+function closeRecPicker(){ document.getElementById('recPopMask').classList.remove('show'); REC_CTX = null; }
+function saveRecPicker(){
+  if(!REC_CTX) return;
+  // 序列化 + 过滤空行
+  const arr = REC_CTX.rows.map(formatRecItem).map(x=>x.trim()).filter(Boolean);
+  const { td, rid, field } = REC_CTX;
+  saveCellEdit(rid, field, arr);
+  const row = ROSTER_LIST.find(r=>r.id===rid);
+  if(row){ row[field] = arr; }
+  // 重绘 cell
+  td.dataset.times = JSON.stringify(arr).replace(/'/g,"&#39;");
+  td.innerHTML = arr.map(t=>`<span class="rec-chip">${escHtml(t)}</span>`).join('');
+  td.style.color = arr.length ? 'var(--c-text-2)' : (td.dataset.placeholder==='待选角' ? 'var(--c-warning)' : 'var(--c-text-dim)');
+  td.style.transition = 'background .4s';
+  td.style.background = 'rgba(15,247,150,.18)';
+  setTimeout(()=>{ td.style.background=''; }, 420);
+  closeRecPicker();
+}
+// Esc 关闭
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && document.getElementById('recPopMask').classList.contains('show')){
+    e.preventDefault(); closeRecPicker();
+  }
+});
+
+// ============ 行右键菜单 · 删除 ============
+let _rowMenuRid = null;
+function openRowMenu(e, rid){
+  e.preventDefault();
+  _rowMenuRid = rid;
+  const menu = document.getElementById('rowMenu');
+  menu.classList.add('show');
+  // 定位；若靠近右下则反向
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const mw = 170, mh = 46;
+  const x = e.clientX + mw > vw ? e.clientX - mw : e.clientX;
+  const y = e.clientY + mh > vh ? e.clientY - mh : e.clientY;
+  menu.style.left = x + 'px';
+  menu.style.top  = y + 'px';
+}
+function closeRowMenu(){
+  const menu = document.getElementById('rowMenu');
+  if(menu) menu.classList.remove('show');
+  _rowMenuRid = null;
+}
+document.addEventListener('click', ()=>closeRowMenu());
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeRowMenu(); });
+
+function deleteRosterRow(rid){
+  const row = ROSTER_LIST.find(r=>Number(r.id)===Number(rid));
+  if(!row){ closeRowMenu(); return; }
+  const label = row.role_cn || row.role_en || ('id='+rid);
+  if(!confirm(`删除声优「${label}」？\n此操作不可撤销。`)){ closeRowMenu(); return; }
+  closeRowMenu();
+  // 分层处理：
+  //   本页新增的（_added=true）→ 从 vo_roster_adds_v1 删掉
+  //   roster.json 原始 → 在 vo_roster_deletes_v1 里标记为已删（避免下次加载又出现）
+  try{
+    if(row._added){
+      const adds = JSON.parse(localStorage.getItem('vo_roster_adds_v1')||'[]')||[];
+      const next = adds.filter(a => Number(a.id) !== Number(rid));
+      localStorage.setItem('vo_roster_adds_v1', JSON.stringify(next));
+    } else {
+      const del = JSON.parse(localStorage.getItem('vo_roster_deletes_v1')||'[]')||[];
+      if(!del.includes(Number(rid))){ del.push(Number(rid)); localStorage.setItem('vo_roster_deletes_v1', JSON.stringify(del)); }
+    }
+    // 同时清 edits 里对该 id 的编辑差异（防止将来同 id 冲撞）
+    const edits = JSON.parse(localStorage.getItem('vo_roster_edits_v1')||'{}')||{};
+    if(edits[rid]){ delete edits[rid]; localStorage.setItem('vo_roster_edits_v1', JSON.stringify(edits)); }
+  }catch(_){}
+  // 内存里同步移除并重绘
+  const idx = ROSTER_LIST.findIndex(r=>Number(r.id)===Number(rid));
+  if(idx>=0) ROSTER_LIST.splice(idx,1);
+  renderMeter();
+  renderRoster();
+}
+
+// 角色信息 hover · 动态定位透明卡片（fixed 布局，超视口自动上移左移，不出现滚动条）
+document.addEventListener('mouseover', (e)=>{
+  const td = e.target.closest && e.target.closest('#rosterTable td.casting-cell');
+  if(!td) return;
+  const pv = td.querySelector('.doc-preview');
+  if(!pv) return;
+  const rect = td.getBoundingClientRect();
+  const pvRect = pv.getBoundingClientRect(); // 已 opacity=0 但仍有尺寸
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const gap = 8;
+  // 默认放在 cell 左侧同高
+  let left = rect.left - pvRect.width - gap;
+  let top  = rect.top + rect.height/2 - pvRect.height/2;
+  if(left < 8) left = rect.right + gap;                    // 左边放不下 → 右侧
+  if(top < 8) top = 8;                                     // 顶部溢出 → 贴顶
+  if(top + pvRect.height > vh - 8) top = vh - pvRect.height - 8;  // 底部溢出 → 贴底
+  pv.style.left = left + 'px';
+  pv.style.top  = top + 'px';
+});
+
+// 角色信息 · 双击下载 Word (.doc 格式，Word 完全兼容)
+function downloadCastingNote(rid){
+  const row = ROSTER_LIST.find(r=>Number(r.id)===Number(rid));
+  if(!row) return;
+  const note = row.casting_note || '';
+  if(!note){
+    alert('该角色暂无选角资料，请等待文案策划补充完整后再下载。');
+    return;
+  }
+  // 拆解 note 里的段落（每段以【标题】开头），生成 Word 友好的 HTML
+  const segs = note.split(/\n\n+/).map(s=>s.trim()).filter(Boolean);
+  const escH = (t)=> String(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const bodyHtml = segs.map(seg=>{
+    const m = /^【([^】]+)】\s*\n?([\s\S]*)$/.exec(seg);
+    if(m){
+      const title = m[1];
+      const content = m[2].split(/\n/).map(l=>`<p style="margin:0 0 6px 0;">${escH(l)||'&nbsp;'}</p>`).join('');
+      return `<h2 style="font-size:14pt;color:#0FF796;margin:16pt 0 6pt 0;border-bottom:1px solid #333;padding-bottom:3pt;">${escH(title)}</h2>${content}`;
+    }
+    return `<p style="margin:0 0 6px 0;">${escH(seg)}</p>`;
+  }).join('');
+  const meta = `<p style="color:#666;font-size:10pt;margin:0 0 12pt 0;">大类：${escH(row.category||'—')} · 性别：${escH(row.gender||'—')} · 生成时间：${new Date().toLocaleString('zh-CN')}</p>`;
+  const title = `${row.role_cn||'—'}${row.role_en?'（'+row.role_en+'）':''} · 选角资料`;
+  // MS Word compatible HTML wrapper（.doc 扩展名，Word 打开即可编辑，保留标题/正文样式）
+  const html = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"/><title>${escH(title)}</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>
+  @page WordSection1 { size:595.3pt 841.9pt; margin:72pt 72pt 72pt 72pt; }
+  div.WordSection1 { page:WordSection1; }
+  body{font-family:'Microsoft YaHei','Segoe UI',sans-serif;font-size:11pt;color:#222;line-height:1.6;}
+  h1{font-size:18pt;color:#0d1418;margin:0 0 4pt 0;}
+  h2{font-size:14pt;color:#0FF796;margin:16pt 0 6pt 0;}
+  p{margin:0 0 6pt 0;}
+</style></head>
+<body><div class="WordSection1">
+  <h1>${escH(title)}</h1>
+  ${meta}
+  ${bodyHtml}
+</div></body></html>`;
+  const filename = `${row.role_cn||'role'}_选角资料.doc`;
+  const blob = new Blob(['\ufeff'+html], {type:'application/msword;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+// 保留兼容
+function openCastingViewer(rid){ downloadCastingNote(rid); }
+
+function saveCellEdit(id, field, val){
+  try{
+    const edits = JSON.parse(localStorage.getItem('vo_roster_edits_v1')||'{}')||{};
+    edits[id] = edits[id] || {};
+    edits[id][field] = val;
+    localStorage.setItem('vo_roster_edits_v1', JSON.stringify(edits));
+  }catch(_){}
+}
+
+// ==================== 新建声优 · 结构化表单 ====================
+const VA_FIELDS = ['vaCategory','vaGender','vaRoleCn','vaRoleEn','vaBasicInfo','vaPersona','vaLinesCn','vaLinesEn','vaRefLinks','vaNotes'];
+
+// ==================== 在线文档导入（选角资料 → 表单自动填充） ====================
+let VA_SOURCE_DOC_URL = '';
+// CVM 后端解析地址：与页面同源即走 nginx→vo-backend；本地打开时兜底到 CVM 公网
+const VA_API_BASE = (location.protocol === 'http:' || location.protocol === 'https:')
+  ? '' : 'http://21.130.252.59';
+
+async function importVaFromFile(evt){
+  const file = evt.target.files && evt.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('vaDocStatus');
+  statusEl.className = 'va-import-status';
+  statusEl.textContent = '解析中… 上传 ' + file.name + '（' + Math.round(file.size/1024) + ' KB）';
+  try{
+    if(!/\.docx$/i.test(file.name)) throw new Error('只支持 .docx（企业微信文档「导出为 Word」）');
+    const fd = new FormData();
+    fd.append('file', file);
+    const r = await fetch(VA_API_BASE + '/api/va-doc/parse-file', { method:'POST', body: fd });
+    const j = await r.json();
+    if(!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
+    // 兼容两种响应：单人 {fields, meta}（老）/ Auto {mode, characters:[{fields, meta}...]}（新）
+    const chars = Array.isArray(j.characters) ? j.characters
+                : (j.fields ? [{fields: j.fields, meta: j.meta}] : []);
+    if(!chars.length) throw new Error('未解析到任何角色');
+    if(chars.length === 1){
+      fillVaForm(chars[0].fields || {});
+      VA_SOURCE_DOC_URL = (chars[0].fields && chars[0].fields.source_doc_url) || file.name;
+      statusEl.className = 'va-import-status ok';
+      statusEl.textContent = '已解析填充 ✓ 请核对下方表单后保存；来源 ' + file.name + ' 已随记录存档。';
+    } else {
+      // 多人：关掉当前弹层，弹多人清单
+      closeVaForm();
+      openVaBatchPicker(chars, file.name);
+    }
+  }catch(e){
+    statusEl.className = 'va-import-status err';
+    statusEl.textContent = '解析失败：' + e.message;
+  }finally{
+    evt.target.value = '';   // 允许同一文件重选
+  }
+}
+
+// ==================== 多角色批量导入 ====================
+let VA_BATCH = { chars: [], sourceName: '' };
+function openVaBatchPicker(chars, sourceName){
+  VA_BATCH = { chars, sourceName };
+  const list = document.getElementById('vaBatchList');
+  const existing = new Set(ROSTER_LIST.map(r => (r.role_cn||'').trim()));
+  const CATS = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
+  const GENDERS = [{v:'',t:'—'},{v:'男',t:'♂'},{v:'女',t:'♀'}];
+  list.innerHTML = chars.map((c, i) => {
+    const f = c.fields || {};
+    const dup = existing.has((f.role_cn||'').trim());
+    const cat = f.category || 'NPC';
+    const roleCn = f.role_cn || '(未识别角色名)';
+    const roleEn = f.role_en || '';
+    const gender = f.gender || '';
+    const voice = (f.basic_info || f.persona || '').split('\n').find(l => /声线|Voice/i.test(l)) || '';
+    const catOpts = CATS.map(c2 => `<option value="${c2}"${c2===cat?' selected':''}>${c2}</option>`).join('');
+    const gOpts = GENDERS.map(g => `<option value="${g.v}"${g.v===gender?' selected':''}>${g.t}</option>`).join('');
+    return `<label class="va-batch-item${dup?' dup':''}" data-idx="${i}">
+      <input type="checkbox" ${dup?'':'checked'} onchange="updateVaBatchHint()"/>
+      <select class="cat-sel" onclick="event.preventDefault();event.stopPropagation()" onmousedown="event.stopPropagation()">${catOpts}</select>
+      <span class="role">${escHtml(roleCn)}<span class="en">${escHtml(roleEn)}</span></span>
+      <select class="gender-sel" onclick="event.preventDefault();event.stopPropagation()" onmousedown="event.stopPropagation()">${gOpts}</select>
+      <span class="status ${dup?'dup-tag':''}">${dup?'已存在':'待入库'}</span>
+      <div class="voice">${escHtml(voice.slice(0,120))}</div>
+    </label>`;
+  }).join('');
+  document.getElementById('vaBatchAll').checked = true;
+  updateVaBatchHint();
+  document.getElementById('vaBatchMask').classList.add('show');
+}
+function closeVaBatch(){
+  document.getElementById('vaBatchMask').classList.remove('show');
+  VA_BATCH = { chars: [], sourceName: '' };
+}
+function toggleVaBatchAll(on){
+  document.querySelectorAll('#vaBatchList .va-batch-item:not(.dup) input[type=checkbox]').forEach(cb => cb.checked = !!on);
+  updateVaBatchHint();
+}
+function updateVaBatchHint(){
+  const items = [...document.querySelectorAll('#vaBatchList .va-batch-item')];
+  const total = items.length;
+  const dup = items.filter(el => el.classList.contains('dup')).length;
+  const sel = items.filter(el => el.querySelector('input[type=checkbox]').checked).length;
+  document.getElementById('vaBatchHint').textContent = `共 ${total} 个 · ${dup} 已存在 · 已选 ${sel} 个`;
+}
+function submitVaBatch(){
+  const items = [...document.querySelectorAll('#vaBatchList .va-batch-item')];
+  const picked = items
+    .filter(el => el.querySelector('input[type=checkbox]').checked)
+    .map(el => ({
+      idx: parseInt(el.dataset.idx, 10),
+      cat: (el.querySelector('.cat-sel')||{}).value,
+      gender: (el.querySelector('.gender-sel')||{}).value
+    }));
+  if(!picked.length){ alert('未选择任何角色'); return; }
+  const adds = JSON.parse(localStorage.getItem('vo_roster_adds_v1')||'[]')||[];
+  let addedCount = 0;
+  const existingNames = new Set(ROSTER_LIST.map(r => (r.role_cn||'').trim()));
+  picked.forEach(p => {
+    const idx = p.idx;
+    const c = VA_BATCH.chars[idx];
+    const f = { ...(c.fields||{}) };
+    // 应用弹层里用户改过的大类/性别
+    if(p.cat)    f.category = p.cat;
+    if(p.gender !== undefined) f.gender = p.gender;
+    const roleCn = (f.role_cn || '').trim();
+    if(!roleCn || existingNames.has(roleCn)) return;   // 二次防重
+    const newId = Math.max(0, ...ROSTER_LIST.map(r => Number(r.id)||0), ...adds.map(r=>Number(r.id)||0)) + 1 + addedCount;
+    const castingNote = [
+      f.basic_info && '【基础信息】\n' + f.basic_info,
+      f.persona    && '【人设 & 背景】\n' + f.persona,
+      f.lines_cn   && '【中试音台词】\n' + f.lines_cn,
+      f.lines_en   && '【英试音台词】\n' + f.lines_en,
+      f.ref_links  && '【参考音视频】\n' + f.ref_links,
+      f.notes      && '【其他备注】\n' + f.notes,
+      VA_BATCH.sourceName && '【来源文档】\n' + VA_BATCH.sourceName,
+    ].filter(Boolean).join('\n\n');
+    const rec = {
+      id: newId,
+      category: f.category || 'NPC',
+      role_cn: roleCn,
+      role_en: f.role_en || '',
+      gender: f.gender || '',
+      cn_va:'', cn_location:'', cn_studio:'',
+      en_va:'', en_location:'', en_studio:'',
+      basic_info: f.basic_info || '',
+      persona: f.persona || '',
+      audition_lines_cn: f.lines_cn || '',
+      audition_lines_en: f.lines_en || '',
+      ref_links: f.ref_links || '',
+      notes: f.notes || '',
+      source_doc_url: VA_BATCH.sourceName || '',
+      casting_note: castingNote,
+      _added: true
+    };
+    adds.push(rec);
+    ROSTER_LIST.push(rec);
+    existingNames.add(roleCn);
+    addedCount++;
+  });
+  try{ localStorage.setItem('vo_roster_adds_v1', JSON.stringify(adds)); }catch(_){}
+  // 切回全部视图 + 重新渲染
+  ROSTER_CAT = '';
+  const allBtn = document.querySelector('.toolbar .tool-btn[data-cat=""]');
+  if(allBtn){
+    document.querySelectorAll('.toolbar .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
+    allBtn.classList.add('active');
+  }
+  const statusAllBtn = document.querySelector('#rosterStatusNav .nav-sub-item[data-status=""]');
+  if(statusAllBtn) setRosterStatus('', statusAllBtn);
+  const searchEl = document.getElementById('rosterSearch');
+  if(searchEl) searchEl.value = '';
+  renderMeter();
+  renderRoster();
+  closeVaBatch();
+  alert(`已批量导入 ${addedCount} 个角色（跳过 ${picked.length - addedCount} 个重名/无效）。请到表格里核对声优/地点等信息。`);
+}
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && document.getElementById('vaBatchMask').classList.contains('show')){
+    e.preventDefault(); closeVaBatch();
+  }
+});
+
+function fillVaForm(f){
+  const set = (id, val) => {
+    if(val == null || val === '') return;
+    const el = document.getElementById(id);
+    if(el){ el.value = val; el.dispatchEvent(new Event('input')); }
+  };
+  // 大类需与下拉项精确匹配（干员/指挥官/Boss/AI兵/NPC/AI系统音）
+  if(f.category){
+    const sel = document.getElementById('vaCategory');
+    const hit = [...sel.options].find(o => o.value === f.category || o.text === f.category);
+    if(hit) sel.value = hit.value || hit.text;
+  }
+  if(f.gender){
+    const sel = document.getElementById('vaGender');
+    const hit = [...sel.options].find(o => o.text === f.gender);
+    if(hit) sel.value = hit.value || hit.text;
+  }
+  set('vaRoleCn', f.role_cn);
+  set('vaRoleEn', f.role_en);
+  set('vaBasicInfo', f.basic_info);
+  set('vaPersona', f.persona);
+  set('vaLinesCn', f.lines_cn);
+  set('vaLinesEn', f.lines_en);
+  set('vaRefLinks', f.ref_links);
+  set('vaNotes', f.notes);
+  _updateLineHint();
+}
+function _countLines(txt){
+  return String(txt||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean).length;
+}
+function _updateLineHint(){
+  const cn = _countLines(document.getElementById('vaLinesCn').value);
+  const en = _countLines(document.getElementById('vaLinesEn').value);
+  const hCn = document.getElementById('vaLinesCnHint');
+  const hEn = document.getElementById('vaLinesEnHint');
+  hCn.textContent = `已 ${cn} 句${cn>=5?' ✓':'（需 ≥5 句）'}`;
+  hEn.textContent = `已 ${en} 句${en>=5?' ✓':'（needs ≥5）'}`;
+  hCn.classList.toggle('ok', cn>=5);
+  hEn.classList.toggle('ok', en>=5);
+}
+function openAddVA(){
+  VA_FIELDS.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('vaFormError').textContent = '';
+  // 重置文档导入状态
+  VA_SOURCE_DOC_URL = '';
+  const _df = document.getElementById('vaDocFile'); if(_df) _df.value = '';
+  const _ds = document.getElementById('vaDocStatus'); if(_ds){ _ds.textContent=''; _ds.className='va-import-status'; }
+  // 绑定台词行数实时提示（幂等）
+  const cn = document.getElementById('vaLinesCn'), en = document.getElementById('vaLinesEn');
+  if(cn && !cn._bound){ cn.addEventListener('input', _updateLineHint); cn._bound = true; }
+  if(en && !en._bound){ en.addEventListener('input', _updateLineHint); en._bound = true; }
+  _updateLineHint();
+  document.getElementById('vaPopMask').classList.add('show');
+  setTimeout(()=>{ document.getElementById('vaCategory').focus(); }, 30);
+}
+function closeVaForm(){
+  document.getElementById('vaPopMask').classList.remove('show');
+}
+function submitVaForm(){
+  const v = (id) => (document.getElementById(id).value || '').trim();
+  const err = document.getElementById('vaFormError');
+  err.textContent = '';
+
+  const category   = v('vaCategory');
+  const gender     = v('vaGender');
+  const role_cn    = v('vaRoleCn');
+  const role_en    = v('vaRoleEn');
+  const basic_info = v('vaBasicInfo');
+  const persona    = v('vaPersona');
+  const lines_cn   = v('vaLinesCn');
+  const lines_en   = v('vaLinesEn');
+  const ref_links  = v('vaRefLinks');
+  const notes      = v('vaNotes');
+
+  // 必填校验
+  if(!category)   { err.textContent = '必填：请选择「大类」'; return; }
+  if(!gender)     { err.textContent = '必填：请选择「性别」'; return; }
+  if(!role_cn)    { err.textContent = '必填：请填写「游戏角色（中）」'; return; }
+  if(!role_en)    { err.textContent = '必填：请填写「Role (EN)」'; return; }
+  if(!basic_info) { err.textContent = '必填：请填写「基本信息」'; return; }
+  if(!persona)    { err.textContent = '必填：请填写「角色的人设 & 背景故事」'; return; }
+  const cnLineCnt = _countLines(lines_cn);
+  const enLineCnt = _countLines(lines_en);
+  if(cnLineCnt < 5) { err.textContent = `必填：「中试音台词」需至少 5 句（当前 ${cnLineCnt} 句）`; return; }
+  if(enLineCnt < 5) { err.textContent = `必填：「英试音台词」需至少 5 句（当前 ${enLineCnt} 句）`; return; }
+
+  // 重名检查
+  if(ROSTER_LIST.some(r => (r.role_cn||'').trim() === role_cn)){
+    err.textContent = `角色"${role_cn}"已存在，请改名或直接在表格里编辑`;
+    return;
+  }
+
+  const newId = Math.max(0, ...ROSTER_LIST.map(r => Number(r.id)||0)) + 1;
+  // casting_note 汇总所有资料（表格「角色信息」列展示，多行文本）
+  const castingNote = [
+    basic_info    && '【基本信息】\n' + basic_info,
+    persona       && '【人设 & 背景】\n' + persona,
+    lines_cn      && '【中试音台词】\n' + lines_cn,
+    lines_en      && '【英试音台词】\n' + lines_en,
+    ref_links     && '【参考音视频】\n' + ref_links,
+    notes         && '【其他备注】\n' + notes,
+    VA_SOURCE_DOC_URL && '【来源文档】\n' + VA_SOURCE_DOC_URL,
+  ].filter(Boolean).join('\n\n');
+
+  const rec = {
+    id: newId,
+    category,
+    role_cn,
+    role_en,
+    gender,                  // 从表单直接采集（必填）
+    cn_va: '', cn_location: '', cn_studio: '',
+    en_va: '', en_location: '', en_studio: '',
+    // 详细的角色资料，分字段存（可以后续单独消费）
+    basic_info,
+    persona,
+    audition_lines_cn: lines_cn,
+    audition_lines_en: lines_en,
+    ref_links,
+    notes,
+    source_doc_url: VA_SOURCE_DOC_URL || '',   // 在线文档存档（导入来源）
+    casting_note: castingNote,
+    _added: true
+  };
+  try{
+    const adds = JSON.parse(localStorage.getItem('vo_roster_adds_v1')||'[]')||[];
+    adds.push(rec);
+    localStorage.setItem('vo_roster_adds_v1', JSON.stringify(adds));
+  }catch(_){}
+  ROSTER_LIST.push(rec);
+  // 切回"全部"视图，保证新建的行一定能被看到（否则 category 芯片 / 侧栏状态 过滤会挡住）
+  ROSTER_CAT = '';
+  const allBtn = document.querySelector('.toolbar .tool-btn[data-cat=""]');
+  if(allBtn){
+    document.querySelectorAll('.toolbar .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
+    allBtn.classList.add('active');
+  }
+  // 侧栏状态回 All
+  const statusAllBtn = document.querySelector('#rosterStatusNav .nav-sub-item[data-status=""]');
+  if(statusAllBtn) setRosterStatus('', statusAllBtn);
+  // 清空搜索框（防止搜索状态挡住新行）
+  const searchEl = document.getElementById('rosterSearch');
+  if(searchEl) searchEl.value = '';
+  renderMeter();
+  renderRoster();
+  closeVaForm();
+  requestAnimationFrame(()=>{
+    const tr = document.querySelector(`#rosterTbody tr[data-rid="${newId}"]`);
+    if(tr){
+      tr.scrollIntoView({behavior:'smooth', block:'center'});
+      tr.style.transition = 'background .6s';
+      tr.style.background = 'rgba(15,247,150,.18)';
+      setTimeout(()=>{ tr.style.background = ''; }, 1200);
+    }
+  });
+}
+// Esc 关闭新建表单
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && document.getElementById('vaPopMask').classList.contains('show')){
+    e.preventDefault(); closeVaForm();
+  }
+});
+
+initCellEdit();
+loadRoster();
+</script>
+
+
+<script>
+(function(){
+  try{
+    var qs = new URLSearchParams(window.location.search);
+    if(qs.get('embed')==='1'){
+      document.body.classList.add('embed');
+    }
+    // 外壳侧栏子项通过 URL ?status=done|pending 传递选中状态，页面加载完成后自动应用
+    var initStatus = qs.get('status') || '';
+    if(initStatus === 'done' || initStatus === 'pending'){
+      var applyInitStatus = function(){
+        if(typeof setRosterStatus === 'function' && typeof ROSTER_LIST !== 'undefined' && ROSTER_LIST.length){
+          var btn = document.querySelector('#rosterStatusNav .nav-sub-item[data-status="'+initStatus+'"]');
+          setRosterStatus(initStatus, btn);
+        } else {
+          setTimeout(applyInitStatus, 120);
+        }
+      };
+      setTimeout(applyInitStatus, 300);
+    }
+  }catch(e){}
+})();
+</script>
+
+<!-- 旧 modal & IIFE (选角信息/试音/新增) 已下线 · 2026-07-23 -->
+
+
+
+<!-- ============ 独立预览页导航（embed 模式下由外壳 switchView 负责，此处仅 standalone 生效） ============ -->
+<script>
+(function(){
+  if(document.body.classList.contains("embed")) return;   // 嵌在 Vo Manager 外壳内时交给外壳处理
+  var MAP = {
+    "需求汇总":"preview-需求汇总-精修版.html",
+    "声优库":"preview-声优库-精修版.html",
+    "录制档期":"preview-录制档期-精修版.html",
+    "音频资产库":"preview-资产库-精修版.html",
+    "vo资产库":"preview-资产库-精修版.html",
+    "vo智能助手":"preview-AI助手-精修版.html",
+    "vohq助手":"preview-AI助手-精修版.html",
+    "vo助手":"preview-AI助手-精修版.html"
+  };
+  var cur = (location.pathname.split("/").pop()||"").toLowerCase();
+  var items = document.querySelectorAll("aside.sidebar .nav-item");
+  for(var i=0;i<items.length;i++){
+    var btn = items[i];
+    var label = (btn.textContent||"").replace(/\s+/g,"").toLowerCase();
+    var target = MAP[label];
+    if(!target) continue;
+    if(target.toLowerCase()===cur){ btn.classList.add("active"); continue; }
+    btn.style.cursor="pointer";
+    btn.addEventListener("click", function(t){ return function(){ window.location.href = t; }; }(target));
+  }
+})();
+</script>
+
+</body>
+</html>

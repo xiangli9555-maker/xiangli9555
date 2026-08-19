@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>验收中心 · Vo Manager · DELTA FORCE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --c-bg:#F8FAFC;
+  --c-sidebar:#1E1E2F;
+  --c-text:#111827;
+  --c-text-mute:#6B7280;
+  --c-primary:#4F46E5;
+  --c-primary-dark:#4338CA;
+  --c-success:#10B981;
+  --c-warning:#F59E0B;
+  --c-danger:#EF4444;
+  --c-border:#E5E7EB;
+  --c-delta:#22E38C;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;color:var(--c-text);background:var(--c-bg);min-height:100vh}
+body{padding:0}
+
+/* ========== TOP BRAND BAR ========== */
+.brand-bar{background:#FFFFFF;border-bottom:1px solid var(--c-border);padding:12px 32px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:10}
+.brand-bar img{height:44px;width:auto}
+.brand-divider{width:1px;height:32px;background:var(--c-border)}
+.brand-subsys{font-size:18px;font-weight:700;color:var(--c-text)}
+.brand-badge{margin-left:8px;padding:3px 10px;border-radius:12px;background:linear-gradient(90deg,#EEF0FF,#F5F3FF);color:var(--c-primary);font-size:12px;font-weight:600}
+.brand-spacer{flex:1}
+.brand-time{font-size:12px;color:var(--c-text-mute);font-family:'JetBrains Mono'}
+.brand-user{display:flex;align-items:center;gap:10px}
+.brand-user .av{width:32px;height:32px;border-radius:16px;background:var(--c-primary);color:#FFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.brand-user .name{font-size:13px;font-weight:500;color:var(--c-text)}
+.brand-user .role{font-size:11px;color:var(--c-text-mute)}
+
+/* ========== HERO ========== */
+.hero{max-width:1200px;margin:0 auto;padding:40px 32px 24px}
+.hero h1{font-size:32px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px;color:var(--c-text)}
+.hero h1 .accent{color:var(--c-primary)}
+.hero p{color:var(--c-text-mute);font-size:15px;max-width:720px}
+.hero .stats{display:flex;gap:20px;margin-top:20px;flex-wrap:wrap}
+.stat-card{background:#FFF;border:1px solid var(--c-border);border-radius:8px;padding:14px 20px;display:flex;align-items:center;gap:12px;min-width:160px}
+.stat-card .icon{width:36px;height:36px;border-radius:8px;background:#EEF0FF;display:flex;align-items:center;justify-content:center;color:var(--c-primary)}
+.stat-card .n{font-size:20px;font-weight:700;color:var(--c-text);line-height:1}
+.stat-card .l{font-size:12px;color:var(--c-text-mute);margin-top:2px}
+
+/* ========== SECTION ========== */
+.wrap{max-width:1200px;margin:0 auto;padding:8px 32px 48px}
+h2.section-title{font-size:20px;font-weight:700;margin:32px 0 14px;color:var(--c-text);display:flex;align-items:center;gap:10px}
+h2.section-title .step{width:26px;height:26px;border-radius:13px;background:var(--c-primary);color:#FFF;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+h2.section-title .hint{font-size:12px;font-weight:400;color:var(--c-text-mute);margin-left:auto}
+
+/* ========== CARD GRID ========== */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.card{background:#FFF;border:1px solid var(--c-border);border-radius:10px;padding:20px;display:flex;flex-direction:column;transition:all .2s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--c-primary);transform:translateY(-2px);box-shadow:0 4px 12px rgba(79,70,229,0.08)}
+.card .card-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.card .card-icon{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px}
+.card .card-icon.i-proto{background:#EEF0FF;color:var(--c-primary)}
+.card .card-icon.i-spec{background:#ECFDF5;color:var(--c-success)}
+.card .card-icon.i-dev{background:#FEF3C7;color:var(--c-warning)}
+.card .card-icon.i-md{background:#F3F4F6;color:var(--c-text-mute)}
+.card h3{font-size:16px;font-weight:600;color:var(--c-text);line-height:1.4;margin-bottom:2px}
+.card .path{font-family:'JetBrains Mono';font-size:11px;color:var(--c-text-mute)}
+.card .desc{font-size:13px;color:var(--c-text-mute);line-height:1.6;flex:1;margin-bottom:14px}
+.card .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-primary{background:#EEF0FF;color:var(--c-primary)}
+.tag-success{background:#D1FAE5;color:#065F46}
+.tag-warning{background:#FEF3C7;color:#78350F}
+.tag-info{background:#DBEAFE;color:#1E40AF}
+.tag-neutral{background:#F3F4F6;color:#374151}
+.card .actions{display:flex;gap:8px;margin-top:auto}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:all .15s;text-decoration:none}
+.btn-primary{background:var(--c-primary);color:#FFF;flex:1;justify-content:center}
+.btn-primary:hover{background:var(--c-primary-dark)}
+.btn-outline{background:#FFF;color:var(--c-text-mute);border:1px solid var(--c-border)}
+.btn-outline:hover{border-color:var(--c-primary);color:var(--c-primary)}
+
+/* Card status ribbon */
+.ribbon{position:absolute;top:14px;right:14px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;letter-spacing:.3px}
+.ribbon-ready{background:#D1FAE5;color:#065F46}
+.ribbon-review{background:#FEF3C7;color:#78350F}
+
+/* ========== CHECKLIST ========== */
+.checklist-card{background:#FFF;border:1px solid var(--c-border);border-radius:10px;padding:24px;margin-top:8px}
+.checklist-card h3{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.checklist-card h3 .n{color:var(--c-primary);font-family:'JetBrains Mono';font-size:14px}
+.check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--c-border);border-radius:6px;cursor:pointer;transition:all .15s;user-select:none}
+.check-item:hover{border-color:var(--c-primary);background:#FAFBFF}
+.check-item.done{background:#F0FDF4;border-color:#86EFAC}
+.check-item.done .cb{background:var(--c-success);border-color:var(--c-success);color:#FFF}
+.check-item.done .txt{text-decoration:line-through;color:var(--c-text-mute)}
+.check-item .cb{width:18px;height:18px;border-radius:4px;border:1.5px solid #C4C9D4;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .15s;margin-top:1px}
+.check-item.done .cb::before{content:'✓'}
+.check-item .txt{font-size:13px;line-height:1.5}
+.check-progress{margin-top:16px;padding-top:16px;border-top:1px solid var(--c-border);display:flex;align-items:center;gap:12px;font-size:12px;color:var(--c-text-mute)}
+.progress-bar{flex:1;height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--c-primary);width:0%;transition:width .3s}
+.progress-num{font-weight:600;color:var(--c-primary);font-family:'JetBrains Mono'}
+
+/* ========== FEEDBACK ========== */
+.feedback-card{background:linear-gradient(135deg,#FFFFFF,#FAFBFF);border:1px solid var(--c-border);border-radius:10px;padding:24px;margin-top:16px}
+.feedback-card h3{font-size:16px;font-weight:600;margin-bottom:12px}
+.feedback-inp{width:100%;min-height:110px;padding:12px 14px;border:1px solid var(--c-border);border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;outline:none;transition:border-color .15s;line-height:1.6}
+.feedback-inp:focus{border-color:var(--c-primary)}
+.feedback-actions{display:flex;gap:10px;margin-top:12px}
+.feedback-actions .btn{flex:0}
+
+/* ========== FOOTER ========== */
+.footer{max-width:1200px;margin:0 auto;padding:24px 32px 40px;color:var(--c-text-mute);font-size:12px;text-align:center;line-height:1.8}
+.footer a{color:var(--c-primary);text-decoration:none}
+.footer a:hover{text-decoration:underline}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;background:var(--c-sidebar);color:#FFF;border-radius:6px;font-size:13px;z-index:100;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ========== TOP BRAND BAR ========== -->
+<header class="brand-bar">
+  <img src="assets/DeltaForceLogo.png" alt="DELTA FORCE"/>
+  <div class="brand-divider"></div>
+  <div class="brand-subsys">Vo Manager</div>
+  <span class="brand-badge">验收中心</span>
+  <span class="brand-spacer"></span>
+  <span class="brand-time" id="curTime">2026-07-17 15:20</span>
+  <div class="brand-user">
+    <div class="av">L</div>
+    <div>
+      <div class="name">lycheelli</div>
+      <div class="role">PM · 验收人</div>
+    </div>
+  </div>
+</header>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <h1>欢迎来到 <span class="accent">Vo Manager</span> 验收中心</h1>
+  <p>这里汇总了本次交付的全部产物。请按下方 3 步验收流程依次检查，每份文件都可以直接打开预览，验收完成后勾选对应 checklist 项。</p>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div><div class="n">5</div><div class="l">交付文件</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="12" y1="9" x2="12" y2="15"/></svg></div>
+      <div><div class="n">5</div><div class="l">功能模块</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div><div class="n">18</div><div class="l">验收项</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div><div class="n">15分钟</div><div class="l">预计耗时</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- ========== STEP 1: 交付物验收 ========== -->
+  <h2 class="section-title">
+    <span class="step">1</span> 交付物验收
+    <span class="hint">点击每个卡片打开对应文件</span>
+  </h2>
+  <div class="grid">
+
+    <!-- 原型 -->
+    <div class="card">
+      <span class="ribbon ribbon-ready">READY</span>
+      <div class="card-head">
+        <div class="card-icon i-proto">🖥️</div>
+        <div>
+          <h3>交互原型</h3>
+          <div class="path">互动原型-语音需求管理系统.html</div>
+        </div>
+      </div>
+      <div class="desc">
+        <b>核心交付</b>。五大模块可点击操作：需求汇总（Yang1-5）、台词管理（AI/SOL/MP）、声优库（干员/指挥官/路人）、录制档期（日历视图）、音频资产库（批量下载）。含官方 DELTA FORCE Logo + Vo Manager 副标题。
+      </div>
+      <div class="meta">
+        <span class="tag tag-primary">SPA</span>
+        <span class="tag tag-success">可交互</span>
+        <span class="tag tag-info">HTML/CSS/JS</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="互动原型-语音需求管理系统.html" target="_blank">🚀 打开原型验收</a>
+      </div>
+    </div>
+
+    <!-- 视觉规范 HTML -->
+    <div class="card">
+      <span class="ribbon ribbon-ready">READY</span>
+      <div class="card-head">
+        <div class="card-icon i-spec">🎨</div>
+        <div>
+          <h3>视觉规范（可视化版）</h3>
+          <div class="path">视觉规范文档.html</div>
+        </div>
+      </div>
+      <div class="desc">
+        含 10 张色卡、字号阶梯、按钮/标签/表格实时预览、侧栏 mock demo、Logo showcase、7 条红线。<b>供设计与前端验收视觉对齐使用</b>。
+      </div>
+      <div class="meta">
+        <span class="tag tag-primary">色板/组件</span>
+        <span class="tag tag-info">TOC 导航</span>
+        <span class="tag tag-warning">红线警示</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="视觉规范文档.html" target="_blank">📖 打开视觉规范</a>
+      </div>
+    </div>
+
+    <!-- 开发交接 HTML -->
+    <div class="card">
+      <span class="ribbon ribbon-ready">READY</span>
+      <div class="card-head">
+        <div class="card-icon i-dev">⚙️</div>
+        <div>
+          <h3>开发交接文档</h3>
+          <div class="path">开发交接文档.html</div>
+        </div>
+      </div>
+      <div class="desc">
+        11 章节：数据模型（6 张表 SQL）+ API 路由（40+ 端点）+ 权限矩阵 + 里程碑（26 人天）+ 可勾选 checklist。<b>直接交给后端 / Tech Lead</b>。
+      </div>
+      <div class="meta">
+        <span class="tag tag-primary">SQL Schema</span>
+        <span class="tag tag-info">API</span>
+        <span class="tag tag-neutral">权限矩阵</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="开发交接文档.html" target="_blank">📋 打开交接文档</a>
+      </div>
+    </div>
+
+    <!-- TAPD (DFAI) 集成规范 -->
+    <div class="card">
+      <span class="ribbon ribbon-ready">DFAI v2</span>
+      <div class="card-head">
+        <div class="card-icon i-dev" style="background:linear-gradient(135deg,#EEF0FF,#ECFDF5);color:#4F46E5">🔌</div>
+        <div>
+          <h3>TAPD 集成规范（DFAI）</h3>
+          <div class="path">TAPD集成规范.md · assets/dfai-api-docs.md</div>
+        </div>
+      </div>
+      <div class="desc">
+        通过公司内部 <b>DFAI API</b>（<code style="background:#EEF0FF;color:#4F46E5;padding:1px 6px;border-radius:3px;font-size:11px">dfai.woa.com/aiapi/get_story</code>）拉取 TAPD 需求，Bearer Token 鉴权。已封装 getRedisStories，走 Redis 缓存。比原生 TAPD Open API 少 3 天工时。<b>预估 6 人天开工</b>。
+      </div>
+      <div class="meta">
+        <span class="tag tag-success">DFAI 已封装</span>
+        <span class="tag tag-primary">Bearer Token</span>
+        <span class="tag tag-info">6 人天</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="TAPD集成规范.md" target="_blank">🔌 集成规范</a>
+        <a class="btn btn-outline" href="assets/dfai-api-docs.md" target="_blank">📄 DFAI 官方</a>
+      </div>
+    </div>
+
+    <!-- Markdown 版汇总 -->
+    <div class="card">
+      <span class="ribbon ribbon-review">MD SOURCE</span>
+      <div class="card-head">
+        <div class="card-icon i-md">📄</div>
+        <div>
+          <h3>Markdown 源文件</h3>
+          <div class="path">*.md · 用于 Git 仓库</div>
+        </div>
+      </div>
+      <div class="desc">
+        Markdown 源文件，push 到代码仓库当 README/SPEC 使用。包含视觉规范.md、开发交接文档.md、TAPD集成规范.md。
+      </div>
+      <div class="meta">
+        <span class="tag tag-neutral">Markdown</span>
+        <span class="tag tag-info">可版本管理</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-outline" href="视觉规范文档.md" target="_blank">视觉规范</a>
+        <a class="btn btn-outline" href="开发交接文档.md" target="_blank">交接文档</a>
+        <a class="btn btn-outline" href="TAPD集成规范.md" target="_blank">TAPD 集成</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== STEP 2: 验收 Checklist ========== -->
+  <h2 class="section-title">
+    <span class="step">2</span> 验收 Checklist
+    <span class="hint">点击勾选，浏览器会记住你的进度</span>
+  </h2>
+
+  <div class="checklist-card">
+    <h3><span class="n">A.</span> 视觉验收（对照《视觉规范文档.html》）</h3>
+    <div class="check-grid" id="chkA">
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">品牌栏使用官方 DELTA FORCE PNG Logo（不是 SVG 手绘）</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">副标题显示为 "Vo Manager"（不是"语音需求管理系统"）</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">侧栏背景 #1E1E2F，主区背景 #F8FAFC，颜色不混淆</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">主色 #4F46E5 使用在按钮/选中态/徽标</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">状态标签四色：灰/蓝/绿/黄，无自定义色</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">全站无渐变背景，无面性图标</span></div>
+    </div>
+  </div>
+
+  <div class="checklist-card">
+    <h3><span class="n">B.</span> 功能验收（对照原型）</h3>
+    <div class="check-grid" id="chkB">
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">需求汇总：切换 Yang1-Yang5 数据不同</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">台词管理：切换 AI/SOL/MP 台词内容不同</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">台词表：声优列是下拉框，不是输入框</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">台词表：底部统计每 20 词 = 1 句</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">声优库：新增声优不上传资料会被拦截</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">录制档期：月历显示彩色圆点（蓝/红/紫）</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">录制档期：点击某日显示当日排期详情</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">VO 资产库：勾选后批量下载按钮显示数量</span></div>
+    </div>
+  </div>
+
+  <div class="checklist-card">
+    <h3><span class="n">C.</span> 文档验收（对照开发交接文档）</h3>
+    <div class="check-grid" id="chkC">
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">6 张数据表定义齐全（含 script_line_history 留痕表）</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">API 路由分模块列出，含权限约束</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">权限矩阵覆盖三个角色（文案/音频/管理员）</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><span class="cb"></span><span class="txt">里程碑排期合理（26 人天，可讨论调整）</span></div>
+    </div>
+  </div>
+
+  <div class="checklist-card">
+    <div class="check-progress">
+      <span>验收进度</span>
+      <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+      <span class="progress-num"><span id="progNum">0</span> / 18</span>
+      <button class="btn btn-outline" onclick="resetChecks()">重置</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 3: 反馈 ========== -->
+  <h2 class="section-title">
+    <span class="step">3</span> 反馈 & 修改建议
+    <span class="hint">按具体位置描述会更快解决</span>
+  </h2>
+  <div class="feedback-card">
+    <h3>📝 记录发现的问题</h3>
+    <textarea class="feedback-inp" id="feedbackTxt" placeholder="例如：&#10;· 侧栏「音频资产库」徽标数字 8 位置偏上 3px&#10;· 台词管理页 GP Event 列宽不够，等宽字体截断&#10;· 录制档期日历点击某日，详情面板刷新有闪烁&#10;· 需求汇总的策划人下拉框，建议改成 tag 多选"></textarea>
+    <div class="feedback-actions">
+      <button class="btn btn-primary" onclick="copyFeedback()">📋 复制反馈内容</button>
+      <button class="btn btn-outline" onclick="saveFeedback()">💾 保存到本地</button>
+      <button class="btn btn-outline" onclick="loadFeedback()">📥 恢复上次内容</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div>DELTA FORCE · Vo Manager · 验收中心 v1.0</div>
+  <div style="margin-top:6px">产品：<b>lycheelli (PM)</b> · 协作：文案策划 / 音频策划 / 前后端工程师</div>
+  <div style="margin-top:6px">📎 <a href="互动原型-语音需求管理系统.html" target="_blank">原型</a> · <a href="视觉规范文档.html" target="_blank">视觉规范</a> · <a href="开发交接文档.html" target="_blank">交接文档</a></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== 时间显示 ==========
+function updateTime(){
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const s=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const el=document.getElementById('curTime');
+  if(el)el.textContent=s;
+}
+updateTime();setInterval(updateTime,60000);
+
+// ========== Checklist ==========
+const STORAGE_KEY='vo-manager-acceptance-checks-v1';
+function saveChecks(){
+  const items=[...document.querySelectorAll('.check-item')];
+  const state=items.map(i=>i.classList.contains('done')?1:0);
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){}
+}
+function loadChecks(){
+  try{
+    const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+    const items=[...document.querySelectorAll('.check-item')];
+    items.forEach((it,i)=>{if(s[i])it.classList.add('done')});
+  }catch(e){}
+  updateProgress();
+}
+function toggleCheck(el){
+  el.classList.toggle('done');
+  saveChecks();
+  updateProgress();
+}
+function updateProgress(){
+  const items=[...document.querySelectorAll('.check-item')];
+  const done=items.filter(i=>i.classList.contains('done')).length;
+  const pct=Math.round(done/items.length*100);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progNum').textContent=done;
+  if(done===items.length&&items.length>0){
+    toast('🎉 所有验收项已完成！');
+  }
+}
+function resetChecks(){
+  if(!confirm('确定清空所有勾选？'))return;
+  document.querySelectorAll('.check-item').forEach(i=>i.classList.remove('done'));
+  saveChecks();
+  updateProgress();
+  toast('已重置');
+}
+
+// ========== Feedback ==========
+const FB_KEY='vo-manager-feedback-v1';
+function copyFeedback(){
+  const t=document.getElementById('feedbackTxt').value;
+  if(!t.trim()){toast('内容为空');return}
+  navigator.clipboard.writeText(t).then(
+    ()=>toast('✅ 反馈已复制到剪贴板'),
+    ()=>toast('❌ 复制失败，请手动全选复制')
+  );
+}
+function saveFeedback(){
+  const t=document.getElementById('feedbackTxt').value;
+  try{localStorage.setItem(FB_KEY,t);toast('💾 已保存到本地')}catch(e){toast('保存失败')}
+}
+function loadFeedback(){
+  try{
+    const t=localStorage.getItem(FB_KEY);
+    if(t){document.getElementById('feedbackTxt').value=t;toast('📥 已恢复上次内容')}
+    else toast('本地无保存内容')
+  }catch(e){}
+}
+
+// ========== Toast ==========
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// Init
+loadChecks();
+</script>
+
+</body>
+</html>

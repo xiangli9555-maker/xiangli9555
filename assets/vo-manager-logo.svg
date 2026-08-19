@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0FF796"/>
+      <stop offset="100%" stop-color="#00D470"/>
+    </linearGradient>
+  </defs>
+  <!-- 描边三角（与品牌实心三角同轮廓基因） -->
+  <polygon points="24,4 44,40 4,40"
+           fill="none"
+           stroke="url(#glow)"
+           stroke-width="2.8"
+           stroke-linejoin="round"/>
+  <!-- 内部声波条（Voice 语义 · 三根音频柱呈波形峰） -->
+  <rect x="18" y="22" width="4" height="12" rx="2" fill="#0FF796" opacity=".55"/>
+  <rect x="25" y="16" width="4" height="18" rx="2" fill="#0FF796"/>
+  <rect x="32" y="24" width="4" height="10" rx="2" fill="#0FF796" opacity=".55"/>
+</svg>

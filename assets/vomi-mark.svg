@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 176 32" role="img" aria-labelledby="title desc">
+  <title id="title">-Vomi- waveform</title>
+  <desc id="desc">平衡、克制的左右声波环绕 -Vomi- 字标</desc>
+  <g fill="none" stroke="#0FF89B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 16H8L11 13L14 19L17 7L20 25L23 11L26 21L29 14L32 18L35 12L38 20L41 15L44 17L47 13L50 19L53 15H57"/>
+    <path d="M119 16H123L126 13L129 18L132 14L135 20L138 12L141 18L144 11L147 21L150 7L153 25L156 12L159 19L162 13L165 17H174"/>
+  </g>
+  <text x="88" y="16.5" fill="#0FF89B" font-family="Microsoft YaHei UI, Microsoft YaHei, Segoe UI, sans-serif" font-size="16" font-weight="600" letter-spacing="0" text-anchor="middle" dominant-baseline="middle">-Vomi-</text>
+</svg>

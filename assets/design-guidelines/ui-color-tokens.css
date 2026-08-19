@@ -1,0 +1,32 @@
+:root {
+  /* DELTA FORCE canonical UI palette · archived 2026-08-15 */
+  --df-green: #0FF89B;
+  --df-yellow: #F4CF67;
+  --df-data-white: #CAE1CF;
+  --df-magenta: #FF0565;
+
+  --df-text-primary: #EAEBEB;
+  --df-text-secondary: #919594;
+  --df-text-weak: #656668;
+
+  --df-control-dark: #1B2526;
+  --df-control-green-primary: #0FF89B;
+  --df-control-green-secondary: #6BD995;
+  --df-control-white: #CAE1CF;
+
+  /* Semantic aliases for Vo Manager */
+  --c-primary: var(--df-green);
+  --c-warning: var(--df-yellow);
+  --c-danger: var(--df-magenta);
+  --c-text: var(--df-text-primary);
+  --c-text-2: var(--df-text-secondary);
+  --c-text-mute: var(--df-text-secondary);
+  --c-text-dim: var(--df-text-weak);
+
+  /* Recommended visual distribution */
+  --df-ratio-background: 60%;
+  --df-ratio-primary: 20%;
+  --df-ratio-data-white: 10%;
+  --df-ratio-yellow: 8%;
+  --df-ratio-magenta: 2%;
+}

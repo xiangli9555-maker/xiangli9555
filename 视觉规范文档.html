@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>视觉规范文档 · Vo Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --c-bg:#F8FAFC;
+  --c-sidebar:#1E1E2F;
+  --c-text:#111827;
+  --c-text-mute:#6B7280;
+  --c-primary:#4F46E5;
+  --c-primary-dark:#4338CA;
+  --c-success:#10B981;
+  --c-warning:#F59E0B;
+  --c-danger:#EF4444;
+  --c-border:#E5E7EB;
+  --c-delta:#22E38C;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;color:var(--c-text);background:var(--c-bg)}
+.layout{display:flex;min-height:100vh}
+
+/* TOC */
+.toc{width:240px;background:#1E1E2F;color:#FFF;padding:24px 16px;position:fixed;top:0;left:0;bottom:0;overflow-y:auto}
+.toc-brand{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.toc-brand svg{width:32px;height:32px}
+.toc-brand .name{font-size:16px;font-weight:800;color:#FFF;letter-spacing:.5px}
+.toc-brand .doc{font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px}
+.toc a{display:block;padding:8px 12px;color:rgba(255,255,255,0.7);font-size:13px;text-decoration:none;border-radius:6px;transition:all .15s;margin-bottom:2px}
+.toc a:hover{background:rgba(255,255,255,0.06);color:#FFF}
+
+/* MAIN */
+.content{flex:1;margin-left:240px;padding:36px 48px;max-width:calc(100% - 240px)}
+.head{margin-bottom:36px;padding-bottom:20px;border-bottom:2px solid var(--c-border)}
+.head h1{font-size:28px;font-weight:700;margin-bottom:8px}
+.head .sub{color:var(--c-text-mute);font-size:14px}
+
+h2{font-size:22px;font-weight:700;margin:40px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--c-border);display:flex;align-items:center;gap:8px;counter-increment:h2}
+h2::before{content:counter(h2)". ";color:var(--c-primary);font-family:'JetBrains Mono';font-size:18px}
+body{counter-reset:h2}
+h3{font-size:16px;font-weight:600;margin:20px 0 10px}
+h4{font-size:14px;font-weight:600;margin:16px 0 8px;color:var(--c-primary)}
+p{margin-bottom:10px;color:#374151}
+
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:#F3F4F6;padding:2px 6px;border-radius:4px;color:var(--c-primary)}
+pre{background:#1E1E2F;color:#E5E7EB;padding:16px 20px;border-radius:8px;overflow-x:auto;font-family:'JetBrains Mono';font-size:12px;line-height:1.7;margin:12px 0}
+pre code{background:none;color:inherit;padding:0}
+
+table{width:100%;border-collapse:collapse;margin:12px 0;background:#FFF;border-radius:8px;overflow:hidden;border:1px solid var(--c-border);font-size:13px}
+thead th{background:#F9FAFB;padding:12px 16px;font-weight:600;color:var(--c-text-mute);text-align:left;font-size:12px;border-bottom:1px solid var(--c-border)}
+tbody td{padding:10px 16px;border-bottom:1px solid var(--c-border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+
+/* COLOR CARDS */
+.color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin:12px 0}
+.color-card{background:#FFF;border:1px solid var(--c-border);border-radius:8px;overflow:hidden}
+.color-swatch{height:80px;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px}
+.color-swatch .hex{background:rgba(0,0,0,0.4);color:#FFF;font-size:11px;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono'}
+.color-info{padding:10px 12px}
+.color-info .name{font-size:13px;font-weight:600;color:var(--c-text)}
+.color-info .var{font-family:'JetBrains Mono';font-size:11px;color:var(--c-text-mute);margin-top:2px}
+
+/* COMPONENT PREVIEW */
+.preview{background:#FFF;border:1px solid var(--c-border);border-radius:8px;padding:20px;margin:12px 0}
+.preview-title{font-size:11px;color:var(--c-text-mute);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;font-weight:600}
+.row-flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* BUTTONS PREVIEW */
+.btn-demo{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;line-height:1.4;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.btn-demo.pri{background:var(--c-primary);color:#FFF}
+.btn-demo.pri:hover{background:var(--c-primary-dark)}
+.btn-demo.out{background:#FFF;color:var(--c-text-mute);border:1px solid var(--c-border)}
+.btn-demo.out:hover{border-color:var(--c-primary);color:var(--c-primary)}
+.btn-demo.dan{background:#FFF;color:var(--c-danger);border:1px solid #FECACA}
+.btn-demo.sm{padding:4px 12px;font-size:12px}
+
+/* TAG PREVIEW */
+.tag-demo{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
+.tag-pending{background:#F3F4F6;color:#9CA3AF}
+.tag-progress{background:#DBEAFE;color:#3B82F6}
+.tag-done{background:#D1FAE5;color:#10B981}
+.tag-sync{background:#FEF3C7;color:#F59E0B}
+
+/* CALLOUTS */
+.callout{padding:14px 18px;border-radius:8px;margin:14px 0;font-size:13px;line-height:1.6}
+.callout-danger{background:#FEF2F2;border-left:3px solid #DC2626;color:#7F1D1D}
+.callout-info{background:#EEF2FF;border-left:3px solid var(--c-primary);color:#3730A3}
+.callout-warning{background:#FEF7E0;border-left:3px solid #F59E0B;color:#78350F}
+.callout b{font-weight:600}
+
+/* LOGO SHOWCASE */
+.logo-showcase{background:#FFF;border:1px solid var(--c-border);border-radius:8px;padding:40px;text-align:center;margin:16px 0}
+.logo-showcase svg{margin-bottom:8px}
+.logo-showcase .brand-name{font-size:24px;font-weight:800;color:#000;letter-spacing:.5px;font-family:'Inter',sans-serif}
+
+/* SIDEBAR DEMO */
+.sidebar-demo{background:#1E1E2F;border-radius:8px;padding:16px;color:#FFF;font-size:13px;max-width:280px}
+.sd-item{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:6px;font-size:14px}
+.sd-item.active{background:#4F46E5}
+.sd-item .ico{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
+.sd-item .b{font-size:12px;background:#4F46E5;color:#FFF;padding:2px 8px;border-radius:8px;margin-left:auto;font-weight:600}
+.sd-item.active .b{background:#FFF;color:#4F46E5}
+.sd-sub{padding:8px 16px 8px 32px;font-size:13px;color:rgba(255,255,255,0.7);border-radius:6px;display:flex;align-items:center;gap:10px}
+.sd-sub.active{background:#4F46E5;color:#FFF;font-weight:500}
+.sd-sub .dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5}
+.sd-sub.active .dot{opacity:1;background:#FFF;width:6px;height:6px}
+
+/* FONT SCALE */
+.fs-demo{padding:8px 0;border-bottom:1px dashed var(--c-border)}
+.fs-demo:last-child{border-bottom:none}
+.fs-demo .lbl{font-size:11px;color:var(--c-text-mute);font-family:'JetBrains Mono';margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- TOC -->
+  <aside class="toc">
+    <div class="toc-brand">
+      <img src="assets/DeltaForceLogo.png" alt="DELTA FORCE" style="width:120px;height:auto;background:#FFF;padding:6px 8px;border-radius:6px"/>
+      <div class="doc" style="margin-top:8px">Vo Manager · 视觉规范 v1.0</div>
+    </div>
+    <a href="#s1">1. 全局配色</a>
+    <a href="#s2">2. 字体</a>
+    <a href="#s3">3. 组件规范</a>
+    <a href="#s4">4. 侧边栏结构</a>
+    <a href="#s5">5. Logo</a>
+    <a href="#s6">6. 顶部品牌栏</a>
+    <a href="#s7">7. 禁止事项（红线）</a>
+    <a href="#s8">8. 参考实现</a>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="head">
+      <h1>视觉规范文档</h1>
+      <div class="sub">DELTA FORCE · Vo Manager · v1.0 · 2026-07-17 · 产品负责人 lycheelli (PM)</div>
+    </div>
+
+    <div class="callout callout-info">
+      💡 <b>使用方法</b>：本文档是前端交付的<b>视觉验收标准</b>。开发时对照第 1–7 节逐项实现，任一红线不满足即需返工。所有色值 / 圆角 / padding 已注入 <code>:root</code> 变量，直接从原型 HTML 复制即可。
+    </div>
+
+    <!-- ============ 1. 配色 ============ -->
+    <h2 id="s1">全局配色</h2>
+    <div class="color-grid">
+      <div class="color-card"><div class="color-swatch" style="background:#F8FAFC;border-bottom:1px solid #E5E7EB"><span class="hex">#F8FAFC</span></div><div class="color-info"><div class="name">主背景</div><div class="var">--c-bg</div></div></div>
+      <div class="color-card"><div class="color-swatch" style="background:#1E1E2F"><span class="hex">#1E1E2F</span></div><div class="color-info"><div class="name">侧边栏背景</div><div class="var">--c-sidebar</div></div></div>
+      <div class="color-card"><div class="color-swatch" style="background:#111827"><span class="hex">#111827</span></div><div class="color-info"><div class="name">文字主色</div><div class="var">--c-text</div></div></div>
+      <div class="color-card"><div class="color-swatch" style="background:#6B7280"><span class="hex">#6B7280</span></div><div class="color-info"><div class="name">文字辅色</div><div class="var">--c-text-mute</div></div></div>
+      <div class="color-card"><div class="color-swatch" style="background:#4F46E5"><span class="hex">#4F46E5</span></div><div class="color-info"><div class="name">强调色（蓝紫）</div><div class="var">--c-primary</div></div></div>
+      <div class="color-card"><div class="color-swatch" style="background:#10B981"><span class="hex">#10B981</span></div><div class="color-info"><div class="name">成功色</div><div class="var">--c-success</div></div></div>
+      <div class="color-card"><div class="color-swatch" style="background:#F59E0B"><span class="hex">#F59E0B</span></div><div class="color-info"><div class="name">警告色</div><div class="var">--c-warning</div></div></div>
+      <div class="color-card"><div class="color-swatch" style="background:#EF4444"><span class="hex">#EF4444</span></div><div class="color-info"><div class="name">危险色</div><div class="var">--c-danger</div></div></div>
+      <div class="color-card"><div class="color-swatch" style="background:#E5E7EB"><span class="hex">#E5E7EB</span></div><div class="color-info"><div class="name">边框色</div><div class="var">--c-border</div></div></div>
+      <div class="color-card"><div class="color-swatch" style="background:#22E38C"><span class="hex">#22E38C</span></div><div class="color-info"><div class="name">Delta Logo 绿</div><div class="var">--c-delta</div></div></div>
+    </div>
+
+    <h3>CSS 变量声明</h3>
+    <pre><code>:root {
+  --c-bg:        #F8FAFC;
+  --c-sidebar:   #1E1E2F;
+  --c-text:      #111827;
+  --c-text-mute: #6B7280;
+  --c-primary:   #4F46E5;
+  --c-success:   #10B981;
+  --c-warning:   #F59E0B;
+  --c-danger:    #EF4444;
+  --c-border:    #E5E7EB;
+}</code></pre>
+
+    <!-- ============ 2. 字体 ============ -->
+    <h2 id="s2">字体</h2>
+    <p>字体族：<code>Inter, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif</code></p>
+    <div class="preview">
+      <div class="fs-demo"><div class="lbl">页面标题 · 20px / bold / 1.4</div><div style="font-size:20px;font-weight:700;line-height:1.4">Vo Manager · 需求汇总</div></div>
+      <div class="fs-demo"><div class="lbl">分区标题 · 16px / semibold / 1.5</div><div style="font-size:16px;font-weight:600">录制排期</div></div>
+      <div class="fs-demo"><div class="lbl">正文 · 14px / normal / 1.5</div><div style="font-size:14px">这是一段正文，用于表单说明、按钮标签、页面描述等场景。</div></div>
+      <div class="fs-demo"><div class="lbl">表格数据 · 13px / normal / 1.5</div><div style="font-size:13px">001 · 张伟 · 勇士，你终于来了！</div></div>
+      <div class="fs-demo"><div class="lbl">辅助文字 · 12px / normal / 1.4</div><div style="font-size:12px;color:#6B7280">共 7 条数据（Yang1）</div></div>
+      <div class="fs-demo"><div class="lbl">品牌 Logo · 24px / extrabold / 1.0</div><div style="font-size:24px;font-weight:800;letter-spacing:.5px">DELTA FORCE</div></div>
+    </div>
+
+    <!-- ============ 3. 组件 ============ -->
+    <h2 id="s3">组件规范</h2>
+
+    <h3>3.1 按钮 (Button)</h3>
+    <div class="preview">
+      <div class="preview-title">Primary / Outline / Danger / Small</div>
+      <div class="row-flex">
+        <button class="btn-demo pri">保存</button>
+        <button class="btn-demo out">取消</button>
+        <button class="btn-demo dan">删除</button>
+        <button class="btn-demo pri sm">Small</button>
+        <button class="btn-demo out sm">Small</button>
+      </div>
+    </div>
+    <ul>
+      <li>圆角 <code>6px</code>，padding <code>8px 16px</code>，字号 <code>14px</code></li>
+      <li>Primary hover 加深到 <code>#4338CA</code></li>
+      <li>Outline hover 边框和文字变主色</li>
+    </ul>
+
+    <h3>3.2 表格 (Table)</h3>
+    <div class="preview">
+      <div class="preview-title">行高 48px · 悬停背景 #F9FAFB · 边框 1px #E5E7EB</div>
+      <table>
+        <thead><tr><th>NO.</th><th>声优</th><th>台词</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td>001</td><td>张伟</td><td>勇士，你终于来了！</td><td><span class="tag-demo tag-done">已完成</span></td></tr>
+          <tr><td>002</td><td>李娜</td><td>前方有敌人，小心！</td><td><span class="tag-demo tag-progress">进行中</span></td></tr>
+          <tr><td>003</td><td>王强</td><td>恭喜通过本关！</td><td><span class="tag-demo tag-pending">待开始</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>3.3 标签 (Tag)</h3>
+    <div class="preview">
+      <div class="preview-title">圆角 4px · padding 2px 8px · 字号 12px</div>
+      <div class="row-flex">
+        <span class="tag-demo tag-pending">待开始</span>
+        <span class="tag-demo tag-progress">进行中</span>
+        <span class="tag-demo tag-done">已完成</span>
+        <span class="tag-demo tag-sync">音画同步</span>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>语义</th><th>背景</th><th>文字</th></tr></thead>
+      <tbody>
+        <tr><td>待开始 (pending)</td><td><code>#F3F4F6</code></td><td><code>#9CA3AF</code></td></tr>
+        <tr><td>进行中 (progress)</td><td><code>#DBEAFE</code></td><td><code>#3B82F6</code></td></tr>
+        <tr><td>已完成 (done)</td><td><code>#D1FAE5</code></td><td><code>#10B981</code></td></tr>
+        <tr><td>音画同步 (sync)</td><td><code>#FEF3C7</code></td><td><code>#F59E0B</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.4 图标 (Icon)</h3>
+    <ul>
+      <li>风格：<b>线性 Line Icons</b>（推荐 Feather Icons / Lucide）</li>
+      <li>默认尺寸：<code>20 × 20px</code></li>
+      <li>默认颜色：<code>#6B7280</code>（辅色）</li>
+      <li>stroke-width：<code>1.8 - 2</code></li>
+    </ul>
+    <div class="preview">
+      <div class="preview-title">线性图标示例（stroke 1.8, 20x20）</div>
+      <div class="row-flex" style="color:#6B7280;align-items:center;gap:20px">
+        <div style="text-align:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M8 11h8M8 15h5"/></svg><div style="font-size:10px;margin-top:4px">需求</div></div>
+        <div style="text-align:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="14" y2="13"/></svg><div style="font-size:10px;margin-top:4px">台词</div></div>
+        <div style="text-align:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><div style="font-size:10px;margin-top:4px">声优</div></div>
+        <div style="text-align:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="8" y2="18"/><line x1="12" y1="18" x2="12" y2="18"/><line x1="16" y1="18" x2="16" y2="18"/></svg><div style="font-size:10px;margin-top:4px">档期</div></div>
+        <div style="text-align:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg><div style="font-size:10px;margin-top:4px">资产</div></div>
+      </div>
+    </div>
+
+    <!-- ============ 4. 侧边栏 ============ -->
+    <h2 id="s4">侧边栏结构</h2>
+
+    <table>
+      <thead><tr><th>元素</th><th>规范</th></tr></thead>
+      <tbody>
+        <tr><td>侧栏宽度</td><td><code>240px</code></td></tr>
+        <tr><td>背景色</td><td><code>#1E1E2F</code></td></tr>
+        <tr><td>一级菜单 padding</td><td><code>12px 16px</code></td></tr>
+        <tr><td>一级菜单字号</td><td><code>14px</code>（选中态字重 500）</td></tr>
+        <tr><td>图标尺寸</td><td><code>20 × 20px</code> 线性</td></tr>
+        <tr><td>子集菜单 padding</td><td><code>8px 16px 8px 32px</code>（padding-left 32px）</td></tr>
+        <tr><td>子集菜单字号</td><td><code>13px</code></td></tr>
+        <tr><td>选中背景</td><td><code>#4F46E5</code></td></tr>
+        <tr><td>徽标</td><td>圆角 <code>8px</code>，背景 <code>#4F46E5</code>，文字 <code>#FFFFFF</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>侧边栏预览</h3>
+    <div class="sidebar-demo">
+      <div class="sd-item">
+        <svg class="ico" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+        <span>需求汇总</span>
+      </div>
+      <div class="sd-sub active"><span class="dot"></span>Yang1</div>
+      <div class="sd-sub"><span class="dot"></span>Yang2</div>
+      <div class="sd-item">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="14" y2="13"/></svg>
+        <span>台词管理</span>
+      </div>
+      <div class="sd-item active">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+        <span>音频资产库</span>
+        <span class="b">8</span>
+      </div>
+    </div>
+
+    <!-- ============ 5. Logo ============ -->
+    <h2 id="s5">Logo (DELTA FORCE)</h2>
+    <div class="logo-showcase">
+      <img src="assets/DeltaForceLogo.png" alt="DELTA FORCE" style="height:120px;width:auto"/>
+    </div>
+    <table>
+      <thead><tr><th>元素</th><th>规范</th></tr></thead>
+      <tbody>
+        <tr><td>资源文件</td><td><code>./assets/DeltaForceLogo.png</code>（官方 PNG，不得替换）</td></tr>
+        <tr><td>位置</td><td>顶部品牌栏最左侧</td></tr>
+        <tr><td>展示高度</td><td><code>44px</code>（宽度按原图比例自动缩放）</td></tr>
+        <tr><td>图片内容</td><td>绿色三角形（含内嵌闪电）+ "DELTA FORCE" 黑色粗体</td></tr>
+        <tr><td>字体样式</td><td><b>字体嵌在图片中，不得替换或重绘</b></td></tr>
+      </tbody>
+    </table>
+
+    <h3>使用代码</h3>
+    <pre><code>&lt;img src="assets/DeltaForceLogo.png" alt="DELTA FORCE"
+     style="height:44px;width:auto"/&gt;</code></pre>
+
+    <div class="callout callout-danger">
+      🚨 <b>Logo 红线</b>：<br/>
+      ❌ 禁止替换 Logo 图片（必须使用 <code>assets/DeltaForceLogo.png</code> 官方原图）<br/>
+      ❌ 禁止改动 Logo 内的字体样式（"DELTA FORCE" 字体嵌在图片里，不得替换或重绘）<br/>
+      ❌ 禁止改动 Logo 位置（必须在顶部品牌栏最左侧）<br/>
+      ❌ 禁止对 Logo 做倾斜、拉伸、变色、渐变、投影<br/>
+      ✅ 允许等比缩放（保持长宽比 · 高度 32–56px 之间）
+    </div>
+
+    <!-- ============ 6. 品牌栏 ============ -->
+    <h2 id="s6">顶部品牌栏</h2>
+    <table>
+      <thead><tr><th>元素</th><th>规范</th></tr></thead>
+      <tbody>
+        <tr><td>最小高度</td><td><code>64px</code></td></tr>
+        <tr><td>背景</td><td><code>#FFFFFF</code></td></tr>
+        <tr><td>底部边框</td><td><code>1px solid #E5E7EB</code></td></tr>
+        <tr><td>Logo</td><td><code>&lt;img src="assets/DeltaForceLogo.png"&gt;</code>，高 <code>44px</code></td></tr>
+        <tr><td>子系统副标题</td><td>文本 "Vo Manager"，字号 <code>18px</code>，字重 <code>700</code>，色 <code>#111827</code></td></tr>
+        <tr><td>内边距</td><td><code>12px 24px</code></td></tr>
+        <tr><td>分隔线</td><td>宽 <code>1px</code>，高 <code>44px</code>，色 <code>#E5E7EB</code></td></tr>
+        <tr><td>子系统副标题</td><td>字号 <code>16px</code>，字重 600，色 <code>#111827</code></td></tr>
+        <tr><td>用户头像</td><td>圆形 <code>32 × 32px</code>，底色 <code>#4F46E5</code>，白字</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ 7. 红线 ============ -->
+    <h2 id="s7">全局禁止事项（红线）</h2>
+    <div class="callout callout-danger">
+      <ol style="margin:0 0 0 20px;line-height:1.9">
+        <li>❌ <b>彩色渐变背景</b> — 使用实色或规范内的浅底色</li>
+        <li>❌ <b>圆形头像以外的圆形装饰</b> — 保持视觉简洁</li>
+        <li>❌ <b>侧边栏 / 主内容区颜色混淆</b> — 必须严格分色 <code>#1E1E2F</code> vs <code>#F8FAFC</code></li>
+        <li>❌ <b>未确认前改动 Logo</b> — 品牌资产受保护</li>
+        <li>❌ <b>面性 (Filled) 图标风格</b> — 全站统一线性风格</li>
+        <li>❌ <b>卡片使用阴影</b> — 改用 <code>1px solid #E5E7EB</code> 边框</li>
+        <li>❌ <b>状态标签自定义配色</b> — 只能使用规范里的 4 种语义色</li>
+      </ol>
+    </div>
+
+    <!-- ============ 8. 参考实现 ============ -->
+    <h2 id="s8">参考实现</h2>
+    <div class="callout callout-info">
+      📎 <b>交付原型</b>：<a href="./互动原型-语音需求管理系统.html" style="color:#4F46E5;font-weight:600">互动原型-语音需求管理系统.html</a> — 所有色值 / 圆角 / padding 已注入 <code>:root</code> CSS 变量，前端可直接复用<br/>
+      📎 <b>Markdown 版本</b>：<a href="./视觉规范文档.md" style="color:#4F46E5;font-weight:600">视觉规范文档.md</a> — 用于 push 到代码仓库<br/>
+      📎 <b>开发交接文档</b>：<a href="./开发交接文档.html" style="color:#4F46E5;font-weight:600">开发交接文档.html</a> — 数据模型 + API + 里程碑
+    </div>
+
+    <div style="margin-top:50px;padding:20px;background:#FFF;border:1px solid var(--c-border);border-radius:8px;text-align:center;color:var(--c-text-mute);font-size:12px">
+      视觉规范文档 · v1.0 · 有疑问 @lycheelli
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

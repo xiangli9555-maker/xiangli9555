@@ -1,0 +1,53 @@
+{
+  "name": "DELTA FORCE UI Color System",
+  "version": "2026-08-15",
+  "sourceImages": [
+    "ui-color-system-overview.png",
+    "ui-common-colors.png"
+  ],
+  "usageRatio": {
+    "backgroundMainTone": 60,
+    "ahsarahmGreen": 20,
+    "dataWhite": 10,
+    "mandelYellow": 8,
+    "vivaMagenta": 2
+  },
+  "brand": {
+    "ahsarahmGreen": {
+      "hex": "#0FF89B",
+      "code": "C005/C008",
+      "usage": ["品牌主色", "核心流程指引", "重点高亮", "已完成", "条件达成", "一级按钮或Tab绿色文字"]
+    },
+    "mandelYellow": {
+      "hex": "#F4CF67",
+      "code": "C006",
+      "usage": ["推荐引导", "正反馈", "胜利"]
+    },
+    "dataWhite": {
+      "hex": "#CAE1CF",
+      "code": "C010",
+      "usage": ["控件信息识别", "控件基础文本", "一级Tab白色文字"]
+    },
+    "vivaMagenta": {
+      "hex": "#FF0565",
+      "code": "C004",
+      "usage": ["敌对势力", "负面信息", "警示", "提醒", "负反馈"]
+    }
+  },
+  "text": {
+    "primary": { "hex": "#EAEBEB", "code": "C001", "usage": "正文文本" },
+    "secondary": { "hex": "#919594", "code": "C002", "usage": "次级文本" },
+    "weak": { "hex": "#656668", "code": "C003", "usage": "弱文本" }
+  },
+  "controls": {
+    "level1DarkText": { "hex": "#1B2526", "code": "C007", "usage": "一级按钮或Tab深色文字" },
+    "level1GreenText": { "hex": "#0FF89B", "code": "C008", "usage": "一级按钮或Tab绿色文字" },
+    "level2GreenText": { "hex": "#6BD995", "code": "C009", "usage": "二级按钮或Tab绿色文字" },
+    "level1WhiteText": { "hex": "#CAE1CF", "code": "C010", "usage": "一级Tab白色文字" }
+  },
+  "background": {
+    "ratio": 60,
+    "image": "../bg-universal.png",
+    "guidance": "使用统一底图与深色半透明玻璃层；不要用不透明实色完全遮挡底图。"
+  }
+}

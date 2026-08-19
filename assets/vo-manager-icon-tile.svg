@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="glow2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0FF796"/>
+      <stop offset="100%" stop-color="#00D470"/>
+    </linearGradient>
+  </defs>
+  <!-- 深色瓦片（侧栏/页头用） -->
+  <rect x="1" y="1" width="46" height="46" rx="12" fill="#192229" stroke="#0FF796" stroke-width="1.5" opacity=".6"/>
+  <!-- 描边三角 -->
+  <polygon points="24,6 42,40 6,40"
+           fill="none"
+           stroke="url(#glow2)"
+           stroke-width="2.8"
+           stroke-linejoin="round"/>
+  <!-- 声波条 -->
+  <rect x="18" y="23" width="4" height="11" rx="2" fill="#0FF796" opacity=".55"/>
+  <rect x="25" y="17" width="4" height="17" rx="2" fill="#0FF796"/>
+  <rect x="32" y="25" width="4" height="9"  rx="2" fill="#0FF796" opacity=".55"/>
+</svg>

@@ -10,7 +10,7 @@ Vo Manager · 下午演示 mock 数据生成 & 推送脚本
 import json, random, urllib.request, urllib.error, sys, os
 from datetime import date, timedelta
 
-BASE = 'http://21.130.252.59'
+BASE = os.environ.get('VO_CVM_HOST', 'http://<CVM_IP>')
 ROSTER_JSON = os.path.join(os.path.dirname(__file__), '_demo_roster.json')
 random.seed(2026818)  # 可复现
 

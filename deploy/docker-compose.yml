@@ -4,17 +4,17 @@ services:
     container_name: vo-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-vo_manager_pwd_2026}
-      MYSQL_DATABASE: vo_manager
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: ${DB_NAME:-vo_manager}
+      MYSQL_USER: ${DB_USER:-vo_manager}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
       TZ: Asia/Shanghai
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - mysql_data:/var/lib/mysql
       - ./backend/sql:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD:-vo_manager_pwd_2026}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -24,14 +24,21 @@ services:
     container_name: vo-backend
     restart: always
     environment:
+      NODE_ENV: production
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: ${DB_PASSWORD:-vo_manager_pwd_2026}
-      DB_NAME: vo_manager
+      DB_USER: ${DB_USER:-vo_manager}
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      DB_NAME: ${DB_NAME:-vo_manager}
       PORT: 3001
       AUDIO_DIR: /data/audio
+      API_TOKENS_JSON: ${API_TOKENS_JSON:?set API_TOKENS_JSON in .env}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-180}
+      MAX_AUDIO_BYTES: ${MAX_AUDIO_BYTES:-104857600}
       DFAI_TOKEN: ${DFAI_TOKEN:-}
+      WECOM_CORPID: ${WECOM_CORPID:-}
+      WECOM_CORPSECRET: ${WECOM_CORPSECRET:-}
       TZ: Asia/Shanghai
     volumes:
       - audio_data:/data/audio

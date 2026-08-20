@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="assets/security-bootstrap.js"></script>
 <meta charset="UTF-8"/>
 <title>Preview · 版本节点精修版</title>
 <link rel="stylesheet" href="assets/project-fonts.css?v=20260817c"/>
@@ -674,6 +675,8 @@ html.embed .layout{padding-left:0}
     document.body && document.body.classList.add('embed');
   }
 })();
+const escHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+const safeCssToken = (value) => /^[a-z0-9_-]{1,40}$/i.test(String(value||'')) ? String(value) : 'unknown';
 
 // ================================================================
 // VERSION TIMELINE DATA — 项目发布计划（PM 维护）
@@ -1205,7 +1208,7 @@ function renderTimeline(){
     const relW = ver.phases.find(p=>p.type==='release')?.weeks || 1;
     const tdMs = document.createElement('td');
     tdMs.className = 'yc-ms';
-    tdMs.innerHTML = `<div class="ms-ver">${ver.name}</div><div class="ms-eq">${devW}+${testW}+${relW}</div>`;
+    tdMs.innerHTML = `<div class="ms-ver">${escHtml(ver.name)}</div><div class="ms-eq">${devW}+${testW}+${relW}</div>`;
     tr.appendChild(tdMs);
 
     // Weeks 顺序：dev[0..maxDev-1] + test[0..maxTest-1] + release[国内, 海外]
@@ -1361,14 +1364,14 @@ function renderTimeline(){
           // 区间事件给 first 挂 data-rk 便于 mergeRangeBars 分组；data-rk-end 提供 last cell 的锚点日期（YYYY/M/D）
           let dataAttrs = '';
           if(ev.range){
-            dataAttrs = ` data-rk="${ver.id}|${ev.tag}"`;
+            dataAttrs = ` data-rk="${escHtml(ver.id)}|${safeCssToken(ev.tag)}"`;
             if(pos === ' pos-first' || pos === ' pos-only'){
               const verEnd2 = d(ver.phases[ver.phases.length-1].end);
               const effEnd2 = ev.range[1] > verEnd2 ? verEnd2 : ev.range[1];
               dataAttrs += ` data-rk-end="${effEnd2.getFullYear()}/${effEnd2.getMonth()+1}/${effEnd2.getDate()}"`;
             }
           }
-          return `<span class="yc-evt evt-${ev.tag}${pos}"${dataAttrs} title="${ev.full} · ${tip}">${label}</span>`;
+          return `<span class="yc-evt evt-${safeCssToken(ev.tag)}${pos}"${dataAttrs} title="${escHtml(ev.full)} · ${escHtml(tip)}">${escHtml(label)}</span>`;
         };
         // 每条事项独占一行，从上到下按版本优先级排列
         evtHtml = rows.map(ev => `<div class="yc-row yc-row-single">${chipOf(ev)}</div>`).join('');
@@ -1404,7 +1407,7 @@ function renderTimeline(){
     if(devPh) workDays += workingDaysBetween(d(devPh.start), d(devPh.end));
     const tdDays = document.createElement('td');
     tdDays.className = 'yc-days';
-    tdDays.innerHTML = `<span class="yc-days-ver">${ver.name}</span><span class="yc-days-num">${workDays}<span class="u">天</span></span>`;
+    tdDays.innerHTML = `<span class="yc-days-ver">${escHtml(ver.name)}</span><span class="yc-days-num">${workDays}<span class="u">天</span></span>`;
     tr.appendChild(tdDays);
 
     tbody.appendChild(tr);
@@ -1618,7 +1621,7 @@ function updateStats(){
     const daysToEnd = workingDaysUntil(TODAY, endDate);
     const usePack = !!PACK_CONFIRM_BY_VER[nextVer.id];
     const endLabel = usePack ? '距对外包' : '距结束';
-    cv.innerHTML = `${nextVer.name}<span class="unit">${nowPh?'':'即将开始'}</span>`;
+    cv.innerHTML = `${escHtml(nextVer.name)}<span class="unit">${nowPh?'':'即将开始'}</span>`;
     const modeCls = usePack ? 'cd-mode-real' : 'cd-mode-est';
     const estNote = usePack ? '' : ' <span class="cd-est-note">（估）</span>';
     cvSub.innerHTML = `${phaseLabel} · <span class="cd-mode ${modeCls}">${endLabel} ${daysToEnd} 工作日</span>${estNote}`;
@@ -1719,7 +1722,7 @@ function renderThisWeek(){
     const phaseLabel = nowPh ? (PHASE_NAMES[nowPh.type] || nowPh.type) : '未开始';
     return `
     <div class="rp-tw-item">
-      <div class="rp-tw-ver">${it.ver.name}<span class="rp-tw-phase">${phaseLabel}</span></div>
+      <div class="rp-tw-ver">${escHtml(it.ver.name)}<span class="rp-tw-phase">${phaseLabel}</span></div>
       <div class="rp-tw-cd">
         <span class="rp-tw-cd-num">${it.weeksLeft}</span><span class="rp-tw-cd-unit">周</span>
       </div>
@@ -1756,22 +1759,22 @@ function renderTimeline30(){
     if(e.range){
       const [s,ee] = e.range;
       const label = `${verShort(e.forVer)} ${e.short}`.trim();
-      return `<div class="rp-tl-item ${e.tag}">
-        <div class="rp-tl-dot evt-${e.tag}"></div>
+      return `<div class="rp-tl-item ${safeCssToken(e.tag)}">
+        <div class="rp-tl-dot evt-${safeCssToken(e.tag)}"></div>
         <div class="rp-tl-body">
           <div class="rp-tl-date">${fmtShort(s)} → ${fmtShort(ee)}${hint}</div>
-          <div class="rp-tl-label evt-${e.tag}">${label}</div>
+          <div class="rp-tl-label evt-${safeCssToken(e.tag)}">${escHtml(label)}</div>
         </div>
       </div>`;
     }
     const dd = e.date;
     // 6 节点 short 已带 →版本名 前缀，只去掉箭头保留版本名
     const label = e.short.replace(/^→/, '');
-    return `<div class="rp-tl-item ${e.tag}">
-      <div class="rp-tl-dot evt-${e.tag}"></div>
+    return `<div class="rp-tl-item ${safeCssToken(e.tag)}">
+      <div class="rp-tl-dot evt-${safeCssToken(e.tag)}"></div>
       <div class="rp-tl-body">
         <div class="rp-tl-date">${fmt(dd)} <span class="rp-tl-wk">周${'日一二三四五六'[dd.getDay()]}</span>${hint}</div>
-        <div class="rp-tl-label evt-${e.tag}">${label}</div>
+        <div class="rp-tl-label evt-${safeCssToken(e.tag)}">${escHtml(label)}</div>
       </div>
     </div>`;
   }).join('');
@@ -1797,9 +1800,9 @@ function renderProgress(){
                        .sort((a,b)=>a.date-b.date)[0];
     const cd = nev ? diffDays(TODAY, nev.date) : null;
     return `<div class="rp-pg-card">
-      <div class="rp-pg-head"><span class="rp-pg-name">${ver.name}</span><span class="rp-pg-pct">${pct}%</span></div>
+      <div class="rp-pg-head"><span class="rp-pg-name">${escHtml(ver.name)}</span><span class="rp-pg-pct">${pct}%</span></div>
       <div class="rp-pg-bar"><div class="rp-pg-fill" style="width:${pct}%"></div></div>
-      <div class="rp-pg-next">${nev ? `下一节点 · ${nev.short} · ${cd}天后` : '无后续节点'}</div>
+      <div class="rp-pg-next">${nev ? `下一节点 · ${escHtml(nev.short)} · ${cd}天后` : '无后续节点'}</div>
     </div>`;
   }).join('');
 }
@@ -1969,7 +1972,7 @@ function renderDayView(){
         const tdP = document.createElement('td');
         tdP.className = 'td-phase pd-' + ph.type;
         tdP.rowSpan = weeks.length * 4;
-        tdP.innerHTML = `<div class="p-ver">${ver.name}</div><div class="p-name">${ph.label}</div><div class="p-wk">${ph.weeks}w</div>`;
+        tdP.innerHTML = `<div class="p-ver">${escHtml(ver.name)}</div><div class="p-name">${escHtml(ph.label)}</div><div class="p-wk">${ph.weeks}w</div>`;
         tr1.appendChild(tdP);
       }
       // 空白角色列（日期行的分工格留空，做上下分区）
@@ -2029,7 +2032,7 @@ function renderDayView(){
           if(dayEvts.length){
             cls = cls.replace(' empty','');
             td.className = cls;
-            td.innerHTML = dayEvts.map(e => `<span class="evt-chip evt-${e.tag}" title="${e.full}">${e.short.replace(/^→/,'')}</span>`).join('');
+            td.innerHTML = dayEvts.map(e => `<span class="evt-chip evt-${safeCssToken(e.tag)}" title="${escHtml(e.full)}">${escHtml(e.short.replace(/^→/,''))}</span>`).join('');
           }
           tr.appendChild(td);
         }

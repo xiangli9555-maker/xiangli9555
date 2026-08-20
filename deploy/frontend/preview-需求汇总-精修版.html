@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="assets/security-bootstrap.js"></script>
 <meta charset="UTF-8"/>
 <title>Preview · 需求汇总精修版 · Vo Manager</title>
 <link rel="stylesheet" href="assets/project-fonts.css?v=20260817c"/>
@@ -904,7 +905,7 @@ function resetAll(){
   // 7) 重渲染
   renderRows();
   // 8) 联动外壳：撤回版本筛选，侧栏回到「全部」
-  try{ if(window.parent && window.parent!==window){ window.parent.postMessage({type:'reset-release-filter'}, '*'); } }catch(_){}
+  try{ if(window.parent && window.parent!==window){ window.parent.postMessage({type:'reset-release-filter'}, location.origin==='null'?'*':location.origin); } }catch(_){}
 }
 function isBlankClick(e){
   const t = e.target;
@@ -1805,7 +1806,7 @@ function updateKPI(){
         type: 'release-counts',
         total: total,
         counts: cntByRel
-      }, '*');
+      }, location.origin==='null'?'*':location.origin);
     }catch(e){}
   }
   const sub = document.getElementById('releaseSubTabs');

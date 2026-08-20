@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="assets/security-bootstrap.js"></script>
 <meta charset="UTF-8"/>
 <title>Preview · 录制档期精修版</title>
 <link rel="stylesheet" href="assets/project-fonts.css?v=20260817c"/>
@@ -551,7 +552,7 @@ async function loadActorData(){
     document.getElementById('actorTbody').innerHTML = '';
     const empty = document.getElementById('actorEmpty');
     empty.style.display = 'block';
-    empty.innerHTML = '⚠️ 无法加载需求数据：' + e.message;
+    empty.textContent = '无法加载需求数据：' + String(e.message||'未知错误');
   }
 }
 

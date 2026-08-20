@@ -6,7 +6,7 @@ Vo Manager · 台词写入 Tab2（依赖新部署的 /api/cw-doc/append-demo-lin
 """
 import json, os, urllib.request, urllib.error, time
 
-BASE = 'http://21.130.252.59'
+BASE = os.environ.get('VO_CVM_HOST', 'http://<CVM_IP>')
 ROOT = os.path.dirname(__file__)
 plan = json.load(open(os.path.join(ROOT, '_demo_plan.json'), 'r', encoding='utf-8'))
 

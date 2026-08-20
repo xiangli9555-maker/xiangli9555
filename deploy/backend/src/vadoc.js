@@ -3,6 +3,7 @@
 // 与 scripts/parse_va_doc.py（本机 CDP+OCR 通路）同一套章节解析逻辑，但输入是干净的 docx 文本。
 
 const zlib = require('zlib');
+const { assertZipSafe } = require('./zip_guard');
 
 // ---------------- 最小 ZIP 读取（只取目标文件） ----------------
 function readZipEntry(buf, name) {
@@ -19,6 +20,7 @@ function readZipEntry(buf, name) {
     if (buf.readUInt32LE(off) !== 0x02014b50) break;
     const method = buf.readUInt16LE(off + 10);
     const compSize = buf.readUInt32LE(off + 20);
+    const uncompSize = buf.readUInt32LE(off + 24);
     const nameLen = buf.readUInt16LE(off + 28);
     const extraLen = buf.readUInt16LE(off + 30);
     const commentLen = buf.readUInt16LE(off + 32);
@@ -29,8 +31,11 @@ function readZipEntry(buf, name) {
       const lExtraLen = buf.readUInt16LE(localOff + 28);
       const dataOff = localOff + 30 + lNameLen + lExtraLen;
       const comp = buf.slice(dataOff, dataOff + compSize);
+      if (uncompSize > 25 * 1024 * 1024 || uncompSize / Math.max(1, compSize) > 100) {
+        throw Object.assign(new Error('zip_limits_exceeded'), { status: 413 });
+      }
       if (method === 0) return comp;
-      if (method === 8) return zlib.inflateRawSync(comp);
+      if (method === 8) return zlib.inflateRawSync(comp, { maxOutputLength: uncompSize || 25 * 1024 * 1024 });
       throw new Error('不支持的压缩方式 ' + method);
     }
     off += 46 + nameLen + extraLen + commentLen;
@@ -45,6 +50,12 @@ function decodeEntities(s) {
 }
 
 function docxToLines(buffer) {
+  assertZipSafe(buffer, {
+    maxEntries: 2_000,
+    maxEntryUncompressed: 25 * 1024 * 1024,
+    maxTotalUncompressed: 50 * 1024 * 1024,
+    maxCompressionRatio: 100,
+  });
   const xmlBuf = readZipEntry(buffer, 'word/document.xml');
   if (!xmlBuf) throw new Error('docx 里找不到 word/document.xml');
   let xml = xmlBuf.toString('utf8');

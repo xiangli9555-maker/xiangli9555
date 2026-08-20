@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="assets/security-bootstrap.js"></script>
 <meta charset="UTF-8"/>
 <title>Preview · 声优库精修版 · Vo Manager</title>
 <link rel="stylesheet" href="assets/project-fonts.css?v=20260817c"/>
@@ -468,7 +469,7 @@ body.embed .mid{width:100%}
 <div id="rowMenu" class="row-menu" onclick="event.stopPropagation()">
   <div class="row-menu-item danger" onclick="deleteRosterRow(_rowMenuRid)">
     <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
-    删除本行
+    移入回收站
   </div>
 </div>
 
@@ -619,6 +620,16 @@ let ROSTER_CAT = '';
 let ROSTER_STATUS = ''; // '' = All / 'done' / 'pending'
 let ROSTER_GENDER = ''; // '' = 全部 / '男' / '女'
 let ROSTER_LIST = [];   // 合并后的最终数据
+const ROSTER_DELETE_QUEUE_KEY = 'vo_roster_delete_queue_v2';
+function loadRosterDeleteQueue(){
+  try{
+    const rows = JSON.parse(localStorage.getItem(ROSTER_DELETE_QUEUE_KEY)||'[]');
+    return Array.isArray(rows) ? rows.filter(x=>x && x.role_cn) : [];
+  }catch(_){ return []; }
+}
+function saveRosterDeleteQueue(rows){
+  localStorage.setItem(ROSTER_DELETE_QUEUE_KEY, JSON.stringify(rows));
+}
 const CAT_COLORS = {'指挥官':'#60A5FA','干员':'#F59E0B','Boss':'#EF4444','AI兵':'#0FF796','NPC':'#D4DDE3','AI系统音':'#3D4C57'};
 
 async function loadRoster(){
@@ -647,14 +658,11 @@ async function loadRoster(){
       const e = edits[a.id]; list.push(e ? Object.assign({}, a, e) : a);
     }
   }catch(_){}
-  // 过滤本页已删除的行（vo_roster_deletes_v1 = 数字 id 数组）
-  try{
-    const del = JSON.parse(localStorage.getItem('vo_roster_deletes_v1')||'[]')||[];
-    if(del.length){
-      const dset = new Set(del.map(Number));
-      list = list.filter(r => !dset.has(Number(r.id)));
-    }
-  }catch(_){}
+  // 只过滤经过“输入角色名确认”的 v2 回收站队列。
+  // 旧版仅存数字 id，存在 id 错位误删风险，故不再自动应用。
+  const deleteNames = new Set(loadRosterDeleteQueue().map(x=>String(x.role_cn).trim()));
+  if(deleteNames.size) list = list.filter(r => !deleteNames.has(String(r.role_cn||'').trim()));
+  try{ localStorage.removeItem('vo_roster_deletes_v1'); }catch(_){}
   ROSTER_LIST = list;
   renderMeter();
   renderRoster();
@@ -686,8 +694,8 @@ async function syncRosterToBackend(){
     const dbByCn = new Map(db.map(r=>[r.role_cn, r]));
 
     const cur = ROSTER_LIST || [];
-    const curCn = new Set(cur.map(r=>r.role_cn));
-    let patched=0, posted=0, deleted=0, skipped=0;
+    const deleteQueue = loadRosterDeleteQueue();
+    let patched=0, posted=0, recycled=0, skipped=0;
 
     const toPayload = (e)=>({
       module: e.category || '',
@@ -722,20 +730,26 @@ async function syncRosterToBackend(){
       }
     }
 
-    // 3) 删除 DB 中存在但当前列表已移除的角色
-    for(const d of db){
-      if(!curCn.has(d.role_cn)){
-        const r = await fetch(base + '/api/voice-roles/'+d.id, {method:'DELETE'});
-        if(r.ok) deleted++;
-      }
+    // 3) 仅处理显式确认过的回收站队列；绝不再用“当前列表缺失”推断删除。
+    for(const item of deleteQueue){
+      const roleCn = String(item.role_cn||'').trim();
+      const hit = dbByCn.get(roleCn);
+      if(!hit){ skipped++; continue; }
+      const r = await fetch(base + '/api/voice-roles/'+hit.id, {
+        method:'DELETE', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({confirm_name:roleCn, expected_revision:Number(hit.revision||1)})
+      });
+      const result = await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error('移入回收站失败: '+roleCn+' ('+(result.error||r.status)+')');
+      recycled++;
     }
 
-    // 4) 清空本页 localStorage 编辑缓存（已持久化到系统）
-    ['vo_roster_edits_v1','vo_roster_adds_v1','vo_roster_deletes_v1'].forEach(k=>{
+    // 4) 仅在全部请求成功后清空草稿与回收站队列。
+    ['vo_roster_edits_v1','vo_roster_adds_v1','vo_roster_deletes_v1',ROSTER_DELETE_QUEUE_KEY].forEach(k=>{
       try{ localStorage.removeItem(k); }catch(_){}
     });
 
-    flashRoster('已保存到系统 ✓ 更新 '+patched+' / 新增 '+posted+' / 删除 '+deleted+' / 未变 '+skipped, true);
+    flashRoster('已保存到系统 ✓ 更新 '+patched+' / 新增 '+posted+' / 回收站 '+recycled+' / 未变或跳过 '+skipped, true);
   }catch(err){
     flashRoster('保存失败：'+err.message, false);
   }finally{
@@ -759,7 +773,7 @@ function renderMeter(){
   const nP=document.getElementById('navCntPending'); if(nP) nP.textContent = pending;
   // 上报给外壳侧栏（含未保存 localStorage 草稿；与子页顶部一致）
   try{ if(window.parent && window.parent !== window){
-    window.parent.postMessage({type:'roster-status-counts', total, done, pending}, '*');
+    window.parent.postMessage({type:'roster-status-counts', total, done, pending}, location.origin==='null'?'*':location.origin);
   }}catch(e){}
   const order = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
   // 用户定制战术色板 v2（2026-07-23）：6 色按大类顺序固定映射
@@ -1255,30 +1269,39 @@ document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeRowMenu();
 function deleteRosterRow(rid){
   const row = ROSTER_LIST.find(r=>Number(r.id)===Number(rid));
   if(!row){ closeRowMenu(); return; }
-  const label = row.role_cn || row.role_en || ('id='+rid);
-  if(!confirm(`删除声优「${label}」？\n此操作不可撤销。`)){ closeRowMenu(); return; }
+  const label = String(row.role_cn || row.role_en || ('id='+rid)).trim();
+  const typed = prompt(`将「${label}」移入回收站。\n请输入完整角色名确认：`, '');
+  if(typed !== label){
+    closeRowMenu();
+    if(typed !== null) alert('角色名不匹配，已取消操作。');
+    return;
+  }
   closeRowMenu();
-  // 分层处理：
-  //   本页新增的（_added=true）→ 从 vo_roster_adds_v1 删掉
-  //   roster.json 原始 → 在 vo_roster_deletes_v1 里标记为已删（避免下次加载又出现）
   try{
     if(row._added){
+      // 尚未保存到后端的新草稿只移除本地新增项。
       const adds = JSON.parse(localStorage.getItem('vo_roster_adds_v1')||'[]')||[];
       const next = adds.filter(a => Number(a.id) !== Number(rid));
       localStorage.setItem('vo_roster_adds_v1', JSON.stringify(next));
     } else {
-      const del = JSON.parse(localStorage.getItem('vo_roster_deletes_v1')||'[]')||[];
-      if(!del.includes(Number(rid))){ del.push(Number(rid)); localStorage.setItem('vo_roster_deletes_v1', JSON.stringify(del)); }
+      // 已有记录只按稳定的 role_cn 进入显式队列，禁止使用可能错位的本地数字 id。
+      const queue = loadRosterDeleteQueue();
+      if(!queue.some(x=>String(x.role_cn).trim()===label)){
+        queue.push({role_cn:label, local_id:Number(rid), queued_at:new Date().toISOString()});
+        saveRosterDeleteQueue(queue);
+      }
     }
-    // 同时清 edits 里对该 id 的编辑差异（防止将来同 id 冲撞）
     const edits = JSON.parse(localStorage.getItem('vo_roster_edits_v1')||'{}')||{};
     if(edits[rid]){ delete edits[rid]; localStorage.setItem('vo_roster_edits_v1', JSON.stringify(edits)); }
-  }catch(_){}
-  // 内存里同步移除并重绘
+  }catch(error){
+    alert('无法写入回收站队列：'+error.message);
+    return;
+  }
   const idx = ROSTER_LIST.findIndex(r=>Number(r.id)===Number(rid));
   if(idx>=0) ROSTER_LIST.splice(idx,1);
   renderMeter();
   renderRoster();
+  flashRoster('已加入回收站队列；点击「保存到系统」后生效，可由管理员恢复。', true);
 }
 
 // 角色信息 hover · 动态定位透明卡片（fixed 布局，超视口自动上移左移，不出现滚动条）
@@ -1367,9 +1390,9 @@ const VA_FIELDS = ['vaCategory','vaGender','vaRoleCn','vaRoleEn','vaBasicInfo','
 
 // ==================== 在线文档导入（选角资料 → 表单自动填充） ====================
 let VA_SOURCE_DOC_URL = '';
-// CVM 后端解析地址：与页面同源即走 nginx→vo-backend；本地打开时兜底到 CVM 公网
-const VA_API_BASE = (location.protocol === 'http:' || location.protocol === 'https:')
-  ? '' : 'http://21.130.252.59';
+// 安全约束：后端只允许同源访问；禁止 file:// 页面回退到公网 HTTP。
+const VA_API_BASE = '';
+const VA_API_AVAILABLE = location.protocol === 'http:' || location.protocol === 'https:';
 
 async function importVaFromFile(evt){
   const file = evt.target.files && evt.target.files[0];
@@ -1378,6 +1401,7 @@ async function importVaFromFile(evt){
   statusEl.className = 'va-import-status';
   statusEl.textContent = '解析中… 上传 ' + file.name + '（' + Math.round(file.size/1024) + ' KB）';
   try{
+    if(!VA_API_AVAILABLE) throw new Error('本地 file:// 预览已禁用远程 API，请通过 Vomi 部署站点访问');
     if(!/\.docx$/i.test(file.name)) throw new Error('只支持 .docx（企业微信文档「导出为 Word」）');
     const fd = new FormData();
     fd.append('file', file);

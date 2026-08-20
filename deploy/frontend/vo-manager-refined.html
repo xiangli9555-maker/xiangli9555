@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="assets/security-bootstrap.js"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
@@ -345,13 +346,13 @@ function loadRosterCounts(){
   fetch('/api/voice-roles', {cache:'no-store'}).then(r=>r.json()).then(list=>{
     const rows = Array.isArray(list) ? list : [];
     // 叠加同源 localStorage 里子页的未保存草稿（新增/编辑/删除），与子页 renderMeter 判定一致
-    let adds = [], edits = {}, deletes = [];
-    try{ adds    = JSON.parse(localStorage.getItem('vo_roster_adds_v1')    || '[]') || []; }catch(_){}
-    try{ edits   = JSON.parse(localStorage.getItem('vo_roster_edits_v1')   || '{}') || {}; }catch(_){}
-    try{ deletes = JSON.parse(localStorage.getItem('vo_roster_deletes_v1') || '[]') || []; }catch(_){}
-    const delSet = new Set(deletes.map(String));
-    // 应用编辑到 API 行
-    const merged = rows.filter(r=>!delSet.has(String(r.id))).map(r=>{
+    let adds = [], edits = {}, deleteQueue = [];
+    try{ adds       = JSON.parse(localStorage.getItem('vo_roster_adds_v1')       || '[]') || []; }catch(_){}
+    try{ edits      = JSON.parse(localStorage.getItem('vo_roster_edits_v1')      || '{}') || {}; }catch(_){}
+    try{ deleteQueue= JSON.parse(localStorage.getItem('vo_roster_delete_queue_v2')|| '[]') || []; }catch(_){}
+    const deleteNames = new Set((Array.isArray(deleteQueue)?deleteQueue:[]).map(x=>String(x&&x.role_cn||'').trim()).filter(Boolean));
+    // 应用编辑到 API 行；仅按稳定角色名应用显式回收站队列。
+    const merged = rows.filter(r=>!deleteNames.has(String(r.role_cn||'').trim())).map(r=>{
       const e = edits[String(r.id)] || edits[r.id];
       return e ? {...r, ...e} : r;
     });
@@ -390,7 +391,9 @@ function loadReleases(){
         const b = document.createElement('button');
         b.className = 'nav-sub-item dyn-rel';
         b.setAttribute('data-release', rel);
-        b.innerHTML = '<span class="dot"></span>'+rel+'<span class="count" id="cnt-rel-'+rel+'">'+counts[rel]+'</span>';
+        const dot = document.createElement('span'); dot.className = 'dot';
+        const count = document.createElement('span'); count.className = 'count'; count.id = 'cnt-rel-' + rel; count.textContent = counts[rel];
+        b.append(dot, document.createTextNode(rel), count);
         b.onclick = ()=> window[handler](b, rel);
         box.appendChild(b);
       });
@@ -406,6 +409,9 @@ function loadReleases(){
 }
 /* iframe 内 preview 页汇报计数 → 更新侧栏子项数字 */
 window.addEventListener('message', (e)=>{
+  const frame = document.getElementById('viewFrame');
+  if(!frame || e.source !== frame.contentWindow) return;
+  if(location.origin !== 'null' && e.origin !== location.origin) return;
   const d = e.data || {};
   if(d.type === 'release-counts'){
     const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v ?? '—'; };
@@ -474,15 +480,19 @@ const USER_PROFILES = {
 function resolveUser(){
   const q = new URLSearchParams(location.search).get('user');
   if(q && USER_PROFILES[q]) return USER_PROFILES[q];
-  if(q) return { id:q, name:q, role:'Writer', cw:q }; // 任意文案 id → 视为 Writer（用其 Q 版头像）
-  return USER_PROFILES.pm;
+  return USER_PROFILES.pm; // 未知身份参数不再允许伪装 Writer
 }
 function renderUserChip(){
   const u = CURRENT_USER = resolveUser();
   const chip = document.getElementById('brandUser');
   const av = document.getElementById('buAvatar');
-  if(u.cw){
-    av.innerHTML = '<img src="assets/avatars/'+u.cw+'.png" alt="'+u.name+'" onerror="this.style.display=\'none\'">';
+  av.replaceChildren();
+  if(u.cw && /^[a-z0-9_-]{1,40}$/i.test(u.cw)){
+    const img = document.createElement('img');
+    img.src = 'assets/avatars/' + u.cw + '.png';
+    img.alt = u.name || '';
+    img.addEventListener('error', ()=>{ img.style.display='none'; });
+    av.appendChild(img);
   } else {
     av.textContent = (u.name||'?').slice(0,1).toUpperCase();
   }

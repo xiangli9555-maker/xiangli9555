@@ -66,6 +66,8 @@ outputs/
 scripts/
 package.json
 package-lock.json
+!deploy/backend/package.json
+!deploy/backend/package-lock.json
 
 # 资产目录内的调试 dump
 assets/_roles_dump.json

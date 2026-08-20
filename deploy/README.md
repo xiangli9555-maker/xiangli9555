@@ -97,3 +97,28 @@ POST   /api/tapd/sync                 TAPD 同步（占位，需 DFAI_TOKEN）
 - 音频文件存 CVM 数据盘的 Docker volume（`audio_data`），50GB 数据盘可以撑
 - 未来接 TAPD：填 `.env` 的 `DFAI_TOKEN`，改 `backend/src/index.js` 的 `/api/tapd/sync` 实现
 - 备份见 `一键部署命令.md` 底部
+
+## 🔐 本轮加固新增（与原 README 一同交付）
+
+### 新增数据表
+- `voice_roles` · 声优角色映射（10 列）
+- `audit_log` · 审计日志（软删/upsert/批量发布均留痕）
+- `kv_store` · 通用 KV 云备份（revision 乐观并发）
+
+### 新增 / 调整接口
+```
+GET    /api/calendar                  统一日期引擎（节假日/调休/工作日）
+GET    /api/release-plans             实时发布计划（本地 DB 真源 + 可选 DFAI，5min 缓存）
+GET    /api/calendar-entries          版本日历节点（对外正式包确认等；可选 DFAI，否则本地档期）
+GET    /api/talents                   声优角色映射「新命名」入口（= /api/voice-roles 别名，表名不变）
+GET    /api/voice-roles               声优角色映射「历史」入口（保留兼容）
+GET    /api/storage/quota             聚合存储配额（used/quota/remaining）
+POST   /api/schedules/publish         档期批量发布（整批事务，消除部分成功）
+```
+
+### 安全与运维
+- 全站 Bearer 鉴权 + RBAC（viewer/editor/admin）+ CORS 白名单 + 安全响应头 + 限流。
+- HTTPS：`nginx` 80→443 跳转 + TLS + HSTS；证书经 `certs/` 挂载（见 `HTTPS.md`）。
+- 备份/还原：`backup.sh`（DB+代码+Nginx 归档）、`restore.sh`。
+- **分阶段部署 + 回滚预案**：见 `DEPLOY_PLAN.md`；部署后门禁校验见 `smoke-test.sh`。
+

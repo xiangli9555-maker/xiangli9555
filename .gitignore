@@ -76,3 +76,10 @@ assets/_roles_dump.json
 .env
 deploy/.env
 deploy/backend/.env
+
+# TLS 私钥与证书（含敏感信息，禁止提交）
+certs/
+deploy/certs/
+*.pem
+*.key
+backups/

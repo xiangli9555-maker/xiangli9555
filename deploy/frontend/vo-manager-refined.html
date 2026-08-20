@@ -341,9 +341,9 @@ function switchRosterStatus(btn, status){
   saveView('actors', status);
   applyView('actors', status, document.querySelector('.nav-item[data-view="actors"]'));
 }
-/* 声优库 count · 从 /api/voice-roles 拉取，中/英配任一为空=待选角 */
+/* 声优库 count · 从 /api/talents 拉取（voice_roles 表别名入口），中/英配任一为空=待选角 */
 function loadRosterCounts(){
-  fetch('/api/voice-roles', {cache:'no-store'}).then(r=>r.json()).then(list=>{
+  fetch('/api/talents', {cache:'no-store'}).then(r=>r.json()).then(list=>{
     const rows = Array.isArray(list) ? list : [];
     // 叠加同源 localStorage 里子页的未保存草稿（新增/编辑/删除），与子页 renderMeter 判定一致
     let adds = [], edits = {}, deleteQueue = [];

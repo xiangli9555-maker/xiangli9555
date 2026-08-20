@@ -36,6 +36,7 @@ services:
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
       RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-180}
       MAX_AUDIO_BYTES: ${MAX_AUDIO_BYTES:-104857600}
+      MAX_STORAGE_BYTES: ${MAX_STORAGE_BYTES:-10737418240}
       DFAI_TOKEN: ${DFAI_TOKEN:-}
       WECOM_CORPID: ${WECOM_CORPID:-}
       WECOM_CORPSECRET: ${WECOM_CORPSECRET:-}
@@ -56,12 +57,18 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      # TLS 证书（宿主机路径可改；certbot 默认 /etc/letsencrypt/live/<domain>）
+      - ${CERT_DIR:-./certs}:/etc/nginx/certs:ro
+      # certbot 验证目录
+      - certbot_challenge:/var/www/certbot:ro
     depends_on:
       - backend
 
 volumes:
   mysql_data:
   audio_data:
+  certbot_challenge:

@@ -760,30 +760,46 @@ let HOLIDAYS = [
   { short:'国庆', label:'国庆节', start:'2028/10/1', end:'2028/10/7' },
 ];
 
-// 运行时补充/校验节假日数据：内置已覆盖 2026-2028 全部法定节假日；
-// timor.tech API 仅作增量补充（如国务院临时调整），失败不影响核心功能。
+// 调休补班日（周末上班），统一由服务端 /api/calendar 下发；离线时为空
+let BRIDGE_DAYS = new Set();
+
+// 统一日期引擎数据源：优先服务端 /api/calendar（唯一真源，含调休补班日），
+// 失败时回退到内置 HOLIDAYS；timor.tech 作为二次兜底增量补充。
 async function loadHolidaysAuto(){
-  const years = [2026, 2027, 2028, 2029];       // 全量尝试，内置数据已够用
   let changed = false;
   try {
-    for(const y of years){
-      // 不再按 haveYear 早退：2027/2028 仅硬编码了春节兜底，仍需拉取其余节假日；
-      // 重复项（如同名春节）由 flush 去重拦截
+    if (typeof fetch === 'function') {
+      for (const y of [2026, 2027, 2028, 2029]) {
+        const r = await fetch(`/api/calendar?year=${y}`, { cache:'no-cache' });
+        if (!r.ok) continue;
+        const j = await r.json();
+        if (!j || !j.ok) continue;
+        (j.holidays || []).forEach(h => {
+          const dup = HOLIDAYS.some(x => x.label === h.label && x.start === h.start && x.end === h.end);
+          if (!dup) { HOLIDAYS.push(h); changed = true; }
+        });
+        (j.bridges || []).forEach(b => BRIDGE_DAYS.add(b));
+      }
+      if (changed) return changed;
+    }
+  } catch(e){
+    console.warn('服务端日历拉取失败，沿用内置数据：', e);
+  }
+  // 二次兜底：timor.tech 仅作增量补充，失败不影响核心功能
+  try {
+    for(const y of [2026, 2027, 2028, 2029]){
       const r = await fetch(`https://timor.tech/api/holiday/year/${y}`, {cache:'no-cache'});
       if(!r.ok) continue;
       const j = await r.json();
       if(!j || j.code !== 0 || !j.holiday) continue;
-      // 取所有 holiday:true 的放假日，按日期排序
       const days = Object.values(j.holiday)
         .filter(e => e.holiday === true)
         .map(e => ({ name:e.name, date:e.date.replace(/-/g,'/') }))
         .sort((a,b) => d(a.date).getTime() - d(b.date).getTime());
-      // 同 name 连续日期归并为区间
       let cur = null;
       const flush = () => {
         if(!cur) return;
         const rs = d(cur.start).getTime(), re = d(cur.end).getTime();
-        // 去重：若已有同名且区间相交的兜底项（如硬编码春节），不重复写入
         const dup = HOLIDAYS.some(h => h.label === cur.name && d(h.start).getTime() <= re && d(h.end).getTime() >= rs);
         if(!dup){ HOLIDAYS.push({ short:cur.name.slice(0,2), label:cur.name, start:cur.start, end:cur.end }); changed = true; }
       };
@@ -832,9 +848,7 @@ function addWorkDaysN(startDate, n){
   const oneDay = 86400000;
   while(rem > 0){
     cur = new Date(cur.getTime() + oneDay);
-    const dow = cur.getDay();
-    if(dow === 0 || dow === 6) continue;
-    if(holidayOnDay(cur)) continue;
+    if(!isWorkday(cur)) continue;
     rem--;
   }
   return cur;
@@ -956,6 +970,15 @@ function holidayOnDay(day){
     if(d(h.start).getTime() <= dt && dt <= d(h.end).getTime()) return h;
   }
   return null;
+}
+// 工作日 = 非周末(或调休补班) 且 非法定节假日
+function isWorkday(date){
+  const dow = date.getDay();
+  const weekend = (dow === 0 || dow === 6);
+  const k = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  if(weekend && !BRIDGE_DAYS.has(k)) return false;
+  if(holidayOnDay(date)) return false;
+  return true;
 }
 // 只计工作日（周一~周五）且去除法定节假日的天数
 function workingDaysBetween(startDate, endDate){

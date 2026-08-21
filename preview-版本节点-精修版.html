@@ -392,7 +392,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .ver-family-race{color:#6BD995}
 
 /* ================================================================
-   RIGHT PANEL — 本周聚焦 + 未来30天时间轴 + 版本进度
+   RIGHT PANEL — 本周聚焦 + 未来60天时间轴 + 版本进度
    ================================================================ */
 .right-panel{width:260px;flex-shrink:0;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:18px 15px 18px;overflow:hidden;display:flex;flex-direction:column;gap:24px}
 .rp-section{display:flex;flex-direction:column;gap:12px}
@@ -679,7 +679,9 @@ html.embed .layout{padding-left:0}
 // VERSION TIMELINE DATA — 项目发布计划（PM 维护）
 // 注意：里程碑节点已移除，改为「文案策划 / 音频策划」并列双节点（单版本一行）
 // ================================================================
+// 全部节点与区间按自然日比较，归零时分秒；避免“今天结束”的区间在下午被误判为已过期
 const TODAY = new Date();
+TODAY.setHours(0,0,0,0);
 
 function d(s){ const p=String(s).split(/[/\-]/).map(Number); return new Date(p[0],p[1]-1,p[2]||1) }
 function fmt(dd){ return `${dd.getFullYear()}/${dd.getMonth()+1}/${dd.getDate()}` }
@@ -727,75 +729,72 @@ const VER_META = {
 const VER_ORDER = ['Ma_4.0','Ma_5.0','Yang_1.0','Yang_2.0','Yang_3.0','Yang_4.0','Yang_5.0','Hou_1.0'];
 
 // 中国法定节假日：
-//  · 内置 2026-2028 完整数据作兜底（来源：DFAI 年度概览 + 国务院放假安排），离线即用；
-//  · 运行时尝试从公开节假日 API（timor.tech）自动补全/校验，失败则仅用内置数据。
-// 仅收录"放假"区间；调休补班日属工作日，不影响"节假日周跳过"逻辑。
+// 有效周停工日真源：
+//  · 国内：国务院正式放假区间（运行时按年份整批替换，禁止旧数据与核准数据并集）；
+//  · 海外：仅计算圣诞节 12/25 所在周，不计算美国/英国其他法定节假日。
+// 只要任一停工日与周一~周日相交，该周整周不计入 Vo 节点的“有效周”。
 let HOLIDAYS = [
-  // ====== 2026 年（国务院办公厅 2025-11 公布）======
-  { short:'元旦', label:'元旦',   start:'2026/1/1',  end:'2026/1/3' },
-  { short:'春节', label:'春节',   start:'2026/1/29', end:'2026/2/4' },   // 除夕1/29(四)→初七2/4(三)，8天
-  { short:'清明', label:'清明节', start:'2026/4/4',  end:'2026/4/6' },
-  { short:'劳动', label:'劳动节', start:'2026/5/1',  end:'2026/5/5' },
-  { short:'端午', label:'端午节', start:'2026/5/29', end:'2026/5/31' },
-  { short:'中秋', label:'中秋节', start:'2026/9/25', end:'2026/9/27' },
-  { short:'国庆', label:'国庆节', start:'2026/10/1', end:'2026/10/7' },
-  // ====== 2027 年 ======
-  { short:'元旦', label:'元旦',   start:'2027/1/1',  end:'2027/1/3' },
-  { short:'春节', label:'春节',   start:'2027/2/5',  end:'2027/2/13' },  // 除夕2/5(五)→初八2/13(六)，9天
-  { short:'清明', label:'清明节', start:'2027/4/5',  end:'2027/4/7' },
-  { short:'劳动', label:'劳动节', start:'2027/5/1',  end:'2027/5/5' },
-  { short:'端午', label:'端午节', start:'2027/5/28', end:'2027/5/30' },
-  { short:'中秋', label:'中秋节', start:'2027/9/20', end:'2027/9/22' },
-  { short:'国庆', label:'国庆节', start:'2027/10/1', end:'2027/10/7' },
-  // ====== 2028 年 ======
-  { short:'元旦', label:'元旦',   start:'2028/1/1',  end:'2028/1/3' },
-  { short:'春节', label:'春节',   start:'2028/1/25', end:'2028/2/1' },   // 除夕1/25(二)→正月初七2/1(一)，8天
-  { short:'清明', label:'清明节', start:'2028/4/4',  end:'2028/4/6' },
-  { short:'劳动', label:'劳动节', start:'2028/5/1',  end:'2028/5/5' },
-  { short:'端午', label:'端午节', start:'2028/6/19', end:'2028/6/21' },
-  { short:'中秋', label:'中秋节', start:'2028/9/14', end:'2028/9/16' },
-  { short:'国庆', label:'国庆节', start:'2028/10/1', end:'2028/10/7' },
+  // 2026 中国正式放假区间（离线兜底）
+  { region:'CN', year:2026, short:'元旦', label:'元旦',   start:'2026/1/1',  end:'2026/1/3' },
+  { region:'CN', year:2026, short:'春节', label:'春节',   start:'2026/2/15', end:'2026/2/23' },
+  { region:'CN', year:2026, short:'清明', label:'清明节', start:'2026/4/4',  end:'2026/4/6' },
+  { region:'CN', year:2026, short:'劳动', label:'劳动节', start:'2026/5/1',  end:'2026/5/5' },
+  { region:'CN', year:2026, short:'端午', label:'端午节', start:'2026/6/19', end:'2026/6/21' },
+  { region:'CN', year:2026, short:'中秋', label:'中秋节', start:'2026/9/25', end:'2026/9/27' },
+  { region:'CN', year:2026, short:'国庆', label:'国庆节', start:'2026/10/1', end:'2026/10/7' },
+  // 2027/2028 国内假期为规划兜底；在线数据可用时按年份整批替换
+  { region:'CN', year:2027, short:'元旦', label:'元旦',   start:'2027/1/1',  end:'2027/1/3' },
+  { region:'CN', year:2027, short:'春节', label:'春节',   start:'2027/2/5',  end:'2027/2/13' },
+  { region:'CN', year:2027, short:'清明', label:'清明节', start:'2027/4/5',  end:'2027/4/7' },
+  { region:'CN', year:2027, short:'劳动', label:'劳动节', start:'2027/5/1',  end:'2027/5/5' },
+  { region:'CN', year:2027, short:'端午', label:'端午节', start:'2027/5/28', end:'2027/5/30' },
+  { region:'CN', year:2027, short:'中秋', label:'中秋节', start:'2027/9/20', end:'2027/9/22' },
+  { region:'CN', year:2027, short:'国庆', label:'国庆节', start:'2027/10/1', end:'2027/10/7' },
+  { region:'CN', year:2028, short:'元旦', label:'元旦',   start:'2028/1/1',  end:'2028/1/3' },
+  { region:'CN', year:2028, short:'春节', label:'春节',   start:'2028/1/25', end:'2028/2/1' },
+  { region:'CN', year:2028, short:'清明', label:'清明节', start:'2028/4/4',  end:'2028/4/6' },
+  { region:'CN', year:2028, short:'劳动', label:'劳动节', start:'2028/5/1',  end:'2028/5/5' },
+  { region:'CN', year:2028, short:'端午', label:'端午节', start:'2028/6/19', end:'2028/6/21' },
+  { region:'CN', year:2028, short:'中秋', label:'中秋节', start:'2028/9/14', end:'2028/9/16' },
+  { region:'CN', year:2028, short:'国庆', label:'国庆节', start:'2028/10/1', end:'2028/10/7' },
+  // 海外仅圣诞节当天；weekIsHoliday 会使 12/25 所在整周无效
+  ...[2025,2026,2027,2028,2029].map(y=>({region:'XMAS',year:y,short:'圣诞',label:'圣诞节',start:`${y}/12/25`,end:`${y}/12/25`}))
 ];
 
-// 运行时补充/校验节假日数据：内置已覆盖 2026-2028 全部法定节假日；
-// timor.tech API 仅作增量补充（如国务院临时调整），失败不影响核心功能。
+// 运行时核准中国放假区间：成功后按年份整体替换 CN 数据，绝不与旧区间叠加。
 async function loadHolidaysAuto(){
-  const years = [2026, 2027, 2028, 2029];       // 全量尝试，内置数据已够用
+  const years = [2026, 2027, 2028, 2029];
   let changed = false;
   try {
     for(const y of years){
-      // 不再按 haveYear 早退：2027/2028 仅硬编码了春节兜底，仍需拉取其余节假日；
-      // 重复项（如同名春节）由 flush 去重拦截
       const r = await fetch(`https://timor.tech/api/holiday/year/${y}`, {cache:'no-cache'});
       if(!r.ok) continue;
       const j = await r.json();
       if(!j || j.code !== 0 || !j.holiday) continue;
-      // 取所有 holiday:true 的放假日，按日期排序
       const days = Object.values(j.holiday)
         .filter(e => e.holiday === true)
-        .map(e => ({ name:e.name, date:e.date.replace(/-/g,'/') }))
+        .map(e => ({ name:e.name || '法定假日', date:e.date.replace(/-/g,'/') }))
         .sort((a,b) => d(a.date).getTime() - d(b.date).getTime());
-      // 同 name 连续日期归并为区间
+      if(!days.length) continue;
+      // 连续放假日归并为区间；不要求 name 相同，避免“除夕/初一…”被拆成多个碎片
+      const ranges = [];
       let cur = null;
-      const flush = () => {
-        if(!cur) return;
-        const rs = d(cur.start).getTime(), re = d(cur.end).getTime();
-        // 去重：若已有同名且区间相交的兜底项（如硬编码春节），不重复写入
-        const dup = HOLIDAYS.some(h => h.label === cur.name && d(h.start).getTime() <= re && d(h.end).getTime() >= rs);
-        if(!dup){ HOLIDAYS.push({ short:cur.name.slice(0,2), label:cur.name, start:cur.start, end:cur.end }); changed = true; }
-      };
       for(const e of days){
-        if(cur && cur.name === e.name && (d(e.date).getTime() - d(cur.end).getTime()) === 86400000){
+        if(cur && (d(e.date).getTime() - d(cur.end).getTime()) === 86400000){
           cur.end = e.date;
+          if(!cur.names.includes(e.name)) cur.names.push(e.name);
         } else {
-          flush();
-          cur = { name:e.name, start:e.date, end:e.date };
+          if(cur) ranges.push(cur);
+          cur = {start:e.date,end:e.date,names:[e.name]};
         }
       }
-      flush();
+      if(cur) ranges.push(cur);
+      const incoming = ranges.map(x=>({region:'CN',year:y,short:x.names[0].slice(0,2),label:x.names.join('/'),start:x.start,end:x.end}));
+      HOLIDAYS = HOLIDAYS.filter(h=>!(h.region==='CN' && h.year===y)).concat(incoming);
+      changed = true;
     }
   } catch(e){
-    console.warn('节假日 API 拉取失败，沿用内置数据：', e);
+    console.warn('中国节假日核准失败，沿用内置快照：', e);
   }
   return changed;
 }
@@ -804,16 +803,15 @@ let RANGE_END    = d('2028/1/9');   // 覆盖到 Hou1.0 发布周结束
 const VIEW_START = mondayOf(TODAY);
 
 // ================================================================
-// 关键节点引擎（PM 规则 · 2026-08-18 修订：4 节点新公式 · 已删除录制定档会）
-// 输入：VERSIONS[]  输出：EVENTS = [{date, label, tag, forVer, role}]
-// 规则（4 节点，从 dev.start 锚定）：
-//   1. Vo需求锁 = dev.start 所在周 周四
-//   2. 粗估会      = Vo需求锁 +21 天（后 3 周 周四）  ← v2 旧公式，参考
-//   3. 台词交付会  = 粗估会  +14 天（后 2 周 周四）
-//   4. VO资源交付  = dev.end 前一周 周五（开发周倒数第 2 周周五）
+// 关键节点引擎（PM 权威规则 · 2026-08-20）
+// 输入：VERSIONS[]  输出：EVENTS = [{date|range, label, tag, forVer, roles}]
+// 有效周：周一~周日；中国正式放假区间任一日或圣诞节12/25命中，整周不计。
+//   1. Vo需求锁 = 从开发最后周“含当周”向前数第11个有效周的周一
+//   2. 声优锁   = Vo需求锁周之后第3个有效周 周四11:30
+//   3. 台词锁   = 声优锁周之后第2个有效周 周四11:30
+//   4. VO资源交付 = 开发倒数第二自然周 周五；若该周无效，提前到前一个有效周周五
 // 分类：A.重点会议 meeting={2,3}；B.重要节点 milestone={1,4}
 // 角色：文案(cn)=1,2,3；音频(audio)=2,3,4
-// 备注：录制定档不再是固定会议节点，改由 automation "录制定档·每日10:30检查未填档期" 循环执行。
 // ================================================================
 let EVENTS = [];
 function thursdayOf(date){ const m=mondayOf(date); const t=new Date(m); t.setDate(t.getDate()+3); return t; }
@@ -836,67 +834,63 @@ function addWorkDaysN(startDate, n){
   }
   return cur;
 }
-// 判断某周（以周一为起点）是否为"节假日周"：规则（PM 2026-08-18）——
-// 该周（周一~周日 7 天）内被法定节假日覆盖的天数 > 2 天才算节假日周（跳过不计工作周）。
-// 例：中秋 09-25~09-27 落在周 09-21 的周五/六/日 → 3 天 > 2 → 跳过；
-//     只有周一 1 天调休 → 1 天 ≤ 2 → 不跳过。
+// 判断某周（周一~周日）是否为无效周：国内放假区间任一日或圣诞节12/25命中，即整周不计。
 function weekIsHoliday(mon){
-  const wkMon = mondayOf(mon);
-  let hitDays = 0;
-  for(let i = 0; i < 7; i++){ // 整周 7 天
-    const day = new Date(wkMon.getTime() + i*86400000);
-    if(holidayOnDay(day)) hitDays++;
-  }
-  return hitDays > 2;
+  const wkMon = mondayOf(mon), wkSun = addDaysN(wkMon,6);
+  return HOLIDAYS.some(h=>d(h.start)<=wkSun && d(h.end)>=wkMon);
 }
-// 从 fromDate 出发，向前(w<0)/向后(w>0) 位移 |w| 个"工作周"，规则：整周与法定节假日相交则免费跳过、不计工作周数。
-// 返回目标周的周一（会议/交付日再由 thursdayOf / fridayOf 计算）
-function shiftWorkWeeks(fromDate, w){
-  let cur = mondayOf(fromDate);
-  if(w === 0) return cur;
-  const step = w < 0 ? -1 : 1;
-  let remaining = Math.abs(w);
-  while(remaining > 0){
-    cur = new Date(cur.getTime() + step*7*86400000);
+// 从指定周“之后”位移 N 个有效周；起始周不计入。用于声优锁后3周、台词锁后2周。
+function shiftValidWeeksAfter(fromDate,n){
+  let cur=mondayOf(fromDate), remaining=Math.max(0,n);
+  while(remaining>0){
+    cur=addDaysN(cur,7);
     if(weekIsHoliday(cur)) continue;
     remaining--;
   }
   return cur;
 }
+// 从开发最后周“含当周”向前数第 N 个有效周；若最后周无效则不计数。
+function nthValidWeekBackwardInclusive(fromDate,n){
+  let cur=mondayOf(fromDate), remaining=Math.max(1,n);
+  while(true){
+    if(!weekIsHoliday(cur)){
+      remaining--;
+      if(remaining===0) return cur;
+    }
+    cur=addDaysN(cur,-7);
+  }
+}
+// 开发倒数第二自然周周五；若该周无效，持续提前至前一个有效周周五。
+function deliveryFriday(devEnd){
+  let week=addDaysN(mondayOf(devEnd),-7);
+  while(weekIsHoliday(week)) week=addDaysN(week,-7);
+  return fridayOf(week);
+}
 
-// 4 节点 · 2 分类 · 2 视角（PM 2026-08-18 修订 v4：术语更新 + 工作日累加公式）
-// 链条：
-//   1. Vo需求锁 = mondayOf(shiftWorkWeeks(dev.end, -11))（跳节假日周）
-//      · 子事项 s-thu-alloc  = 周四 11:30 需求分配会 + 自动生成台词表（周三 12:00 拉 TAPD 由 automation 静默触发，不进时间轴）
-//   2. 声优锁（原"粗估会"）= 从 lockDay 累加 24 个工作日 → 落在的那个自然周的周四
-//      · 子事项 s-est10      = 当天 10:00 反填声优预约
-//      · 子事项 s-sched-win  = 声优锁次日 → +21 天 · 每日 10:30 检查未填档期
-//   3. 台词锁（原"台词交付会"）= 从 lockDay 累加 (24+10=34) 个工作日 → 落在的那个自然周的周四
-//   4. VO资源交付= dev.end - 7 天 那周的周五
-// 分类：A.重点会议 meeting={2,3}；B.重要节点 milestone={1,4}
-// 角色：文案(cn)=1,2,3；音频(audio)=2,3,4
+// 4 关键节点 + 5 个未来60天过程事项（PM 权威规则 · 2026-08-20）
 function computeEvents(){
   const out = [];
   for(const v of VERSIONS){
     const devPh = v.phases.find(p=>p.type==='dev');
     if(!devPh) continue;
-    const devStart = d(devPh.start);
-    const devEnd   = d(devPh.end);
-    const lockDay     = mondayOf(shiftWorkWeeks(devEnd, -11)); // 1. Vo需求锁（dev.end 倒数第 11 工作周·周一，跳节假日周）
-    const estimateDay = thursdayOf(addWorkDaysN(lockDay, 24)); // 2. 声优锁（lockDay +24 工作日 → 该自然周的周四）
-    const scriptDay   = thursdayOf(addWorkDaysN(lockDay, 34)); // 3. 台词锁（lockDay +34 工作日 → 该自然周的周四；即声优锁 +10 工作日的那周周四）
-    const deliverDay  = fridayOf(addDaysN(devEnd, -7));        // 4. VO资源交付（dev.end 前一周 周五）
+    const devEnd = d(devPh.end);
+    const lockDay     = nthValidWeekBackwardInclusive(devEnd,11);
+    const estimateDay = thursdayOf(shiftValidWeeksAfter(lockDay,3));
+    const scriptDay   = thursdayOf(shiftValidWeeksAfter(estimateDay,2));
+    const deliverDay  = deliveryFriday(devEnd);
     const shortVer    = v.name.replace('.0','');
-    out.push({ date:lockDay,     short:`→${shortVer} Vo需求锁`,     full:`${v.name} · Vo需求锁 · 周一提醒策划提单`,         tag:'m-lock',     categories:['milestone'], forVer:v.id, roles:['cn'] });
-    out.push({ date:estimateDay, short:`→${shortVer} 声优锁`,   full:`${v.name} · 声优锁（原粗估会）`,               tag:'m-estimate', categories:['meeting'],   forVer:v.id, roles:['cn','audio'] });
-    out.push({ date:scriptDay,   short:`→${shortVer} 台词锁`,   full:`${v.name} · 台词锁（原台词交付会）`,           tag:'m-script',   categories:['meeting'],   forVer:v.id, roles:['cn','audio'] });
-    out.push({ date:deliverDay,  short:`→${shortVer} VO资源交付`,   full:`${v.name} · VO资源交付`,                          tag:'m-deliver',  categories:['milestone'], forVer:v.id, roles:['audio'] });
-    // 子事项（仅在左侧 60 天时间轴列出，不进主体年历矩阵）
-    // s-wed（周三拉 TAPD 预告）已从时间轴移除——由 automation 静默触发，不占用户视觉焦点
-    out.push({ date:addDaysN(lockDay, 3), subTask:true, short:`${shortVer} 需求分配会`, full:`${v.name} · 周四 11:30 book 需求分配会 + 自动生成台词表`, tag:'s-thu-alloc', categories:['subtask'], forVer:v.id, roles:['cn','audio'] });
-    out.push({ date:estimateDay,          subTask:true, short:`${shortVer} 反填声优预约`, full:`${v.name} · 声优锁当天 10:00 系统自动反填声优预约列`, tag:'s-est10',     categories:['subtask'], forVer:v.id, roles:['cn','audio'] });
-    // 录制定档期：声优锁次日 → 声优锁 +21 天（3 周），每天 10:30 循环检查未填档期，时间轴折叠为一条区间
-    out.push({ range:[addDaysN(estimateDay,1), addDaysN(estimateDay,21)], subTask:true, short:`录制定档期`, full:`${v.name} · 录制定档期 · 每日 10:30 检查未填档期`, tag:'s-sched-win', categories:['subtask'], forVer:v.id, roles:['audio'] });
+
+    out.push({ date:lockDay,     short:`→${shortVer} Vo需求锁`,   full:`${v.name} · Vo需求锁`,          tag:'m-lock',     categories:['milestone'], forVer:v.id, roles:['cn'] });
+    out.push({ date:estimateDay, short:`→${shortVer} 声优锁`,     full:`${v.name} · 声优锁 · 11:30`,    tag:'m-estimate', categories:['meeting'],   forVer:v.id, roles:['cn','audio'] });
+    out.push({ date:scriptDay,   short:`→${shortVer} 台词锁`,     full:`${v.name} · 台词锁 · 11:30`,    tag:'m-script',   categories:['meeting'],   forVer:v.id, roles:['cn','audio'] });
+    out.push({ date:deliverDay,  short:`→${shortVer} VO资源交付`, full:`${v.name} · VO资源交付`,         tag:'m-deliver',  categories:['milestone'], forVer:v.id, roles:['audio'] });
+
+    // 过程事项仅进入未来60天时间轴/本周待办，不进入主体年历的4节点矩阵
+    out.push({ date:thursdayOf(lockDay), subTask:true, short:`${shortVer} 台词需求分配会`, full:`${v.name} · 台词需求分配会 · 周四11:30`, tag:'s-thu-alloc', categories:['subtask'], forVer:v.id, roles:['cn'] });
+    out.push({ range:[fridayOf(lockDay),scriptDay], subTask:true, short:'文案ING', full:`${v.name} · 文案ING`, tag:'r-cn-ing', categories:['subtask'], forVer:v.id, roles:['cn'] });
+    out.push({ range:[estimateDay,addWorkDaysN(scriptDay,5)], subTask:true, short:'录制定档期', full:`${v.name} · 录制定档期（声优锁至台词锁后5工作日）`, tag:'s-sched-win', categories:['subtask'], forVer:v.id, roles:['audio'] });
+    out.push({ range:[estimateDay,addWorkDaysN(estimateDay,10)], subTask:true, short:'选角ING', full:`${v.name} · 选角ING（声优锁后10工作日内）`, tag:'r-cast', categories:['subtask'], forVer:v.id, roles:['audio'] });
+    out.push({ range:[scriptDay,deliverDay], subTask:true, short:'Vo ING', full:`${v.name} · Vo ING`, tag:'r-vo-ing', categories:['subtask'], forVer:v.id, roles:['audio'] });
   }
   for(const e of out) if(!e.date && e.range) e.date = e.range[0];
   return out;
@@ -1657,7 +1651,7 @@ function updateStats(){
     nxSub.textContent = roleFilter ? '本周该视角无节点' : '本周无关键节点';
   }
 
-  // ④ 本周待办：EVENTS 里子事项（subTask）与本周相交的数量（提醒/预告/分配会/反填/录制定档期）
+  // ④ 本周待办：EVENTS 里过程事项（分配会/文案ING/录制定档期/选角ING/Vo ING）与本周相交的数量
   const wkSubs = EVENTS.filter(e => e.subTask && eventVisibleTimeline(e) && (
     e.range ? (e.range[0] <= wkSun && e.range[1] >= nowMon)
             : (e.date >= nowMon && e.date <= wkSun)
@@ -1666,20 +1660,25 @@ function updateStats(){
   const rgSub = document.getElementById('statRangeSub');
   rg.innerHTML = `${wkSubs.length}<span class="unit">条</span>`;
   if(wkSubs.length){
-    const tagLabel = { 's-thu-alloc':'需求分配会', 's-est10':'反填声优', 's-sched-win':'录制定档期' };
-    const uniqTags = [...new Set(wkSubs.map(e=>tagLabel[e.tag]||e.tag))];
-    rgSub.textContent = uniqTags.join(' · ');
+    const tagLabel = { 's-thu-alloc':'台词需求分配会', 'r-cn-ing':'文案ING', 's-sched-win':'录制定档期', 'r-cast':'选角ING', 'r-vo-ing':'Vo ING' };
+    // 每条事项带版本名；同版本同事项去重，避免只显示类型后无法判断归属
+    const labels = [...new Set(wkSubs.map(e=>{
+      const v = VERSIONS.find(x=>x.id===e.forVer);
+      const ver = v ? v.name : e.forVer;
+      return `${ver} ${tagLabel[e.tag]||e.tag}`;
+    }))];
+    rgSub.textContent = labels.join(' · ');
   } else {
     rgSub.textContent = '本周无子事项';
   }
 }
 
 // ================================================================
-// RIGHT PANEL — 本周聚焦 / 未来30天时间轴 / 版本进度
+// RIGHT PANEL — 本周聚焦 / 未来60天时间轴 / 版本进度
 // ================================================================
 function renderRightPanel(){
   renderThisWeek();
-  renderTimeline30();
+  renderTimeline60();
   renderProgress();
 }
 
@@ -1728,20 +1727,17 @@ function renderThisWeek(){
   }).join('');
 }
 
-// 未来 60 天时间轴：按日期排序列出 4 大节点 + Vo 子事项（周三预告/需求分配会/反填声优/录制定档期）
-// 4 节点用 date；子事项 subTask 由 eventVisibleTimeline 单独放行，s-sched-win 用 range 区间条
-function renderTimeline30(){
+// 未来60天（含今天）：今天00:00～今天+59天；点节点落窗即显示，区间与窗口相交即显示。
+// 区间一旦命中窗口，日期必须显示该事项的完整起止段，不裁剪为窗口边界。
+// 内容：4大关键节点 + 台词需求分配会 / 文案ING / 录制定档期 / 选角ING / Vo ING。
+function renderTimeline60(){
   const box = document.getElementById('rpTimeline');
-  const end = new Date(TODAY); end.setDate(end.getDate()+60);
-  // 各 tag 对应的明确时点（automation 排期）；只保留时间，具体动作说明由 short/label 承担，避免时间轴视觉冗余
+  const end = new Date(TODAY); end.setDate(end.getDate()+59);
   const TIME_HINT = {
-    'm-lock':      '10:00',
     'm-estimate':  '11:30',
     'm-script':    '11:30',
     'm-deliver':   '',
-    's-thu-alloc': '11:30',
-    's-est10':     '10:00',
-    's-sched-win': '每日 10:30',
+    's-thu-alloc': '11:30'
   };
   const evs = EVENTS.filter(e => {
     if(!eventVisibleTimeline(e)) return false;
@@ -1754,12 +1750,13 @@ function renderTimeline30(){
   box.innerHTML = evs.map(e => {
     const hint = TIME_HINT[e.tag] ? ` <span class="rp-tl-hint">· ${TIME_HINT[e.tag]}</span>` : '';
     if(e.range){
-      const [s,ee] = e.range;
+      const [rawStart,rawEnd] = e.range;
+      const state = rawStart < TODAY && rawEnd >= TODAY ? ' · 进行中' : '';
       const label = `${verShort(e.forVer)} ${e.short}`.trim();
       return `<div class="rp-tl-item ${e.tag}">
         <div class="rp-tl-dot evt-${e.tag}"></div>
         <div class="rp-tl-body">
-          <div class="rp-tl-date">${fmtShort(s)} → ${fmtShort(ee)}${hint}</div>
+          <div class="rp-tl-date">${fmtShort(rawStart)} → ${fmtShort(rawEnd)}${state}${hint}</div>
           <div class="rp-tl-label evt-${e.tag}">${label}</div>
         </div>
       </div>`;
@@ -1777,7 +1774,7 @@ function renderTimeline30(){
   }).join('');
 }
 
-// 版本进度卡：当前版本 + 后续 2 个版本，进度% + 下一节点倒计时（受视角过滤）
+// 版本进度卡：当前版本 + 后续 2 个版本，进度% + 下一节点工作日倒计时（排除周末与中国法定节假日）
 function renderProgress(){
   const box = document.getElementById('rpProgress');
   // 「当前 + 后 2 个」= 按发布时间顺序，dev 段尚未结束（或即将开始）的前 3 个非 planned 版本
@@ -1795,11 +1792,11 @@ function renderProgress(){
     const pct = Math.max(0, Math.min(100, Math.round(elapsed/total*100)));
     const nev = EVENTS.filter(ev => ev.forVer===ver.id && ev.date>=TODAY && eventVisible(ev))
                        .sort((a,b)=>a.date-b.date)[0];
-    const cd = nev ? diffDays(TODAY, nev.date) : null;
+    const cd = nev ? workingDaysUntil(TODAY, nev.date) : null;
     return `<div class="rp-pg-card">
       <div class="rp-pg-head"><span class="rp-pg-name">${ver.name}</span><span class="rp-pg-pct">${pct}%</span></div>
       <div class="rp-pg-bar"><div class="rp-pg-fill" style="width:${pct}%"></div></div>
-      <div class="rp-pg-next">${nev ? `下一节点 · ${nev.short} · ${cd}天后` : '无后续节点'}</div>
+      <div class="rp-pg-next">${nev ? `下一节点 · ${nev.short} · ${cd}个工作日后` : '无后续节点'}</div>
     </div>`;
   }).join('');
 }

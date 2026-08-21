@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>台词表 v6 模板 · 在线表格视图</title>
+<style>
+  :root{
+    --c-primary:#0FF796;
+    --green-soft:#E6FBF1;
+    --green-line:#9FE9C9;
+    --ink:#1B2526;
+    --ink-2:#3A4748;
+    --sub:#656668;
+    --line:#E3E6E8;
+    --line-strong:#C9CFD2;
+    --bg:#F4F6F7;
+    --warn:#FFE9D6;
+    --warn-line:#FFB877;
+    --warn-ink:#9A4A12;
+    --formula:#F0F6FF;
+    --formula-line:#Bcd2f5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;font-family:"Microsoft YaHei UI","PingFang SC","Microsoft YaHei",-apple-system,Segoe UI,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:13px;line-height:1.5;
+  }
+  .doc{max-width:1180px;margin:0 auto;background:#fff;min-height:100vh;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+  .docbar{display:flex;align-items:center;gap:10px;padding:14px 22px;border-bottom:1px solid var(--line);}
+  .docbar .dot{width:9px;height:9px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 0 3px var(--green-soft);}
+  .docbar h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.2px;}
+  .docbar .meta{margin-left:auto;color:var(--sub);font-size:12px;}
+  .notes{padding:14px 22px;background:var(--green-soft);border-bottom:1px solid var(--green-line);font-size:12.5px;color:var(--ink-2);}
+  .notes b{color:var(--ink);}
+  .notes ul{margin:6px 0 0;padding-left:18px;}
+  .notes li{margin:3px 0;}
+  .tabbar{display:flex;gap:2px;padding:0 16px;background:#FAFBFC;border-bottom:1px solid var(--line);}
+  .tab{padding:10px 18px;font-size:13px;color:var(--sub);cursor:pointer;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;margin-bottom:-1px;user-select:none;}
+  .tab:hover{color:var(--ink);}
+  .tab.active{color:var(--ink);font-weight:700;background:#fff;border-color:var(--line);border-bottom:2px solid var(--c-primary);}
+  .sheet-wrap{padding:18px 22px 28px;overflow:auto;}
+  .sheet{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:760px;}
+  .sheet th,.sheet td{border:1px solid var(--line);padding:7px 9px;vertical-align:top;text-align:left;height:34px;}
+  .sheet thead th{background:#F0F2F3;font-weight:700;color:var(--ink-2);position:sticky;top:0;z-index:2;white-space:nowrap;}
+  .sheet thead th .col{display:inline-block;min-width:16px;color:var(--sub);font-weight:600;margin-right:6px;font-size:11px;}
+  .sheet tbody tr:nth-child(even){background:#FBFCFD;}
+  .sheet td.formula{background:var(--formula);}
+  .sheet td.flag-warn{background:var(--warn);}
+  .sheet td.note{color:var(--sub);font-style:italic;}
+  .colhead{display:flex;flex-direction:column;}
+  .colhead .cn{font-weight:700;}
+  .colhead .rule{font-weight:400;color:var(--sub);font-size:11px;margin-top:2px;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:14px 0 4px;font-size:12px;color:var(--sub);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .sw{width:14px;height:14px;border-radius:3px;border:1px solid var(--line-strong);}
+  .sw.f{background:var(--formula);border-color:var(--formula-line);}
+  .sw.w{background:var(--warn);border-color:var(--warn-line);}
+  .sw.g{background:var(--green-soft);border-color:var(--green-line);}
+  .sheet-title{font-size:13px;font-weight:700;margin:2px 0 10px;color:var(--ink);}
+  .sheet-title small{font-weight:400;color:var(--sub);margin-left:8px;}
+  .formula-eg{font-family:"Segoe UI",Consolas,monospace;font-size:11.5px;color:#2b5fb0;background:#F3F7FF;padding:1px 5px;border-radius:4px;}
+  .foot{padding:12px 22px 26px;color:var(--sub);font-size:11.5px;border-top:1px solid var(--line);}
+  .pill{display:inline-block;padding:1px 7px;border-radius:10px;background:var(--green-soft);color:var(--ink-2);font-size:11px;margin-left:6px;}
+</style>
+</head>
+<body>
+<div class="doc">
+  <div class="docbar">
+    <span class="dot"></span>
+    <h1>《台词表·&lt;release&gt;·&lt;task_name&gt;》</h1>
+    <span class="meta">v6 模板 · 普通在线表格（sheet，每需求一份）</span>
+  </div>
+
+  <div class="notes">
+    <b>说明：</b>本视图按 <b>执行器真源</b>（<code>cw_doc_executor.js</code>）还原「现在的」模板结构，并对照 <code>vo-lines-smartsheet</code> 技能文档。
+    <ul>
+      <li>Tab1【需求统计】实际为 <b>A–I 九列</b>（含 F–H「新建声优」区，你 8-20 要求加的 <code>is_new</code> 区；E 为分隔/空列）。<b>技能文档仍写 A–D 四列，存在文档-实现漂移。</b></li>
+      <li>公式列（D/I/J/L/N）由执行器经 sheet-mcp 写入；本视图用示例公式示意真实写法。</li>
+      <li>CVM 当前 SSH 不可连，未逐字核对线上 recipe；如需 100% 精确，待实例恢复后我再抽一份真实文档比对。</li>
+    </ul>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab active" data-tab="t1">【需求统计】</div>
+    <div class="tab" data-tab="t2">&lt;需求名&gt; 台词表</div>
+    <div class="tab" data-tab="t3">【音画同步】<span class="pill">按需</span></div>
+  </div>
+
+  <!-- ============ TAB1 ============ -->
+  <div class="sheet-wrap" id="t1">
+    <div class="sheet-title">Tab1 · 【需求统计】 <small>列宽 100 / 220 / 100 / 130 · 表头高36 · 冻结首行</small></div>
+    <table class="sheet">
+      <thead>
+        <tr>
+          <th><span class="col">A</span>大类</th>
+          <th><span class="col">B</span>游戏角色（中）</th>
+          <th><span class="col">C</span>预估句数<br><span style="font-weight:400;color:var(--sub);font-size:11px">文案填</span></th>
+          <th><span class="col">D</span>实际句数<br><span style="font-weight:400;color:var(--sub);font-size:11px">系统自动·每20字一句</span></th>
+          <th><span class="col">E</span><span style="font-weight:400;color:var(--sub)">（分隔/空）</span></th>
+          <th><span class="col">F</span>大类<span style="color:var(--c-primary)">·新建</span></th>
+          <th><span class="col">G</span>游戏角色（中）<span style="color:var(--c-primary)">·新建</span></th>
+          <th><span class="col">H</span>预估句数<span style="color:var(--c-primary)">·新建</span></th>
+          <th><span class="col">I</span>实际句数<span style="color:var(--c-primary)">·新建</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>干员</td><td>贝塔</td><td>8</td>
+          <td class="formula"><span class="formula-eg">=COUNTIF('台词表'!B:B,B2)</span></td>
+          <td class="note">—</td>
+          <td>指挥官</td><td>阿尔法</td><td>5</td>
+          <td class="formula"><span class="formula-eg">=COUNTIF('台词表'!B:B,G2)</span></td>
+        </tr>
+        <tr>
+          <td>Boss</td><td>赤焰</td><td>12</td>
+          <td class="formula"><span class="formula-eg">=COUNTIF('台词表'!B:B,B3)</span></td>
+          <td class="note">—</td>
+          <td></td><td></td><td></td><td class="note">（空）</td>
+        </tr>
+        <tr>
+          <td>NPC</td><td>老约翰</td><td>3</td>
+          <td class="formula"><span class="formula-eg">=COUNTIF('台词表'!B:B,B4)</span></td>
+          <td class="note">—</td>
+          <td>AI兵</td><td>巡逻者</td><td>20</td>
+          <td class="formula"><span class="formula-eg">=COUNTIF('台词表'!B:B,G4)</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      <span><i class="sw f"></i>公式列（系统写入）</span>
+      <span><i class="sw g"></i>新建声优区（is_new，文案手填）</span>
+      <span><i class="sw"></i>人工填写</span>
+    </div>
+  </div>
+
+  <!-- ============ TAB2 ============ -->
+  <div class="sheet-wrap" id="t2" style="display:none">
+    <div class="sheet-title">Tab2 · &lt;需求名&gt; 台词表 <small>A–M 共13列 + N 角色校验</small></div>
+    <table class="sheet">
+      <thead>
+        <tr>
+          <th><span class="col">A</span>NO.序号</th>
+          <th><span class="col">B</span>游戏角色名</th>
+          <th><span class="col">C</span>台词-中</th>
+          <th><span class="col">D</span>台词-英 Lines</th>
+          <th><span class="col">E</span>情绪</th>
+          <th><span class="col">F</span>触发条件</th>
+          <th><span class="col">G</span>GP Audio Event<br><span style="font-weight:400;color:var(--sub);font-size:11px">音频文件名</span></th>
+          <th><span class="col">H</span>备注信息</th>
+          <th><span class="col">I</span>音画同步<br><span style="font-weight:400;color:var(--sub);font-size:11px">下拉</span></th>
+          <th><span class="col">J</span>视频提供日期<br><span style="font-weight:400;color:var(--sub);font-size:11px">m/d 校验</span></th>
+          <th><span class="col">K</span>文案策划其他备注</th>
+          <th><span class="col">L</span>录制时间-中</th>
+          <th><span class="col">M</span>录制时间-英</th>
+          <th><span class="col">N</span>角色校验<br><span style="font-weight:400;color:var(--sub);font-size:11px">B不在Tab1→告警</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td><td>贝塔</td><td>交给你了，指挥官。</td><td>Leaving it to you, Commander.</td>
+          <td>坚定</td><td>出场</td><td>VO_Beta_01</td><td></td>
+          <td>无需视频</td><td class="note">—</td><td></td><td></td><td></td>
+          <td class="note">✓ 在Tab1</td>
+        </tr>
+        <tr>
+          <td>2</td><td>阿尔法</td><td>目标已锁定。</td><td>Target locked.</td>
+          <td>冷静</td><td>战斗触发</td><td>VO_Alpha_02</td><td></td>
+          <td>音画同步</td><td class="formula"><span class="formula-eg">=TEXT(…,"m/d")</span></td><td>需对帧</td><td></td><td></td>
+          <td class="note">✓ 在Tab1</td>
+        </tr>
+        <tr>
+          <td>3</td><td>幽灵</td><td></td><td></td>
+          <td></td><td></td><td></td><td></td>
+          <td>无需视频</td><td class="note">—</td><td></td><td></td><td></td>
+          <td class="flag-warn">⚠ 不在Tab1</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      <span><i class="sw f"></i>公式列</span>
+      <span><i class="sw w"></i>角色校验告警（红底，覆盖 N2:N1001）</span>
+    </div>
+  </div>
+
+  <!-- ============ TAB3 ============ -->
+  <div class="sheet-wrap" id="t3" style="display:none">
+    <div class="sheet-title">Tab3 · 【音画同步】 <small>仅当 需求.video_sync = 音画同步 时创建</small></div>
+    <table class="sheet">
+      <thead>
+        <tr>
+          <th>视频名称</th><th>提供人员</th><th>备注信息</th>
+          <th>视频文件1</th><th>视频文件2</th><th>视频文件3</th><th>视频文件4</th><th>视频文件5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>贝塔_出场_主镜</td><td>视频组-李</td><td>对帧至 02:14</td>
+          <td class="note">（链接）</td><td class="note">（链接）</td><td class="note">—</td><td class="note">—</td><td class="note">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="foot">
+    数据源：MySQL <code>demands</code> / 角色库 <code>voice_roles</code>（迁移后 <code>voice_talents</code>）；文档链接 <code>demands.script_doc_url</code>；声优预估 <code>demands.voice_estimates</code> JSON。
+    Tab1 角色行：<code>voice_estimates</code> 非空以需求角色为准，否则回退全量未删除角色（不过滤选角状态）。
+  </div>
+</div>
+
+<script>
+  const tabs=document.querySelectorAll('.tab');
+  const maps={t1:'t1',t2:'t2',t3:'t3'};
+  tabs.forEach(t=>t.addEventListener('click',()=>{
+    tabs.forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    Object.values(maps).forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById(t.dataset.tab).style.display='block';
+  }));
+</script>
+</body>
+</html>

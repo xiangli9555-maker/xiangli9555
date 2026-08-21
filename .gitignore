@@ -74,3 +74,18 @@ assets/_roles_dump.json
 .env
 deploy/.env
 deploy/backend/.env
+
+# 排查/测试临时脚本（不入库）
+_diff_analysis.js
+_measure*.js
+_measure*.py
+_serve.js
+_serve_nocache*.py
+_rebuilt_snapshot.js
+_rp*.js
+_patch_*.py
+_fix_*.py
+_dump_*.py
+_simulate_*.py
+_cmp_*.html
+_review_tmp/

@@ -56,19 +56,27 @@ body{display:flex;flex-direction:column;overflow:hidden}
 
 /* Layout */
 .layout{flex:1;display:flex;overflow:hidden}
-.sidebar{width:222px;background:var(--c-sidebar);border-right:1px solid var(--c-hairline);padding:16px 10px;flex-shrink:0;overflow-y:auto;transition:width .2s}
-body.sidebar-collapsed .sidebar{width:48px;padding:16px 4px}
+.sidebar{width:211px;background:var(--c-sidebar);border-right:1px solid var(--c-hairline);padding:16px 10px;flex-shrink:0;overflow-y:auto;transition:width .2s}
+/* 收起态：固定52px，仅保留居中的导航图标 */
+body.sidebar-collapsed .sidebar{width:52px;padding:16px 6px}
 body.sidebar-collapsed .sidebar .label-text,
-body.sidebar-collapsed .sidebar .nav-sub{display:none}
-/* 收起态：分区标签显示首字母缩写 */
-body.sidebar-collapsed .sidebar .sec-label{padding:10px 0 4px;text-align:center;letter-spacing:0}
-body.sidebar-collapsed .sidebar .sec-label .section-sig{display:none}
-body.sidebar-collapsed .sidebar .sec-label::before{content:attr(data-initial);font-size:10px;font-weight:700;letter-spacing:0;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace}
-body.sidebar-collapsed .sidebar .nav-item{justify-content:center;padding:9px 0}
-body.sidebar-collapsed .sidebar .nav-item svg,
-body.sidebar-collapsed .sidebar .nav-item .badge{display:none}
-body.sidebar-collapsed .sidebar .nav-item::before{content:attr(data-initial);font-size:14px;font-weight:700;letter-spacing:0;color:var(--c-text-2)}
-body.sidebar-collapsed .sidebar .nav-item.active::before{color:var(--c-primary)}
+body.sidebar-collapsed .sidebar .nav-label,
+body.sidebar-collapsed .sidebar .nav-sub{display:none!important}
+/* 收起态：分区文字/信号点全部隐藏，仅保留细分隔线 */
+body.sidebar-collapsed .sidebar .sec-label{height:17px;padding:8px 0;margin:2px 0;box-sizing:border-box;font-size:0;line-height:0;text-align:center}
+body.sidebar-collapsed .sidebar .sec-label .section-sig,
+body.sidebar-collapsed .sidebar .sec-label .sec-txt{display:none!important}
+body.sidebar-collapsed .sidebar .sec-label::before{content:'';display:block;width:24px;height:1px;margin:0 auto;background:var(--c-hairline);border-radius:1px}
+body.sidebar-collapsed .sidebar .sec-label.active::before{background:rgba(15,248,155,.42)}
+/* 收起态：图标居中，文字/badge/伪元素清空；title 提供浏览器原生 tooltip */
+body.sidebar-collapsed .sidebar .nav-item{width:40px;min-width:40px;height:40px;justify-content:center;padding:0;margin:2px 0;position:relative}
+body.sidebar-collapsed .sidebar .nav-item .label-text,
+body.sidebar-collapsed .sidebar .nav-item .nav-label,
+body.sidebar-collapsed .sidebar .nav-item .badge{display:none!important}
+body.sidebar-collapsed .sidebar .nav-item::before,
+body.sidebar-collapsed .sidebar .nav-item::after{content:none!important;display:none!important}
+body.sidebar-collapsed .sidebar .nav-item svg{display:block!important;width:20px;height:20px;margin:0 auto;flex-shrink:0;color:var(--c-text-dim);stroke:currentColor;fill:none;visibility:visible}
+body.sidebar-collapsed .sidebar .nav-item.active svg{color:var(--c-primary)}
 
 /* 收起时隐藏 brand bar 的 DELTA FORCE 文字，只留三角 logo */
 body.sidebar-collapsed .brand-logo .logo-txt{display:none}
@@ -122,14 +130,16 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
    ================================================================ */
 @media (max-width: 1500px){
   .brand-bar{height:56px;min-height:56px;padding:8px 14px;gap:8px}
-  .sidebar{width:195px;padding:14px 8px}
+  .sidebar{width:205px;padding:14px 8px}
+  body.sidebar-collapsed .sidebar{width:52px;padding:14px 6px}
   .brand-search{flex:1 1 340px;max-width:340px;margin:0 6px 0 14px}
   .nav-item{font-size:12.5px}
   .sec-label{font-size:10px}
 }
 @media (min-width: 2401px){
   .brand-bar{height:76px;min-height:76px;padding:12px 24px;gap:14px}
-  .sidebar{width:273px;padding:20px 16px}
+  .sidebar{width:221px;padding:20px 16px}
+  body.sidebar-collapsed .sidebar{width:52px;padding:20px 6px}
   .brand-search{flex:1 1 520px;max-width:520px;margin:0 12px 0 24px}
   .nav-item{font-size:14.5px}
   .sec-label{font-size:12px}
@@ -177,17 +187,19 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
 
 <div class="layout">
   <aside class="sidebar">
-    <div class="sec-label section-label active" data-section="mission" data-initial="M"><span class="section-sig" aria-hidden="true"></span>MISSION</div>
-    <button class="nav-item active" data-view="demands" data-initial="D" onclick="switchView(this,'preview-需求汇总-精修版.html')">
+    <div class="sec-label section-label active" data-section="mission" data-initial="M"><span class="section-sig" aria-hidden="true"></span><span class="sec-txt">MISSION</span></div>
+    <button class="nav-item active" data-view="demands" data-initial="D" title="需求汇总" onclick="switchView(this,'preview-需求汇总-精修版.html')">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <span class="label-text">需求汇总</span>
+      <span class="label-text nav-label">需求汇总</span>
     </button>
     <div class="nav-sub label-text context-active" id="demandReleaseSubs">
       <button class="nav-sub-item active" data-release="" onclick="switchDemandRelease(this,'')"><span class="dot"></span>全部<span class="count" id="cnt-rel-all">—</span></button>
     </div>
-    <button class="nav-item" data-view="actors" data-initial="T" onclick="switchView(this,'preview-声优库-精修版.html')">
+
+    <div class="sec-label section-label" data-section="roster" data-initial="T"><span class="section-sig" aria-hidden="true"></span><span class="sec-txt">TALENT</span></div>
+    <button class="nav-item" data-view="actors" data-initial="T" title="声优库" onclick="switchView(this,'preview-声优库-精修版.html')">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <span class="label-text">声优库</span>
+      <span class="label-text nav-label">声优库</span>
     </button>
     <div class="nav-sub label-text" id="rosterStatusSubs">
       <button class="nav-sub-item active" data-status="" onclick="switchRosterStatus(this,'')"><span class="dot"></span>全部<span class="count" id="cnt-roster-all">—</span></button>
@@ -195,20 +207,20 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
       <button class="nav-sub-item" data-status="pending" onclick="switchRosterStatus(this,'pending')"><span class="dot" style="background:var(--c-warning);box-shadow:0 0 4px var(--c-warning);opacity:1"></span>待选角<span class="count" id="cnt-roster-pending">—</span></button>
     </div>
 
-    <div class="sec-label section-label" data-section="schedule" data-initial="S"><span class="section-sig" aria-hidden="true"></span>SCHEDULE</div>
-    <button class="nav-item" data-view="milestones" data-initial="M" onclick="switchView(this,'preview-版本节点-精修版.html')">
+    <div class="sec-label section-label" data-section="schedule" data-initial="S"><span class="section-sig" aria-hidden="true"></span><span class="sec-txt">SCHEDULE</span></div>
+    <button class="nav-item" data-view="milestones" data-initial="M" title="版本节点" onclick="switchView(this,'preview-版本节点-精修版.html')">
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      <span class="label-text">版本节点</span>
+      <span class="label-text nav-label">版本节点</span>
     </button>
-    <button class="nav-item" data-view="calendar" data-initial="S" onclick="switchView(this,'preview-录制档期-精修版.html')">
+    <button class="nav-item" data-view="calendar" data-initial="S" title="录制档期" onclick="switchView(this,'preview-录制档期-精修版.html')">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <span class="label-text">录制档期</span>
+      <span class="label-text nav-label">录制档期</span>
     </button>
 
-    <div class="sec-label section-label" data-section="hq" data-initial="H"><span class="section-sig" aria-hidden="true"></span>HQ</div>
-    <button class="nav-item" data-view="ai" data-initial="V" onclick="switchView(this,'preview-AI助手-精修版.html')">
+    <div class="sec-label section-label" data-section="hq" data-initial="H"><span class="section-sig" aria-hidden="true"></span><span class="sec-txt">HQ</span></div>
+    <button class="nav-item" data-view="ai" data-initial="V" title="Vo 智能助手" onclick="switchView(this,'preview-AI助手-精修版.html')">
       <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
-      <span class="label-text">Vo 智能助手</span>
+      <span class="label-text nav-label">Vo 智能助手</span>
       <span class="badge ai label-text">AI</span>
     </button>
   </aside>
@@ -226,7 +238,7 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
 </div>
 
 <script>
-const __BUILD__ = '20260819cw';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '20260820ds';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -340,34 +352,52 @@ function switchRosterStatus(btn, status){
   saveView('actors', status);
   applyView('actors', status, document.querySelector('.nav-item[data-view="actors"]'));
 }
-/* 声优库 count · 从 /api/voice-roles 拉取，中/英配任一为空=待选角 */
-function loadRosterCounts(){
-  fetch('/api/voice-roles', {cache:'no-store'}).then(r=>r.json()).then(list=>{
-    const rows = Array.isArray(list) ? list : [];
-    // 叠加同源 localStorage 里子页的未保存草稿（新增/编辑/删除），与子页 renderMeter 判定一致
-    let adds = [], edits = {}, deletes = [];
-    try{ adds    = JSON.parse(localStorage.getItem('vo_roster_adds_v1')    || '[]') || []; }catch(_){}
-    try{ edits   = JSON.parse(localStorage.getItem('vo_roster_edits_v1')   || '{}') || {}; }catch(_){}
-    try{ deletes = JSON.parse(localStorage.getItem('vo_roster_deletes_v1') || '[]') || []; }catch(_){}
-    const delSet = new Set(deletes.map(String));
-    // 应用编辑到 API 行
-    const merged = rows.filter(r=>!delSet.has(String(r.id))).map(r=>{
-      const e = edits[String(r.id)] || edits[r.id];
-      return e ? {...r, ...e} : r;
-    });
-    // 追加未保存新增
-    const finalList = merged.concat(Array.isArray(adds) ? adds : []);
-    let done = 0, pending = 0;
-    finalList.forEach(r=>{
-      const cn = (r.cn_va||'').trim();
-      const en = (r.en_va||'').trim();
-      if(!cn || !en) pending++; else done++;
-    });
-    const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
-    setTxt('cnt-roster-all', finalList.length);
-    setTxt('cnt-roster-done', done);
-    setTxt('cnt-roster-pending', pending);
-  }).catch(()=>{});
+/* 声优库 count：缓存即时回显 → API重试 → 静态快照兜底；中/英配任一为空=待选角 */
+const ROSTER_COUNT_CACHE_KEY = 'vo_roster_counts_cache_v1';
+let _rosterCountReq = 0;
+function applyRosterCounts(total, done, pending, persist=true){
+  const nums = [total,done,pending].map(Number);
+  if(nums.some(v=>!Number.isFinite(v)||v<0)) return false;
+  const [t,d,p] = nums;
+  const setTxt=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=String(v); };
+  setTxt('cnt-roster-all',t); setTxt('cnt-roster-done',d); setTxt('cnt-roster-pending',p);
+  if(persist){ try{ localStorage.setItem(ROSTER_COUNT_CACHE_KEY,JSON.stringify({total:t,done:d,pending:p,at:Date.now()})); }catch(_){} }
+  return true;
+}
+function hydrateRosterCountCache(){
+  try{ const c=JSON.parse(localStorage.getItem(ROSTER_COUNT_CACHE_KEY)||'null'); if(c) applyRosterCounts(c.total,c.done,c.pending,false); }catch(_){}
+}
+function mergeRosterDrafts(rows){
+  let adds=[],edits={},deletes=[];
+  try{ adds=JSON.parse(localStorage.getItem('vo_roster_adds_v1')||'[]')||[]; }catch(_){}
+  try{ edits=JSON.parse(localStorage.getItem('vo_roster_edits_v1')||'{}')||{}; }catch(_){}
+  try{ deletes=JSON.parse(localStorage.getItem('vo_roster_deletes_v1')||'[]')||[]; }catch(_){}
+  const delSet=new Set(deletes.map(String));
+  const merged=rows.filter(r=>!delSet.has(String(r.id))).map(r=>{ const e=edits[String(r.id)]||edits[r.id]; return e?{...r,...e}:r; });
+  return merged.concat(Array.isArray(adds)?adds:[]);
+}
+function countRosterRows(rows){
+  const list=mergeRosterDrafts(Array.isArray(rows)?rows:[]); let done=0,pending=0;
+  list.forEach(r=>{ const cn=String(r.cn_va||'').trim(),en=String(r.en_va||'').trim(); if(!cn||!en) pending++; else done++; });
+  return {total:list.length,done,pending};
+}
+async function fetchRosterRows(url, timeout=5000){
+  const ctrl=new AbortController(),tid=setTimeout(()=>ctrl.abort(),timeout);
+  try{ const r=await fetch(url,{cache:'no-store',signal:ctrl.signal}); if(!r.ok) throw new Error('HTTP '+r.status); const j=await r.json(); if(!Array.isArray(j)||!j.length) throw new Error('empty roster'); return j; }
+  finally{ clearTimeout(tid); }
+}
+async function loadRosterCounts(){
+  const req=++_rosterCountReq;
+  hydrateRosterCountCache(); // 刷新后先显示最近成功值，不留“—”
+  let rows=null;
+  for(const wait of [0,700,1800]){
+    if(wait) await new Promise(r=>setTimeout(r,wait));
+    try{ rows=await fetchRosterRows('/api/voice-roles'); break; }catch(_){}
+  }
+  // 后端短暂不可用时读取与声优库页同源的静态快照
+  if(!rows){ try{ rows=await fetchRosterRows('assets/roster.json',4000); }catch(_){} }
+  if(req!==_rosterCountReq||!rows) return;
+  const c=countRosterRows(rows); applyRosterCounts(c.total,c.done,c.pending,true);
 }
 /* 侧栏 release 筛选 · 从 /api/demands 动态生成（杜绝硬编码对不上） */
 function normReleaseShell(v){ if(!v) return ''; return String(v).replace(/\s+/g,'').replace(/\.0$/,''); }
@@ -414,11 +444,8 @@ window.addEventListener('message', (e)=>{
     Object.entries(counts).forEach(([rel, cnt])=>{ if(rel==='total'||rel==='type') return; setTxt('cnt-rel-'+normReleaseShell(rel), cnt); });
   }
   if(d.type === 'roster-status-counts'){
-    // 声优库子页上报（含未保存草稿；比外壳只读 API 更准确）
-    const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v ?? '—'; };
-    setTxt('cnt-roster-all', d.total);
-    setTxt('cnt-roster-done', d.done);
-    setTxt('cnt-roster-pending', d.pending);
+    // 声优库子页上报（含未保存草稿）优先，并同步持久缓存供下次刷新即时回显
+    applyRosterCounts(d.total,d.done,d.pending,true);
   }
   if(d.type === 'cw-counts'){
     const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v ?? '—'; };
@@ -436,7 +463,11 @@ setTimeout(()=>{
   document.getElementById('loader').classList.remove('on');
 }, 5000);
 loadReleases();
+hydrateRosterCountCache();
 loadRosterCounts();
+// bfcache恢复/网络重连时主动校准，避免旧页面长时间停留在占位符或缓存值
+window.addEventListener('pageshow',e=>{ if(e.persisted) loadRosterCounts(); });
+window.addEventListener('online',loadRosterCounts);
 
 /* 还原原版 brand-bar 交互 */
 function toggleSidebar(){

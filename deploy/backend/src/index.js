@@ -240,12 +240,6 @@ app.patch('/api/demands/:id', async (req, res) => {
     if (!valid.includes(req.body.manual_status)) return res.status(400).json({ok:false,error:'invalid_manual_status'});
   }
   await DEMANDS_READY;
-  // 取切换前的 video_sync / script_doc_url，用于检测「翻成音画同步」并自动追加 Tab3
-  let oldVs = '', oldDocUrl = '';
-  try {
-    const [oldRows] = await pool.query('SELECT video_sync, script_doc_url FROM demands WHERE id=?', [req.params.id]);
-    if (oldRows[0]) { oldVs = oldRows[0].video_sync || ''; oldDocUrl = oldRows[0].script_doc_url || ''; }
-  } catch (e) { /* 忽略，下面正常更新 */ }
 
   fields.forEach(f => {
     if (f in req.body) {
@@ -265,19 +259,6 @@ app.patch('/api/demands/:id', async (req, res) => {
   if (!sets.length) return res.json({ ok:true, updated:[] });
   vals.push(req.params.id);
   await pool.query(`UPDATE demands SET ${sets.join(',')} WHERE id=?`, vals);
-
-  // 监听：video_sync 变为「音画同步」且已有台词表文档 → 自动给已建文档补 Tab3【音画同步】
-  const newVs = ('video_sync' in req.body) ? req.body.video_sync : oldVs;
-  if (oldVs !== '音画同步' && newVs === '音画同步') {
-    const docUrl = (('script_doc_url' in req.body) && req.body.script_doc_url) || oldDocUrl;
-    if (docUrl) {
-      const dem = { id: req.params.id, script_doc_url: docUrl };
-      // 异步追加，不阻塞 PATCH 响应；失败仅记录日志
-      cwExecutor.appendAvSyncSheet(dem)
-        .then((r) => console.log('[cw] 自动追加 Tab3 完成:', req.params.id, JSON.stringify(r)))
-        .catch((e) => console.error('[cw] 自动追加 Tab3 失败:', req.params.id, e.message));
-    }
-  }
 
   res.json({ ok: true });
 });
@@ -880,7 +861,12 @@ app.post('/api/cw-doc/refresh-stat', async (req, res) => {
       return res.status(409).json({ ok:false, error: '该需求尚未生成台词表，请先生成' });
     }
     const r = await cwExecutor.refreshStatForDemand(dem);
-    if (!r.ok) return res.status(409).json({ ok:false, error: '刷新失败：' + (r.reason || 'unknown') });
+    if (!r.ok) {
+      if (r.reason === 'tab1-frozen-after-generation') {
+        return res.status(409).json({ ok:false, error: 'Tab1 为生成时快照，已禁止刷新以免破坏源数据（台词表生成后不再回写统计页）' });
+      }
+      return res.status(409).json({ ok:false, error: '刷新失败：' + (r.reason || 'unknown') });
+    }
     res.json({ ok: true, demand_id: String(demandId), rows: r.rows, file_id: r.file_id });
   } catch (e) { res.status(500).json({ ok:false, error: e.message }); }
 });
@@ -938,18 +924,26 @@ app.get('/api/release-stats', async (req, res) => {
   } catch (e) { res.status(500).json({ ok:false, error: e.message }); }
 });
 
-app.post('/api/cw-doc/sync-v6', async (req,res) => {
-  try{
-    const release=(req.body&&req.body.release)||'Yang1.0';
-    const [rows]=await pool.query("SELECT * FROM demands WHERE release_plan=? AND story_type='音频' AND status!='suspended' ORDER BY id",[release]);
-    const created=[],skipped=[];
-    for(const dem of rows){
-      if(dem.script_doc_url){ skipped.push({demand_id:dem.id,reason:'done'}); continue; }
-      const out=demandJobs.enqueue({type:'script_table',demand:dem,release,version:'v6',title:dem.task_name});
-      (out.created?created:skipped).push({demand_id:dem.id,job_id:out.job.id,reason:out.reason,idempotency_key:out.job.idempotency_key});
-    }
-    res.json({ok:true,release,created,skipped,total:rows.length});
-  }catch(e){ res.status(500).json({ok:false,error:e.message}); }
+// ---------- 手动生成「台词量汇总看板」腾讯文档智能表格（看板供查阅，编辑留给 per-demand 台词表） ----------
+// 请求体可选 { release } 限定单版本；缺省聚合全部音频需求。手动触发，符合"手动"口径。
+app.post('/api/cw-doc/summary-board', async (req, res) => {
+  try {
+    const release = req.body && req.body.release;
+    let sql = "SELECT id, task_name, area, release_plan, creator, cn_lines_handler, script_doc_url FROM demands WHERE story_type='音频' AND status!='suspended'";
+    const params = [];
+    if (release) { sql += ' AND release_plan=?'; params.push(release); }
+    sql += ' ORDER BY release_plan, id';
+    const [rows] = await pool.query(sql, params);
+    if (!rows.length) return res.status(404).json({ ok:false, error:'无满足条件的音频需求' });
+    const r = await unifiedCwExecutor.generateSummaryBoard(rows);
+    res.json({ ok: true, ...r });
+  } catch (e) { res.status(500).json({ ok:false, error: e.message }); }
+});
+
+// 一键批量生成（sync-v6）已于 2026-08-21 按用户要求取消：改为手动「单个需求生成」入口，
+// 不再提供 release 级批量建表，避免误触产生大量孤儿文档。前端对应按钮需隐藏。
+app.post('/api/cw-doc/sync-v6', async (req, res) => {
+  res.status(410).json({ ok:false, error:'一键批量生成已取消（按用户 2026-08-21 要求）。请改用单个需求的「生成台词表」入口。' });
 });
 app.post('/api/cw-doc/sync-voice-estimates', async (req,res) => {
   try{

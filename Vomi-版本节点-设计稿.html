@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Vomi · 版本节点 · 设计稿</title>
+<style>
+:root{
+  --c-primary:#0FF89B;--c-primary-dark:#0BD980;--c-primary-glow:rgba(15,248,155,0.18);
+  --c-bg:#0F171C;--c-surface:#1B2526;--c-surface-2:#26333C;--c-surface-3:#2E3B45;
+  --c-border:#2E3B45;--c-border-strong:#3D4C57;--c-hairline:#243039;
+  --c-text:#EAEBEB;--c-text-2:#919594;--c-text-mute:#919594;--c-text-dim:#656668;
+  --c-info:#CAE1CF;--c-warning:#F4CF67;--c-danger:#D699BE;--c-green-2:#6BD995;
+  --font-ui:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;
+  --font-data:"Segoe UI","Inter",sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font-ui);font-size:14px;color:var(--c-text);background:var(--c-bg);-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;overflow:hidden}
+::selection{background:rgba(15,248,155,.3)}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--c-surface-3);border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ============ Brand bar ============ */
+.brand-bar{min-height:68px;background:var(--c-bg);border-bottom:1px solid var(--c-border);display:flex;align-items:center;padding:10px 18px;gap:14px;flex-shrink:0;position:relative}
+.brand-bar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c-primary) 30%,var(--c-primary) 70%,transparent);opacity:.35}
+.brand-lockup{display:flex;flex-direction:column;align-items:center;width:176px;flex-shrink:0}
+.brand-logo{display:flex;align-items:center;gap:8px}
+.brand-logo svg{height:30px;width:auto}
+.brand-slogan{font-size:11px;color:var(--c-text-mute);margin-top:1px;letter-spacing:.3px}
+.brand-divider{width:1px;height:32px;background:var(--c-border)}
+.brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);letter-spacing:.3px}
+.brand-spacer{flex:1}
+.brand-search{height:32px;max-width:420px;flex:1;margin-left:18px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:6px;color:var(--c-text-2);font-size:12px;padding:0 12px;display:flex;align-items:center;gap:8px}
+.brand-search input{flex:1;background:transparent;border:none;outline:none;color:var(--c-text);font-family:inherit;font-size:12px}
+.brand-search svg{width:14px;height:14px;stroke:var(--c-text-dim);fill:none;stroke-width:2;flex-shrink:0}
+
+/* ============ Layout ============ */
+.layout{flex:1;display:flex;overflow:hidden}
+.sidebar{width:216px;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:16px 12px;flex-shrink:0;overflow-y:auto}
+.sec-label{font-size:10px;letter-spacing:1.5px;color:var(--c-text-dim);text-transform:uppercase;padding:16px 12px 6px;font-weight:600}
+.sec-label .sig{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c-primary);margin-right:6px;box-shadow:0 0 8px var(--c-primary);animation:pulse 2.4s infinite}
+.sec-label.static .sig{animation:none;background:var(--c-text-dim);box-shadow:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.nav-item{width:100%;display:flex;align-items:center;gap:10px;padding:9px 12px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:6px;font-size:13px;text-align:left;font-family:inherit;transition:all .15s}
+.nav-item:hover{background:var(--c-surface);color:var(--c-text-2)}
+.nav-item.active{background:rgba(15,248,155,.10);color:var(--c-primary);font-weight:600;box-shadow:inset 2px 0 0 var(--c-primary)}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+.nav-sub{margin-left:26px;font-size:12px;color:var(--c-text-dim);padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s}
+.nav-sub:hover{color:var(--c-text-2)}
+.nav-sub.on{color:var(--c-primary);font-weight:600}
+
+.main{flex:1;padding:18px 22px 22px;overflow:hidden;display:flex;flex-direction:column;gap:14px;min-height:0}
+.right-panel{width:260px;flex-shrink:0;background:var(--c-bg);border-left:1px solid var(--c-hairline);padding:18px 15px;overflow-y:auto;display:flex;flex-direction:column;gap:24px}
+
+/* ============ Page header ============ */
+.tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
+.tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:.6}
+.title-block{display:flex;flex-direction:column;gap:6px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:2.5px;font-weight:600;text-transform:uppercase}
+.eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
+.page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px}
+.page-title .code{font-family:var(--font-data);font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
+.subtitle{font-size:13px;color:var(--c-text-mute);line-height:1.5;max-width:720px}
+.actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.btn{border:none;font-family:inherit;cursor:pointer;font-size:13px;font-weight:600;border-radius:5px;padding:8px 14px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:.3px}
+.btn-primary{background:var(--c-primary);color:#000}
+.btn-primary:hover{background:var(--c-primary-dark)}
+.btn-outline{background:transparent;color:var(--c-text-2);border:1px solid var(--c-border)}
+.btn-outline:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ============ Stat strip ============ */
+.stat-strip{display:flex;gap:12px}
+.stat{flex:1;background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:12px 16px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c-primary)}
+.stat.info::before{background:var(--c-info)}
+.stat.warn::before{background:var(--c-warning)}
+.stat.danger::before{background:var(--c-danger)}
+.stat-label{font-size:11px;color:var(--c-text-mute);letter-spacing:.4px;font-weight:500;margin-bottom:5px}
+.stat-value{font-family:var(--font-data);font-size:20px;font-weight:500;color:var(--c-text);line-height:1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:5px}
+.stat-value .unit{font-size:11px;color:var(--c-text-mute)}
+.stat-sub{font-size:11px;color:var(--c-text-mute);margin-top:5px;font-variant-numeric:tabular-nums}
+
+/* ============ Toolbar ============ */
+.toolbar{display:flex;flex-direction:column;gap:10px;align-items:stretch;padding:4px 0}
+.tb-group{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--c-text-mute);font-family:var(--font-ui);flex-wrap:wrap}
+.tb-label{min-width:48px;flex-shrink:0;color:var(--c-primary);font-weight:500;font-size:11px;line-height:26px;padding:0 2px}
+.tb-btn{background:transparent;border:1px solid var(--c-border);color:var(--c-text-2);padding:4px 10px;font-size:11px;border-radius:4px;cursor:pointer;transition:all .15s;font-family:var(--font-ui);font-weight:500;line-height:1.35;letter-spacing:0;min-height:26px;box-sizing:border-box}
+.tb-btn:hover{color:var(--c-primary);border-color:var(--c-primary)}
+.tb-btn.on{color:var(--c-primary);border-color:var(--c-primary);background:rgba(15,248,155,.08)}
+.tb-btn.evt-m-lock:not(.on),.tb-btn.evt-m-deliver:not(.on){border-left:3px solid var(--c-warning)}
+.tb-btn.evt-m-demand:not(.on),.tb-btn.evt-m-estimate:not(.on),.tb-btn.evt-m-script:not(.on),.tb-btn.evt-m-schedule:not(.on){border-left:3px solid var(--c-text-mute)}
+.tb-btn.evt-cat-milestone:not(.on){border-left:3px solid var(--c-warning)}
+.tb-btn.evt-cat-routine:not(.on){border-left:3px solid var(--c-primary)}
+.tb-btn.evt-m-lock.on,.tb-btn.evt-m-deliver.on{color:var(--c-warning);border-color:var(--c-warning);background:rgba(244,207,103,.18)}
+.tb-btn.evt-m-demand.on,.tb-btn.evt-m-estimate.on,.tb-btn.evt-m-script.on,.tb-btn.evt-m-schedule.on{color:var(--c-text);border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.06)}
+.tb-btn.evt-cat-milestone.on{color:var(--c-warning);border-color:var(--c-warning);background:rgba(244,207,103,.15)}
+.tb-btn.evt-cat-routine.on{color:var(--c-primary);border-color:var(--c-primary);background:rgba(15,248,155,.15)}
+
+/* ============ Year calendar ============ */
+.timeline-wrap{flex:1 1 0;display:flex;flex-direction:column;min-height:0;gap:12px;background:var(--c-bg);border:1px solid var(--c-hairline);border-radius:6px;padding:0 12px 12px;overflow:hidden;position:relative}
+.yc-scroll{flex:1 1 0;min-height:0;overflow:auto;overscroll-behavior-y:contain}
+.yc-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;table-layout:fixed;min-width:1180px;background:var(--c-bg);margin-top:0}
+.yc-table thead{background:var(--c-bg);position:sticky;top:0;z-index:50}
+.yc-table thead th{position:sticky;top:0;z-index:50;background-color:var(--c-bg);box-shadow:inset 0 0 0 1px var(--c-border),0 2px 0 0 var(--c-primary-glow),0 6px 12px rgba(0,0,0,.55);padding:8px 6px;font-weight:700;color:var(--c-text-2);font-family:var(--font-ui);font-size:11px;text-align:center;letter-spacing:.6px;line-height:1.35}
+.yc-table thead tr:first-child th{top:0;z-index:52;border-bottom:none}
+.yc-table thead tr:nth-child(2) th{top:37px;z-index:51}
+.yc-table thead th.yc-th-group{font-size:12px;padding:10px 8px;color:var(--c-text);letter-spacing:1px;font-weight:700}
+.yc-table thead th.yc-th-week{font-size:10px;color:var(--c-text-mute);padding:6px 4px;font-weight:600}
+.yc-table thead th.yc-th-year,.yc-table thead th.yc-th-ms,.yc-table thead th.yc-th-days{background:var(--c-bg)!important;font-size:11px;font-weight:600;color:var(--c-text)}
+.yc-table thead th.yc-grp-dev{background:#20384A;color:#B7D7E8}
+.yc-table thead th.yc-grp-test{background:#3B3A27;color:var(--c-warning)}
+.yc-table thead th.yc-grp-rel{background:#0F4938;color:var(--c-primary)}
+.yc-table tbody td{position:relative;z-index:1}
+.yc-table tbody td.yc-year{background:var(--c-bg);text-align:center;vertical-align:middle;font-weight:800;font-size:14px;color:#fff;letter-spacing:2px;border-right:1px solid var(--c-hairline);padding:8px 6px;font-family:var(--font-data);font-variant-numeric:tabular-nums}
+.yc-table tbody td.yc-cell{height:132px;background:var(--c-bg);color:var(--c-text-2);font-family:var(--font-data);font-size:11px;line-height:1.35;box-shadow:inset -1px -1px 0 0 var(--c-border);padding:0;vertical-align:top;position:relative}
+.yc-table tbody tr:first-child td{box-shadow:inset -1px -1px 0 0 var(--c-border),inset 0 1px 0 0 var(--c-border)}
+.yc-table tbody td:first-child{box-shadow:inset -1px -1px 0 0 var(--c-border),inset 1px 0 0 0 var(--c-border)}
+.yc-table tbody td.yc-ms{background:var(--c-bg);text-align:center;vertical-align:middle;padding:8px 4px}
+.yc-table tbody td.yc-ms .ms-ver{color:#fff;font-size:13px;font-weight:800;letter-spacing:.6px;font-family:var(--font-data)}
+.yc-table tbody td.yc-ms .ms-eq{color:var(--c-text-mute);font-size:10px;font-weight:500;margin-top:4px;letter-spacing:1px;font-family:var(--font-data)}
+.yc-table tbody td.yc-days{background:var(--c-bg);text-align:center;vertical-align:middle;font-weight:600;color:var(--c-text-2);font-size:11px;font-family:var(--font-data)}
+.yc-table tbody td.yc-days .yc-days-ver{display:block;font-size:12px;font-weight:700;color:#fff}
+.yc-table tbody td.yc-days .yc-days-num{display:block;font-size:15px;font-weight:800;color:var(--c-primary);margin-top:3px}
+.yc-table tbody td.yc-days .yc-days-num .u{font-size:10px;color:var(--c-text-mute);font-weight:600;margin-left:2px}
+.yc-cell > .yc-cell-body{position:absolute;left:0;right:0;top:0;padding:8px 10px;display:flex;flex-direction:column}
+.yc-cell .yc-range{display:block;color:var(--c-text-2);font-size:11px;font-weight:700;line-height:1.3;letter-spacing:.4px;padding:2px 4px;margin-bottom:2px;background:rgba(15,23,28,.6);border-radius:2px;text-align:center;flex-shrink:0;font-family:var(--font-data)}
+.yc-cell .yc-range .yc-wknum{color:var(--c-warning);font-weight:800;margin-right:2px}
+.yc-cell .yc-note{color:var(--c-text-mute);font-size:10px;line-height:1.3;margin-top:3px}
+.yc-cell .yc-note.holiday{background:transparent;border:1px solid rgba(214,153,190,.45);color:var(--c-danger);border-radius:3px;padding:3px 8px;font-size:11px;font-weight:700;letter-spacing:.5px;margin-top:6px;display:inline-block;text-align:center}
+.yc-cell.ph-dev{background:#1C2D3A}
+.yc-cell.ph-test{background:#303126}
+.yc-cell.ph-release{background:#12382E}
+.yc-cell.this-week:not(.empty):not(.overflow):not(.is-holiday){outline:2px solid var(--c-primary);outline-offset:-2px;background:rgba(15,248,155,.08)!important}
+.yc-cell.empty,.yc-cell.overflow{background:var(--c-bg)!important;opacity:1}
+.yc-cell.past-week:not(.empty):not(.overflow):not(.is-holiday){opacity:.42}
+.yc-cell.is-holiday{background:var(--c-bg)!important;opacity:1}
+.yc-cell.is-holiday .yc-row{display:none}
+.yc-cell .yc-events{display:flex;flex-direction:column;gap:2px;margin-top:3px}
+.yc-cell .yc-row{display:flex;flex-direction:row;flex-wrap:nowrap;gap:2px;margin-top:4px;min-height:20px}
+.yc-cell .yc-evt{display:block;font-family:var(--font-data);font-size:11px;font-weight:600;line-height:1.3;padding:3px 6px;border-radius:3px;border:1px solid transparent;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;min-height:20px}
+.yc-cell .yc-evt.evt-meeting{background:rgba(202,225,207,.14);color:var(--c-info);border-color:rgba(202,225,207,.35)}
+.yc-cell .yc-evt.evt-critical{background:rgba(214,153,190,.16);color:var(--c-danger);border-color:rgba(214,153,190,.55);font-weight:700}
+.yc-cell .yc-evt.evt-major{background:rgba(244,207,103,.14);color:var(--c-warning);border-color:rgba(244,207,103,.35)}
+.yc-cell .yc-evt.evt-m-lock,.yc-cell .yc-evt.evt-m-deliver{background:rgba(244,207,103,.22);color:var(--c-warning);border-color:var(--c-warning);font-weight:800}
+.yc-cell .yc-evt.evt-m-demand,.yc-cell .yc-evt.evt-m-estimate,.yc-cell .yc-evt.evt-m-script,.yc-cell .yc-evt.evt-m-schedule{background:transparent;color:var(--c-text-2);border-color:rgba(255,255,255,.2);font-weight:600}
+.yc-cell .yc-evt.evt-r-cast,.yc-cell .yc-evt.evt-r-cn-ing,.yc-cell .yc-evt.evt-r-vo-ing{background:transparent;border:0;border-radius:0;font-weight:500;font-size:10px;color:var(--c-text-mute);padding:2px 4px 2px 8px;min-height:0;position:relative;text-align:left;justify-content:flex-start}
+.yc-cell .yc-evt.evt-r-cast::before,.yc-cell .yc-evt.evt-r-cn-ing::before,.yc-cell .yc-evt.evt-r-vo-ing::before{content:'';position:absolute;left:2px;top:4px;bottom:4px;width:2px;border-radius:1px;background:var(--c-text-mute)}
+.yc-table tbody tr.planned td.yc-ms .ms-ver{color:var(--c-text-2);font-weight:600}
+.yc-table tbody tr.planned .yc-cell{opacity:.72}
+
+/* ============ Legend ============ */
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:8px 0 0;border-top:1px solid var(--c-hairline);margin-top:2px}
+.legend .li{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--c-text-mute);letter-spacing:.3px}
+.legend .sw{width:14px;height:14px;border-radius:3px}
+.legend .ms-sw{width:10px;height:10px;border-radius:50%;border:2px solid var(--c-bg)}
+.legend .role-chip{width:10px;height:10px;border-radius:2px}
+
+/* ============ Right panel ============ */
+.rp-section{display:flex;flex-direction:column;gap:12px}
+.rp-sec-title{font-size:15px;letter-spacing:.2px;color:transparent;font-weight:600;padding:1px 0 1px 30px;line-height:1.2;text-transform:none;position:relative;display:flex;align-items:center;min-height:24px;background:linear-gradient(90deg,#0FF89B 0%,rgba(15,248,155,.55) 35%,rgba(15,248,155,.22) 65%,rgba(15,248,155,0) 100%);-webkit-background-clip:text;background-clip:text}
+.rp-sec-title::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:0;height:0;border-left:11px solid #6bd995;border-top:7px solid transparent;border-bottom:7px solid transparent}
+.rp-sec-title::after{content:'';position:absolute;left:30px;right:0;bottom:-5px;height:1px;background:linear-gradient(90deg,rgba(202,225,207,.34),rgba(202,225,207,.10) 58%,transparent 92%)}
+.rp-empty{font-size:11px;color:var(--c-text-dim);font-style:italic;padding:4px 0}
+.rp-tw-item{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:10px 12px;border-left:3px solid var(--c-primary)}
+.rp-tw-ver{font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.rp-tw-phase{font-size:10px;color:var(--c-text-mute);font-weight:500;background:var(--c-surface-3);padding:1px 6px;border-radius:3px}
+.rp-tw-cd{margin-top:6px;display:flex;align-items:baseline;gap:4px}
+.rp-tw-cd-num{font-family:var(--font-data);font-size:22px;font-weight:800;color:var(--c-primary);line-height:1}
+.rp-tw-cd-unit{font-size:11px;color:var(--c-text-mute)}
+.rp-tw-cd-sub{font-size:11px;color:var(--c-text-mute);margin-top:3px}
+.rp-tl-item{display:flex;gap:10px;align-items:flex-start}
+.rp-tl-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;background:var(--c-text-mute)}
+.rp-tl-dot.evt-m-lock,.rp-tl-dot.evt-m-deliver{background:var(--c-warning)}
+.rp-tl-dot.evt-m-demand,.rp-tl-dot.evt-m-estimate,.rp-tl-dot.evt-m-script,.rp-tl-dot.evt-m-schedule{background:var(--c-text-mute)}
+.rp-tl-dot.evt-r-cast,.rp-tl-dot.evt-r-cn-ing,.rp-tl-dot.evt-r-vo-ing{background:var(--c-text-mute)}
+.rp-tl-body{flex:1}
+.rp-tl-date{font-family:var(--font-data);font-size:11px;color:var(--c-text-mute);letter-spacing:.3px}
+.rp-tl-wk{color:var(--c-warning)}
+.rp-tl-label{font-size:12px;color:var(--c-text-2);margin-top:2px;font-weight:500}
+.rp-tl-label.evt-m-lock,.rp-tl-label.evt-m-deliver{color:var(--c-warning);font-weight:700}
+.rp-tl-label.evt-m-demand,.rp-tl-label.evt-m-estimate,.rp-tl-label.evt-m-script,.rp-tl-label.evt-m-schedule{color:var(--c-text)}
+.rp-prog-item{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:10px 12px}
+.rp-prog-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.rp-prog-ver{font-size:13px;font-weight:700;color:#fff}
+.rp-prog-pct{font-family:var(--font-data);font-size:12px;font-weight:700;color:var(--c-primary)}
+.rp-prog-bar{height:6px;background:var(--c-surface-3);border-radius:3px;overflow:hidden}
+.rp-prog-fill{height:100%;background:var(--c-primary);border-radius:3px}
+.rp-prog-sub{font-size:11px;color:var(--c-text-mute);margin-top:6px}
+</style>
+</head>
+<body>
+<div class="brand-bar">
+  <div class="brand-lockup">
+    <div class="brand-logo">
+      <svg viewBox="0 0 176 30" xmlns="http://www.w3.org/2000/svg" aria-label="Vomi">
+        <defs>
+          <linearGradient id="vg" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#0FF89B"/><stop offset="1" stop-color="#0FF89B" stop-opacity=".35"/>
+          </linearGradient>
+        </defs>
+        <path d="M6 6 L14 24 L22 6" fill="none" stroke="url(#vg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M28 22 q10 -22 20 0 M30 16 q8 -12 16 0" fill="none" stroke="#6bd995" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+        <text x="52" y="22" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#EAEBEB" letter-spacing="1">Vomi</text>
+      </svg>
+    </div>
+    <div class="brand-slogan">包办 Vo, Mi 来打理</div>
+  </div>
+  <div class="brand-divider"></div>
+  <div class="brand-subsys">DELTA FORCE · Vo Manager</div>
+  <div class="brand-spacer"></div>
+  <div class="brand-search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+    <input placeholder="搜索版本 / 角色 / 节点…"/>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- ===== Sidebar ===== -->
+  <aside class="sidebar">
+    <div class="sec-label static"><span class="sig"></span>MISSION</div>
+    <button class="nav-item" data-nav="demands"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>需求汇总</button>
+    <button class="nav-item" data-nav="scripts"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>台词管理</button>
+    <div class="sec-label static"><span class="sig"></span>ROSTER</div>
+    <button class="nav-item" data-nav="actors"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>声优库</button>
+    <div class="sec-label static"><span class="sig"></span>SCHEDULE</div>
+    <button class="nav-item active" data-nav="milestones"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>版本节点</button>
+    <button class="nav-item" data-nav="calendar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>录制档期
+      <div class="nav-sub" style="padding:0;margin-left:auto">Yang1.0</div>
+    </button>
+    <div class="sec-label static"><span class="sig"></span>HQ</div>
+    <button class="nav-item" data-nav="assets"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4"/></svg>音频资产库</button>
+    <button class="nav-item" data-nav="ai"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M12 8V4M9 4h6"/></svg>Vo智能助手</button>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main class="main">
+    <div class="tactical-header">
+      <div class="title-block">
+        <span class="eyebrow"><span class="sig"></span>VERSION ROADMAP</span>
+        <h1 class="page-title">版本节点 <span class="code">MILESTONES</span></h1>
+        <p class="subtitle">按发布计划倒推 6 大关键节点（Vo需求锁 → 需求分配会 → 粗估会 → 台词交付会 → 录制定档会 → VO资源交付），节假日按中国法定自动跳过工作周。</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>导入最新快照</button>
+        <button class="btn btn-primary"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>新建节点</button>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat"><div class="stat-label">当前推进版本</div><div class="stat-value" id="statCurVer">—</div><div class="stat-sub" id="statCurVerSub">加载中…</div></div>
+      <div class="stat warn"><div class="stat-label">下一节点倒计时</div><div class="stat-value" id="statCd">—</div><div class="stat-sub" id="statCdSub">加载中…</div></div>
+      <div class="stat info"><div class="stat-label">本周关键节点</div><div class="stat-value" id="statNext">—</div><div class="stat-sub" id="statNextSub">加载中…</div></div>
+      <div class="stat danger"><div class="stat-label">本周进行中</div><div class="stat-value" id="statRange">—</div><div class="stat-sub" id="statRangeSub">加载中…</div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="tb-group">
+        <span class="tb-label">分类</span>
+        <button class="tb-btn evt-cat-milestone on" id="catMilestone" onclick="setCatFilter('milestone')">重要节点</button>
+        <button class="tb-btn evt-cat-meeting" id="catMeeting" onclick="setCatFilter('meeting')">重点会议</button>
+        <button class="tb-btn evt-cat-routine" id="catRoutine" onclick="setCatFilter('routine')">常规区间</button>
+        <button class="tb-btn on" id="catAll" onclick="setCatFilter(null)">全部</button>
+      </div>
+      <div class="tb-group">
+        <span class="tb-label">关键节点</span>
+        <button class="tb-btn evt-m-lock" id="ndLock" onclick="setNodeFilter('m-lock')">Vo需求锁</button>
+        <button class="tb-btn evt-m-demand" id="ndDemand" onclick="setNodeFilter('m-demand')">需求分配会</button>
+        <button class="tb-btn evt-m-estimate" id="ndEstimate" onclick="setNodeFilter('m-estimate')">粗估会</button>
+        <button class="tb-btn evt-m-script" id="ndScript" onclick="setNodeFilter('m-script')">台词交付会</button>
+        <button class="tb-btn evt-m-schedule" id="ndSchedule" onclick="setNodeFilter('m-schedule')">录制定档会</button>
+        <button class="tb-btn evt-m-deliver" id="ndDeliver" onclick="setNodeFilter('m-deliver')">VO资源交付</button>
+        <button class="tb-btn on" id="ndAll" onclick="setNodeFilter(null)">全部</button>
+      </div>
+      <div class="tb-group">
+        <span class="tb-label">版本</span>
+        <span id="filterGroup"></span>
+      </div>
+      <div class="tb-group">
+        <span class="tb-label">角色</span>
+        <button class="tb-btn on" id="roleAll" onclick="setRoleFilter(null)">全部</button>
+        <button class="tb-btn" id="roleCn" onclick="setRoleFilter('cn')">文案</button>
+        <button class="tb-btn" id="roleAudio" onclick="setRoleFilter('audio')">音频</button>
+      </div>
+    </div>
+
+    <div class="timeline-wrap">
+      <div class="yc-scroll">
+        <table class="yc-table" id="ycTable">
+          <thead id="ycHead"></thead>
+          <tbody id="ycBody"></tbody>
+        </table>
+        <div class="legend">
+          <span class="li"><span class="sw" style="background:#1C2D3A"></span>开发期</span>
+          <span class="li"><span class="sw" style="background:#303126"></span>转测期</span>
+          <span class="li"><span class="sw" style="background:#12382E"></span>发布期</span>
+          <span class="li"><span class="ms-sw" style="background:var(--c-warning)"></span>重要节点</span>
+          <span class="li"><span class="ms-sw" style="background:var(--c-text-mute)"></span>重点会议</span>
+          <span class="li"><span class="ms-sw" style="background:var(--c-text-dim)"></span>常规区间</span>
+          <span class="li"><span class="sw" style="border:1px solid rgba(214,153,190,.6);background:transparent"></span>法定节假日</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== Right panel ===== -->
+  <aside class="right-panel">
+    <div class="rp-section">
+      <div class="rp-sec-title">本周聚焦</div>
+      <div id="rpThisWeek"></div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-sec-title">未来 60 天时间轴</div>
+      <div id="rpTimeline"></div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-sec-title">版本进度</div>
+      <div id="rpProgress"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+/* ============ Date helpers ============ */
+const d = s => { const p = String(s).split('/'); return new Date(+p[0], +p[1]-1, +p[2]); };
+const TODAY = new Date(2026, 7, 17); // 2026-08-17（设计稿基准“今天”）
+const VIEW_START = mondayOf(TODAY);
+function mondayOf(date){ const x = new Date(date); const day = (x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
+function thursdayOf(date){ const m = mondayOf(date); const t = new Date(m); t.setDate(t.getDate()+3); return t; }
+function fridayOf(date){ const m = mondayOf(date); const f = new Date(m); f.setDate(f.getDate()+4); return f; }
+function shiftWeeks(date,w){ const r = new Date(date); r.setDate(r.getDate()+w*7); return r; }
+function fmt(date){ return `${date.getMonth()+1}/${date.getDate()}`; }
+function fmtShort(date){ return `${date.getMonth()+1}/${date.getDate()}`; }
+const WK = ['日','一','二','三','四','五','六'];
+
+/* ============ Built-in holidays (中国法定, 2026-2027) ============ */
+let HOLIDAYS = [
+  {short:'元旦',label:'元旦',start:'2026/1/1',end:'2026/1/3'},
+  {short:'春节',label:'春节',start:'2026/2/15',end:'2026/2/23'},
+  {short:'清明',label:'清明',start:'2026/4/4',end:'2026/4/6'},
+  {short:'劳动',label:'劳动',start:'2026/5/1',end:'2026/5/5'},
+  {short:'端午',label:'端午',start:'2026/6/19',end:'2026/6/21'},
+  {short:'中秋',label:'中秋',start:'2026/9/25',end:'2026/9/27'},
+  {short:'国庆',label:'国庆',start:'2026/10/1',end:'2026/10/7'},
+  {short:'元旦',label:'元旦',start:'2027/1/1',end:'2027/1/3'},
+  {short:'春节',label:'春节',start:'2027/2/15',end:'2027/2/23'}
+];
+function holidayOnDay(day){ const dt = new Date(day.getFullYear(),day.getMonth(),day.getDate()).getTime(); for(const h of HOLIDAYS){ if(d(h.start).getTime()<=dt && dt<=d(h.end).getTime()) return h; } return null; }
+function weekIsHoliday(mon){ const wkMon = mondayOf(mon); const wkSun = new Date(wkMon.getTime()+6*86400000); return HOLIDAYS.some(h=>{ const hs=d(h.start),he=d(h.end); return hs<=wkSun && he>=wkMon; }); }
+function shiftWorkWeeks(fromDate,w){ let cur = mondayOf(fromDate); if(w===0) return cur; const step = w<0?-1:1; let remaining = Math.abs(w); while(remaining>0){ cur = new Date(cur.getTime()+step*7*86400000); if(weekIsHoliday(cur)) continue; remaining--; } return cur; }
+function workingDaysBetween(s,e){ let n=0; const one=86400000; for(let t=s.getTime();t<=e.getTime();t+=one){ const day=new Date(t); const dow=day.getDay(); if(dow===0||dow===6) continue; if(holidayOnDay(day)) continue; n++; } return n; }
+
+/* ============ Versions ============ */
+function phaseObjToArr(p){
+  if(!p) return null; const out=[];
+  if(p.w0) out.push({type:'w0',label:'启动周',start:p.w0.start.replace(/-/g,'/'),end:p.w0.end.replace(/-/g,'/'),weeks:1});
+  if(p.dev) out.push({type:'dev',label:'开发期',start:p.dev.start.replace(/-/g,'/'),end:p.dev.end.replace(/-/g,'/'),weeks:p.dev_weeks||1});
+  if(p.test) out.push({type:'test',label:'转测期',start:p.test.start.replace(/-/g,'/'),end:p.test.end.replace(/-/g,'/'),weeks:p.test_weeks||1});
+  if(p.release){ const rs=p.release.start.replace(/-/g,'/'); const re=p.release.end.replace(/-/g,'/'); const reD=new Date(re); reD.setDate(reD.getDate()+7); const reEndS=`${reD.getFullYear()}/${reD.getMonth()+1}/${reD.getDate()}`; out.push({type:'release',label:'发布期',start:rs,end:reEndS,weeks:2}); }
+  return out;
+}
+const VER_META = {
+  'Ma4.0':{id:'Ma4.0',name:'Ma4.0',planned:false},
+  'Ma5.0':{id:'Ma5.0',name:'Ma5.0',planned:false},
+  'Yang1.0':{id:'Yang1.0',name:'Yang1.0',planned:false},
+  'Hou1.0':{id:'Hou1.0',name:'Hou1.0',planned:true}
+};
+const VER_ORDER = ['Ma4.0','Ma5.0','Yang1.0','Hou1.0'];
+const RAW = {
+  'Ma4.0':{w0:{start:'2026-05-25',end:'2026-05-31'},dev:{start:'2026-06-01',end:'2026-08-09',dev_weeks:10},test:{start:'2026-08-10',end:'2026-09-06',test_weeks:4},release:{start:'2026-09-07',end:'2026-09-20'}},
+  'Ma5.0':{dev:{start:'2026-09-21',end:'2026-11-29',dev_weeks:10},test:{start:'2026-11-30',end:'2026-12-27',test_weeks:4},release:{start:'2026-12-28',end:'2027-01-10'}},
+  'Yang1.0':{dev:{start:'2027-01-11',end:'2027-03-21',dev_weeks:10},test:{start:'2027-03-22',end:'2027-04-18',test_weeks:4},release:{start:'2027-04-19',end:'2027-05-02'}},
+  'Hou1.0':{dev:{start:'2027-05-03',end:'2027-07-11',dev_weeks:10},test:{start:'2027-07-12',end:'2027-08-08',test_weeks:4},release:{start:'2027-08-09',end:'2027-08-22'}}
+};
+let VERSIONS = VER_ORDER.map(k=>({...VER_META[k],phases:phaseObjToArr(RAW[k]),tapdId:''}));
+
+/* ============ Event engine (6 nodes + 3 ranges) ============ */
+let EVENTS = [];
+function computeEvents(){
+  const out=[];
+  for(const v of VERSIONS){
+    const devPh=v.phases.find(p=>p.type==='dev'); if(!devPh) continue;
+    const devEnd=d(devPh.end);
+    const baseWeek=shiftWorkWeeks(devEnd,-11);
+    const lockDay=mondayOf(baseWeek);
+    const demandDay=thursdayOf(baseWeek);
+    const estimateDay=thursdayOf(shiftWorkWeeks(demandDay,+3));
+    const scriptDay=thursdayOf(shiftWorkWeeks(estimateDay,+2));
+    const scheduleDay=thursdayOf(shiftWorkWeeks(scriptDay,+2));
+    const deliverDay=fridayOf(shiftWorkWeeks(devEnd,-1));
+    out.push({date:lockDay,short:`→${v.name.replace('.0','')} Vo需求锁`,full:`${v.name} · Vo 需求锁`,tag:'m-lock',categories:['milestone'],forVer:v.id,roles:['cn']});
+    out.push({date:demandDay,short:`→${v.name.replace('.0','')} 需求分配会`,full:`${v.name} · 需求分配会`,tag:'m-demand',categories:['meeting'],forVer:v.id,roles:['cn']});
+    out.push({date:estimateDay,short:`→${v.name.replace('.0','')} 粗估会`,full:`${v.name} · VO声优&台词量粗估会`,tag:'m-estimate',categories:['meeting'],forVer:v.id,roles:['cn','audio']});
+    out.push({date:scriptDay,short:`→${v.name.replace('.0','')} 台词交付会`,full:`${v.name} · 台词全量交付会`,tag:'m-script',categories:['meeting'],forVer:v.id,roles:['cn','audio']});
+    out.push({date:scheduleDay,short:`→${v.name.replace('.0','')} 录制定档会`,full:`${v.name} · 录制定档会`,tag:'m-schedule',categories:['meeting'],forVer:v.id,roles:['audio']});
+    out.push({date:deliverDay,short:`→${v.name.replace('.0','')} VO资源交付`,full:`${v.name} · VO资源交付`,tag:'m-deliver',categories:['milestone'],forVer:v.id,roles:['audio']});
+    out.push({range:[estimateDay,scriptDay],short:'选角',full:`${v.name} · 选角期`,tag:'r-cast',categories:['routine'],forVer:v.id,roles:['audio']});
+    out.push({range:[demandDay,scriptDay],short:'文案ING',full:`${v.name} · 文案ING`,tag:'r-cn-ing',categories:['routine'],forVer:v.id,roles:['cn']});
+    out.push({range:[scriptDay,deliverDay],short:'Vo ING',full:`${v.name} · Vo ING`,tag:'r-vo-ing',categories:['routine'],forVer:v.id,roles:['audio']});
+  }
+  for(const e of out) if(!e.date && e.range) e.date=e.range[0];
+  return out;
+}
+EVENTS = computeEvents();
+
+/* ============ Filters ============ */
+let currentFilter='all', roleFilter=null, nodeFilter=null, catFilter=null;
+function filterVer(v){ if(currentFilter==='all') return true; if(currentFilter instanceof Set) return currentFilter.has(v.id); return true; }
+function eventMatchesRole(e){ if(!roleFilter) return true; return e.roles && e.roles.includes(roleFilter); }
+function eventMatchesNode(e){ if(!nodeFilter) return true; return e.tag===nodeFilter; }
+function eventMatchesCat(e){ if(!catFilter) return true; return Array.isArray(e.categories) && e.categories.includes(catFilter); }
+function eventVisible(e){ return eventMatchesRole(e) && eventMatchesNode(e) && eventMatchesCat(e); }
+function eventOverlapsWeek(e,wkMon,wkSun){ if(e.range) return e.range[0]<=wkSun && e.range[1]>=wkMon; return e.date>=wkMon && e.date<=wkSun; }
+
+function setFilter(f){
+  if(f==='all') currentFilter='all';
+  else { if(!(currentFilter instanceof Set)) currentFilter=new Set(); if(currentFilter.has(f)) currentFilter.delete(f); else currentFilter.add(f); if(currentFilter.size===0) currentFilter='all'; }
+  document.querySelectorAll('#filterGroup .tb-btn').forEach(b=>{ const v=b.dataset.ver; let on=false; if(v==='all') on=currentFilter==='all'; else if(currentFilter instanceof Set) on=currentFilter.has(v); b.classList.toggle('on',on); });
+  rerenderView();
+}
+function setRoleFilter(r){ roleFilter=(roleFilter===r)?null:r; document.getElementById('roleAll').classList.toggle('on',roleFilter===null); document.getElementById('roleCn').classList.toggle('on',roleFilter==='cn'); document.getElementById('roleAudio').classList.toggle('on',roleFilter==='audio'); rerenderView(); }
+function setNodeFilter(tag){ nodeFilter=(nodeFilter===tag)?null:tag; const map={'m-lock':'ndLock','m-demand':'ndDemand','m-estimate':'ndEstimate','m-script':'ndScript','m-schedule':'ndSchedule','m-deliver':'ndDeliver'}; document.getElementById('ndAll').classList.toggle('on',nodeFilter===null); Object.entries(map).forEach(([t,id])=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',nodeFilter===t);}); rerenderView(); }
+function setCatFilter(c){ catFilter=(catFilter===c)?null:c; document.getElementById('catAll').classList.toggle('on',catFilter===null); document.getElementById('catMilestone').classList.toggle('on',catFilter==='milestone'); document.getElementById('catMeeting').classList.toggle('on',catFilter==='meeting'); document.getElementById('catRoutine').classList.toggle('on',catFilter==='routine'); rerenderView(); }
+function rerenderView(){ renderTimeline(); renderRightPanel(); }
+
+/* ============ Year calendar render ============ */
+const TAG_ORDER=['r-cn-ing','r-cast','r-vo-ing','m-lock','m-demand','m-estimate','m-script','m-schedule','m-deliver'];
+const CN=['零','一','二','三','四','五','六','七','八','九','十','十一','十二','十三'];
+function renderTimeline(){
+  const thead=document.getElementById('ycHead'), tbody=document.getElementById('ycBody');
+  const vers=VERSIONS.filter(filterVer);
+  const maxDev=Math.max(4,...vers.map(v=>(v.phases.find(p=>p.type==='dev')?.weeks)||0));
+  const maxTest=Math.max(4,...vers.map(v=>(v.phases.find(p=>p.type==='test')?.weeks)||0));
+  const WEEK_W=88;
+  let cg='<colgroup>';
+  cg+='<col style="width:56px"><col style="width:92px">';
+  for(let i=0;i<maxDev;i++) cg+=`<col style="width:${WEEK_W}px">`;
+  for(let i=0;i<maxTest;i++) cg+=`<col style="width:${WEEK_W}px">`;
+  cg+='<col style="width:88px"><col style="width:88px"><col style="width:76px"></colgroup>';
+  let hRow1='<tr><th class="yc-th-year" rowspan="2">年度</th><th class="yc-th-ms" rowspan="2">里程碑</th>'
+    +`<th class="yc-th-group yc-grp-dev" colspan="${maxDev}">开发期</th>`
+    +`<th class="yc-th-group yc-grp-test" colspan="${maxTest}">转测期</th>`
+    +'<th class="yc-th-group yc-grp-rel" colspan="2">发布期</th>'
+    +'<th class="yc-th-days" rowspan="2">开发工作日</th></tr>';
+  let hRow2='<tr>';
+  for(let i=0;i<maxDev;i++) hRow2+=`<th class="yc-th-week yc-grp-dev">第${CN[i+1]||i+1}周</th>`;
+  for(let i=0;i<maxTest;i++) hRow2+=`<th class="yc-th-week yc-grp-test">第${CN[i+1]||i+1}周</th>`;
+  hRow2+='<th class="yc-th-week yc-grp-rel">第一周</th><th class="yc-th-week yc-grp-rel">第二周</th></tr>';
+  const tableEl=document.getElementById('ycTable');
+  const oldCg=tableEl.querySelector('colgroup'); if(oldCg) oldCg.remove();
+  tableEl.insertAdjacentHTML('afterbegin',cg);
+  thead.innerHTML=hRow1+hRow2;
+
+  tbody.innerHTML='';
+  const verYears=vers.map(v=>{ const rp=v.phases.find(p=>p.type==='release')||v.phases[v.phases.length-1]; return d(rp.start).getFullYear(); });
+  const yearRunSpan=new Array(vers.length).fill(0); let runStart=0;
+  for(let i=1;i<=vers.length;i++){ if(i===vers.length||verYears[i]!==verYears[runStart]){ yearRunSpan[runStart]=i-runStart; runStart=i; } }
+
+  for(let vi=0; vi<vers.length; vi++){
+    const ver=vers[vi], relYear=verYears[vi];
+    const tr=document.createElement('tr'); if(ver.planned) tr.classList.add('planned');
+    if(yearRunSpan[vi]>0){ const tdY=document.createElement('td'); tdY.className='yc-year'; tdY.rowSpan=yearRunSpan[vi]; tdY.innerHTML=`<div style="font-size:13px;color:var(--c-primary);letter-spacing:1.5px">${relYear}</div>`; tr.appendChild(tdY); }
+    const devW=ver.phases.find(p=>p.type==='dev')?.weeks||0, testW=ver.phases.find(p=>p.type==='test')?.weeks||0, relW=ver.phases.find(p=>p.type==='release')?.weeks||1;
+    const tdMs=document.createElement('td'); tdMs.className='yc-ms'; tdMs.innerHTML=`<div class="ms-ver">${ver.name}</div><div class="ms-eq">${devW}+${testW}+${relW}</div>`; tr.appendChild(tdMs);
+
+    const slots=[]; for(let i=0;i<maxDev;i++) slots.push({phase:'dev',idx:i}); for(let i=0;i<maxTest;i++) slots.push({phase:'test',idx:i}); slots.push({phase:'release',idx:0}); slots.push({phase:'release',idx:1});
+    const slotHol=slots.map(slot=>{ const ph2=ver.phases.find(p=>p.type===slot.phase); if(!ph2||slot.idx>=ph2.weeks) return null; if(slot.phase==='release') return null; const ph2Start=d(ph2.start); const wkM=new Date(ph2Start.getTime()+slot.idx*7*86400000); const wkS=new Date(wkM.getTime()+6*86400000); for(const h of HOLIDAYS){ const hs=d(h.start),he=d(h.end); if(hs<=wkS&&he>=wkM) return {label:h.label,wkM,wkS,holStart:hs,holEnd:he}; } return null; });
+    const slotMerge=slots.map(()=>({skip:false,span:1}));
+    for(let s=0;s<slots.length;s++){ const h=slotHol[s]; if(!h) continue; if(slotMerge[s].skip) continue; let span=1; for(let t=s+1;t<slots.length;t++){ const h2=slotHol[t]; if(!h2) break; if(h2.label!==h.label) break; span++; slotMerge[t].skip=true; } slotMerge[s].span=span; }
+
+    for(let si=0;si<slots.length;si++){
+      const slot=slots[si]; if(slotMerge[si].skip) continue;
+      const td=document.createElement('td'); const ph=ver.phases.find(p=>p.type===slot.phase);
+      if(!ph){ td.className='yc-cell empty'; tr.appendChild(td); continue; }
+      const isOverflow=slot.idx>=ph.weeks;
+      if(slotHol[si]&&slotMerge[si].span>1) td.colSpan=slotMerge[si].span;
+      const phStart=d(ph.start); const wkMon=new Date(phStart.getTime()+slot.idx*7*86400000); const spanCount=(slotHol[si]?slotMerge[si].span:1); const wkSun=new Date(wkMon.getTime()+(spanCount*7-1)*86400000);
+      const isThisWeek=wkMon.getTime()===VIEW_START.getTime(); const isPast=wkSun<TODAY&&!isThisWeek; const isHol=!!slotHol[si];
+      let cls='yc-cell ph-'+slot.phase; if(isThisWeek) cls+=' this-week'; if(isPast) cls+=' past-week'; if(isOverflow) cls+=' overflow'; if(isHol) cls+=' is-holiday';
+      td.className=cls;
+      const rangeStr=fmtShort(wkMon)+'-'+fmtShort(wkSun);
+      const phStart2=d(ph.start),phEnd2=d(ph.end);
+      const wkEvents=EVENTS.filter(ev=>{ if(!eventVisible(ev)) return false; if(!eventOverlapsWeek(ev,wkMon,wkSun)) return false; if(ev.range) return ev.forVer===ver.id; return ev.date>=phStart2&&ev.date<=phEnd2; });
+      let note=''; if(slot.phase!=='release'&&slotHol[si]){ const h=slotHol[si]; note=`${h.label} · ${fmtShort(h.holStart)}-${fmtShort(h.holEnd)}`; }
+      let evtHtml='';
+      if(!isOverflow&&!isHol){
+        const seen=new Set(); const rows=[];
+        const sorted=[...wkEvents].sort((a,b)=>{ const va=VERSIONS.findIndex(v=>v.id===a.forVer)-VERSIONS.findIndex(v=>v.id===b.forVer); if(va) return va; return TAG_ORDER.indexOf(a.tag)-TAG_ORDER.indexOf(b.tag); });
+        const verStart=mondayOf(d(ver.phases[0].start)), verEnd=d(ver.phases[ver.phases.length-1].end);
+        for(const ev of sorted){ if(seen.has(ev.tag+'|'+ev.forVer)) continue; seen.add(ev.tag+'|'+ev.forVer);
+          if(ev.range){ const effS=ev.range[0]<verStart?verStart:ev.range[0]; const effE=ev.range[1]>verEnd?verEnd:ev.range[1]; const isFirst=effS>=wkMon&&effS<=wkSun; const isLast=effE>=wkMon&&effE<=wkSun; if(!(isFirst||(isFirst&&isLast))) continue; }
+          rows.push(ev); }
+        evtHtml=rows.map(ev=>`<div class="yc-row"><span class="yc-evt evt-${ev.tag}">${ev.short.replace(/^→/,'')}</span></div>`).join('');
+      }
+      if(isOverflow) td.innerHTML='';
+      else if(isHol) td.innerHTML=`<div class="yc-cell-body"><div class="yc-range">${rangeStr}</div>${note?`<div class="yc-note holiday">${note}</div>`:''}</div>`;
+      else td.innerHTML=`<div class="yc-cell-body"><div class="yc-range">${rangeStr}</div>${note?`<div class="yc-note holiday">${note}</div>`:''}${evtHtml}</div>`;
+      tr.appendChild(td);
+    }
+    const devPh=ver.phases.find(p=>p.type==='dev'); const REL_CONST=10; let workDays=REL_CONST; if(devPh) workDays+=workingDaysBetween(d(devPh.start),d(devPh.end));
+    const tdDays=document.createElement('td'); tdDays.className='yc-days'; tdDays.innerHTML=`<span class="yc-days-ver">${ver.name}</span><span class="yc-days-num">${workDays}<span class="u">天</span></span>`; tr.appendChild(tdDays);
+    tbody.appendChild(tr);
+  }
+  updateStats();
+}
+
+/* ============ Stats ============ */
+function updateStats(){
+  const inProg=VERSIONS.filter(v=>!v.planned).find(v=>{ const dev=v.phases.find(p=>p.type==='dev'),test=v.phases.find(p=>p.type==='test'); if(dev&&TODAY>=d(dev.start)&&TODAY<=d(dev.end)) return true; if(test&&TODAY>=d(test.start)&&TODAY<=d(test.end)) return true; return false; });
+  const nextVer=inProg||VERSIONS.filter(v=>!v.planned).find(v=>{ const dev=v.phases.find(p=>p.type==='dev'); return dev&&d(dev.start)>TODAY; });
+  const cv=document.getElementById('statCurVer'),cvSub=document.getElementById('statCurVerSub');
+  if(nextVer){ const nowPh=nextVer.phases.find(p=>TODAY>=d(p.start)&&TODAY<=d(p.end)); const phaseLabel=nowPh?'研发期':'未开始'; const lastPh=nextVer.phases[nextVer.phases.length-1]; const endDate=d(lastPh.end); const daysToEnd=workingDaysBetween(TODAY,endDate); cv.innerHTML=`${nextVer.name}<span class="unit">${nowPh?'':'即将开始'}</span>`; cvSub.textContent=`${phaseLabel} · 距对外包 ${daysToEnd} 工作日`; }
+  else { cv.innerHTML='—<span class="unit"></span>'; cvSub.textContent='暂无进行中/临近版本'; }
+  const nowMon=mondayOf(TODAY);
+  const nextEvt=EVENTS.filter(e=>!e.range&&eventVisible(e)&&e.date>=TODAY).sort((a,b)=>a.date-b.date)[0];
+  const cd=document.getElementById('statCd'),cdSub=document.getElementById('statCdSub');
+  if(nextEvt){ const wd=workingDaysBetween(TODAY,nextEvt.date); cd.innerHTML=`${wd}<span class="unit">工作日</span>`; cdSub.textContent=`${nextEvt.short.replace(/^→/,'')} · ${fmtShort(nextEvt.date)}`; }
+  else { cd.innerHTML='—<span class="unit"></span>'; cdSub.textContent='暂无后续节点'; }
+  const wkSun=new Date(nowMon.getTime()+6*86400000);
+  const wkPoints=EVENTS.filter(e=>!e.range&&eventVisible(e)&&e.date>=nowMon&&e.date<=wkSun);
+  const nx=document.getElementById('statNext'),nxSub=document.getElementById('statNextSub'); nx.innerHTML=`${wkPoints.length}<span class="unit">个</span>`;
+  if(wkPoints.length){ const labels=wkPoints.slice(0,2).map(e=>e.short.replace(/^→/,'')).join(' · '); nxSub.textContent=wkPoints.length>2?`${labels} +${wkPoints.length-2}`:labels; } else nxSub.textContent='本周无关键节点';
+  const wkRanges=EVENTS.filter(e=>e.range&&eventVisible(e)&&e.range[0]<=wkSun&&e.range[1]>=nowMon);
+  const rg=document.getElementById('statRange'),rgSub=document.getElementById('statRangeSub'); rg.innerHTML=`${wkRanges.length}<span class="unit">条</span>`;
+  if(wkRanges.length){ const tagLabel={'r-cast':'选角','r-cn-ing':'文案ING','r-vo-ing':'Vo ING'}; const uniq=[...new Set(wkRanges.map(e=>tagLabel[e.tag]||e.tag))]; rgSub.textContent=uniq.join(' · '); } else rgSub.textContent='本周无区间事项';
+}
+
+/* ============ Right panel ============ */
+function renderRightPanel(){ renderThisWeek(); renderTimeline30(); renderProgress(); }
+function renderThisWeek(){
+  const box=document.getElementById('rpThisWeek'); const nowMon=mondayOf(TODAY);
+  const cands=VERSIONS.filter(v=>!v.planned).map(ver=>{ const testPh=ver.phases.find(p=>p.type==='test'); if(!testPh) return null; const testMon=mondayOf(d(testPh.start)); if(testMon.getTime()<=nowMon.getTime()) return null; let weeksLeft=0; let cur=new Date(nowMon.getTime()); while(cur.getTime()<testMon.getTime()){ cur=new Date(cur.getTime()+7*86400000); if(weekIsHoliday(cur)) continue; weeksLeft++; } return {ver,testStart:d(testPh.start),weeksLeft}; }).filter(Boolean);
+  const items=cands.slice(0,3); if(!items.length){ box.innerHTML='<div class="rp-empty">所有版本已进入转测</div>'; return; }
+  box.innerHTML=items.map(it=>{ const nowPh=it.ver.phases.find(p=>{ const s=d(p.start),e=d(p.end); return TODAY>=s&&TODAY<=e; }); const phaseLabel=nowPh?'研发期':'未开始'; return `<div class="rp-tw-item"><div class="rp-tw-ver">${it.ver.name}<span class="rp-tw-phase">${phaseLabel}</span></div><div class="rp-tw-cd"><span class="rp-tw-cd-num">${it.weeksLeft}</span><span class="rp-tw-cd-unit">周</span></div><div class="rp-tw-cd-sub">距转测 W1 · ${fmtShort(it.testStart)}</div></div>`; }).join('');
+}
+function renderTimeline30(){
+  const box=document.getElementById('rpTimeline'); const end=new Date(TODAY); end.setDate(end.getDate()+60);
+  const evs=EVENTS.filter(e=>{ if(!eventVisible(e)) return false; if(e.range) return e.range[0]<=end&&e.range[1]>=TODAY; return e.date>=TODAY&&e.date<=end; }).sort((a,b)=>(a.date||a.range[0])-(b.date||b.range[0]));
+  if(!evs.length){ box.innerHTML='<div class="rp-empty">未来 60 天无事项</div>'; return; }
+  const verShort=forVer=>{ const v=VERSIONS.find(x=>x.id===forVer); return v?v.name.replace('.0',''):''; };
+  box.innerHTML=evs.map(e=>{ if(e.range){ const[s,ee]=e.range; const label=`${verShort(e.forVer)} ${e.short}`.trim(); return `<div class="rp-tl-item ${e.tag}"><div class="rp-tl-dot evt-${e.tag}"></div><div class="rp-tl-body"><div class="rp-tl-date">${fmtShort(s)} → ${fmtShort(ee)}</div><div class="rp-tl-label evt-${e.tag}">${label}</div></div></div>`; } const dd=e.date; const label=e.short.replace(/^→/,''); return `<div class="rp-tl-item ${e.tag}"><div class="rp-tl-dot evt-${e.tag}"></div><div class="rp-tl-body"><div class="rp-tl-date">${fmt(dd)} <span class="rp-tl-wk">周${WK[dd.getDay()]}</span></div><div class="rp-tl-label evt-${e.tag}">${label}</div></div></div>`; }).join('');
+}
+function renderProgress(){
+  const box=document.getElementById('rpProgress'); const items=VERSIONS.filter(v=>!v.planned).slice(0,3);
+  box.innerHTML=items.map(v=>{ const dev=v.phases.find(p=>p.type==='dev'),test=v.phases.find(p=>p.type==='test'); let pct=0,sub='未开始'; if(TODAY>=d(dev.start)&&TODAY<=d(dev.end)){ const tot=workingDaysBetween(d(dev.start),d(dev.end)); const done=workingDaysBetween(d(dev.start),TODAY); pct=Math.round(done/tot*100); sub='开发中'; } else if(test&&TODAY>=d(test.start)&&TODAY<=d(test.end)){ pct=100; sub='转测中'; } else if(TODAY>d(test.end)){ pct=100; sub='已发布'; } return `<div class="rp-prog-item"><div class="rp-prog-top"><span class="rp-prog-ver">${v.name}</span><span class="rp-prog-pct">${pct}%</span></div><div class="rp-prog-bar"><div class="rp-prog-fill" style="width:${pct}%"></div></div><div class="rp-prog-sub">${sub}</div></div>`; }).join('');
+}
+
+/* ============ Version filter buttons ============ */
+const fg=document.getElementById('filterGroup');
+fg.innerHTML='<button class="tb-btn on" data-ver="all" onclick="setFilter(\'all\')">全部</button>';
+VERSIONS.forEach(v=>{ const b=document.createElement('button'); b.className='tb-btn'; b.dataset.ver=v.id; b.textContent=v.name; b.onclick=()=>setFilter(v.id); fg.appendChild(b); });
+
+/* ============ Init ============ */
+renderTimeline();
+renderRightPanel();
+</script>
+</body>
+</html>

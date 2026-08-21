@@ -190,7 +190,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .chip-cw-ico:hover{border-color:var(--c-border);transform:translateY(-1px)}
 .chip-cw-ico.on{border-color:var(--c-primary);background:transparent;box-shadow:inset 0 -2px 0 var(--c-primary)}
 .chip-cw-unassigned{border-style:dashed;opacity:.85}
-.chip-cw-unassigned .cw-unassigned{background:transparent;color:var(--c-text-mute);border:1px dashed var(--c-hairline);font-weight:500}
+.chip-cw-unassigned .cw-unassigned{background:transparent;color:var(--c-text-mute);border:1.5px dashed var(--c-text-mute);border-radius:50%;font-weight:500;opacity:.78}
 .chip-cw-unassigned.on{opacity:1;border-style:solid}
 .chip-cw-ico .cw-ava{width:22px;height:22px;font-size:11px;flex-shrink:0}
 .chip-cw-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-mute);font-weight:600;font-variant-numeric:tabular-nums;min-width:12px;text-align:right}
@@ -216,7 +216,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .result-summary .rb-clear{margin-left:2px;color:var(--c-text-dim);cursor:pointer;border:none;background:transparent;font-size:11px;text-decoration:underline}
 .result-summary .rb-clear:hover{color:var(--c-danger)}
 .table-wrap{overflow:auto;flex:1;scrollbar-gutter:stable}
-table.demand-table{width:1520px;min-width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+table.demand-table{width:100%;min-width:2284px;table-layout:fixed;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
 table.demand-table th{font-size:12px!important;font-weight:600!important;letter-spacing:.35px!important;padding:9px 8px!important;text-shadow:none!important;text-align:center!important}
 table.demand-table td{font-size:13px!important;height:48px;padding-left:8px;padding-right:8px}
 thead{position:sticky;top:0;background:var(--c-bg-0);z-index:5}
@@ -273,13 +273,13 @@ tbody tr.selected{background:linear-gradient(90deg,rgba(15,247,150,.12),transpar
 
 .rp-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 6px;border-radius:3px;color:var(--c-text-mute);letter-spacing:0.5px;font-weight:500;background:transparent}
 /* Story 列 · TAPD 同步过滤版标题（2026-07-24：与发布计划 .rp-tag 同规格 — 灰色 mono 常规） */
-.story-cell{display:flex;flex-direction:column;gap:2px;max-width:244px;position:relative}
+.story-cell{display:flex;flex-direction:column;gap:2px;max-width:none;position:relative}
 /* 长标题悬停展开浮层（absolute 不撑动表格布局） */
 .story-cell:hover{z-index:30}
 .story-cell:hover .story-title{position:absolute;left:0;top:0;white-space:normal;overflow:visible;text-overflow:unset;max-width:460px;background:var(--c-surface);padding:4px 8px;margin:-4px -8px;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.55);border:1px solid var(--c-border);color:var(--c-text-1)}
-.story-title{font-size:13px;color:var(--c-text-mute);line-height:1.35;font-weight:500;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:244px}
+.story-title{font-size:13px;color:var(--c-text-mute);line-height:1.35;font-weight:500;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:none}
 .story-title:hover{color:var(--c-primary)}
-.story-link{font-size:10px;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:244px}
+.story-link{font-size:10px;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:none}
 /* 表格 AREA 列 · 与发布计划 .rp-tag 同规格 — 灰色 mono 常规 */
 .area{display:inline-flex;align-items:center;gap:5px;padding:0;font-size:13px;font-weight:500;font-family:'JetBrains Mono',monospace;background:transparent;color:var(--c-text-mute);border:none;letter-spacing:0.5px}
 .area-AI, .area-SOL, .area-BF, .area-SYS, .area-OP{background:transparent;color:var(--c-text-mute);border:none}
@@ -431,10 +431,10 @@ body.embed .mid{width:100%}
   .main .person{font-size:13px;letter-spacing:0}
   .main .chip-filter{font-size:13px}
   /* 声优预估：按声优库六大类拆成独立表格列 */
-  .th-ve-group{text-align:center!important;min-width:216px;border-left:1px solid rgba(15,247,150,.28)}
-  .th-ve-cat{width:36px;min-width:36px!important;max-width:36px;text-align:center!important;color:#6BD995!important;font-size:10px!important;line-height:1.15!important;letter-spacing:0!important;text-transform:none!important;border-left:1px solid var(--c-hairline);padding:5px 2px!important;white-space:normal!important;word-break:break-all}
+  .th-ve-group{text-align:center!important;min-width:900px;border-left:1px solid rgba(15,247,150,.28)}
+  .th-ve-cat{width:150px;min-width:150px!important;max-width:150px;text-align:center!important;color:#6BD995!important;font-size:11px!important;line-height:1.15!important;letter-spacing:.1px!important;text-transform:none!important;border-left:1px solid var(--c-hairline);padding:7px 7px!important;white-space:nowrap!important}
   .th-ve-cat.sortable .sort-arrows{margin-left:3px;padding:1px 4px}
-  .ve-cell{width:36px;min-width:36px;max-width:36px;padding:5px 3px;vertical-align:top;border-left:1px solid rgba(46,59,69,.55)}
+  .ve-cell{width:150px;min-width:150px;max-width:150px;padding:7px 7px;vertical-align:top;border-left:1px solid rgba(46,59,69,.55)}
   .ve-stack{display:flex;flex-direction:column;gap:4px;max-height:76px;overflow:auto;align-items:flex-start}
   .ve-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;background:rgba(15,23,28,.58);border:1px solid var(--c-hairline);border-radius:6px;padding:3px 7px;font-size:12px;color:var(--c-text);white-space:nowrap}
   .ve-role{overflow:hidden;text-overflow:ellipsis}
@@ -444,17 +444,18 @@ body.embed .mid{width:100%}
   /* 表头内迷你按钮（声优预估↻同步） */
   .mini-btn{margin-left:6px;vertical-align:middle;cursor:pointer;border:1px solid var(--c-hairline);background:rgba(15,242,150,.12);color:var(--c-primary);border-radius:5px;width:20px;height:20px;line-height:1;font-size:12px;padding:0}
   .mini-btn:hover{background:rgba(15,242,150,.28)}
-  /* 表格列宽：1520px 舒适网格，文案策划优先保证完整显示 */
+  /* 表格列宽：最小2284px，宽屏自动铺满；Story加宽至340px，声优预估六列各150px */
   .col-release{width:76px;min-width:76px!important;max-width:76px}
   .col-area{width:72px;min-width:72px!important;max-width:72px}
-  .col-story{width:260px;min-width:260px!important;max-width:260px}
+  .col-story{width:auto;min-width:340px!important;max-width:none}
+  col.col-story-flex{width:auto}
   .col-creator{width:96px;min-width:96px!important;max-width:96px}
   .creator-cell{color:var(--c-text-mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
   .col-status{width:138px;min-width:138px!important;max-width:138px}
   .col-doc{width:94px;min-width:94px!important;max-width:94px}
   .col-video{width:116px;min-width:116px!important;max-width:116px}
   .col-cw{width:220px;min-width:220px!important;max-width:220px}
-  .col-ve{width:36px}
+  .col-ve{width:150px;min-width:150px!important;max-width:150px}
   .th-max-group{text-align:center!important;color:var(--c-primary)!important}
   .th-max-date,.col-max-date{width:116px;min-width:116px!important;max-width:116px;text-align:center!important}
   .max-date-cell{font-family:var(--font-data);font-size:13px;color:var(--c-text-2);text-align:center;white-space:nowrap}
@@ -654,8 +655,8 @@ body.embed .mid{width:100%}
       <div class="table-wrap">
         <table class="demand-table">
           <colgroup>
-            <col style="width:76px"><col style="width:72px"><col style="width:260px"><col style="width:96px"><col style="width:138px"><col style="width:94px"><col style="width:116px"><col style="width:220px">
-            <col style="width:36px"><col style="width:36px"><col style="width:36px"><col style="width:36px"><col style="width:36px"><col style="width:36px">
+            <col style="width:76px"><col style="width:72px"><col class="col-story-flex"><col style="width:96px"><col style="width:138px"><col style="width:94px"><col style="width:116px"><col style="width:220px">
+            <col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px">
             <col style="width:116px"><col style="width:116px">
           </colgroup>
           <thead>
@@ -742,24 +743,103 @@ const RELEASE_LIBRARY_KEY = 'release_script_libraries_v1';
 let RELEASE_LIBRARY_DOCS = {};
 try{ RELEASE_LIBRARY_DOCS = JSON.parse(localStorage.getItem(RELEASE_LIBRARY_KEY)||'{}')||{}; }catch(_){ RELEASE_LIBRARY_DOCS = {}; }
 let RELEASE_PLANS = [];
-const DDL_HOLIDAYS = [
-  {start:'2026/9/25',end:'2026/9/25'},
-  {start:'2026/10/1',end:'2026/10/7'}
+// 与版本节点页 HOLIDAYS 同源（2026-2028 完整法定节假日区间，内置兜底；仅收录放假区间）
+let DDL_HOLIDAYS = [
+  // ====== 2026 年 ======
+  {short:'元旦',label:'元旦',start:'2026/1/1',end:'2026/1/3'},
+  {short:'春节',label:'春节',start:'2026/2/15',end:'2026/2/23'},
+  {short:'清明',label:'清明节',start:'2026/4/4',end:'2026/4/6'},
+  {short:'劳动',label:'劳动节',start:'2026/5/1',end:'2026/5/5'},
+  {short:'端午',label:'端午节',start:'2026/6/19',end:'2026/6/21'},
+  {short:'中秋',label:'中秋节',start:'2026/9/25',end:'2026/9/27'},
+  {short:'国庆',label:'国庆节',start:'2026/10/1',end:'2026/10/7'},
+  // ====== 2027 年 ======
+  {short:'元旦',label:'元旦',start:'2027/1/1',end:'2027/1/3'},
+  {short:'春节',label:'春节',start:'2027/2/5',end:'2027/2/13'},
+  {short:'清明',label:'清明节',start:'2027/4/5',end:'2027/4/7'},
+  {short:'劳动',label:'劳动节',start:'2027/5/1',end:'2027/5/5'},
+  {short:'端午',label:'端午节',start:'2027/5/28',end:'2027/5/30'},
+  {short:'中秋',label:'中秋节',start:'2027/9/20',end:'2027/9/22'},
+  {short:'国庆',label:'国庆节',start:'2027/10/1',end:'2027/10/7'},
+  // ====== 2028 年 ======
+  {short:'元旦',label:'元旦',start:'2028/1/1',end:'2028/1/3'},
+  {short:'春节',label:'春节',start:'2028/1/25',end:'2028/2/1'},
+  {short:'清明',label:'清明节',start:'2028/4/4',end:'2028/4/6'},
+  {short:'劳动',label:'劳动节',start:'2028/5/1',end:'2028/5/5'},
+  {short:'端午',label:'端午节',start:'2028/6/19',end:'2028/6/21'},
+  {short:'中秋',label:'中秋节',start:'2028/9/14',end:'2028/9/16'},
+  {short:'国庆',label:'国庆节',start:'2028/10/1',end:'2028/10/7'},
+  // 海外仅圣诞节当天；ddlWeekIsHoliday 会使 12/25 所在整周无效
+  ...[2025,2026,2027,2028,2029].map(y=>({short:'圣诞',label:'圣诞节',start:`${y}/12/25`,end:`${y}/12/25`}))
 ];
+// 判断某天是否法定节假日（与版本节点页 holidayOnDay 同源：遍历 HOLIDAYS 区间）
+function holidayOnDay(day){
+  const dt = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime();
+  for(const h of DDL_HOLIDAYS){
+    if(ddlDate(h.start).getTime() <= dt && dt <= ddlDate(h.end).getTime()) return h;
+  }
+  return null;
+}
+// 与版本节点页同源：成功后按年份整体替换中国放假数据，禁止旧区间与核准结果叠加。
+async function loadHolidaysAuto(){
+  const years=[2026,2027,2028,2029]; let changed=false;
+  try{
+    for(const y of years){
+      const r=await fetch(`https://timor.tech/api/holiday/year/${y}`,{cache:'no-cache'});
+      if(!r.ok) continue;
+      const j=await r.json();
+      if(!j||j.code!==0||!j.holiday) continue;
+      const days=Object.values(j.holiday).filter(e=>e.holiday===true)
+        .map(e=>({name:e.name||'法定假日',date:e.date.replace(/-/g,'/')}))
+        .sort((a,b)=>ddlDate(a.date)-ddlDate(b.date));
+      if(!days.length) continue;
+      const ranges=[]; let cur=null;
+      for(const e of days){
+        if(cur&&(ddlDate(e.date)-ddlDate(cur.end))===86400000){ cur.end=e.date; if(!cur.names.includes(e.name)) cur.names.push(e.name); }
+        else { if(cur) ranges.push(cur); cur={start:e.date,end:e.date,names:[e.name]}; }
+      }
+      if(cur) ranges.push(cur);
+      const incoming=ranges.map(x=>({short:x.names[0].slice(0,2),label:x.names.join('/'),start:x.start,end:x.end}));
+      DDL_HOLIDAYS=DDL_HOLIDAYS.filter(h=>h.label==='圣诞节'||ddlDate(h.start).getFullYear()!==y).concat(incoming);
+      changed=true;
+    }
+  }catch(e){ console.warn('中国节假日核准失败，沿用内置快照：',e); }
+  return changed;
+}
 function ddlDate(s){ const p=String(s||'').split(/[/\-]/).map(Number); return new Date(p[0],(p[1]||1)-1,p[2]||1); }
 function ddlMonday(date){ const r=new Date(date); const dw=(r.getDay()+6)%7; r.setDate(r.getDate()-dw); r.setHours(0,0,0,0); return r; }
 function ddlThursday(date){ const r=ddlMonday(date); r.setDate(r.getDate()+3); return r; }
 function ddlFriday(date){ const r=ddlMonday(date); r.setDate(r.getDate()+4); return r; }
+// 与版本节点页同源：国内放假区间任一日或圣诞节12/25命中，整周无效。
 function ddlWeekIsHoliday(mon){
   const a=ddlMonday(mon), b=new Date(a); b.setDate(b.getDate()+6);
-  return DDL_HOLIDAYS.some(h=>ddlDate(h.start)<=b && ddlDate(h.end)>=a);
+  return DDL_HOLIDAYS.some(h=>ddlDate(h.start)<=b&&ddlDate(h.end)>=a);
 }
-function ddlShiftWorkWeeks(fromDate,w){
-  let cur=ddlMonday(fromDate), remaining=Math.abs(w), step=w<0?-1:1;
-  while(remaining>0){ cur.setDate(cur.getDate()+step*7); if(ddlWeekIsHoliday(cur)) continue; remaining--; }
+function ddlShiftValidWeeksAfter(fromDate,n){
+  let cur=ddlMonday(fromDate),remaining=Math.max(0,n);
+  while(remaining>0){ cur=ddlAddDaysN(cur,7); if(ddlWeekIsHoliday(cur)) continue; remaining--; }
   return cur;
 }
+function ddlNthValidWeekBackwardInclusive(fromDate,n){
+  let cur=ddlMonday(fromDate),remaining=Math.max(1,n);
+  while(true){ if(!ddlWeekIsHoliday(cur)){ remaining--; if(remaining===0) return cur; } cur=ddlAddDaysN(cur,-7); }
+}
+function ddlDeliveryFriday(devEnd){
+  let week=ddlAddDaysN(ddlMonday(devEnd),-7);
+  while(ddlWeekIsHoliday(week)) week=ddlAddDaysN(week,-7);
+  return ddlFriday(week);
+}
 function ddlIsHoliday(day){ return DDL_HOLIDAYS.some(h=>ddlDate(h.start)<=day && day<=ddlDate(h.end)); }
+// —— 以下与版本节点页节点引擎同源（2026-08-18 修订 v4）——
+function ddlAddDaysN(date,n){ const r=new Date(date); r.setDate(r.getDate()+n); return r; }
+// 累加 N 个工作日：从 startDate 起向后逐日走，遇周末/法定节假日跳过，直到消耗 N 个工作日
+function ddlAddWorkDaysN(startDate,n){
+  let cur=new Date(startDate.getTime());
+  if(n<=0) return cur;
+  let rem=n; const oneDay=86400000;
+  while(rem>0){ cur=new Date(cur.getTime()+oneDay); const dow=cur.getDay(); if(dow===0||dow===6) continue; if(holidayOnDay(cur)) continue; rem--; }
+  return cur;
+}
 function ddlWorkdaysLeft(from,target){
   const a=new Date(from.getFullYear(),from.getMonth(),from.getDate());
   const b=new Date(target.getFullYear(),target.getMonth(),target.getDate());
@@ -780,6 +860,11 @@ async function loadReleasePlans(){
     RELEASE_PLANS=(j&&Array.isArray(j.data))?j.data:[];
   }catch(e){ RELEASE_PLANS=[]; }
 }
+// 双 DDL 以版本节点页为权威口径（2026-08-20）：
+//   Vo需求锁 = 从开发最后周含当周向前数第11个有效周 周一
+//   声优锁 = 锁周之后第3个有效周 周四11:30
+//   台词锁 = 声优锁周之后第2个有效周 周四11:30（文案DDL）
+//   VO资源交付 = 开发倒数第二周周五；该周无效则提前至前一个有效周周五
 function renderDualDdl(release){
   const copyEl=document.getElementById('kpiCopyDdl'), voEl=document.getElementById('kpiVoDdl');
   const copyDate=document.getElementById('kpiCopyDate'), voDate=document.getElementById('kpiVoDate');
@@ -787,16 +872,15 @@ function renderDualDdl(release){
   const plan=findReleasePlan(release), ph=plan&&plan.phases;
   if(!ph||!ph.dev||!ph.dev.end){ copyEl.textContent=voEl.textContent='—'; copyDate.textContent=voDate.textContent='无匹配版本节点'; return; }
   const devEnd=ddlDate(ph.dev.end);
-  const lockDay=ddlThursday(ddlShiftWorkWeeks(devEnd,-12));
-  const demandDay=ddlThursday(ddlShiftWorkWeeks(lockDay,+1));
-  const estimateDay=ddlThursday(ddlShiftWorkWeeks(demandDay,+2));
-  const scriptMeeting=ddlThursday(ddlShiftWorkWeeks(estimateDay,+2));
-  const voDeliver=ddlFriday(ddlShiftWorkWeeks(devEnd,-1));
-  const copyTarget=ddlFriday(scriptMeeting), now=new Date();
-  const copyLeft=ddlWorkdaysLeft(now,copyTarget), voLeft=ddlWorkdaysLeft(now,voDeliver);
+  const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
+  const estimateThu=ddlThursday(ddlShiftValidWeeksAfter(lockDay,3));
+  const scriptThu=ddlThursday(ddlShiftValidWeeksAfter(estimateThu,2));
+  const voDeliver=ddlDeliveryFriday(devEnd);
+  const now=new Date();
+  const copyLeft=ddlWorkdaysLeft(now,scriptThu), voLeft=ddlWorkdaysLeft(now,voDeliver);
   copyEl.textContent=copyLeft>=0?copyLeft:`逾期${Math.abs(copyLeft)}`;
   voEl.textContent=voLeft>=0?voLeft:`逾期${Math.abs(voLeft)}`;
-  copyDate.textContent=`台词交付周五 · ${ddlFmt(copyTarget)}`;
+  copyDate.textContent=`台词锁周四 · ${ddlFmt(scriptThu)}`;
   voDate.textContent=`VO资源交付周五 · ${ddlFmt(voDeliver)}`;
 }
 // 排序状态（默认按状态 stage 升序，与旧行为一致）
@@ -1774,7 +1858,7 @@ function updateKPI(){
   const unassignedCnt = cntByCw[''] || 0;
   const unassignedChip = `<div class="chip-cw-ico chip-cw-unassigned${filterCw==='__none__'?' on':''}" data-fk="cw" data-fv="__none__"
               title="未分配文案策划 · ${unassignedCnt} 条">
-              <span class="cw-ava cw-ava-empty">—</span>
+              <span class="cw-ava cw-unassigned">?</span>
               <span class="chip-cw-num">${unassignedCnt}</span>
             </div>`;
   cc.innerHTML = COPYWRITERS.map(c => {
@@ -2152,7 +2236,7 @@ async function kvInitDemandPage(){
     }
   }catch(_){}
 }
-(async ()=>{ await loadReleasePlans(); await kvInitDemandPage(); loadDemands(); })();
+(async ()=>{ await loadReleasePlans(); await loadHolidaysAuto(); await kvInitDemandPage(); loadDemands(); })();
 </script>
 
 <!-- 保存状态提示 -->

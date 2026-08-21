@@ -52,9 +52,15 @@ _batch_*.json
 _per_category_*.json
 _demo_*.json
 
-# cw-doc 调试配置
+# cw-doc 调试配置（根目录调试文件忽略；后端正式模块明确保留）
 cw_*.json
 cw_*.js
+!deploy/backend/cw_doc_recipe_v6.js
+!deploy/backend/src/cw_doc_executor.js
+!deploy/backend/src/cw_mcp_client.js
+
+# 后端构建清单属于正式源码（根目录 package* 仍忽略）
+!deploy/backend/package.json
 
 # 临时服务器/输出/环境
 dfai-live-server.js
@@ -66,6 +72,8 @@ outputs/
 scripts/
 package.json
 package-lock.json
+!deploy/backend/package.json
+!deploy/backend/package-lock.json
 
 # 资产目录内的调试 dump
 assets/_roles_dump.json
@@ -89,3 +97,6 @@ _dump_*.py
 _simulate_*.py
 _cmp_*.html
 _review_tmp/
+
+# 一键发布本地临时文件
+release.local.*

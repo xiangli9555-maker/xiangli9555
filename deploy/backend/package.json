@@ -1,0 +1,26 @@
+{
+  "name": "vo-manager-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vo Manager backend service",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "check": "node --check src/index.js && node --check src/security.js && node --check src/soft_delete.js && node --check src/zip_guard.js && node --check src/audit.js && node --check src/calendar.js && node --check src/releasePlan.js && node --check test/security.test.js && node --check test/soft_delete.test.js && node --check test/roster_delete_guard.test.js && node --check test/zip_guard.test.js && node --check test/audit.test.js && node --check test/calendar.test.js && node --check test/releasePlan.test.js",
+    "test": "node --test test/*.test.js",
+    "audit": "npm audit --omit=dev --audit-level=high"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "mysql2": "^3.14.4",
+    "multer": "^2.0.2"
+  },
+  "overrides": {
+    "uuid": "11.1.1"
+  }
+}

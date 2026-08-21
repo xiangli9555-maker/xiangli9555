@@ -98,7 +98,11 @@ function createDemandJobs(options) {
         job.status='running'; job.attempt+=1; job.started_at=now(); job.updated_at=now(); job.progress='running'; save();
         try {
           const result=await execute(job);
-          job.status='done'; job.result=result||{}; job.error=''; job.progress='done'; job.finished_at=now(); job.updated_at=now(); save();
+          if(result && result.partial===true){
+            job.status='failed'; job.result=result; job.error=(result.partialReason||'任务部分失败（结果不完整）'); job.progress='partial_failed'; job.finished_at=now(); job.updated_at=now(); save();
+          } else {
+            job.status='done'; job.result=result||{}; job.error=''; job.progress='done'; job.finished_at=now(); job.updated_at=now(); save();
+          }
         } catch(e) {
           job.status='failed'; job.error=e && e.message ? e.message : String(e); job.progress='failed'; job.finished_at=now(); job.updated_at=now(); save();
         }

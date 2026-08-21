@@ -668,7 +668,7 @@ body.embed .mid{width:100%}
               <th rowspan="2" class="sortable col-status" data-sort="status" onclick="toggleSort('status',this)">状态<button class="header-filter-btn" onclick="openHeaderFilter(event,'status')" title="筛选状态"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th rowspan="2" class="th-doc col-doc" style="text-align:center!important;white-space:nowrap">
                 台词表
-                <span id="syncBolt" class="bolt-icon bolt-empty" onclick="event.stopPropagation();syncAllForRelease()" oncontextmenu="event.preventDefault();event.stopPropagation();retryFailedJobs('script_table')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();syncAllForRelease()}" title="一键生成当前版本全部台词表；右键重试失败任务" role="button" tabindex="0">
+                <span id="syncBolt" style="display:none" class="bolt-icon bolt-empty" onclick="event.stopPropagation();syncAllForRelease()" oncontextmenu="event.preventDefault();event.stopPropagation();retryFailedJobs('script_table')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();syncAllForRelease()}" title="一键生成当前版本全部台词表；右键重试失败任务" role="button" tabindex="0">
                   <svg viewBox="0 0 24 24" width="18" height="18"><path class="bolt-path" d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
                 </span>
               </th>

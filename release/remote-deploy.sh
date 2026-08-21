@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# 由根目录 release.sh 上传并调用。只部署已经成功 push 的 Git HEAD 包。
+set -Eeuo pipefail
+ARCHIVE="${1:?missing archive}"
+MANIFEST="${2:?missing manifest}"
+COMMIT="${3:?missing commit}"
+DEPLOY="/root/deploy"
+BACKUP="/root/deploy/backups/release_${COMMIT}_$(date +%Y%m%d_%H%M%S)"
+STAGE="/tmp/vomi-stage-${COMMIT}"
+
+trap 'echo "✗ CVM 部署失败；备份在：'$BACKUP'" >&2' ERR
+rm -rf "$STAGE"
+mkdir -p "$STAGE" "$BACKUP"
+tar -xzf "$ARCHIVE" -C "$STAGE"
+[[ -d "$STAGE/deploy/frontend" && -d "$STAGE/deploy/backend" ]] || { echo "部署包结构错误"; exit 1; }
+
+# 保护服务器真实环境文件：包内不应包含 .env，但这里再做防线。
+rm -f "$STAGE/deploy/.env" "$STAGE/deploy/backend/.env"
+
+# 备份当前运行态的源码与配置（不复制 audio、mysql、certs 等大数据）。
+for item in frontend backend/src backend/Dockerfile backend/package.json backend/package-lock.json backend/cw_doc_recipe_v6.js docker-compose.yml nginx/default.conf; do
+  if [[ -e "$DEPLOY/$item" ]]; then
+    mkdir -p "$BACKUP/$(dirname "$item")"
+    cp -a "$DEPLOY/$item" "$BACKUP/$item"
+  fi
+done
+printf '%s\n' "$COMMIT" > "$BACKUP/target-commit.txt"
+
+# 以 Git 包为真源覆盖正式源码；保留服务器 .env、certs、数据卷。
+mkdir -p "$DEPLOY/frontend" "$DEPLOY/backend/src" "$DEPLOY/nginx"
+cp -a "$STAGE/deploy/frontend/." "$DEPLOY/frontend/"
+cp -a "$STAGE/deploy/backend/src/." "$DEPLOY/backend/src/"
+for f in Dockerfile package.json package-lock.json cw_doc_recipe_v6.js build_cw_doc.js roster.json tapd-snapshot.js .env.example; do
+  [[ -f "$STAGE/deploy/backend/$f" ]] && cp -a "$STAGE/deploy/backend/$f" "$DEPLOY/backend/$f"
+done
+[[ -f "$STAGE/deploy/docker-compose.yml" ]] && cp -a "$STAGE/deploy/docker-compose.yml" "$DEPLOY/docker-compose.yml"
+[[ -f "$STAGE/deploy/nginx/default.conf" ]] && cp -a "$STAGE/deploy/nginx/default.conf" "$DEPLOY/nginx/default.conf"
+
+# Git 包与服务器文件必须完全相同；不一致立即失败。
+cd /root
+sha256sum -c "$MANIFEST"
+
+cd "$DEPLOY"
+# 后端以镜像为准；源码改动必须重建。前端为 bind mount，只需重启 nginx。
+docker compose build --no-cache backend
+docker compose up -d backend nginx
+
+# 等待健康；不依赖登录 token。
+for i in $(seq 1 30); do
+  code="$(curl -s -o /tmp/vomi-health.json -w '%{http_code}' http://localhost/api/health || true)"
+  [[ "$code" == "200" ]] && break
+  sleep 2
+done
+[[ "${code:-000}" == "200" ]] || { docker logs vo-backend --tail 80 >&2; exit 1; }
+
+# 关键页面和关键数据接口验证。
+for url in \
+  /vo-manager-refined.html \
+  /preview-需求汇总-精修版.html \
+  /preview-版本节点-精修版.html \
+  /api/demands \
+  /api/release-plans; do
+  code="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost$url" || true)"
+  [[ "$code" == "200" ]] || { echo "HTTP 检查失败：$url => $code"; exit 1; }
+done
+
+printf '%s\n' "$COMMIT" > "$DEPLOY/DEPLOYED_GIT_COMMIT"
+rm -rf "$STAGE" "$ARCHIVE" "$MANIFEST" "$0"
+echo "✓ CVM 部署成功：$COMMIT"
+echo "✓ 备份：$BACKUP"

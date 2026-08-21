@@ -1,18 +1,63 @@
 const express = require('express');
-const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const pool = require('./db');
+const { deletePrecondition } = require('./soft_delete');
+const { ensureAuditTable, writeAudit } = require('./audit');
+const calendar = require('./calendar');
+const releasePlan = require('./releasePlan');
+const {
+  apiAuth,
+  corsGuard,
+  methodRbac,
+  positiveInt,
+  publicError,
+  rateLimit,
+  requireRole,
+  secureHeaders,
+} = require('./security');
 
 const app = express();
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.disable('x-powered-by');
+app.set('trust proxy', 1);
+app.use(secureHeaders);
+app.use(corsGuard);
+app.use(rateLimit({ windowMs: 60_000, max: Number(process.env.RATE_LIMIT_PER_MINUTE || 180) }));
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '2mb', strict: true }));
+app.use('/api', (req, res, next) => req.path === '/health' ? next() : apiAuth(req, res, next));
+app.use('/api', (req, res, next) => req.path === '/health' ? next() : methodRbac(req, res, next));
+app.use('/audio', apiAuth, requireRole('viewer'));
+app.get('/api/auth/me', (req, res) => res.json({ ok:true, user:req.auth.subject, role:req.auth.role }));
 
 // 音频文件上传 · 存 /data/audio
 const AUDIO_DIR = process.env.AUDIO_DIR || '/data/audio';
-if (!fs.existsSync(AUDIO_DIR)) fs.mkdirSync(AUDIO_DIR, { recursive: true });
-const upload = multer({ dest: AUDIO_DIR });
+const MAX_AUDIO_BYTES = Number(process.env.MAX_AUDIO_BYTES || 100 * 1024 * 1024);
+const MAX_STORAGE_BYTES = Number(process.env.MAX_STORAGE_BYTES || 10 * 1024 * 1024 * 1024); // 聚合存储配额，默认 10GB
+// 统计音频目录已用字节（聚合配额用）
+function audioDirUsedBytesSync(dir) {
+  let total = 0;
+  try {
+    for (const name of fs.readdirSync(dir)) {
+      try { total += fs.statSync(path.join(dir, name)).size; } catch (_) {}
+    }
+  } catch (_) {}
+  return total;
+}
+const AUDIO_EXTENSIONS = new Set(['.wav', '.mp3', '.ogg', '.m4a', '.flac', '.aac']);
+const AUDIO_MIME_TYPES = new Set([
+  'audio/wav', 'audio/x-wav', 'audio/mpeg', 'audio/ogg', 'audio/mp4',
+  'audio/x-m4a', 'audio/flac', 'audio/x-flac', 'audio/aac'
+]);
+if (!fs.existsSync(AUDIO_DIR)) fs.mkdirSync(AUDIO_DIR, { recursive: true, mode: 0o750 });
+const upload = multer({
+  dest: AUDIO_DIR,
+  limits: { fileSize: MAX_AUDIO_BYTES, files: 1 },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    cb(null, AUDIO_EXTENSIONS.has(ext) && AUDIO_MIME_TYPES.has(String(file.mimetype || '').toLowerCase()));
+  },
+});
 
 // 健康检查
 app.get('/api/health', async (req, res) => {
@@ -20,7 +65,34 @@ app.get('/api/health', async (req, res) => {
     const [rows] = await pool.query('SELECT NOW() AS t');
     res.json({ ok: true, db_time: rows[0].t, service: 'vo-manager-backend' });
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    res.status(500).json({ ok: false, error: publicError(e) });
+  }
+});
+
+// ---------- 统一日期引擎：节假日 / 调休 / 工作日 ----------
+app.get('/api/calendar', (req, res) => {
+  const year = Number(req.query.year) || new Date().getFullYear();
+  if (year < 2000 || year > 2100) return res.status(400).json({ ok:false, error:'invalid_year' });
+  res.json({ ok:true, ...calendar.getCalendar(year) });
+});
+
+// ---------- 实时发布计划（版本节点）：本地 DB 真源 + 可选 DFAI 官方计划 ----------
+app.get('/api/release-plans', async (req, res) => {
+  try {
+    const out = await releasePlan.getReleasePlans(pool);
+    res.json(out);
+  } catch (e) {
+    res.status(500).json({ success: false, data: [], error: publicError(e) });
+  }
+});
+
+// ---------- 版本日历节点（对外正式包确认等）；可选 DFAI，否则本地档期 ----------
+app.get('/api/calendar-entries', async (req, res) => {
+  try {
+    const out = await releasePlan.getCalendarEntries(pool, req.query.releaseId);
+    res.json(out);
+  } catch (e) {
+    res.status(500).json({ data: [], error: publicError(e) });
   }
 });
 
@@ -69,19 +141,27 @@ const DEMANDS_READY = (async () => {
     }
   } catch (e) { console.warn('[demands] migrate manual status skipped:', e.message); }
 })();
+
+// 审计日志表（幂等）
+const AUDIT_READY = ensureAuditTable(pool);
+
 app.get('/api/kv/:key', async (req, res) => {
   try {
     await KV_READY;
-    const [rows] = await pool.query('SELECT v, revision, updated_at FROM kv_store WHERE k=?', [req.params.key]);
+    const key = String(req.params.key || '');
+    if (!/^[a-zA-Z0-9:_-]{1,128}$/.test(key)) return res.status(400).json({ ok:false, error:'invalid_key' });
+    const [rows] = await pool.query('SELECT v, revision, updated_at FROM kv_store WHERE k=?', [key]);
     if (!rows.length) return res.json({ ok:true, exists:false, value:null, revision:0, updated_at:null });
     res.json({ ok:true, exists:true, value:rows[0].v, revision:Number(rows[0].revision||1), updated_at:rows[0].updated_at });
-  } catch (e) { res.status(500).json({ ok:false, error:e.message }); }
+  } catch (e) { res.status(500).json({ ok:false, error:publicError(e) }); }
 });
 app.put('/api/kv/:key', async (req, res) => {
   try {
     await KV_READY;
-    const key = req.params.key;
+    const key = String(req.params.key || '');
+    if (!/^[a-zA-Z0-9:_-]{1,128}$/.test(key)) return res.status(400).json({ ok:false, error:'invalid_key' });
     const v = typeof req.body.value === 'string' ? req.body.value : JSON.stringify(req.body.value ?? null);
+    if (Buffer.byteLength(v, 'utf8') > 2 * 1024 * 1024) return res.status(413).json({ ok:false, error:'value_too_large' });
     const base = Number(req.body.base_revision);
     if (!Number.isInteger(base) || base < 0) return res.status(428).json({ ok:false, error:'revision_required' });
     if (base === 0) {
@@ -103,85 +183,284 @@ app.put('/api/kv/:key', async (req, res) => {
       current_value:current[0] ? current[0].v : null,
       updated_at:current[0] ? current[0].updated_at : null
     });
-  } catch (e) { res.status(500).json({ ok:false, error:e.message }); }
+  } catch (e) { res.status(500).json({ ok:false, error:publicError(e) }); }
 });
 
-// ---------- 声优 ----------
+// ---------- 声优 / 声优库软删除基础设施 ----------
+async function ensureColumns(table, definitions) {
+  for (const definition of definitions) {
+    try { await pool.query(`ALTER TABLE ${table} ADD COLUMN ${definition}`); }
+    catch (error) { if (!/Duplicate column|1060/.test(error.message)) throw error; }
+  }
+}
+const ACTORS_READY = ensureColumns('voice_actors', [
+  'is_deleted TINYINT(1) NOT NULL DEFAULT 0',
+  'deleted_at DATETIME NULL',
+  'deleted_by VARCHAR(64) NULL',
+  'revision BIGINT NOT NULL DEFAULT 1',
+]);
+const VOICE_ROLES_READY = ensureColumns('voice_roles', [
+  'is_deleted TINYINT(1) NOT NULL DEFAULT 0',
+  'deleted_at DATETIME NULL',
+  'deleted_by VARCHAR(64) NULL',
+  'revision BIGINT NOT NULL DEFAULT 1',
+]);
 app.get('/api/actors', async (req, res) => {
+  await ACTORS_READY;
   const { role_type } = req.query;
   const params = [];
-  let sql = 'SELECT * FROM voice_actors';
-  if (role_type) { sql += ' WHERE role_type=?'; params.push(role_type); }
+  let sql = 'SELECT * FROM voice_actors WHERE is_deleted=0';
+  if (role_type) { sql += ' AND role_type=?'; params.push(role_type); }
   sql += ' ORDER BY id';
   const [rows] = await pool.query(sql, params);
   res.json(rows);
 });
 app.post('/api/actors', async (req, res) => {
+  await ACTORS_READY;
   const { name, role_type, languages, schedule, available, portfolio_url } = req.body;
   if (!name || !portfolio_url) return res.status(400).json({ error: '姓名与选角资料链接必填' });
-  const [r] = await pool.query(
-    'INSERT INTO voice_actors (name, role_type, languages, schedule, available, portfolio_url) VALUES (?,?,?,?,?,?)',
-    [name, role_type || '干员', languages || '中文', schedule || '—', available ? 1 : 0, portfolio_url]
-  );
-  res.json({ id: r.insertId });
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [existing] = await conn.query('SELECT id FROM voice_actors WHERE name=? LIMIT 1', [name]);
+    let id, created;
+    if (existing[0]) {
+      await conn.query(
+        'UPDATE voice_actors SET role_type=?,languages=?,schedule=?,available=?,portfolio_url=?,is_deleted=0,deleted_at=NULL,deleted_by=NULL,revision=revision+1 WHERE id=?',
+        [role_type || '干员', languages || '中文', schedule || '—', available ? 1 : 0, portfolio_url, existing[0].id]
+      );
+      id = existing[0].id; created = false;
+    } else {
+      const [r] = await conn.query(
+        'INSERT INTO voice_actors (name, role_type, languages, schedule, available, portfolio_url) VALUES (?,?,?,?,?,?)',
+        [name, role_type || '干员', languages || '中文', schedule || '—', available ? 1 : 0, portfolio_url]
+      );
+      id = r.insertId; created = true;
+    }
+    await writeAudit(conn, { actor: req.auth.subject, action: created ? 'create' : 'update', table_name: 'voice_actors', record_id: id, detail: { name } });
+    await conn.commit();
+    res.json({ id, revision:1, upserted: !created });
+  } catch (e) {
+    await conn.rollback();
+    res.status(500).json({ error: publicError(e) });
+  } finally {
+    conn.release();
+  }
 });
 app.patch('/api/actors/:id', async (req, res) => {
+  await ACTORS_READY;
+  const id = positiveInt(req.params.id);
+  if (!id) return res.status(400).json({ok:false,error:'invalid_id'});
   const fields = ['name', 'role_type', 'languages', 'schedule', 'available', 'portfolio_url'];
   const sets = [], vals = [];
   fields.forEach(f => { if (f in req.body) { sets.push(`${f}=?`); vals.push(req.body[f]); } });
   if (!sets.length) return res.json({ ok: true });
-  vals.push(req.params.id);
-  await pool.query(`UPDATE voice_actors SET ${sets.join(',')} WHERE id=?`, vals);
-  res.json({ ok: true });
+  sets.push('revision=revision+1');
+  vals.push(id);
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [result] = await conn.query(`UPDATE voice_actors SET ${sets.join(',')} WHERE id=? AND is_deleted=0`, vals);
+    if (!result.affectedRows) { await conn.rollback(); return res.status(404).json({ok:false,error:'actor_not_found'}); }
+    await writeAudit(conn, { actor: req.auth.subject, action: 'update', table_name: 'voice_actors', record_id: id, detail: { fields: fields.filter(f => f in req.body) } });
+    await conn.commit();
+    res.json({ ok: true });
+  } catch (e) {
+    await conn.rollback();
+    res.status(500).json({ error: publicError(e) });
+  } finally {
+    conn.release();
+  }
 });
 app.delete('/api/actors/:id', async (req, res) => {
-  await pool.query('DELETE FROM voice_actors WHERE id=?', [req.params.id]);
-  res.json({ ok: true });
+  await ACTORS_READY;
+  const id = positiveInt(req.params.id);
+  if (!id) return res.status(400).json({ok:false,error:'invalid_id'});
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [rows] = await conn.query('SELECT id,name,revision FROM voice_actors WHERE id=? AND is_deleted=0', [id]);
+    if (!rows[0]) { await conn.rollback(); return res.status(404).json({ok:false,error:'actor_not_found'}); }
+    const failed = deletePrecondition(rows[0], req.body, 'name');
+    if (failed) { await conn.rollback(); return res.status(failed.status).json({ok:false,...failed}); }
+    const [result] = await conn.query(
+      'UPDATE voice_actors SET is_deleted=1,deleted_at=NOW(),deleted_by=?,revision=revision+1 WHERE id=? AND revision=? AND is_deleted=0',
+      [req.auth.subject, id, rows[0].revision]
+    );
+    if (!result.affectedRows) { await conn.rollback(); return res.status(409).json({ok:false,error:'revision_conflict'}); }
+    await writeAudit(conn, { actor: req.auth.subject, action: 'soft_delete', table_name: 'voice_actors', record_id: id, detail: { name: rows[0].name } });
+    await conn.commit();
+    res.json({ ok:true, soft_deleted:true, id });
+  } catch (e) {
+    await conn.rollback();
+    res.status(500).json({ error: publicError(e) });
+  } finally {
+    conn.release();
+  }
+});
+app.post('/api/actors/:id/restore', requireRole('admin'), async (req, res) => {
+  await ACTORS_READY;
+  const id = positiveInt(req.params.id);
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [result] = await conn.query(
+      'UPDATE voice_actors SET is_deleted=0,deleted_at=NULL,deleted_by=NULL,revision=revision+1 WHERE id=? AND is_deleted=1',
+      [id]
+    );
+    if (!result.affectedRows) { await conn.rollback(); return res.status(404).json({ok:false,error:'deleted_actor_not_found'}); }
+    await writeAudit(conn, { actor: req.auth.subject, action: 'restore', table_name: 'voice_actors', record_id: id });
+    await conn.commit();
+    res.json({ok:true,restored:true,id});
+  } catch (e) {
+    await conn.rollback();
+    res.status(500).json({ error: publicError(e) });
+  } finally {
+    conn.release();
+  }
 });
 
 // ---------- 声优库·角色映射（10 列 Excel 版） ----------
-const VOICE_ROLE_FIELDS = ['module','role_cn','gender','role_en','cn_va','cn_loc','cn_studio','en_va','en_loc','en_studio','sort_order','remark','casting_note','rec_time_cn','rec_time_en','is_deleted'];
-app.get('/api/voice-roles', async (req, res) => {
+const VOICE_ROLE_FIELDS = ['module','role_cn','gender','role_en','cn_va','cn_loc','cn_studio','en_va','en_loc','en_studio','sort_order','remark','casting_note','rec_time_cn','rec_time_en'];
+// 统一 Router：/api/voice-roles（历史入口）与 /api/talents（新命名入口）共用同一套 handler 与 voice_roles 表
+const voiceRoleRouter = express.Router();
+voiceRoleRouter.get('/', async (req, res) => {
+  await VOICE_ROLES_READY;
   const { module } = req.query;
+  const includeDeleted = req.query.include_deleted === '1';
+  if (includeDeleted && req.auth.role !== 'admin') return res.status(403).json({ok:false,error:'forbidden'});
   const params = [];
-  let sql = 'SELECT * FROM voice_roles WHERE (is_deleted=0 OR is_deleted IS NULL)';
+  let sql = `SELECT * FROM voice_roles WHERE ${includeDeleted ? '1=1' : 'is_deleted=0'}`;
   if (module) { sql += ' AND module=?'; params.push(module); }
   sql += ' ORDER BY module, sort_order, id';
   const [rows] = await pool.query(sql, params);
   res.json(rows);
 });
-app.post('/api/voice-roles', async (req, res) => {
+voiceRoleRouter.post('/', async (req, res) => {
+  await VOICE_ROLES_READY;
   const body = req.body || {};
   if (!body.module || !body.role_cn) return res.status(400).json({ error: 'module 与 role_cn 必填' });
-  const cols = VOICE_ROLE_FIELDS.filter(f => f in body);
-  const vals = cols.map(f => body[f]);
-  const placeholders = cols.map(() => '?').join(',');
-  const [r] = await pool.query(
-    `INSERT INTO voice_roles (${cols.join(',')}) VALUES (${placeholders})`, vals
-  );
-  res.json({ id: r.insertId });
-});
-app.patch('/api/voice-roles/:id', async (req, res) => {
-  const sets = [], vals = [];
-  VOICE_ROLE_FIELDS.forEach(f => { if (f in req.body) { sets.push(`${f}=?`); vals.push(req.body[f]); } });
-  if (!sets.length) return res.json({ ok: true });
-  vals.push(req.params.id);
-  await pool.query(`UPDATE voice_roles SET ${sets.join(',')} WHERE id=?`, vals);
-  res.json({ ok: true });
-});
-app.delete('/api/voice-roles/:id', async (req, res) => {
-  await pool.query('DELETE FROM voice_roles WHERE id=?', [req.params.id]);
-  res.json({ ok: true });
-});
-// 批量导入（用于 Excel 一键导入）
-app.post('/api/voice-roles/bulk', async (req, res) => {
-  const rows = req.body && req.body.rows;
-  if (!Array.isArray(rows) || !rows.length) return res.status(400).json({ error: 'rows 数组必填' });
-  const clear = !!(req.body && req.body.clearFirst);
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    if (clear) await conn.query('DELETE FROM voice_roles');
+    // upsert：同 (module, role_cn) 已存在则更新（含软删后重建），否则插入
+    const [existing] = await conn.query('SELECT id FROM voice_roles WHERE module=? AND role_cn=? LIMIT 1', [body.module, body.role_cn]);
+    let id, created;
+    if (existing[0]) {
+      const cols = VOICE_ROLE_FIELDS.filter(f => f in body && f !== 'module' && f !== 'role_cn');
+      const sets = cols.map(f => `${f}=?`);
+      const vals = cols.map(f => body[f]);
+      sets.push('is_deleted=0','deleted_at=NULL','deleted_by=NULL','revision=revision+1');
+      vals.push(existing[0].id);
+      await conn.query(`UPDATE voice_roles SET ${sets.join(',')} WHERE id=?`, vals);
+      id = existing[0].id; created = false;
+    } else {
+      const cols = VOICE_ROLE_FIELDS.filter(f => f in body);
+      const vals = cols.map(f => body[f]);
+      const placeholders = cols.map(() => '?').join(',');
+      const [r] = await conn.query(`INSERT INTO voice_roles (${cols.join(',')}) VALUES (${placeholders})`, vals);
+      id = r.insertId; created = true;
+    }
+    await writeAudit(conn, { actor: req.auth.subject, action: created ? 'create' : 'update', table_name: 'voice_roles', record_id: id, detail: { module: body.module, role_cn: body.role_cn } });
+    await conn.commit();
+    res.json({ id, revision:1, upserted: !created });
+  } catch (e) {
+    await conn.rollback();
+    res.status(500).json({ error: publicError(e) });
+  } finally {
+    conn.release();
+  }
+});
+voiceRoleRouter.patch('/:id', async (req, res) => {
+  await VOICE_ROLES_READY;
+  const id = positiveInt(req.params.id);
+  if (!id) return res.status(400).json({ok:false,error:'invalid_id'});
+  const sets = [], vals = [];
+  VOICE_ROLE_FIELDS.forEach(f => { if (f in req.body) { sets.push(`${f}=?`); vals.push(req.body[f]); } });
+  if (!sets.length) return res.json({ ok: true });
+  sets.push('revision=revision+1');
+  vals.push(id);
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [result] = await conn.query(`UPDATE voice_roles SET ${sets.join(',')} WHERE id=? AND is_deleted=0`, vals);
+    if (!result.affectedRows) { await conn.rollback(); return res.status(404).json({ok:false,error:'voice_role_not_found'}); }
+    await writeAudit(conn, { actor: req.auth.subject, action: 'update', table_name: 'voice_roles', record_id: id, detail: { fields: VOICE_ROLE_FIELDS.filter(f => f in req.body) } });
+    await conn.commit();
+    res.json({ ok: true });
+  } catch (e) {
+    await conn.rollback();
+    res.status(500).json({ error: publicError(e) });
+  } finally {
+    conn.release();
+  }
+});
+voiceRoleRouter.delete('/:id', async (req, res) => {
+  await VOICE_ROLES_READY;
+  const id = positiveInt(req.params.id);
+  if (!id) return res.status(400).json({ok:false,error:'invalid_id'});
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [rows] = await conn.query('SELECT id,role_cn,revision FROM voice_roles WHERE id=? AND is_deleted=0', [id]);
+    if (!rows[0]) { await conn.rollback(); return res.status(404).json({ok:false,error:'voice_role_not_found'}); }
+    const failed = deletePrecondition(rows[0], req.body, 'role_cn');
+    if (failed) { await conn.rollback(); return res.status(failed.status).json({ok:false,...failed}); }
+    const [result] = await conn.query(
+      'UPDATE voice_roles SET is_deleted=1,deleted_at=NOW(),deleted_by=?,revision=revision+1 WHERE id=? AND revision=? AND is_deleted=0',
+      [req.auth.subject, id, rows[0].revision]
+    );
+    if (!result.affectedRows) { await conn.rollback(); return res.status(409).json({ok:false,error:'revision_conflict'}); }
+    await writeAudit(conn, { actor: req.auth.subject, action: 'soft_delete', table_name: 'voice_roles', record_id: id, detail: { role_cn: rows[0].role_cn } });
+    await conn.commit();
+    res.json({ ok:true, soft_deleted:true, id });
+  } catch (e) {
+    await conn.rollback();
+    res.status(500).json({ error: publicError(e) });
+  } finally {
+    conn.release();
+  }
+});
+voiceRoleRouter.post('/:id/restore', requireRole('admin'), async (req, res) => {
+  await VOICE_ROLES_READY;
+  const id = positiveInt(req.params.id);
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [rows] = await conn.query('SELECT id,module,role_cn FROM voice_roles WHERE id=? AND is_deleted=1', [id]);
+    if (!rows[0]) { await conn.rollback(); return res.status(404).json({ok:false,error:'deleted_voice_role_not_found'}); }
+    const [active] = await conn.query('SELECT id FROM voice_roles WHERE module=? AND role_cn=? AND is_deleted=0 LIMIT 1', [rows[0].module, rows[0].role_cn]);
+    if (active[0]) { await conn.rollback(); return res.status(409).json({ok:false,error:'active_duplicate_exists',active_id:active[0].id}); }
+    await conn.query('UPDATE voice_roles SET is_deleted=0,deleted_at=NULL,deleted_by=NULL,revision=revision+1 WHERE id=?', [id]);
+    await writeAudit(conn, { actor: req.auth.subject, action: 'restore', table_name: 'voice_roles', record_id: id, detail: { role_cn: rows[0].role_cn } });
+    await conn.commit();
+    res.json({ok:true,restored:true,id});
+  } catch (e) {
+    await conn.rollback();
+    res.status(500).json({ error: publicError(e) });
+  } finally {
+    conn.release();
+  }
+});
+// 批量导入（用于 Excel 一键导入）
+voiceRoleRouter.post('/bulk', requireRole('admin'), async (req, res) => {
+  await VOICE_ROLES_READY;
+  const rows = req.body && req.body.rows;
+  if (!Array.isArray(rows) || !rows.length) return res.status(400).json({ error: 'rows 数组必填' });
+  if (rows.length > 5000) return res.status(413).json({error:'too_many_rows'});
+  const clear = !!(req.body && req.body.clearFirst);
+  if (clear && req.body.confirm_clear !== 'SOFT_DELETE_ALL') {
+    return res.status(428).json({ok:false,error:'clear_confirmation_required'});
+  }
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    if (clear) {
+      await conn.query(
+        'UPDATE voice_roles SET is_deleted=1,deleted_at=NOW(),deleted_by=?,revision=revision+1 WHERE is_deleted=0',
+        [req.auth.subject]
+      );
+    }
     let inserted = 0;
     for (const r of rows) {
       if (!r.module || !r.role_cn) continue;
@@ -191,15 +470,20 @@ app.post('/api/voice-roles/bulk', async (req, res) => {
       await conn.query(`INSERT INTO voice_roles (${cols.join(',')}) VALUES (${placeholders})`, vals);
       inserted++;
     }
+    await writeAudit(conn, { actor: req.auth.subject, action: 'bulk_import', table_name: 'voice_roles', record_id: null, detail: { inserted, cleared: clear } });
     await conn.commit();
     res.json({ ok: true, inserted, cleared: clear });
   } catch (e) {
     await conn.rollback();
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ error: publicError(e) });
   } finally {
     conn.release();
   }
 });
+
+// 历史入口 + 新命名入口（DB 表 voice_roles 保持不变）
+app.use('/api/voice-roles', voiceRoleRouter);
+app.use('/api/talents', voiceRoleRouter);
 
 // ---------- 需求 ----------
 app.get('/api/demands', async (req, res) => {
@@ -240,6 +524,12 @@ app.patch('/api/demands/:id', async (req, res) => {
     if (!valid.includes(req.body.manual_status)) return res.status(400).json({ok:false,error:'invalid_manual_status'});
   }
   await DEMANDS_READY;
+  // 取切换前的 video_sync / script_doc_url，用于检测「翻成音画同步」并自动追加 Tab3
+  let oldVs = '', oldDocUrl = '';
+  try {
+    const [oldRows] = await pool.query('SELECT video_sync, script_doc_url FROM demands WHERE id=?', [req.params.id]);
+    if (oldRows[0]) { oldVs = oldRows[0].video_sync || ''; oldDocUrl = oldRows[0].script_doc_url || ''; }
+  } catch (e) { /* 忽略，下面正常更新 */ }
 
   fields.forEach(f => {
     if (f in req.body) {
@@ -260,6 +550,19 @@ app.patch('/api/demands/:id', async (req, res) => {
   vals.push(req.params.id);
   await pool.query(`UPDATE demands SET ${sets.join(',')} WHERE id=?`, vals);
 
+  // 监听：video_sync 变为「音画同步」且已有台词表文档 → 自动给已建文档补 Tab3【音画同步】
+  const newVs = ('video_sync' in req.body) ? req.body.video_sync : oldVs;
+  if (oldVs !== '音画同步' && newVs === '音画同步') {
+    const docUrl = (('script_doc_url' in req.body) && req.body.script_doc_url) || oldDocUrl;
+    if (docUrl) {
+      const dem = { id: req.params.id, script_doc_url: docUrl };
+      // 异步追加，不阻塞 PATCH 响应；失败仅记录日志
+      cwExecutor.appendAvSyncSheet(dem)
+        .then((r) => console.log('[cw] 自动追加 Tab3 完成:', req.params.id, JSON.stringify(r)))
+        .catch((e) => console.error('[cw] 自动追加 Tab3 失败:', req.params.id, e.message));
+    }
+  }
+
   res.json({ ok: true });
 });
 
@@ -269,7 +572,7 @@ const TAPD_DEMAND_FIELDS = [
   'description', 'creator', 'developer', 'handler', 'status',
   'story_type', 'sync_source', 'last_synced_at'
 ];
-app.post('/api/refresh', async (req, res) => {
+app.post('/api/refresh', requireRole('admin'), async (req, res) => {
   try {
     await DEMANDS_READY;
     const fs = require('fs');
@@ -358,7 +661,7 @@ app.post('/api/refresh', async (req, res) => {
       updated
     });
   } catch(e) {
-    res.status(500).json({ ok:false, source:'tapd_snapshot', error: e.message, rows:0 });
+    res.status(500).json({ ok:false, source:'tapd_snapshot', error: publicError(e), rows:0 });
   }
 });
 
@@ -398,7 +701,7 @@ app.patch('/api/scripts/:id', async (req, res) => {
   // 留痕
   const [old] = await pool.query('SELECT * FROM script_lines WHERE id=?', [req.params.id]);
   if (old.length) {
-    const changedBy = req.headers['x-user'] || 'anonymous';
+    const changedBy = (req.auth && req.auth.subject) || 'authenticated';
     for (const f of Object.keys(req.body)) {
       if (fields.includes(f) && String(old[0][f] ?? '') !== String(req.body[f] ?? '')) {
         await pool.query(
@@ -471,41 +774,54 @@ function normalizeScheduleDraft(b){
     client_draft_id:String(b.client_draft_id||b.id||'').trim()||null
   };
 }
-async function publishScheduleDraft(b){
+async function publishScheduleDraft(b, conn){
+  const db = conn || pool;
   const x=normalizeScheduleDraft(b);
   if(!x.demand_id) throw Object.assign(new Error('关联需求必填'),{status:400});
   if(!/^\d{4}-\d{2}-\d{2}$/.test(x.record_date)) throw Object.assign(new Error('录制日期必填'),{status:400});
-  const [demands]=await pool.query('SELECT id,release_plan FROM demands WHERE id=?',[x.demand_id]);
+  const [demands]=await db.query('SELECT id,release_plan FROM demands WHERE id=?',[x.demand_id]);
   if(!demands[0]) throw Object.assign(new Error('关联需求不存在'),{status:400});
   if(!x.release_plan) x.release_plan=demands[0].release_plan||'';
   const cols=['voice_actor_id','record_date','language','gp_audio_event','duration_hours','status','demand_id','release_plan','studio','time_slot','line_count','client_draft_id','published_at'];
   const vals=[x.voice_actor_id,x.record_date,x.language,x.gp_audio_event,x.duration_hours,x.status,x.demand_id,x.release_plan,x.studio,x.time_slot,x.line_count,x.client_draft_id,new Date()];
   if(x.client_draft_id){
-    const [before]=await pool.query('SELECT id FROM recording_schedules WHERE client_draft_id=?',[x.client_draft_id]);
-    await pool.query(`INSERT INTO recording_schedules (${cols.join(',')}) VALUES (${cols.map(()=>'?').join(',')}) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,vals);
-    const [hit]=await pool.query('SELECT * FROM recording_schedules WHERE client_draft_id=?',[x.client_draft_id]);
+    const [before]=await db.query('SELECT id FROM recording_schedules WHERE client_draft_id=?',[x.client_draft_id]);
+    await db.query(`INSERT INTO recording_schedules (${cols.join(',')}) VALUES (${cols.map(()=>'?').join(',')}) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,vals);
+    const [hit]=await db.query('SELECT * FROM recording_schedules WHERE client_draft_id=?',[x.client_draft_id]);
     return {row:hit[0],created:before.length===0};
   }
-  const [r]=await pool.query(`INSERT INTO recording_schedules (${cols.join(',')}) VALUES (${cols.map(()=>'?').join(',')})`,vals);
-  const [hit]=await pool.query('SELECT * FROM recording_schedules WHERE id=?',[r.insertId]);
+  const [r]=await db.query(`INSERT INTO recording_schedules (${cols.join(',')}) VALUES (${cols.map(()=>'?').join(',')})`,vals);
+  const [hit]=await db.query('SELECT * FROM recording_schedules WHERE id=?',[r.insertId]);
   return {row:hit[0],created:true};
 }
 app.post('/api/schedules', async (req,res) => {
   try{ await SCHEDULES_READY; const out=await publishScheduleDraft(req.body||{}); res.json({ok:true,...out}); }
-  catch(e){ res.status(e.status||500).json({ok:false,error:e.message}); }
+  catch(e){ res.status(e.status||500).json({ok:false,error:publicError(e)}); }
 });
 app.post('/api/schedules/publish', async (req,res) => {
   try{
     await SCHEDULES_READY;
     const drafts=Array.isArray(req.body&&req.body.drafts)?req.body.drafts:[];
     if(!drafts.length) return res.status(400).json({ok:false,error:'没有可发布的草稿'});
-    const published=[],failed=[];
-    for(const draft of drafts){
-      try{ const out=await publishScheduleDraft(draft); published.push({client_draft_id:draft.id||draft.client_draft_id,id:out.row.id,created:out.created}); }
-      catch(e){ failed.push({client_draft_id:draft.id||draft.client_draft_id,error:e.message}); }
+    const conn=await pool.getConnection();
+    try{
+      // 整批在同一事务内：任一草稿失败则整体回滚，消除"部分成功"
+      await conn.beginTransaction();
+      const published=[];
+      for(const draft of drafts){
+        const out=await publishScheduleDraft(draft, conn);
+        published.push({client_draft_id:draft.id||draft.client_draft_id,id:out.row.id,created:out.created});
+      }
+      await writeAudit(conn,{actor:req.auth.subject,action:'batch_publish',table_name:'recording_schedules',record_id:null,detail:{count:published.length}});
+      await conn.commit();
+      res.json({ok:true,published,failed:[],total:drafts.length});
+    }catch(e){
+      await conn.rollback();
+      res.status(e.status||500).json({ok:false,error:publicError(e),rolled_back:true,total:drafts.length});
+    }finally{
+      conn.release();
     }
-    res.status(failed.length?207:200).json({ok:failed.length===0,published,failed,total:drafts.length});
-  }catch(e){ res.status(500).json({ok:false,error:e.message}); }
+  }catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
 app.patch('/api/schedules/:id', async (req,res) => {
   try{
@@ -514,11 +830,11 @@ app.patch('/api/schedules/:id', async (req,res) => {
     const sets=[],vals=[]; allowed.forEach(k=>{if(k in req.body){sets.push(`${k}=?`);vals.push(req.body[k]);}});
     if(!sets.length) return res.json({ok:true}); vals.push(req.params.id);
     await pool.query(`UPDATE recording_schedules SET ${sets.join(',')} WHERE id=?`,vals); res.json({ok:true});
-  }catch(e){ res.status(500).json({ok:false,error:e.message}); }
+  }catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
 app.delete('/api/schedules/:id', async (req,res) => {
   try{ await SCHEDULES_READY; await pool.query('DELETE FROM recording_schedules WHERE id=?',[req.params.id]); res.json({ok:true}); }
-  catch(e){ res.status(500).json({ok:false,error:e.message}); }
+  catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
 
 // ---------- 音频资产 ----------
@@ -539,7 +855,20 @@ app.get('/api/assets', async (req, res) => {
   res.json(rows);
 });
 app.post('/api/assets/upload', upload.single('file'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: '未上传文件' });
+  if (!req.file) return res.status(400).json({ error: '只允许上传受支持的音频格式' });
+  // 聚合存储配额：multer 已落盘，超限则删除刚写入的文件并拒绝
+  const incoming = req.file.size || 0;
+  const usedExcludingNew = Math.max(0, audioDirUsedBytesSync(AUDIO_DIR) - incoming);
+  if (usedExcludingNew + incoming > MAX_STORAGE_BYTES) {
+    try { fs.unlinkSync(req.file.path); } catch (_) {}
+    return res.status(413).json({
+      error: 'storage_quota_exceeded',
+      used_bytes: usedExcludingNew,
+      quota_bytes: MAX_STORAGE_BYTES,
+      remaining_bytes: Math.max(0, MAX_STORAGE_BYTES - usedExcludingNew),
+      file_bytes: incoming
+    });
+  }
   const { script_line_id, voice_actor_id, version, gp_audio_event, language } = req.body;
   const stat = fs.statSync(req.file.path);
   const [r] = await pool.query(
@@ -547,18 +876,30 @@ app.post('/api/assets/upload', upload.single('file'), async (req, res) => {
        (script_line_id, voice_actor_id, version, gp_audio_event, language, file_name, file_url, size_bytes, uploaded_by)
      VALUES (?,?,?,?,?,?,?,?,?)`,
     [script_line_id || null, voice_actor_id || null, version, gp_audio_event, language,
-     req.file.originalname, req.file.filename, stat.size, req.headers['x-user'] || 'anonymous']
+     path.basename(req.file.originalname), req.file.filename, stat.size, (req.auth && req.auth.subject) || 'authenticated']
   );
   res.json({ id: r.insertId, file_url: `/audio/${req.file.filename}` });
 });
+// 存储配额用量（供前端展示）
+app.get('/api/storage/quota', (req, res) => {
+  const used = audioDirUsedBytesSync(AUDIO_DIR);
+  res.json({
+    used_bytes: used,
+    quota_bytes: MAX_STORAGE_BYTES,
+    remaining_bytes: Math.max(0, MAX_STORAGE_BYTES - used),
+    file_cap_bytes: MAX_AUDIO_BYTES
+  });
+});
 app.get('/audio/:filename', (req, res) => {
-  const p = path.join(AUDIO_DIR, req.params.filename);
-  if (!fs.existsSync(p)) return res.status(404).send('not found');
-  res.sendFile(p);
+  const filename = String(req.params.filename || '');
+  if (!/^[a-f0-9]{32}$/.test(filename)) return res.status(400).send('invalid filename');
+  res.sendFile(filename, { root: AUDIO_DIR, dotfiles: 'deny' }, (error) => {
+    if (error && !res.headersSent) res.status(error.statusCode === 404 ? 404 : 500).send('not found');
+  });
 });
 
 // ---------- TAPD 同步（占位，未来接 DFAI）----------
-app.post('/api/tapd/sync', async (req, res) => {
+app.post('/api/tapd/sync', requireRole('admin'), async (req, res) => {
   // TODO: 接入 https://dfai.woa.com/aiapi/get_story
   // 需要环境变量 DFAI_TOKEN
   res.json({
@@ -571,20 +912,27 @@ app.post('/api/tapd/sync', async (req, res) => {
 // ---------- 台词表 · 上传解析 / 汇总 / 按声优导出 ----------
 // 过渡方案（无平台 API）：文案导出 v3 台账 xlsx -> 后端解析 -> upsert 进 script_lines
 const lineOps = require('./upload');
-const lineUpload = multer({ storage: multer.memoryStorage() });
+const lineUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => cb(null,
+    path.extname(file.originalname || '').toLowerCase() === '.xlsx' &&
+    String(file.mimetype || '') === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  ),
+});
 
 // 上传填写好的 v3 台账 xlsx -> 解析 -> 幂等 upsert 进 script_lines
 app.post('/api/lines/upload', lineUpload.single('file'), async (req, res) => {
-  const demandId = parseInt(req.body.demand_id, 10);
-  const planner = req.body.planner || (req.headers['x-user'] || 'anonymous');
-  if (!req.file) return res.status(400).json({ error: '未上传文件' });
-  if (!demandId) return res.status(400).json({ error: 'demand_id 必填（请先在面板选择归属需求）' });
+  const demandId = positiveInt(req.body.demand_id);
+  const planner = req.body.planner || ((req.auth && req.auth.subject) || 'authenticated');
+  if (!req.file) return res.status(400).json({ error: '只允许上传不超过 10MB 的 .xlsx 文件' });
+  if (!demandId) return res.status(400).json({ error: 'demand_id 必须是正整数（请先在面板选择归属需求）' });
   try {
     const parsed = await lineOps.parseLinesheet(req.file.buffer, demandId);
     const r = await lineOps.upsertLines(demandId, planner, parsed);
     res.json({ ok: true, ...r });
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    res.status(500).json({ ok: false, error: publicError(e) });
   }
 });
 
@@ -597,7 +945,7 @@ app.get('/api/lines', async (req, res) => {
     });
     res.json(rows);
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    res.status(500).json({ ok: false, error: publicError(e) });
   }
 });
 
@@ -612,7 +960,7 @@ async function handleExportVa(req, res) {
     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(r.filename)}"`);
     res.send(Buffer.from(r.buffer));
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    res.status(500).json({ ok: false, error: publicError(e) });
   }
 }
 app.get('/api/lines/export', handleExportVa);
@@ -621,14 +969,21 @@ app.post('/api/lines/export', handleExportVa);
 // ---------- 声优库 · 选角资料 Word 导出件解析（多人可用，无需登录态/OCR） ----------
 // 前端上传企业微信文档「导出为 Word」的 .docx → 纯 Node 解析（zip+XML）→ 章节字段 → 填充新建声优表单
 const vadoc = require('./vadoc');
-const vaDocUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
+const vaDocUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 20 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => cb(null,
+    path.extname(file.originalname || '').toLowerCase() === '.docx' &&
+    String(file.mimetype || '') === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ),
+});
 app.post('/api/va-doc/parse-file', vaDocUpload.single('file'), async (req, res) => {
   if (!req.file || !req.file.buffer) return res.status(400).json({ error: '未上传文件' });
   try {
     const r = vadoc.parseVaDocxAuto(req.file.buffer, req.file.originalname || '');
     res.json(r);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ error: publicError(e) });
   }
 });
 
@@ -743,31 +1098,10 @@ app.post('/api/cw-doc/submit-v6', async (req, res) => {
     const job = await cwMakeJob(dem);
     cwRun();
     res.json({ ok: true, job_id: job.id, job });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) { res.status(500).json({ error: publicError(e) }); }
 });
 
-// POST /api/cw-doc/sync-v6  → 某 release 内所有未生成的需求逐个入队
-app.post('/api/cw-doc/sync-v6', async (req, res) => {
-  try {
-    const release = (req.body && req.body.release) || 'Yang1.0';
-    const [rows] = await pool.query(
-      "SELECT * FROM demands WHERE release_plan=? AND story_type='音频' AND status!='suspended' ORDER BY id",
-      [release]
-    );
-    const doneIds = new Set();
-    [...jobs.values()].forEach((j) => {
-      if (j.status === 'done' && j.doc_url) (j.story_ids || []).forEach((s) => doneIds.add(String(s)));
-    });
-    const created = [], skipped = [];
-    for (const dem of rows) {
-      if (cwAlreadyDone(dem, doneIds)) { skipped.push({ demand_id: dem.id, reason: 'done' }); continue; }
-      const job = await cwMakeJob(dem);
-      created.push({ demand_id: dem.id, task_name: dem.task_name, job_id: job.id, doc_title: job.doc_title });
-    }
-    cwRun();
-    res.json({ ok: true, release, created, skipped, total: rows.length });
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
+
 
 // GET /api/cw-doc/jobs  → 列表（支持 cw_id / release / status 过滤）；前端轮询用
 app.get('/api/cw-doc/jobs', (req, res) => {
@@ -812,7 +1146,7 @@ const demandJobs = createDemandJobs({
         'UPDATE demands SET script_doc_url=? WHERE id=? AND (script_doc_url IS NULL OR script_doc_url="")',
         [r.url, dem.id]
       );
-      return { doc_url:r.url, doc_file_id:r.file_id, doc_title:r.tab, has_av_sync:!!r.has_av_sync };
+      return { doc_url:r.url, doc_file_id:r.file_id, doc_title:r.tab, has_av_sync:!!r.has_av_sync, warnings: (r.warnings||[]) };
     }
     if (job.type === 'voice_estimates') {
       const tableJob = demandJobs.latest('script_table', dem.id, 'v6');
@@ -836,7 +1170,7 @@ app.post('/api/cw-doc/jobs', async (req,res) => {
     const version=(req.body&&req.body.version)||(type==='script_table'?'v6':'v1');
     const out=demandJobs.enqueue({type,demand:dem,release:dem.release_plan,version,title:dem.task_name,force:!!req.body.force});
     res.json({ok:true,...publicJobResult(out)});
-  }catch(e){ res.status(500).json({ok:false,error:e.message}); }
+  }catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
 
 app.post('/api/cw-doc/submit-v6', async (req,res) => {
@@ -846,7 +1180,7 @@ app.post('/api/cw-doc/submit-v6', async (req,res) => {
     if(!dem||!dem.id) return res.status(400).json({ok:false,error:'demand_id必填'});
     const out=demandJobs.enqueue({type:'script_table',demand:dem,release:dem.release_plan,version:'v6',title:dem.task_name,force:!!req.body.force});
     res.json({ok:true,...publicJobResult(out)});
-  }catch(e){ res.status(500).json({ok:false,error:e.message}); }
+  }catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
 
 // 原地刷新某需求已有台词表文档的 Tab1【需求统计】（拉最新声优库，不新建文档）
@@ -861,20 +1195,15 @@ app.post('/api/cw-doc/refresh-stat', async (req, res) => {
       return res.status(409).json({ ok:false, error: '该需求尚未生成台词表，请先生成' });
     }
     const r = await cwExecutor.refreshStatForDemand(dem);
-    if (!r.ok) {
-      if (r.reason === 'tab1-frozen-after-generation') {
-        return res.status(409).json({ ok:false, error: 'Tab1 为生成时快照，已禁止刷新以免破坏源数据（台词表生成后不再回写统计页）' });
-      }
-      return res.status(409).json({ ok:false, error: '刷新失败：' + (r.reason || 'unknown') });
-    }
+    if (!r.ok) return res.status(409).json({ ok:false, error: '刷新失败：' + (r.reason || 'unknown') });
     res.json({ ok: true, demand_id: String(demandId), rows: r.rows, file_id: r.file_id });
-  } catch (e) { res.status(500).json({ ok:false, error: e.message }); }
+  } catch (e) { res.status(500).json({ ok:false, error: publicError(e) }); }
 });
 
 // 演示专用：往指定需求 Tab2 台词表批量追加 [DEMO] 台词行。
 // 请求体：{ demand_id, lines: [{ role_cn, cn_text, en_text, situation?, trigger?, remark? }] }
 // 事后清理：从 Tab2 第 2 行起清 lines.length 行；配套 cleanup 脚本处理。
-app.post('/api/cw-doc/append-demo-lines', async (req, res) => {
+app.post('/api/cw-doc/append-demo-lines', requireRole('admin'), async (req, res) => {
   try {
     const demandId = req.body && req.body.demand_id;
     const lines = (req.body && req.body.lines) || [];
@@ -887,7 +1216,7 @@ app.post('/api/cw-doc/append-demo-lines', async (req, res) => {
     const r = await cwExecutor.appendDemoLinesForDemand(dem, lines);
     if (!r.ok) return res.status(409).json({ ok:false, error: '写入失败：' + (r.reason || 'unknown') });
     res.json({ ok: true, demand_id: String(demandId), rows: r.rows, file_id: r.file_id, sheet_id: r.sheet_id });
-  } catch (e) { res.status(500).json({ ok:false, error: e.message }); }
+  } catch (e) { res.status(500).json({ ok:false, error: publicError(e) }); }
 });
 
 // ---------- 台词管理页 · 按发布计划看台词量（聚合看板） ----------
@@ -908,7 +1237,7 @@ app.post('/api/cw-doc/aggregate', async (req, res) => {
     fs.writeFileSync(RELEASE_STATS_FILE, JSON.stringify(agg, null, 2));
     console.log('[stats] 聚合完成 scanned=' + agg.scanned + ' releases=' + Object.keys(agg.released).join(','));
     res.json({ ok: true, scanned: agg.scanned, released: agg.released, aggregatedAt: agg.aggregatedAt });
-  } catch (e) { res.status(500).json({ ok:false, error: e.message }); }
+  } catch (e) { res.status(500).json({ ok:false, error: publicError(e) }); }
 });
 // 看板读取：有缓存返回缓存；force 或无缓存则现聚合
 app.get('/api/release-stats', async (req, res) => {
@@ -921,11 +1250,10 @@ app.get('/api/release-stats', async (req, res) => {
       fs.writeFileSync(RELEASE_STATS_FILE, JSON.stringify(data, null, 2));
     }
     res.json({ ok: true, ...data });
-  } catch (e) { res.status(500).json({ ok:false, error: e.message }); }
+  } catch (e) { res.status(500).json({ ok:false, error: publicError(e) }); }
 });
 
 // ---------- 手动生成「台词量汇总看板」腾讯文档智能表格（看板供查阅，编辑留给 per-demand 台词表） ----------
-// 请求体可选 { release } 限定单版本；缺省聚合全部音频需求。手动触发，符合"手动"口径。
 app.post('/api/cw-doc/summary-board', async (req, res) => {
   try {
     const release = req.body && req.body.release;
@@ -935,7 +1263,7 @@ app.post('/api/cw-doc/summary-board', async (req, res) => {
     sql += ' ORDER BY release_plan, id';
     const [rows] = await pool.query(sql, params);
     if (!rows.length) return res.status(404).json({ ok:false, error:'无满足条件的音频需求' });
-    const r = await unifiedCwExecutor.generateSummaryBoard(rows);
+    const r = await cwExecutor.generateSummaryBoard(rows);
     res.json({ ok: true, ...r });
   } catch (e) { res.status(500).json({ ok:false, error: e.message }); }
 });
@@ -959,7 +1287,7 @@ app.post('/api/cw-doc/sync-voice-estimates', async (req,res) => {
       (out.created?created:skipped).push({demand_id:dem.id,job_id:out.job.id,reason:out.reason,idempotency_key:out.job.idempotency_key});
     }
     res.json({ok:true,release,created,skipped,total:rows.length});
-  }catch(e){ res.status(500).json({ok:false,error:e.message}); }
+  }catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
 app.get('/api/cw-doc/jobs',(req,res)=>{
   const list=demandJobs.list(req.query).map(demandJobs.publicJob);
@@ -974,7 +1302,17 @@ app.post('/api/cw-doc/jobs/:id/retry',(req,res)=>{
 // 旧PATCH不再允许任意改状态，避免绕过状态机；仅保留清晰错误。
 app.patch('/api/cw-doc/jobs/:id',(req,res)=>res.status(405).json({ok:false,error:'use_retry_endpoint_or_worker'}));
 
-const PORT = process.env.PORT || 3001;
+app.use((error, req, res, next) => {
+  if (res.headersSent) return next(error);
+  if (error instanceof multer.MulterError) {
+    const status = error.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    return res.status(status).json({ ok:false, error:error.code.toLowerCase() });
+  }
+  console.error('[request-error]', error && error.stack ? error.stack : error);
+  return res.status(error && error.status ? error.status : 500).json({ ok:false, error:publicError(error) });
+});
+
+const PORT = Number(process.env.PORT || 3001);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Vo Manager API] listening on 0.0.0.0:${PORT}`);
 });

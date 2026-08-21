@@ -64,16 +64,31 @@ step "同步 6 个本地权威页面到 deploy/frontend"
 for page in "${CANONICAL_PAGES[@]}"; do
   [[ -f "$page" ]] || die "缺少权威页面：$page"
   mkdir -p deploy/frontend
-  cp "$page" "deploy/frontend/$page"
-  echo "  ✓ $page"
+  if ! cmp -s "$page" "deploy/frontend/$page"; then
+    cp "$page" "deploy/frontend/$page"
+    echo "  ✓ 已同步 $page"
+  else
+    echo "  = 已一致 $page"
+  fi
 done
 
-# 每次发布都 bump iframe 缓存版本；两份外壳保持一致。
-BUILD="$(date +%Y%m%d%H%M)"
-for shell in vo-manager-refined.html deploy/frontend/vo-manager-refined.html; do
-  sed -E -i "s/const __BUILD__ = '[^']+';/const __BUILD__ = '${BUILD}';/" "$shell"
+# 只有 iframe 子页实际变更时才 bump 缓存版本，避免 dry-run/空发布制造无意义提交。
+SUBPAGES_CHANGED=0
+for page in "${CANONICAL_PAGES[@]:1}"; do
+  if ! git diff --quiet -- "$page" "deploy/frontend/$page" || ! git diff --cached --quiet -- "$page" "deploy/frontend/$page"; then
+    SUBPAGES_CHANGED=1
+    break
+  fi
 done
-echo "  ✓ __BUILD__=${BUILD}"
+if [[ $SUBPAGES_CHANGED -eq 1 ]]; then
+  BUILD="$(date +%Y%m%d%H%M)"
+  for shell in vo-manager-refined.html deploy/frontend/vo-manager-refined.html; do
+    sed -E -i "s/const __BUILD__ = '[^']+';/const __BUILD__ = '${BUILD}';/" "$shell"
+  done
+  echo "  ✓ 子页有改动，__BUILD__=${BUILD}"
+else
+  echo "  = 子页无改动，不 bump __BUILD__"
+fi
 
 step "检查未跟踪文件"
 UNTRACKED="$(git ls-files --others --exclude-standard)"

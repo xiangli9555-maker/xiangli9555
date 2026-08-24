@@ -160,24 +160,20 @@ TMPDIR_REL=".release-tmp/${COMMIT}-$$"
 mkdir -p "$TMPDIR_REL"
 TMPDIR="$(pwd)/$TMPDIR_REL"
 ARCHIVE="$TMPDIR_REL/vomi-${COMMIT}.tar.gz"
-MANIFEST="$TMPDIR_REL/vomi-${COMMIT}.sha256"
+ARCHIVE_SHA="$TMPDIR_REL/vomi-${COMMIT}.tar.gz.sha256"
 git archive --format=tar.gz --output="$ARCHIVE" HEAD deploy
-# manifest 直接对 Git HEAD 的 blob 计算，避免工作区路径/换行转换影响，也不依赖管道退出码。
-: > "$MANIFEST"
-while IFS= read -r -d '' f; do
-  hash="$(git show "HEAD:$f" | sha256sum | cut -d' ' -f1)"
-  printf '%s  %s\n' "$hash" "$f" >> "$MANIFEST"
-done < <(git -c core.quotePath=false ls-tree -r -z --name-only HEAD deploy)
-[[ -s "$ARCHIVE" && -s "$MANIFEST" ]] || die "部署包或校验清单为空"
-echo "  ✓ archive=$(du -h "$ARCHIVE" | cut -f1), manifest=$(wc -l < "$MANIFEST") files"
+# Windows 的 git show 可能触发行尾转换；这里只校验传输包，文件清单改由 CVM 解包后按原字节生成。
+sha256sum "$ARCHIVE" | cut -d' ' -f1 > "$ARCHIVE_SHA"
+[[ -s "$ARCHIVE" && -s "$ARCHIVE_SHA" ]] || die "部署包或包校验为空"
+echo "  ✓ archive=$(du -h "$ARCHIVE" | cut -f1), sha256=$(cat "$ARCHIVE_SHA")"
 
 step "上传并部署 CVM"
 REMOTE_ARCHIVE="/tmp/vomi-${COMMIT}.tar.gz"
-REMOTE_MANIFEST="/tmp/vomi-${COMMIT}.sha256"
+REMOTE_ARCHIVE_SHA="/tmp/vomi-${COMMIT}.tar.gz.sha256"
 "${SCP[@]}" "$ARCHIVE" "$REMOTE_HOST:$REMOTE_ARCHIVE"
-"${SCP[@]}" "$MANIFEST" "$REMOTE_HOST:$REMOTE_MANIFEST"
+"${SCP[@]}" "$ARCHIVE_SHA" "$REMOTE_HOST:$REMOTE_ARCHIVE_SHA"
 "${SCP[@]}" release/remote-deploy.sh "$REMOTE_HOST:$REMOTE_RUNNER"
-"${SSH[@]}" "$REMOTE_HOST" "bash '$REMOTE_RUNNER' '$REMOTE_ARCHIVE' '$REMOTE_MANIFEST' '$COMMIT'"
+"${SSH[@]}" "$REMOTE_HOST" "bash '$REMOTE_RUNNER' '$REMOTE_ARCHIVE' '$REMOTE_ARCHIVE_SHA' '$COMMIT'"
 rm -rf "$TMPDIR"
 
 step "发布完成"

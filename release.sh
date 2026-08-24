@@ -155,10 +155,12 @@ LOCAL_HEAD="$(git rev-parse HEAD)"
 echo "  ✓ GitHub master=$COMMIT"
 
 step "从 Git HEAD 制作部署包（不是直接拷贝工作区）"
-TMPDIR="$PROJECT_DIR/.workbuddy/release-tmp/${COMMIT}-$$"
-mkdir -p "$TMPDIR"
-ARCHIVE="$TMPDIR/vomi-${COMMIT}.tar.gz"
-MANIFEST="$TMPDIR/vomi-${COMMIT}.sha256"
+# Git for Windows 的 git archive 无法写入含中文的绝对路径；改用仓库内 ASCII 临时路径。
+TMPDIR_REL=".release-tmp/${COMMIT}-$$"
+mkdir -p "$TMPDIR_REL"
+TMPDIR="$(pwd)/$TMPDIR_REL"
+ARCHIVE="$TMPDIR_REL/vomi-${COMMIT}.tar.gz"
+MANIFEST="$TMPDIR_REL/vomi-${COMMIT}.sha256"
 git archive --format=tar.gz --output="$ARCHIVE" HEAD deploy
 # manifest 直接对 Git HEAD 的 blob 计算，避免工作区路径/换行转换影响，也不依赖管道退出码。
 : > "$MANIFEST"

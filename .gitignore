@@ -100,6 +100,7 @@ _review_tmp/
 
 # 一键发布本地临时文件
 release.local.*
+.release-tmp/
 
 # 生产环境密钥
 deploy/.env.production

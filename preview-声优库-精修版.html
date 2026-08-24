@@ -329,7 +329,7 @@ body.embed .mid{width:100%}
 }
 </style>
 <!-- 声优库数据源（file:// 打开时的兜底：内联 window.ROSTER；http 打开则同时可 fetch assets/roster.json，二者一致） -->
-<script src="assets/roster.js"></script>
+<script src="assets/roster.js?v=20260824talent"></script>
 </head>
 <body>
 
@@ -612,8 +612,9 @@ body.embed .mid{width:100%}
 
 <script>
 // ============ Roster 数据源加载 ============
-// 数据源顺序：window.ROSTER（roster.js 内联）→ fetch(assets/roster.json)
-// 之后叠加 localStorage 'vo_talent_edits_v1' 里 PM 在网页上的编辑（保留原始数据不动）
+// 数据源顺序：后端 /api/talents（系统真源）→ window.ROSTER / assets/roster.json（离线兜底）
+// 后端按 role_cn 合并到静态列表，既保留稳定的本地 id，也补齐静态缓存里缺失的新角色。
+// 之后叠加 localStorage 'vo_talent_edits_v1' 里 PM 尚未保存的编辑。
 window.ROSTER = window.ROSTER || null;
 let ROSTER_CAT = '';
 let ROSTER_STATUS = ''; // '' = All / 'done' / 'pending'
@@ -632,16 +633,53 @@ function saveRosterDeleteQueue(rows){
 const CAT_COLORS = {'指挥官':'#60A5FA','干员':'#F59E0B','Boss':'#EF4444','AI兵':'#0FF796','NPC':'#D4DDE3','AI系统音':'#3D4C57'};
 
 async function loadRoster(){
-  let list = window.ROSTER;
-  if(!Array.isArray(list) || !list.length){
+  // 先加载静态兜底；旧浏览器可能缓存过 99 条 roster.js，不能再把它当系统真源。
+  let list = Array.isArray(window.ROSTER) ? window.ROSTER.map(r=>Object.assign({},r)) : [];
+  if(!list.length){
     try{
-      const r = await fetch('assets/roster.json', {cache:'no-store'});
+      const r = await fetch('assets/roster.json?v=20260824talent', {cache:'no-store'});
       if(r.ok) list = await r.json();
-    }catch(e){ /* file:// 下会 fail，交给下面兜底 */ }
+    }catch(e){ /* file:// 下会 fail，继续尝试后端 */ }
   }
+  // 系统真源：按 role_cn 覆盖静态字段，并追加静态快照尚未包含的新角色。
+  try{
+    const base = (typeof VA_API_BASE !== 'undefined' && VA_API_BASE) ? VA_API_BASE : '';
+    const r = await fetch(base + '/api/talents', {cache:'no-store'});
+    if(r.ok){
+      const db = await r.json();
+      if(Array.isArray(db) && db.length){
+        const toUi = (x, id)=>({
+          id: id != null ? id : x.id,
+          db_id: x.id,
+          revision: Number(x.revision || 1),
+          category: x.module || x.category || '',
+          role_cn: x.role_cn || '', role_en: x.role_en || '', gender: x.gender || '',
+          cn_va: x.cn_va || '', cn_location: x.cn_loc || x.cn_location || '', cn_studio: x.cn_studio || '',
+          en_va: x.en_va || '', en_location: x.en_loc || x.en_location || '', en_studio: x.en_studio || '',
+          casting_note: x.casting_note || '', rec_time_cn: x.rec_time_cn || [], rec_time_en: x.rec_time_en || '',
+          remark: x.remark || '', row: x.row
+        });
+        const dbByName = new Map(db.map(x=>[String(x.role_cn||'').trim(),x]));
+        const seen = new Set();
+        list = list.map(old=>{
+          const key = String(old.role_cn||'').trim();
+          const hit = dbByName.get(key);
+          if(!hit) return old;
+          seen.add(key);
+          return Object.assign({}, old, toUi(hit, old.id));
+        });
+        let nextId = Math.max(0, ...list.map(x=>Number(x.id)||0)) + 1;
+        for(const row of db){
+          const key = String(row.role_cn||'').trim();
+          if(!key || seen.has(key)) continue;
+          list.push(toUi(row, nextId++));
+        }
+      }
+    }
+  }catch(e){ console.warn('talents API 不可用，使用静态兜底', e); }
   if(!Array.isArray(list) || !list.length){
     document.getElementById('rosterTbody').innerHTML =
-      '<tr><td colspan="10" style="text-align:center;color:var(--c-warning);padding:32px 0">未能加载 roster.json — 请通过 http 打开或确认 assets/roster.js 已引入</td></tr>';
+      '<tr><td colspan="10" style="text-align:center;color:var(--c-warning);padding:32px 0">未能加载声优库数据</td></tr>';
     return;
   }
   // 叠加编辑

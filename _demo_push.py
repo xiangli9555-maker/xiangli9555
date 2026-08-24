@@ -10,7 +10,7 @@ Vo Manager · 下午演示 mock 数据推送脚本(执行)
 import json, os, urllib.request, urllib.error, uuid, random, time
 from datetime import date, timedelta
 
-BASE = 'http://21.130.252.59'
+BASE = os.environ.get('VO_CVM_HOST', 'http://<CVM_IP>')
 ROOT = os.path.dirname(__file__)
 plan = json.load(open(os.path.join(ROOT, '_demo_plan.json'), 'r', encoding='utf-8'))
 actors = json.load(open(os.path.join(ROOT, '_demo_actors.json'), 'r', encoding='utf-8'))
@@ -123,5 +123,5 @@ print(f"  → 成功 {success} / 失败 {fail}")
 
 print()
 print("=" * 60)
-print("Done. 打开 http://21.130.252.59/vo-manager-refined.html 查看效果。")
+print(f"Done. 打开 {BASE}/vo-manager-refined.html 查看效果。")
 print("=" * 60)

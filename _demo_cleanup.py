@@ -8,7 +8,7 @@ Vo Manager · 演示 mock 数据一键清理
 """
 import json, os, urllib.request, urllib.error
 
-BASE = 'http://21.130.252.59'
+BASE = os.environ.get('VO_CVM_HOST', 'http://<CVM_IP>')
 ROOT = os.path.dirname(__file__)
 plan_file = os.path.join(ROOT, '_demo_plan.json')
 
@@ -76,4 +76,4 @@ else:
     print("  (_demo_plan.json 不存在,跳过 Tab2 清理)")
 
 print()
-print("Done. 数据已清理。刷新页面 http://21.130.252.59/vo-manager-refined.html 验证。")
+print(f"Done. 数据已清理。刷新页面 {BASE}/vo-manager-refined.html 验证。")

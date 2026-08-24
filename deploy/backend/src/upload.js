@@ -3,6 +3,7 @@
 // 声优姓名按「角色」从 voice_roles 映射派生，避免依赖 xlsx 内的 VLOOKUP 公式（上传解析读不到计算值）
 const ExcelJS = require('exceljs');
 const pool = require('./db');
+const { assertZipSafe } = require('./zip_guard');
 
 // v3 母版台账列序：A序号 B模块 C角色 D中配声优(公式) E英配声优(公式) F台词-中 G台词-英 H情绪 I触发 J audio K备注
 const COL = { NO: 1, MODULE: 2, ROLE: 3, TEXT_CN: 6, TEXT_EN: 7, EMOTION: 8, TRIGGER: 9, AUDIO: 10, REMARK: 11 };
@@ -22,9 +23,19 @@ async function resolveVaId(name) {
 
 // 解析 xlsx buffer -> 台词行数组（仅含中文台词的行）
 async function parseLinesheet(buffer, demandId) {
+  assertZipSafe(buffer, {
+    maxEntries: 2_000,
+    maxEntryUncompressed: 25 * 1024 * 1024,
+    maxTotalUncompressed: 100 * 1024 * 1024,
+    maxCompressionRatio: 100,
+  });
   const wb = new ExcelJS.Workbook();
-  await wb.xlsx.load(buffer);
+  await wb.xlsx.load(buffer, { ignoreNodes: ['dataValidations', 'extLst'] });
   const ws = wb.getWorksheet('台词表') || wb.worksheets[0];
+  if (!ws) throw Object.assign(new Error('xlsx_without_worksheet'), { status: 400 });
+  if (ws.rowCount > 100_000 || ws.columnCount > 100) {
+    throw Object.assign(new Error('xlsx_limits_exceeded'), { status: 413 });
+  }
   const roleMap = await getRoleMap();
 
   let area = '';

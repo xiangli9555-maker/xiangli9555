@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Read tapd-snapshot.js
-const snapPath = path.join('/root/deploy/frontend/assets/tapd-snapshot.js');
+const snapPath = path.resolve(process.env.TAPD_SNAPSHOT_PATH || path.join(__dirname, 'frontend/assets/tapd-snapshot.js'));
 const content = fs.readFileSync(snapPath, 'utf-8');
 const start = content.indexOf('[');
 const end = content.lastIndexOf(']') + 1;
@@ -19,11 +19,12 @@ console.log(`TAPD snapshot: ${data.length} items`);
 const mysql = require('mysql2/promise');
 
 async function run() {
+  if (!process.env.DB_PASSWORD) throw new Error('DB_PASSWORD is required');
   const pool = await mysql.createPool({
-    host: 'mysql',
-    user: 'root',
-    password: 'vo_manager_pwd_2026',
-    database: 'vo_manager',
+    host: process.env.DB_HOST || 'mysql',
+    user: process.env.DB_USER || 'vo_manager',
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME || 'vo_manager',
     charset: 'utf8mb4',
     waitForConnections: true,
     connectionLimit: 1

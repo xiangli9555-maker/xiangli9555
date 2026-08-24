@@ -53,7 +53,7 @@ docker compose up -d --build
 echo ""
 echo "▶ 等待 MySQL 就绪..."
 for i in $(seq 1 30); do
-  if docker exec vo-mysql mysqladmin ping -uroot -p"$(grep DB_PASSWORD .env | cut -d= -f2)" 2>/dev/null | grep -q alive; then
+  if [ "$(docker inspect --format '{{.State.Health.Status}}' vo-mysql 2>/dev/null)" = "healthy" ]; then
     echo "✓ MySQL 就绪"
     break
   fi
@@ -77,7 +77,7 @@ echo "════════════════════════�
 echo "  ✅ Vo Manager 部署完成！"
 echo ""
 echo "  访问地址：http://$(hostname -I | awk '{print $1}')"
-echo "  或用 CVM 公网 IP：http://21.130.252.59"
+echo "  请通过受控内网、VPN 或配置 HTTPS 的反向代理访问。"
 echo ""
 echo "  常用命令："
 echo "    docker compose logs -f backend    # 查看后端日志"

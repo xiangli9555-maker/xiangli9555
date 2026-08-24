@@ -164,10 +164,10 @@ MANIFEST="$TMPDIR_REL/vomi-${COMMIT}.sha256"
 git archive --format=tar.gz --output="$ARCHIVE" HEAD deploy
 # manifest 直接对 Git HEAD 的 blob 计算，避免工作区路径/换行转换影响，也不依赖管道退出码。
 : > "$MANIFEST"
-while IFS= read -r f; do
+while IFS= read -r -d '' f; do
   hash="$(git show "HEAD:$f" | sha256sum | cut -d' ' -f1)"
   printf '%s  %s\n' "$hash" "$f" >> "$MANIFEST"
-done < <(git ls-tree -r --name-only HEAD deploy)
+done < <(git -c core.quotePath=false ls-tree -r -z --name-only HEAD deploy)
 [[ -s "$ARCHIVE" && -s "$MANIFEST" ]] || die "部署包或校验清单为空"
 echo "  ✓ archive=$(du -h "$ARCHIVE" | cut -f1), manifest=$(wc -l < "$MANIFEST") files"
 

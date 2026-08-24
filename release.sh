@@ -58,6 +58,38 @@ step "预检"
 for cmd in git ssh scp tar sha256sum; do command -v "$cmd" >/dev/null || die "缺少命令：$cmd"; done
 [[ "$(git branch --show-current)" == "master" ]] || die "请在 master 分支发布"
 [[ -f release/remote-deploy.sh ]] || die "缺少 release/remote-deploy.sh"
+bash -n release.sh
+bash -n release/remote-deploy.sh
+# 阻止冲突标记混入发布；仅检查真正的 Git 冲突头/尾。
+if grep -R -n -E '^(<<<<<<< |>>>>>>> )' -- \
+  deploy/backend deploy/frontend *.html 2>/dev/null | head -1 | grep -q .; then
+  die "发现未解决的 Git 冲突标记"
+fi
+NODE_BIN="$(command -v node || true)"
+[[ -z "$NODE_BIN" && -x /c/Users/lycheelli/.workbuddy/binaries/node/versions/22.22.2/node.exe ]] \
+  && NODE_BIN=/c/Users/lycheelli/.workbuddy/binaries/node/versions/22.22.2/node.exe
+if [[ -n "$NODE_BIN" ]]; then
+  while IFS= read -r js; do "$NODE_BIN" --check "$js" >/dev/null; done < <(find deploy/backend/src -maxdepth 1 -name '*.js' -type f | sort)
+  echo "  ✓ 后端 JavaScript 语法通过"
+fi
+
+step "校验 GitHub 基线"
+command -v gh >/dev/null || die "缺少 GitHub CLI（gh），请先安装"
+if ! gh auth status >/dev/null 2>&1; then
+  echo "首次使用需要 GitHub 授权，按终端提示在浏览器完成一次登录。"
+  gh auth login --hostname github.com --git-protocol https --web
+fi
+gh auth setup-git >/dev/null
+git fetch origin master
+REMOTE_HEAD="$(git ls-remote origin refs/heads/master | cut -f1)"
+[[ -n "$REMOTE_HEAD" ]] || die "无法读取 GitHub master"
+if ! git merge-base --is-ancestor "$REMOTE_HEAD" HEAD; then
+  if git merge-base --is-ancestor HEAD "$REMOTE_HEAD"; then
+    die "本地落后 GitHub master，请先拉取并合并"
+  fi
+  die "本地 master 与 GitHub master 已分叉，请先解决合并；脚本不会强推"
+fi
+echo "  ✓ GitHub 基线可快进：${REMOTE_HEAD:0:7} → $(git rev-parse --short HEAD)"
 
 # 根目录页面是设计/编辑权威源；deploy/frontend 是部署副本。
 step "同步 6 个本地权威页面到 deploy/frontend"
@@ -115,9 +147,7 @@ if [[ $DRY_RUN -eq 1 ]]; then
 fi
 
 step "推送 GitHub（失败即停止，不部署服务器）"
-git config credential.helper manager
-git config credential.https://github.com.useHttpPath true
-# 首次运行会由 Git Credential Manager 打开浏览器授权；授权一次后复用系统凭据。
+# 认证由前置 gh auth 保证；禁止 force push，远端分叉会在预检阶段直接停止。
 git push origin master
 REMOTE_HEAD="$(git ls-remote origin refs/heads/master | cut -f1)"
 LOCAL_HEAD="$(git rev-parse HEAD)"

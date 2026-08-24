@@ -17,6 +17,22 @@ tar -xzf "$ARCHIVE" -C "$STAGE"
 # 保护服务器真实环境文件：包内不应包含 .env，但这里再做防线。
 rm -f "$STAGE/deploy/.env" "$STAGE/deploy/backend/.env"
 
+# 覆盖前计算变化类型，确保“按变化重启/重建”。
+FRONTEND_CHANGED=0
+BACKEND_CHANGED=0
+COMPOSE_CHANGED=0
+NGINX_CHANGED=0
+if [[ ! -d "$DEPLOY/frontend" ]] || ! diff -qr "$STAGE/deploy/frontend" "$DEPLOY/frontend" >/dev/null 2>&1; then FRONTEND_CHANGED=1; fi
+if [[ ! -d "$DEPLOY/backend/src" ]] || ! diff -qr "$STAGE/deploy/backend/src" "$DEPLOY/backend/src" >/dev/null 2>&1; then BACKEND_CHANGED=1; fi
+for f in Dockerfile package.json package-lock.json cw_doc_recipe_v6.js build_cw_doc.js; do
+  [[ -f "$STAGE/deploy/backend/$f" ]] || continue
+  cmp -s "$STAGE/deploy/backend/$f" "$DEPLOY/backend/$f" || BACKEND_CHANGED=1
+done
+[[ -f "$STAGE/deploy/docker-compose.yml" ]] && ! cmp -s "$STAGE/deploy/docker-compose.yml" "$DEPLOY/docker-compose.yml" && COMPOSE_CHANGED=1
+[[ -f "$STAGE/deploy/nginx/default.conf" ]] && ! cmp -s "$STAGE/deploy/nginx/default.conf" "$DEPLOY/nginx/default.conf" && NGINX_CHANGED=1
+
+echo "变化检测：frontend=$FRONTEND_CHANGED backend=$BACKEND_CHANGED compose=$COMPOSE_CHANGED nginx=$NGINX_CHANGED"
+
 # 备份当前运行态的源码与配置（不复制 audio、mysql、certs 等大数据）。
 for item in frontend backend/src backend/Dockerfile backend/package.json backend/package-lock.json backend/cw_doc_recipe_v6.js docker-compose.yml nginx/default.conf; do
   if [[ -e "$DEPLOY/$item" ]]; then
@@ -41,9 +57,19 @@ cd /root
 sha256sum -c "$MANIFEST"
 
 cd "$DEPLOY"
-# 后端以镜像为准；源码改动必须重建。前端为 bind mount，只需重启 nginx。
-docker compose build --no-cache backend
-docker compose up -d backend nginx
+# 后端以镜像为准；只有后端/compose 变化才重建。前端为 bind mount，只需重启 nginx。
+if [[ $BACKEND_CHANGED -eq 1 || $COMPOSE_CHANGED -eq 1 ]]; then
+  docker compose build --no-cache backend
+  docker compose up -d backend
+else
+  echo "= 后端未变化，跳过重建"
+fi
+if [[ $FRONTEND_CHANGED -eq 1 || $NGINX_CHANGED -eq 1 || $COMPOSE_CHANGED -eq 1 ]]; then
+  docker compose up -d nginx
+  docker restart vo-nginx >/dev/null
+else
+  echo "= 前端/nginx 未变化，跳过重启"
+fi
 
 # 等待健康；不依赖登录 token。
 for i in $(seq 1 30); do

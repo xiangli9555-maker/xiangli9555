@@ -26,6 +26,8 @@ mkdir -p "$DEPLOY/secrets" "$DEPLOY/backend/runtime"
 [[ -f "$DEPLOY/backend/runtime/demand_jobs.json" ]] || printf '[]' > "$DEPLOY/backend/runtime/demand_jobs.json"
 [[ -f "$DEPLOY/secrets/tencent_docs_token" ]] || { echo "缺少持久化凭证：$DEPLOY/secrets/tencent_docs_token"; exit 1; }
 [[ -f "$DEPLOY/secrets/tencent_docs_oa_token" ]] || : > "$DEPLOY/secrets/tencent_docs_oa_token"
+# backend 镜像以 uid/gid 1000 的 node 用户运行，持久化文件需可读写。
+chown 1000:1000 "$DEPLOY/backend/runtime/demand_jobs.json" "$DEPLOY/secrets/tencent_docs_token" "$DEPLOY/secrets/tencent_docs_oa_token"
 chmod 600 "$DEPLOY/backend/runtime/demand_jobs.json" "$DEPLOY/secrets/tencent_docs_token" "$DEPLOY/secrets/tencent_docs_oa_token"
 
 # 覆盖前计算变化类型，确保“按变化重启/重建”。

@@ -155,15 +155,17 @@ LOCAL_HEAD="$(git rev-parse HEAD)"
 echo "  ✓ GitHub master=$COMMIT"
 
 step "从 Git HEAD 制作部署包（不是直接拷贝工作区）"
-TMPDIR="$(mktemp -d)"
-trap 'rm -rf "$TMPDIR"' EXIT
+TMPDIR="$PROJECT_DIR/.workbuddy/release-tmp/${COMMIT}-$$"
+mkdir -p "$TMPDIR"
 ARCHIVE="$TMPDIR/vomi-${COMMIT}.tar.gz"
 MANIFEST="$TMPDIR/vomi-${COMMIT}.sha256"
 git archive --format=tar.gz --output="$ARCHIVE" HEAD deploy
-# manifest 使用仓库路径 deploy/...；服务器在 /root 下校验，即 /root/deploy/...
-git ls-tree -r --name-only HEAD deploy \
-  | while IFS= read -r f; do [[ -f "$f" ]] && sha256sum "$f"; done \
-  > "$MANIFEST"
+# manifest 直接对 Git HEAD 的 blob 计算，避免工作区路径/换行转换影响，也不依赖管道退出码。
+: > "$MANIFEST"
+while IFS= read -r f; do
+  hash="$(git show "HEAD:$f" | sha256sum | cut -d' ' -f1)"
+  printf '%s  %s\n' "$hash" "$f" >> "$MANIFEST"
+done < <(git ls-tree -r --name-only HEAD deploy)
 [[ -s "$ARCHIVE" && -s "$MANIFEST" ]] || die "部署包或校验清单为空"
 echo "  ✓ archive=$(du -h "$ARCHIVE" | cut -f1), manifest=$(wc -l < "$MANIFEST") files"
 
@@ -174,6 +176,7 @@ REMOTE_MANIFEST="/tmp/vomi-${COMMIT}.sha256"
 "${SCP[@]}" "$MANIFEST" "$REMOTE_HOST:$REMOTE_MANIFEST"
 "${SCP[@]}" release/remote-deploy.sh "$REMOTE_HOST:$REMOTE_RUNNER"
 "${SSH[@]}" "$REMOTE_HOST" "bash '$REMOTE_RUNNER' '$REMOTE_ARCHIVE' '$REMOTE_MANIFEST' '$COMMIT'"
+rm -rf "$TMPDIR"
 
 step "发布完成"
 echo "✓ GitHub: origin/master @ $COMMIT"

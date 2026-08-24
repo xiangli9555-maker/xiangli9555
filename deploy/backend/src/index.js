@@ -524,13 +524,6 @@ app.patch('/api/demands/:id', async (req, res) => {
     if (!valid.includes(req.body.manual_status)) return res.status(400).json({ok:false,error:'invalid_manual_status'});
   }
   await DEMANDS_READY;
-  // 取切换前的 video_sync / script_doc_url，用于检测「翻成音画同步」并自动追加 Tab3
-  let oldVs = '', oldDocUrl = '';
-  try {
-    const [oldRows] = await pool.query('SELECT video_sync, script_doc_url FROM demands WHERE id=?', [req.params.id]);
-    if (oldRows[0]) { oldVs = oldRows[0].video_sync || ''; oldDocUrl = oldRows[0].script_doc_url || ''; }
-  } catch (e) { /* 忽略，下面正常更新 */ }
-
   fields.forEach(f => {
     if (f in req.body) {
       let v = req.body[f];
@@ -549,19 +542,6 @@ app.patch('/api/demands/:id', async (req, res) => {
   if (!sets.length) return res.json({ ok:true, updated:[] });
   vals.push(req.params.id);
   await pool.query(`UPDATE demands SET ${sets.join(',')} WHERE id=?`, vals);
-
-  // 监听：video_sync 变为「音画同步」且已有台词表文档 → 自动给已建文档补 Tab3【音画同步】
-  const newVs = ('video_sync' in req.body) ? req.body.video_sync : oldVs;
-  if (oldVs !== '音画同步' && newVs === '音画同步') {
-    const docUrl = (('script_doc_url' in req.body) && req.body.script_doc_url) || oldDocUrl;
-    if (docUrl) {
-      const dem = { id: req.params.id, script_doc_url: docUrl };
-      // 异步追加，不阻塞 PATCH 响应；失败仅记录日志
-      cwExecutor.appendAvSyncSheet(dem)
-        .then((r) => console.log('[cw] 自动追加 Tab3 完成:', req.params.id, JSON.stringify(r)))
-        .catch((e) => console.error('[cw] 自动追加 Tab3 失败:', req.params.id, e.message));
-    }
-  }
 
   res.json({ ok: true });
 });
@@ -1134,7 +1114,7 @@ app.patch('/api/cw-doc/jobs/:id', (req, res) => {
 const { createDemandJobs } = require('./demand_jobs');
 const unifiedCwExecutor = require('./cw_doc_executor');
 const demandJobs = createDemandJobs({
-  file: path.join(__dirname, '..', 'demand_jobs.json'),
+  file: process.env.DEMAND_JOBS_FILE || path.join(__dirname, '..', 'demand_jobs.json'),
   legacyFile: path.join(__dirname, '..', 'cw_jobs.json'),
   execute: async (job) => {
     const [rows] = await pool.query('SELECT * FROM demands WHERE id=?', [job.demand_id]);
@@ -1146,7 +1126,7 @@ const demandJobs = createDemandJobs({
         'UPDATE demands SET script_doc_url=? WHERE id=? AND (script_doc_url IS NULL OR script_doc_url="")',
         [r.url, dem.id]
       );
-      return { doc_url:r.url, doc_file_id:r.file_id, doc_title:r.tab, has_av_sync:!!r.has_av_sync, warnings: (r.warnings||[]) };
+      return { doc_url:r.url, doc_file_id:r.file_id, doc_title:r.tab, warnings: (r.warnings||[]) };
     }
     if (job.type === 'voice_estimates') {
       const tableJob = demandJobs.latest('script_table', dem.id, 'v6');
@@ -1183,22 +1163,8 @@ app.post('/api/cw-doc/submit-v6', async (req,res) => {
   }catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
 
-// 原地刷新某需求已有台词表文档的 Tab1【需求统计】（拉最新声优库，不新建文档）
-app.post('/api/cw-doc/refresh-stat', async (req, res) => {
-  try {
-    const demandId = req.body && req.body.demand_id;
-    if (!demandId) return res.status(400).json({ ok:false, error: 'demand_id 必填' });
-    const [rows] = await pool.query('SELECT * FROM demands WHERE id=?', [demandId]);
-    const dem = rows[0];
-    if (!dem) return res.status(404).json({ ok:false, error: 'demand 不存在' });
-    if (!dem.script_doc_url || !String(dem.script_doc_url).trim()) {
-      return res.status(409).json({ ok:false, error: '该需求尚未生成台词表，请先生成' });
-    }
-    const r = await cwExecutor.refreshStatForDemand(dem);
-    if (!r.ok) return res.status(409).json({ ok:false, error: '刷新失败：' + (r.reason || 'unknown') });
-    res.json({ ok: true, demand_id: String(demandId), rows: r.rows, file_id: r.file_id });
-  } catch (e) { res.status(500).json({ ok:false, error: publicError(e) }); }
-});
+// Tab1 为生成时快照；系统不再提供刷新端点。
+app.post('/api/cw-doc/refresh-stat', (req,res)=>res.status(410).json({ok:false,error:'Tab1为生成时快照，不提供刷新功能'}));
 
 // 演示专用：往指定需求 Tab2 台词表批量追加 [DEMO] 台词行。
 // 请求体：{ demand_id, lines: [{ role_cn, cn_text, en_text, situation?, trigger?, remark? }] }

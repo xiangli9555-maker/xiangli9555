@@ -296,9 +296,6 @@ tbody tr.selected{background:linear-gradient(90deg,rgba(15,247,150,.12),transpar
 .doc-icon{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:5px;cursor:pointer;transition:all .15s;border:1px solid transparent;flex-shrink:0}
 .doc-icon svg{width:14px;height:14px}
 .doc-cell{display:inline-flex;align-items:center;gap:3px}
-.doc-refresh{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;border:1px solid var(--c-primary);background:rgba(15,248,155,.10);color:var(--c-primary);font-size:12px;line-height:1;cursor:pointer;flex-shrink:0;transition:all .15s}
-.doc-refresh:hover{background:rgba(15,248,155,.22)}
-.doc-refresh:disabled{opacity:.5;cursor:default}
 .doc-icon.has-doc{background:rgba(15,247,150,0.10);border-color:rgba(15,247,150,0.25);color:var(--c-primary)}
 .doc-icon.has-doc:hover{background:rgba(15,247,150,0.20);border-color:var(--c-primary);transform:scale(1.08)}
 .doc-icon.no-doc{background:var(--c-surface);border-color:var(--c-border);color:var(--c-text-dim)}
@@ -1168,14 +1165,14 @@ function docCell(id, copywriter){
   const jobDocUrl = job && job.result && (job.result.doc_url||'');
   if(job && job.status==='done' && jobDocUrl.trim()){
     return `<span class="doc-cell"><a class="doc-icon has-doc" href="${esc(jobDocUrl)}" target="_blank" rel="noopener" ${rclick}
-      title="点击打开台词表">${svgDoc}</a><button class="doc-refresh" onclick="event.stopPropagation();refreshScriptStat('${esc(id)}')" title="刷新：拉取最新声优库重写 Tab1 需求统计">↻</button></span>`;
+      title="点击打开台词表">${svgDoc}</a></span>`;
   }
   // 3) 任务记录没有可用链接时，只读取该需求数据库中的真实 script_doc_url
   const demand = allDemands.find(d=>String(d.id)===String(id)) || {};
   const persistedUrl = (demand.script_doc_url||'').trim();
   if(persistedUrl){
     return `<span class="doc-cell"><a class="doc-icon has-doc" href="${esc(persistedUrl)}" target="_blank" rel="noopener" ${rclick}
-      title="点击打开该需求台词表">${svgDoc}</a><button class="doc-refresh" onclick="event.stopPropagation();refreshScriptStat('${esc(id)}')" title="刷新：拉取最新声优库重写 Tab1 需求统计">↻</button></span>`;
+      title="点击打开该需求台词表">${svgDoc}</a></span>`;
   }
   if(job && job.status==='failed'){
     const retryable = Number(job.attempt||0) < Number(job.max_attempts||3);
@@ -1223,23 +1220,6 @@ async function retryDemandJob(jobId){
     flashInfo(`已重试任务：${j.job.type==='voice_estimates'?'声优预估':'台词表'}`);
     pollCwJobs();
   }catch(e){ flashErr('重试失败：'+e.message); }
-}
-// 单需求刷新台词表 Tab1（v6 · 原地重写已有文档的【需求统计】，拉最新声优库，不新建文档）
-async function refreshScriptStat(demandId){
-  const demand = allDemands.find(d=>String(d.id)===String(demandId)) || {};
-  const name = demand.story || demand.name || demandId;
-  try{
-    flashInfo(`⏳ 正在刷新「${name}」的台词表 Tab1（拉取最新声优库）…`);
-    const r = await fetch('/api/cw-doc/refresh-stat', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ demand_id: String(demandId) })
-    });
-    const j = await r.json().catch(()=>({}));
-    if(!r.ok || j.ok===false) throw new Error(j.error || `HTTP ${r.status}`);
-    flashInfo(`✅ 已刷新「${name}」台词表 Tab1（${j.rows} 行，已同步最新声优库）`);
-  }catch(e){
-    flashErr('刷新失败：'+(e.message||'未知错误'));
-  }
 }
 // 单需求生成台词表（v6 · 每需求一份 doc）
 async function createDemandScriptJob(demandId){

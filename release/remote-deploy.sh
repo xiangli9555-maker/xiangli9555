@@ -17,8 +17,16 @@ ACTUAL_ARCHIVE_SHA="$(sha256sum "$ARCHIVE" | cut -d' ' -f1)"
 tar -xzf "$ARCHIVE" -C "$STAGE"
 [[ -d "$STAGE/deploy/frontend" && -d "$STAGE/deploy/backend" ]] || { echo "部署包结构错误"; exit 1; }
 
-# 保护服务器真实环境文件：包内不应包含 .env，但这里再做防线。
+# 保护服务器真实环境文件：包内不应包含 .env/runtime/secrets，但这里再做防线。
 rm -f "$STAGE/deploy/.env" "$STAGE/deploy/backend/.env"
+rm -rf "$STAGE/deploy/secrets" "$STAGE/deploy/backend/runtime"
+# 持久化文件必须在覆盖/启动前存在；内容不进入Git包。
+umask 077
+mkdir -p "$DEPLOY/secrets" "$DEPLOY/backend/runtime"
+[[ -f "$DEPLOY/backend/runtime/demand_jobs.json" ]] || printf '[]' > "$DEPLOY/backend/runtime/demand_jobs.json"
+[[ -f "$DEPLOY/secrets/tencent_docs_token" ]] || { echo "缺少持久化凭证：$DEPLOY/secrets/tencent_docs_token"; exit 1; }
+[[ -f "$DEPLOY/secrets/tencent_docs_oa_token" ]] || : > "$DEPLOY/secrets/tencent_docs_oa_token"
+chmod 600 "$DEPLOY/backend/runtime/demand_jobs.json" "$DEPLOY/secrets/tencent_docs_token" "$DEPLOY/secrets/tencent_docs_oa_token"
 
 # 覆盖前计算变化类型，确保“按变化重启/重建”。
 FRONTEND_CHANGED=0
@@ -37,7 +45,7 @@ done
 echo "变化检测：frontend=$FRONTEND_CHANGED backend=$BACKEND_CHANGED compose=$COMPOSE_CHANGED nginx=$NGINX_CHANGED"
 
 # 备份当前运行态的源码与配置（不复制 audio、mysql、certs 等大数据）。
-for item in frontend backend/src backend/Dockerfile backend/package.json backend/package-lock.json backend/cw_doc_recipe_v6.js docker-compose.yml nginx/default.conf; do
+for item in frontend backend/src backend/runtime/demand_jobs.json backend/Dockerfile backend/package.json backend/package-lock.json backend/cw_doc_recipe_v6.js docker-compose.yml nginx/default.conf; do
   if [[ -e "$DEPLOY/$item" ]]; then
     mkdir -p "$BACKUP/$(dirname "$item")"
     cp -a "$DEPLOY/$item" "$BACKUP/$item"

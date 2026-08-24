@@ -2,11 +2,17 @@
 const fs = require('fs');
 const path = require('path');
 
+function ensureParentFile(file, initial='[]') {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  if (!fs.existsSync(file)) fs.writeFileSync(file, initial, { mode: 0o600 });
+}
+
 const STATUSES = new Set(['pending','running','done','failed']);
 
 function createDemandJobs(options) {
   const file = options.file || path.join(__dirname, '..', 'demand_jobs.json');
   const legacyFile = options.legacyFile || path.join(__dirname, '..', 'cw_jobs.json');
+  ensureParentFile(file);
   const execute = options.execute;
   const log = options.log || console;
   const jobs = new Map();

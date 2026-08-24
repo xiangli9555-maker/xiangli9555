@@ -82,6 +82,8 @@ assets/_roles_dump.json
 .env
 deploy/.env
 deploy/backend/.env
+deploy/secrets/
+deploy/backend/runtime/
 
 # 排查/测试临时脚本（不入库）
 _diff_analysis.js

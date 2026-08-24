@@ -38,7 +38,9 @@ services:
       MAX_AUDIO_BYTES: ${MAX_AUDIO_BYTES:-104857600}
       MAX_STORAGE_BYTES: ${MAX_STORAGE_BYTES:-10737418240}
       DFAI_TOKEN: ${DFAI_TOKEN:-}
-      TENCENT_DOCS_MCP_TOKEN: ${TENCENT_DOCS_MCP_TOKEN:?set TENCENT_DOCS_MCP_TOKEN in .env}
+      DEMAND_JOBS_FILE: /app/demand_jobs.json
+      TENCENT_DOCS_MCP_TOKEN_FILE: /app/tencent_docs_token
+      TENCENT_DOCS_OA_MCP_TOKEN_FILE: /app/tencent_docs_oa_token
       WECOM_CORPID: ${WECOM_CORPID:-}
       WECOM_CORPSECRET: ${WECOM_CORPSECRET:-}
       TZ: Asia/Shanghai
@@ -47,6 +49,10 @@ services:
       # 让 refresh 直接读前端实时快照（与 vo-nginx 同源），避免每次重建 backend 后需手动 docker cp /app/tapd-snapshot.js
       - ./frontend/assets/tapd-snapshot.js:/app/tapd-snapshot.js:ro
       - ./frontend/data/release-plans.json:/app/data/release-plans.json:ro
+      # 任务状态与腾讯文档凭证由宿主机持久化；容器重建不丢，secrets 永不入 Git/镜像。
+      - ./backend/runtime/demand_jobs.json:/app/demand_jobs.json
+      - ./secrets/tencent_docs_token:/app/tencent_docs_token:ro
+      - ./secrets/tencent_docs_oa_token:/app/tencent_docs_oa_token:ro
     depends_on:
       mysql:
         condition: service_healthy

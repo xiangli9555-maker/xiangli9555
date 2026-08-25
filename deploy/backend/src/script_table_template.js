@@ -32,7 +32,6 @@ const LINE = Object.freeze({
     { key: 'text_en', title: '台词-英 Lines', subtitle: '', width: 300 },
     { key: 'emotion', title: '情绪', subtitle: '', width: 80 },
     { key: 'trigger', title: '触发条件', subtitle: '', width: 150 },
-    { key: 'audio_event', title: 'GP Audio Event/音频文件名', subtitle: '', width: 200 },
     { key: 'remark', title: '备注信息', subtitle: '', width: 200 },
     { key: 'av_sync', title: '音画同步', subtitle: '', width: 110 },
     { key: 'sentence_count', title: '句数统计', subtitle: '系统自动统计｜读取C列·每20字一句', width: 110 },
@@ -43,9 +42,9 @@ const LINE = Object.freeze({
 });
 
 const INDEX = Object.freeze({
-  avSync: 8,
-  sentence: 9,
-  validation: 10,
+  avSync: 7,
+  sentence: 8,
+  validation: 9,
 });
 
 function escapeSheetName(name) {

@@ -6,7 +6,7 @@
 //   ├─ Tab1【需求统计】   ← 9 列 v2：已有声优 A-D(大类|游戏角色中|预估句数|实际句数) | E间隔 | 新建声优 F-I(大类|新增游戏角色中|预估句数|实际句数)
 //   │                      第一行合并标签(已有声优/新建声优)，第二行表头，冻结至第二行；FGHI 品牌黄标记新建分区
 //   │                      预估句数 留空（文案手动填）；实际句数(D/I) 写 SUMPRODUCT+LEN 公式：按 Tab2 游戏角色名匹配，累加台词-中字符数，每 20 字一句
-//   └─ Tab2<需求名>       ← 台词表 v2（11 列，两行表头：主标题绿底 + 8pt 小字说明，冻结至第 2 行）
+//   └─ Tab2<需求名>       ← 台词表 v2（10 列，两行表头：主标题绿底 + 8pt 小字说明，冻结至第 2 行）
 //                          B=游戏角色名(小字须与需求统计页一致)，C=台词-中，J=句数统计(数字·读C列每20字一句)
 //                          I=音画同步下拉，J=句数统计，K=角色校验（检查Tab1 B/G，覆盖500行）
 //
@@ -83,7 +83,7 @@ const BRAND_GREEN = 'FF0FF796';
 const SEP_FILL = 'FFF2F4F6';
 const LINES_PER_CHUNK = tableTemplate.LINES_PER_CHUNK;
 
-// 第二页「角色校验」列（K / index 10）逻辑见下方 generateForDemand 的 5b 段；
+// 第二页「角色校验」列（J / index 9）逻辑见下方 generateForDemand 的 5b 段；
 // 公式 VALID_FORMULA + 条件格式（contains_text '⚠' → 红底红字），常量已并入上方 v2 块。
 
 // 取本需求的角色行（大类 + 游戏角色（中）），按声优库顺序归组。
@@ -194,8 +194,9 @@ async function writeStatSheetV2(file_id, sheet_id, demand, roster, tab, cookie) 
   // —— 第 1 行标签（合并 A-D / F-I，best-effort）——
   await mcp.setCellValue(file_id, sheet_id, 0, COL_A, 'STRING', STAT_V2_LABEL_EXISTING, cookie);
   await mcp.setCellValue(file_id, sheet_id, 0, COL_F, 'STRING', STAT_V2_LABEL_NEW, cookie);
-  try { await mcp.mergeCells(file_id, sheet_id, ['A1:D1', 'F1:I1'], cookie); }
-  catch (e) { console.warn('[cw] Tab1 合并单元格失败(忽略，标签靠溢出显示):', e.message); }
+  // 注：sheet.merge_cells 未在腾讯文档 MCP 注册（调用必然报 -32601），
+  //   保留只会白烧一个请求并推高 WAF 触发概率；标签靠单元格溢出显示已足够。
+
 
   // —— 第 2 行表头 ——
   const headVals = [];
@@ -225,8 +226,9 @@ async function writeStatSheetV2(file_id, sheet_id, demand, roster, tab, cookie) 
     dVals.push({ row: r, col: COL_D, value_type: 'FORMULA', formula: dFormula });
     iVals.push({ row: r, col: COL_I, value_type: 'FORMULA', formula: iFormula });
   }
-  if (dVals.length) await mcp.setRangeValueSmcp(file_id, sheet_id, dVals);
-  if (iVals.length) await mcp.setRangeValueSmcp(file_id, sheet_id, iVals);
+  // D / I 两列合并为单次批量写入（同一子表，sheet-mcp 端点 values 支持混合列），减少请求量规避 WAF
+  const diVals = dVals.concat(iVals);
+  if (diVals.length) await mcp.setRangeValueSmcp(file_id, sheet_id, diVals);
 
   // —— 样式 ——
   // 标签行：已有=绿，新建=品牌黄
@@ -242,23 +244,22 @@ async function writeStatSheetV2(file_id, sheet_id, demand, roster, tab, cookie) 
   // 数据区垂直居中
   if (n > 0) await mcp.setCellStyle(file_id, sheet_id, { start_row: 2, start_col: COL_A, end_row: 1 + n, end_col: COL_I, vertical_align: 'center' }, cookie);
 
-  // —— 行高 ——
-  try { await mcp.setDimensionSize(file_id, sheet_id, [{ dimension_type: 'row', index: 0, size: STAT_LABEL_ROW_HEIGHT }], cookie); } catch (e) {}
-  try { await mcp.setDimensionSize(file_id, sheet_id, [{ dimension_type: 'row', index: 1, size: STAT_HEADER_ROW_HEIGHT }], cookie); } catch (e) {}
-
-  // —— 列宽 ——
-  const dimensions = STAT_V2_COL_WIDTHS.map((size, index) => ({ dimension_type: 'col', index, size }));
-  if (dimensions.length) await mcp.setDimensionSize(file_id, sheet_id, dimensions, cookie);
+  // —— 行高 + 列宽（合并为单次 setDimensionSize，3 请求 → 1，降低 WAF 触发概率）——
+  const dimensions = [
+    { dimension_type: 'row', index: 0, size: STAT_LABEL_ROW_HEIGHT },
+    { dimension_type: 'row', index: 1, size: STAT_HEADER_ROW_HEIGHT },
+  ].concat(STAT_V2_COL_WIDTHS.map((size, index) => ({ dimension_type: 'col', index, size })));
+  try { await mcp.setDimensionSize(file_id, sheet_id, dimensions, cookie); } catch (e) {}
 
   // —— 冻结至第 2 行（标签行 + 表头行）——
   await mcp.setFreeze(file_id, sheet_id, 2, 0, cookie);
 }
 
-// 写 Tab2 台词表 v2（11 列）：两行表头（第 0 行主标题绿底 / 第 1 行 8pt 小字说明），冻结至第 2 行；
-// 列宽按 LINE_V2_COL_WIDTHS。J(句数统计)/L(角色校验) 的公式与条件格式在 generateForDemand 5b 写入。
+// 写 Tab2 台词表 v2（10 列）：两行表头（第 0 行主标题绿底 / 第 1 行 8pt 小字说明），冻结至第 2 行；
+// 列宽按 LINE_V2_COL_WIDTHS。I(句数统计)/J(角色校验) 的公式与条件格式在 generateForDemand 5b 写入。
 // 数据行从 0-based row=2（第 3 行）起，前两行为表头。
 async function writeLineSheetV2(file_id, sheet_id, cookie) {
-  const n = LINE_V2_MAIN.length; // 12
+  const n = LINE_V2_MAIN.length; // 10
   // —— 两行表头（主标题 + 小字说明）——
   const headVals = [];
   for (let c = 0; c < n; c++) {
@@ -295,22 +296,84 @@ async function writeLineSheetV2(file_id, sheet_id, cookie) {
   // —— 冻结至第 2 行（两行表头均固定）——
   await mcp.setFreeze(file_id, sheet_id, 2, 0, cookie);
 
-  // —— 两行表头行高 ——
-  try { await mcp.setDimensionSize(file_id, sheet_id, [{ dimension_type: 'row', index: 0, size: 32 }], cookie); } catch (e) {}
-  try { await mcp.setDimensionSize(file_id, sheet_id, [{ dimension_type: 'row', index: 1, size: 30 }], cookie); } catch (e) {}
+  // —— 两行表头行高 + 列宽（合并为单次 setDimensionSize，3 请求 → 1，降低 WAF 触发概率）——
+  const dimensions = [
+    { dimension_type: 'row', index: 0, size: 32 },
+    { dimension_type: 'row', index: 1, size: 30 },
+  ].concat(LINE_V2_COL_WIDTHS.map((size, index) => ({ dimension_type: 'col', index, size })));
+  try { await mcp.setDimensionSize(file_id, sheet_id, dimensions, cookie); } catch (e) {}
+}
 
-  // —— 列宽 ——
-  const dimensions = LINE_V2_COL_WIDTHS.map((size, index) => ({ dimension_type: 'col', index, size }));
-  if (dimensions.length) await mcp.setDimensionSize(file_id, sheet_id, dimensions, cookie);
+// —— Lite 版写入：仅写核心数据，跳过全部样式/冻结/列宽/公式装饰，把单次生成 MCP 调用压到 ~10 次，规避腾讯 WAF 突发限流 ——
+async function writeStatSheetV2Lite(file_id, sheet_id, demand, roster, tab, cookie) {
+  const pairs = buildStatRows(demand, roster); // [[大类, 游戏角色（中）], ...]
+  const n = pairs.length;
+  const headVals = [];
+  STAT_V2_HEADERS.forEach((h, c) => { if (h !== '') headVals.push({ row: 1, col: c, value_type: 'STRING', string_value: String(h) }); });
+  if (headVals.length) await mcp.setRangeValue(file_id, sheet_id, headVals, cookie);
+  const dataVals = [];
+  for (let i = 0; i < n; i++) {
+    const r = i + 2;
+    dataVals.push({ row: r, col: COL_A, value_type: 'STRING', string_value: String(pairs[i][0] || '') });
+    dataVals.push({ row: r, col: COL_B, value_type: 'STRING', string_value: String(pairs[i][1] || '') });
+  }
+  if (dataVals.length) await mcp.setRangeValue(file_id, sheet_id, dataVals, cookie);
+  // D/I 实际句数公式（单包批量，1 次请求；平台不支持 FORMULA 则静默跳过，不影响聚合读取）
+  try {
+    const dVals = [], iVals = [];
+    for (let i = 0; i < n; i++) {
+      const r = i + 2;
+      dVals.push({ row: r, col: COL_D, value_type: 'FORMULA', formula: tableTemplate.statActualFormula(tab, 'B', r + 1) });
+      iVals.push({ row: r, col: COL_I, value_type: 'FORMULA', formula: tableTemplate.statActualFormula(tab, 'G', r + 1) });
+    }
+    const diVals = dVals.concat(iVals);
+    if (diVals.length) await mcp.setRangeValueSmcp(file_id, sheet_id, diVals);
+  } catch (e) { console.warn('[cw] lite D/I 公式跳过:', e.message); }
+}
+
+async function writeLineSheetV2Lite(file_id, sheet_id, cookie) {
+  const n = LINE_V2_MAIN.length;
+  const headVals = [];
+  for (let c = 0; c < n; c++) {
+    if (LINE_V2_MAIN[c]) headVals.push({ row: 0, col: c, value_type: 'STRING', string_value: String(LINE_V2_MAIN[c]) });
+    headVals.push({ row: 1, col: c, value_type: 'STRING', string_value: String(LINE_V2_SUB[c] || '') });
+  }
+  if (headVals.length) await mcp.setRangeValue(file_id, sheet_id, headVals, cookie);
+
+  // 扩行：新表默认约 200 行，公式需覆盖到 VALID_ROWS，先扩行（1 次 smcp 调用，失败不阻断）
+  try {
+    const need = 1 + VALID_ROWS;
+    const curRows = 200;
+    if (curRows < need) {
+      await mcp.smcpCall('insert_dimension', { file_id, sheet_id, dimension_type: 'row', index: curRows, count: need - curRows });
+    }
+  } catch (e) { console.warn('[cw] lite 扩行跳过:', e.message); }
+
+  // 计算 / 统计公式（lite 模式下仍必须保留，否则台词表无统计能力）：
+  //   A 序号 =ROW()-2；I 句数统计 =ROUNDUP(台词-中长度/20)；J 角色校验 = 角色不在统计页则 ⚠
+  // 三列合并为单次 setRangeValueSmcp（sheet-mcp 端点，公式必需），规避 WAF 突发限流；
+  // 条件格式红字为纯视觉、非计算，lite 跳过，待 WAF 解除后补。
+  try {
+    const aNumVals = [], sentVals = [], validVals = [];
+    for (let ri = 2; ri < 2 + VALID_ROWS; ri++) {
+      const one = ri + 1; // 1-based 数据行号（数据行从第 3 行起）
+      aNumVals.push({ row: ri, col: 0, value_type: 'FORMULA', formula: '=ROW()-2' });
+      sentVals.push({ row: ri, col: COL_SENTENCE, value_type: 'FORMULA', formula: SENTENCE_FORMULA(one) });
+      validVals.push({ row: ri, col: COL_VALID, value_type: 'FORMULA', formula: VALID_FORMULA(one) });
+    }
+    if (aNumVals.length) await mcp.setRangeValueSmcp(file_id, sheet_id, aNumVals.concat(sentVals, validVals));
+    console.log('[cw] lite Tab2 A/I/J 公式已写入（' + VALID_ROWS + ' 行）');
+  } catch (e) { console.warn('[cw] lite Tab2 公式跳过:', e.message); }
 }
 
 // 为单个需求建一份台词表普通在线表格（含【需求统计】+ 台词表），返回 { file_id, url, tab }
-async function generateForDemand(demand) {
+async function generateForDemand(demand, opts = {}) {
   if (!demand || !demand.task_name) throw new Error('demand.task_name 缺失');
+  const LITE = !!opts.lite;
   const roster = await loadRoster();
   const rec = recipe.buildRecipeV6({ WS: path.join(__dirname, '..'), demand, roster });
   const title = rec._summary.doc_title.slice(0, 36);
-  // 台词表(第二页) v2 表头来自模板唯一真源（11 列）
+  // 台词表(第二页) v2 表头来自模板唯一真源（10 列）
   const headers = LINE_V2_MAIN;
   const tab = rec._summary.tab_name;
 
@@ -322,6 +385,7 @@ async function generateForDemand(demand) {
   const cookie = created.cookie;
 
   const warnings = [];   // 仅 cosmetic 问题；核心内容缺失则直接抛出 → 任务标记 failed 可重试
+  let coreWritten = false; // 核心内容（Tab1+Tab2）已写入后置 true；lite/异常时避免把已写好的表误删回滚
   try {
 
   // 2) 取默认子表 → 作为 Tab1【需求统计】（核心，失败即整任务失败）
@@ -347,12 +411,14 @@ async function generateForDemand(demand) {
     if (!lineSheetId) throw new Error('新增台词表子表失败');
 
     // 5) 写 Tab2 v2（两行表头：主标题绿底 + 8pt 小字说明，冻结至第 2 行）
-    await writeLineSheetV2(file_id, lineSheetId, cookie);
+    await (LITE ? writeLineSheetV2Lite(file_id, lineSheetId, cookie) : writeLineSheetV2(file_id, lineSheetId, cookie));
 
     // 5x) 写 Tab1【需求统计】v2（9 列结构 + 冻结至第 2 行 + D/I 实际句数公式，需引用本 Tab2）
-    await writeStatSheetV2(file_id, statSheetId, demand, roster, tab, cookie);
+    await (LITE ? writeStatSheetV2Lite(file_id, statSheetId, demand, roster, tab, cookie) : writeStatSheetV2(file_id, statSheetId, demand, roster, tab, cookie));
+    coreWritten = true;
 
-    // 普通表默认约 200 行；新字段格式与角色校验覆盖到 1000 行，先统一扩行。
+    // 普通表默认约 200 行；新字段格式与角色校验覆盖到 1000 行，先统一扩行。（lite 模式跳过，数据已写入不受扩行影响）
+    if (!LITE) {
     try {
       const need = 1 + VALID_ROWS;
       const sinfo = await mcp.smcpCall('get_sheet_info', { file_id });
@@ -362,8 +428,10 @@ async function generateForDemand(demand) {
         await mcp.smcpCall('insert_dimension', { file_id, sheet_id: lineSheetId, dimension_type: 'row', index: curRows, count: need - curRows });
       }
     } catch (e) { warnings.push('扩展行数: ' + e.message); }
+    }
 
-    // 5a) 文案填写辅助规则：音画同步单选 + 句数统计(数字格式)
+    // 5a) 文案填写辅助规则：音画同步单选 + 句数统计(数字格式)（lite 模式跳过）
+    if (!LITE) {
     try {
       await mcp.smcpCall('set_data_validation', {
         file_id, sheet_id: lineSheetId, type: 'LIST',
@@ -389,11 +457,13 @@ async function generateForDemand(demand) {
     } catch (e) {
       warnings.push('Tab2 填写规则: ' + e.message);
     }
+    }
 
-    // 5b) 句数统计(J/index9) + 角色校验(K/index10)公式 + 条件格式（500行）
+    // 5b) 句数统计(I/index8) + 角色校验(J/index9)公式 + 条件格式（500行）
     //   句数统计：读取 C 列(台词-中)，每 20 字一句 ROUNDUP
     //   角色校验：B 列角色名不在「需求统计」页 B列(已有)/G列(新建) 时，该格显示 ⚠ 提示并整格标红
     //   注：条件格式仅能整格着色，无法整行标红（平台 CF 仅支持 CF_CELL_IS 值规则）
+    if (!LITE) {
     try {
       const sentVals = [];
       const validVals = [];
@@ -406,11 +476,19 @@ async function generateForDemand(demand) {
         aNumVals.push({ row: ri, col: 0, value_type: 'FORMULA', formula: '=ROW()-2' });
       }
       // 批量写公式（sheet-mcp 端点，openapi 的 set_range_value 不支持 FORMULA）
-      await mcp.setRangeValueSmcp(file_id, lineSheetId, aNumVals);
-      await mcp.setRangeValueSmcp(file_id, lineSheetId, sentVals);
-      await mcp.setRangeValueSmcp(file_id, lineSheetId, validVals);
+      // A/I/J 三列合并为单次写入（3 请求 → 1）以规避腾讯 WAF 突发限流；
+      // 若单包过大被平台拒绝（非 WAF 错误），降级为按列分 3 次写。
+      try {
+        await mcp.setRangeValueSmcp(file_id, lineSheetId, aNumVals.concat(sentVals, validVals));
+      } catch (e) {
+        if (/WAF|限流|captcha/i.test(e.message || '')) throw e;
+        console.warn('[cw] Tab2 公式合并写入失败，降级为分列写入:', e.message);
+        await mcp.setRangeValueSmcp(file_id, lineSheetId, aNumVals);
+        await mcp.setRangeValueSmcp(file_id, lineSheetId, sentVals);
+        await mcp.setRangeValueSmcp(file_id, lineSheetId, validVals);
+      }
       // 条件格式：角色校验列出现 ⚠ 前缀 → 红底红字加粗（仅该格；整行标红受平台限制无法实现）
-      const validColLetter = 'K'; // index 10 → 第 11 列 = K
+      const validColLetter = 'J'; // index 9 → 第 10 列 = J
       await mcp.addConditionalFormat(file_id, lineSheetId, [`${validColLetter}3:${validColLetter}${2 + VALID_ROWS}`], {
         type: 'CF_CELL_IS',
         cell_is: { operator: 'contains_text', formulas: [VALID_HINT_PREFIX] },
@@ -420,6 +498,7 @@ async function generateForDemand(demand) {
     } catch (e) {
       warnings.push('句数统计/角色校验公式: ' + e.message);
     }
+    }
 
     // 实际句数(D/I 列) 公式已在 writeStatSheetV2 中随 Tab1 一同写入（需引用本 Tab2）。
 
@@ -427,6 +506,10 @@ async function generateForDemand(demand) {
 
   // 8) 权限：优先企业版(OA)成员授权（仅文案策划+PM 可编辑）；
   //    未配置 OA 或授权失败则回退「所有人可编辑」，避免破坏现有协作（待 OA token 注入后自动切换）
+  if (LITE) {
+    // lite 模式：跳过 OA 编辑器查找（省 ~2 次调用），直接设所有人可编辑，保证表可访问即可
+    try { await mcp.setPrivilege(file_id, 3, cookie); } catch (e) { /* 权限失败不阻断生成 */ }
+  } else {
   try {
     const editors = resolveDocEditors(demand);
     const er = editors.length ? await mcp.setEnterpriseDocEditors(file_id, editors) : { ok: false, reason: 'no-members' };
@@ -445,15 +528,16 @@ async function generateForDemand(demand) {
   } catch (e) {
     warnings.push('权限设置: ' + e.message);
   }
+  }
 
-  // 严格模式：任何 cosmetic 警告都视为生成不完整 → 任务标记 failed 可重试（不再静默成功）
-  if (warnings.length) {
+  // 严格模式：任何 cosmetic 警告都视为生成不完整 → 任务标记 failed 可重试（不再静默成功）。lite 模式跳过（装饰步骤本就未执行，无 warnings）
+  if (!LITE && warnings.length) {
     throw new Error('DOC_GENERATED_WITH_WARNINGS: ' + warnings.join(' | '));
   }
   return { file_id, url: created.url, headers_count: headers.length, tab, warnings: [] };
   } catch (e) {
-    // 失败回滚：删除已创建的孤儿文档，避免重试时 createSheet 产生重复文件
-    if (file_id) {
+    // 失败回滚：仅当核心内容尚未写入成功时才删除孤儿文档，避免把 95% 建好的表也整份删掉（WAF 场景重试会反复烧请求）
+    if (file_id && !coreWritten) {
       try { await mcp.deleteFile(file_id, cookie); } catch (_) { /* 回滚删除失败不影响主错误传播 */ }
     }
     throw e;
@@ -474,15 +558,31 @@ function extractFileId(docUrl) {
 
 // 批量聚合：遍历所有需求的台词表，读每份【需求统计】子表，按发布计划汇总台词量。
 // 用于「台词管理页 · 按发布计划看台词量」看板。返回 { released: { <release>: {...} }, demands: [...], aggregatedAt }
+// 注意：包含 release 内【全部】需求（无论是否已生成台词表）；无台词表的需求句数/角色数记 0，便于"汇总整个 release 所有需求"。
 async function aggregateAllDemands(demands) {
   const list = Array.isArray(demands) ? demands : [];
   const released = {};
   const demandStats = [];
   let scanned = 0;
   for (const dem of list) {
-    if (!dem || !dem.script_doc_url) continue;
-    const file_id = fileIdFromUrl(dem.script_doc_url);
-    if (!file_id) continue;
+    if (!dem) continue;
+    const file_id = dem.script_doc_url ? fileIdFromUrl(dem.script_doc_url) : '';
+    if (!file_id) {
+      // 无台词表：仍计入需求明细，句数/角色数记 0
+      const release = (dem.release_plan || '未标记').trim();
+      const b = released[release] || (released[release] = {
+        release, docs: 0, roles: new Set(), est_lines: 0, act_lines: 0,
+        by_role_type: {}, by_writer: {}
+      });
+      b.docs += 1; // 需求本身算 1 份文档占位（即便台词表未生成）
+      demandStats.push({
+        id: dem.id, release, task_name: dem.task_name || '',
+        area: dem.area || '', creator: dem.creator || '', cn_lines_handler: dem.cn_lines_handler || '',
+        doc_count: 0, role_count: 0, est_lines: 0, act_lines: 0,
+        script_doc_url: dem.script_doc_url || ''
+      });
+      continue;
+    }
     const release = (dem.release_plan || '未标记').trim();
     let estimates = [];
     try {
@@ -541,10 +641,16 @@ async function aggregateAllDemands(demands) {
 //   版本汇总：每版本一行（文档数/角色数/预估句数/各角色大类句数/文案策划句数）
 //   需求明细：每需求一行（发布计划/Story/AREA/文案策划/创建人/角色数/预估句数/台词表链接）
 // 权限默认全员只读（看板供查阅，编辑留给 per-demand 台词表）。
-// 注意：仅聚合「已生成台词表」的需求（aggregateAllDemands 会跳过无 script_doc_url 的需求）。
-async function generateSummaryBoard(demands) {
+// 当 oldFileId 传入时，先删除旧文档再建新（避免重复生成堆积孤儿文档）。
+// release 参数用于标题与单 release 范围（传入时只汇总该 release 的需求）。
+async function generateSummaryBoard(demands, release, oldFileId) {
   const agg = await aggregateAllDemands(demands);
-  const created = await mcp.createSmartSheet({ title: '【VO Manager】台词量汇总看板' });
+  if (oldFileId) {
+    try { await mcp.deleteFile(oldFileId); console.log('[cw] 已删除旧汇总文档 file_id=' + oldFileId); }
+    catch (e) { console.warn('[cw] 删除旧汇总文档失败(忽略):', e.message); }
+  }
+  const title = '【VO Manager】台词量汇总' + (release ? '·' + release : '看板');
+  const created = await mcp.createSmartSheet({ title });
   const fid = created.file_id;
   const cookie = created.cookie;
 

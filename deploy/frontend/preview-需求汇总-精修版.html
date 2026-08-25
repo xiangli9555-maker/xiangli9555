@@ -127,8 +127,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .dot-live.idle{background:var(--c-warning)}
 .dot-live.offline{background:var(--c-danger)}
 #btnRefresh[disabled]{opacity:.6;cursor:wait}
-#btnRefresh.spinning svg,#syncBolt.spinning svg{animation:spin .8s linear infinite}
-#syncBolt[aria-disabled="true"]{pointer-events:none;opacity:.62}
+#btnRefresh.spinning svg{animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* KPI 战术仪表盘 */
@@ -304,21 +303,6 @@ tbody tr.selected{background:linear-gradient(90deg,rgba(15,247,150,.12),transpar
 .doc-icon.job-fail{background:rgba(232,125,160,0.10);border-color:rgba(232,125,160,0.32);color:var(--c-danger)}
 .doc-icon.no-doc:hover{background:var(--c-surface-2);color:var(--c-text-mute)}
 
-/* 表头闪电图标（一键生成）：根据台词表覆盖率动态切换实心/半实心/空心 */
-.bolt-icon{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-left:6px;vertical-align:middle;flex-shrink:0;transition:transform .2s ease, opacity .2s ease}
-.bolt-icon:hover{transform:scale(1.2)}
-.bolt-icon:active{transform:scale(0.95)}
-.bolt-path{transition:fill .3s ease, stroke .3s ease}
-
-/* 全部有表 → 实心绿 */
-.bolt-full .bolt-path{fill:var(--c-primary);stroke:none}
-/* 都没有 → 空心灰 */
-.bolt-empty .bolt-path{fill:none;stroke:var(--c-text-dim);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
-/* 部分有表 → 下半实心+上半空心（clip-path 裁切） */
-.bolt-half{position:relative}
-.bolt-half .bolt-path{fill:var(--c-primary);stroke:none;clip-path:polygon(0 50%, 100% 50%, 100% 100%, 0 100%)}
-.bolt-half::after{content:'';position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.bolt-half svg{position:relative;z-index:1}
 
 .person{color:var(--c-text-mute);font-size:13px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;font-weight:500}
 /* 文案策划 · 头像徽章选择器（无原生方框） */
@@ -455,6 +439,7 @@ body.embed .mid{width:100%}
   .col-ve{width:150px;min-width:150px!important;max-width:150px}
   .th-max-group{text-align:center!important;color:var(--c-primary)!important}
   .th-max-date,.col-max-date{width:116px;min-width:116px!important;max-width:116px;text-align:center!important}
+  .th-max-date.sortable .sort-arrows{margin-left:3px;padding:1px 4px}
   .max-date-cell{font-family:var(--font-data);font-size:13px;color:var(--c-text-2);text-align:center;white-space:nowrap}
   .max-date-cell.empty{color:var(--c-text-dim)}
   .release-summary-row{background:rgba(107,217,149,.07)!important;box-shadow:inset 3px 0 0 #6BD995,inset 0 -1px 0 rgba(107,217,149,.22)}
@@ -663,12 +648,7 @@ body.embed .mid{width:100%}
               <th rowspan="2" class="col-story">Story</th>
               <th rowspan="2" class="sortable col-creator" data-sort="creator" onclick="toggleSort('creator',this)">创建人<button class="header-filter-btn" onclick="openHeaderFilter(event,'creator')" title="筛选创建人"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th rowspan="2" class="sortable col-status" data-sort="status" onclick="toggleSort('status',this)">状态<button class="header-filter-btn" onclick="openHeaderFilter(event,'status')" title="筛选状态"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
-              <th rowspan="2" class="th-doc col-doc" style="text-align:center!important;white-space:nowrap">
-                台词表
-                <span id="syncBolt" style="display:none" class="bolt-icon bolt-empty" onclick="event.stopPropagation();syncAllForRelease()" oncontextmenu="event.preventDefault();event.stopPropagation();retryFailedJobs('script_table')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();syncAllForRelease()}" title="一键生成当前版本全部台词表；右键重试失败任务" role="button" tabindex="0">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><path class="bolt-path" d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
-                </span>
-              </th>
+              <th rowspan="2" class="th-doc col-doc" style="text-align:center!important;white-space:nowrap">台词表</th>
               <th rowspan="2" class="sortable col-video" data-sort="video_sync" onclick="toggleSort('video_sync',this)">音画同步<button class="header-filter-btn" onclick="openHeaderFilter(event,'video_sync')" title="筛选音画同步"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th rowspan="2" class="sortable col-cw" data-sort="cn_lines_handler" onclick="toggleSort('cn_lines_handler',this)">文案策划<button class="header-filter-btn" onclick="openHeaderFilter(event,'cn_lines_handler')" title="筛选文案策划"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th colspan="6" class="sortable th-ve-group" data-sort="veCount" onclick="toggleSort('veCount',this)">声优预估<button id="veSyncBtn" class="mini-btn" title="提交声优预估任务；右键重试失败任务" onclick="event.stopPropagation();syncVoiceEstimates()" oncontextmenu="event.preventDefault();event.stopPropagation();retryFailedJobs('voice_estimates')">↻</button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
@@ -681,8 +661,8 @@ body.embed .mid{width:100%}
               <th class="th-ve-cat col-ve sortable" data-sort="veCat:AI兵" onclick="toggleSort('veCat:AI兵',this)">AI兵<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th class="th-ve-cat col-ve sortable" data-sort="veCat:NPC" onclick="toggleSort('veCat:NPC',this)">NPC<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th class="th-ve-cat col-ve sortable" data-sort="veCat:AI系统音" onclick="toggleSort('veCat:AI系统音',this)">AI系统音<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
-              <th class="th-max-date">中</th>
-              <th class="th-max-date">英</th>
+              <th class="th-max-date sortable" data-sort="maxDateCn" onclick="toggleSort('maxDateCn',this)">中<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
+              <th class="th-max-date sortable" data-sort="maxDateEn" onclick="toggleSort('maxDateEn',this)">英<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
             </tr>
           </thead>
           <tbody id="demandBody"></tbody>
@@ -991,7 +971,7 @@ function isBlankClick(e){
   const t = e.target;
   if(!t || !t.closest) return false;
   // 交互元素 → 不算空白（按钮/输入/链接/表头/筛选芯片/cw浮层/排序箭头/台词表图标）
-  if(t.closest('button, input, select, textarea, a, th, thead, .chip-filter, .chip-status, .chip-cw, .filter-groups, .cw-pick, .vs, [data-fk], #syncBolt, #cwPop, .cw-pop, .popover, .sort-arrows, .header-filter-pop, .header-filter-btn')) return false;
+  if(t.closest('button, input, select, textarea, a, th, thead, .chip-filter, .chip-status, .chip-cw, .filter-groups, .cw-pick, .vs, [data-fk], #cwPop, .cw-pop, .popover, .sort-arrows, .header-filter-pop, .header-filter-btn')) return false;
   // 表格内容区(tr/td/tbody/table/.table-wrap) → 也不算空白，避免点行内误复位
   if(t.closest('tr, td, tbody, table, .table-wrap')) return false;
   return true;
@@ -1034,10 +1014,10 @@ function cleanTaskName(n){
 }
 // isDone / tacStatus / progCell — 已废弃 2026-07-24（4 小方块删除）
 // 需求粒度状态改为 tapdStage(d) 自动映射（见上方）+ CLARIFY 手动覆盖
-// 台词表图标：只认需求数据 `script_doc_url` 或后台生成任务返回的真实链接；无链接即空态。
+// 台词表图标：只认需求数据 `script_doc_url`（唯一真源）；无链接即空态。
 // 禁止使用按策划硬编码的文档链接，避免把示例/旧表误显示成当前需求的台词表。
-// 台词表生成任务队列状态（来自 /api/cw-doc/jobs，按 cw_id 取最新一条）
-// 取值优先级：pending/running（生成中）→ done+doc_url → demands.script_doc_url → 失败/空态
+// 台词表生成任务队列状态（来自 /api/cw-doc/jobs，按 demand_id 取最新一条）
+// 取值优先级：pending/running（生成中）→ demands.script_doc_url（唯一真源）→ 失败/空态
 let CW_JOB_MAP = {};
 // 文案策划固定可选名单（PM 指定 2026-07-23）
 const COPYWRITERS = [
@@ -1161,13 +1141,7 @@ function docCell(id, copywriter){
     const tip = job.status==='pending' ? '⏳ 排队中' : '🔄 生成中';
     return `<span class="doc-icon job-busy" title="${tip}（后台自动建表中，刷新后状态保持）">${svgDoc}<i class="busy-tip">${tip}</i></span>`;
   }
-  // 2) 已生成（带链接）
-  const jobDocUrl = job && job.result && (job.result.doc_url||'');
-  if(job && job.status==='done' && jobDocUrl.trim()){
-    return `<span class="doc-cell"><a class="doc-icon has-doc" href="${esc(jobDocUrl)}" target="_blank" rel="noopener" ${rclick}
-      title="点击打开台词表">${svgDoc}</a></span>`;
-  }
-  // 3) 任务记录没有可用链接时，只读取该需求数据库中的真实 script_doc_url
+  // 2) 只读取该需求数据库中的真实 script_doc_url（唯一真源）
   const demand = allDemands.find(d=>String(d.id)===String(id)) || {};
   const persistedUrl = (demand.script_doc_url||'').trim();
   if(persistedUrl){
@@ -1179,7 +1153,7 @@ function docCell(id, copywriter){
     return `<button class="doc-icon job-fail" onclick="event.stopPropagation();retryDemandJob('${esc(job.id)}')"
       title="生成失败：${esc(job.error||'未知错误')} · ${retryable?'点击重试':'已达到最大重试次数'}" ${retryable?'':'disabled'}>${svgEmpty}</button>`;
   }
-  // 4) 空态 → 可点击生成
+  // 3) 空态 → 可点击生成
   return `<button class="doc-icon no-doc" onclick="event.stopPropagation();createDemandScriptJob('${esc(id)}')"
     title="点击自动生成该需求台词表">${svgEmpty}</button>`;
 }
@@ -1194,10 +1168,10 @@ function releaseLibraryDocCell(release){
   const url = typeof rec==='string' ? rec : ((rec&&rec.url)||(rec&&rec.doc_url)||'');
   const svg = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18M15 9v12"/></svg>`;
   if(url) return `<a class="release-library-link" href="${esc(url)}" target="_blank" rel="noopener" title="打开 ${esc(release)} 汇总智能台词库">${svg}<span>台词库</span></a>`;
-  return `<span class="release-library-link pending" title="${esc(release)} 汇总智能台词库尚未生成">${svg}<span>待汇总</span></span>`;
+  return `<span class="release-library-link pending" title="已停用一键汇总生成功能">${svg}<span>待汇总</span></span>`;
 }
 // [已废弃 2026-08-14] 原"策划头像右键→为该策划每需求各建一份台词表"入口已删。
-// 一键生成走顶部闪电按钮 syncAllForRelease → /api/cw-doc/sync-v6（当前 release 全量入队）。
+// [已停用 2026-08-25] 顶部闪电一键汇总生成功能已移除。
 // 轮询任务队列状态，定向刷新文档单元格（不整表重渲染，保住滚动/选择）
 let _cwPollTimer = null;
 const VE_DONE_SEEN = new Set();
@@ -1259,8 +1233,6 @@ async function pollCwJobs(){
     CW_JOB_MAP = map;
     const countsByType={script_table:{pending:0,running:0,done:0,failed:0},voice_estimates:{pending:0,running:0,done:0,failed:0}};
     (data.jobs||[]).forEach(j=>{ if(countsByType[j.type] && j.status in countsByType[j.type]) countsByType[j.type][j.status]++; });
-    const bolt=document.getElementById('syncBolt');
-    if(bolt){const c=countsByType.script_table;bolt.title=`台词表任务：排队${c.pending} · 运行${c.running} · 完成${c.done} · 失败${c.failed}；右键重试失败`}
     const veBtn=document.getElementById('veSyncBtn');
     if(veBtn){const c=countsByType.voice_estimates;veBtn.title=`声优预估任务：排队${c.pending} · 运行${c.running} · 完成${c.done} · 失败${c.failed}；右键重试失败`}
     if(refreshEstimates){
@@ -1508,6 +1480,18 @@ function renderRows(){
           if(d !== 0) return d;
           continue;
         }
+        case 'maxDateCn': {
+          const da = a._max_cn === '—' ? '' : (a._max_cn || '');
+          const db = b._max_cn === '—' ? '' : (b._max_cn || '');
+          if(da && !db) return -dir; if(!da && db) return dir;
+          cmp = da.localeCompare(db); if(cmp !== 0) return cmp * dir; continue;
+        }
+        case 'maxDateEn': {
+          const da = a._max_en === '—' ? '' : (a._max_en || '');
+          const db = b._max_en === '—' ? '' : (b._max_en || '');
+          if(da && !db) return -dir; if(!da && db) return dir;
+          cmp = da.localeCompare(db); if(cmp !== 0) return cmp * dir; continue;
+        }
         default: continue;
       }
       cmp = String(va).localeCompare(String(vb), 'zh-CN', {numeric:true});
@@ -1528,7 +1512,6 @@ function renderRows(){
   // 兼容旧引用（隐藏元素，保持存在）
   const scOld = document.getElementById('kpiDocs'); if(scOld) scOld.textContent = `${rows.length} / ${allDemands.length} stories`;
   renderClarifyBoard();
-  updateSyncBolt();   // 根据台词表覆盖率更新闪电图标状态
 }
 
 // ★ 结果计数条 (2026-08-07)：共 N 条 + 当前筛选条件摘要
@@ -1549,7 +1532,7 @@ function updateResultBar(shown, total){
   if(searchTxt)     tags.push(['搜索', '“'+searchTxt+'”']);
   if(sortStack.length){
     const arrow = d => d===1?'↑':'↓';
-    const nameMap = {release_plan:'发布计划',area:'AREA',creator:'创建人',video_sync:'音画同步',cn_lines_handler:'文案策划',veCount:'声优预估',status:'状态'};
+    const nameMap = {release_plan:'发布计划',area:'AREA',creator:'创建人',video_sync:'音画同步',cn_lines_handler:'文案策划',veCount:'声优预估',status:'状态',maxDateCn:'Max中',maxDateEn:'Max英'};
     const sortName = key => key.startsWith('veCat:') ? key.slice('veCat:'.length) : (nameMap[key]||key);
     tags.push(['排序', sortStack.map(s=>sortName(s.key)+arrow(s.dir)).join(' · ')]);
   }
@@ -1960,78 +1943,7 @@ async function saveField(id, field, val){
 // [已废弃 2026-08-14] v5 时代把策划分配推后端供 /sync 用。v6 每需求 1 doc，不再需要按策划归组。函数保留为 no-op 兼容调用点。
 async function pushAssignments(){ /* no-op：v6 时代无需推分配 */ }
 
-// 根据当前筛选下台词表覆盖率更新闪电图标状态（实心/半实心/空心）
-function updateSyncBolt(){
-  const el = document.getElementById('syncBolt');
-  if(!el) return;
-  // 统计：已分配文案策划的需求中，有多少已有台词表
-  const rows = allDemands.filter(matchFilter);
-  let total = 0, hasDoc = 0;
-  for(const d of rows){
-    const cw = (d.cn_lines_handler||'').trim();
-    if(!cw) continue;
-    total++;
-    const job = CW_JOB_MAP['demand-' + d.id] || null;
-    // 只认该需求真实持久化链接或该需求 done job
-    if((job && job.status==='done' && job.result && job.result.doc_url && job.result.doc_url.trim())
-       || (d.script_doc_url && d.script_doc_url.trim())){
-      hasDoc++;
-    }
-  }
-  el.classList.remove('bolt-full','bolt-half','bolt-empty');
-  if(total === 0){
-    el.classList.add('bolt-empty');
-    el.title = '一键生成当前版本全部台词表（暂无已分配文案的需求）';
-  } else if(hasDoc >= total){
-    el.classList.add('bolt-full');
-    el.title = '全部台词表已生成 ✓（点击可重新同步）';
-  } else if(hasDoc === 0){
-    el.classList.add('bolt-empty');
-    el.title = '一键生成当前版本全部台词表';
-  } else {
-    el.classList.add('bolt-half');
-    const pct = Math.round(hasDoc/total*100);
-    el.title = `台词表覆盖率 ${pct}%（${hasDoc}/${total}）· 点击补齐剩余`;
-  }
-}
-
-// 一键生成/补齐当前版本全部台词表（v6 · 每需求一份 doc）
-// 后端：POST /api/cw-doc/sync-v6 → 对 release 内每个尚未生成 doc 的 demand 逐个入队
-let syncAllRunning = false;
-async function syncAllForRelease(){
-  const btn = document.getElementById('syncBolt');
-  if(syncAllRunning) return;
-  syncAllRunning = true;
-  if(btn){
-    btn.classList.add('spinning');
-    btn.setAttribute('aria-busy','true');
-    btn.setAttribute('aria-disabled','true');
-  }
-  try{
-    await pushAssignments();
-    const release = filterRelease || window.__INIT_RELEASE__ || (allDemands[0]&&allDemands[0].release_plan) || 'Yang1.0';
-    flashInfo(`正在提交「${release}」批量建表任务…`);
-    const r = await fetch('/api/cw-doc/sync-v6', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ release })
-    });
-    const data = await r.json().catch(()=>({}));
-    if(!r.ok || data.ok===false) throw new Error(data.error || `HTTP ${r.status}`);
-    const c = (data.created||[]).length, s = (data.skipped||[]).length;
-    flashInfo(`⚡ 已提交「${release}」台词表 v6：新建 ${c} 份 · 跳过 ${s}（已完成/进行中），后台建表中…`);
-    renderRows();
-    pollCwJobs();
-  }catch(e){
-    flashErr('批量建表失败：'+(e.message||'未知错误'));
-  }finally{
-    syncAllRunning = false;
-    if(btn){
-      btn.classList.remove('spinning');
-      btn.removeAttribute('aria-busy');
-      btn.removeAttribute('aria-disabled');
-    }
-  }
-}
+// [已停用 2026-08-25] 顶部闪电一键汇总生成功能已移除。
 // cycleProg — 已废弃 2026-07-24（4 小方块删除；需求状态改由"状态"列 select 切换，见 saveClarify）
 const vsSaveQueue = new Map();
 async function cycleVs(id, el){
@@ -2051,7 +1963,7 @@ async function cycleVs(id, el){
   vsSaveQueue.set(key, current);
   try{ await current; } finally{ if(vsSaveQueue.get(key)===current) vsSaveQueue.delete(key); }
 }
-// （原 editDocUrl 与按策划硬编码文档链接均已废弃；v6 每需求 1 doc，只认真实 script_doc_url / demand job。）
+// （原 editDocUrl 与按策划硬编码文档链接均已废弃；v6 每需求 1 doc，只认真实 script_doc_url。）
 
 // 提示
 function flashOk(m='已保存'){ const t=document.getElementById('toastArea'); if(t){t.textContent=`✓ ${m}`;t.style.color='var(--c-primary)';clearTimeout(window.__ft);window.__ft=setTimeout(()=>t.textContent='',3500);} }

@@ -186,6 +186,7 @@ app.put('/api/kv/:key', async (req, res) => {
   } catch (e) { res.status(500).json({ ok:false, error:publicError(e) }); }
 });
 
+
 // ---------- 声优 / 声优库软删除基础设施 ----------
 async function ensureColumns(table, definitions) {
   for (const definition of definitions) {
@@ -968,151 +969,15 @@ app.post('/api/va-doc/parse-file', vaDocUpload.single('file'), async (req, res) 
 });
 
 // ============================================================
-// 台词表 v6 生成（CVM 直连腾讯文档个人版 MCP，点击即真建表，无需 AI 会话）
-// 前端按钮 → POST /api/cw-doc/sync-v6 → 入队 → 后台顺序建表 → 链接回填 demands
+// 台词表 v6（统一需求 Jobs）
+// 单需求建表走 /api/cw-doc/jobs 或 /api/cw-doc/submit-v6（兼容）
 // ============================================================
 const cwExecutor = require('./cw_doc_executor');
-const cwRecipe = require('../cw_doc_recipe_v6');
-
-if (false) { // legacy cw jobs implementation retained only for migration reference
-const CW_JOBS_FILE = path.join(__dirname, '..', 'cw_jobs.json');
-const jobs = new Map();
-let cwWorkerRunning = false;
-const nowISO = () => new Date().toISOString();
-function cwNewId() { return 'cw-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7); }
-
-function cwLoad() {
-  try {
-    const arr = JSON.parse(fs.readFileSync(CW_JOBS_FILE, 'utf8'));
-    if (Array.isArray(arr)) arr.forEach((j) => jobs.set(j.id, j));
-  } catch (e) { /* 空 */ }
-}
-function cwSave() {
-  const arr = [...jobs.values()];
-  try { fs.writeFileSync(CW_JOBS_FILE, JSON.stringify(arr, null, 2)); } catch (e) { console.error('[cw] save fail', e.message); }
-}
-cwLoad();
-
-// 后台顺序执行 pending/running 任务（同一进程内，顺序避免限流）
-async function cwRun() {
-  if (cwWorkerRunning) return;
-  cwWorkerRunning = true;
-  try {
-    const queue = [...jobs.values()].filter((j) => j.status === 'pending' || j.status === 'running');
-    for (const job of queue) {
-      if (job.status === 'done') continue;
-      job.status = 'running';
-      job.updated_at = nowISO();
-      cwSave();
-      try {
-        const dem = job._demand;
-        if (!dem) throw new Error('job 缺少 _demand');
-        const r = await cwExecutor.generateForDemand(dem);
-        job.status = 'done';
-        job.doc_url = r.url;
-        job.doc_file_id = r.file_id;
-        job.doc_title = r.tab;
-        job.updated_at = nowISO();
-        // 链接回填 demands 表（幂等：仅当为空）
-        try {
-          await pool.query(
-            'UPDATE demands SET script_doc_url=? WHERE id=? AND (script_doc_url IS NULL OR script_doc_url="")',
-            [r.url, dem.id]
-          );
-        } catch (e) { console.warn('[cw] 回填 script_doc_url 失败(忽略):', e.message); }
-        cwSave();
-      } catch (e) {
-        job.status = 'failed';
-        job.error = e.message;
-        job.updated_at = nowISO();
-        cwSave();
-      }
-    }
-  } finally {
-    cwWorkerRunning = false;
-  }
-}
-
-// 是否已生成（done 且有链接，或 demands 表已有 script_doc_url）
-function cwAlreadyDone(dem, doneIds) {
-  if (doneIds.has(String(dem.id))) return true;
-  if (dem.script_doc_url && String(dem.script_doc_url).trim()) return true;
-  return false;
-}
-
-// 为单个需求建一条 pending job
-async function cwMakeJob(dem) {
-  const roster = await cwExecutor.loadRoster();
-  const rec = cwRecipe.buildRecipeV6({ WS: path.join(__dirname, '..'), demand: dem, roster });
-  const job = {
-    id: cwNewId(),
-    cw_id: 'demand-' + dem.id,
-    cw_name: dem.task_name || String(dem.id),
-    release: dem.release_plan || dem.release || '',
-    story_ids: [String(dem.id)],
-    status: 'pending',
-    created_at: nowISO(),
-    updated_at: nowISO(),
-    doc_url: '',
-    doc_title: rec._summary.doc_title,
-    doc_file_id: '',
-    error: '',
-    progress: '',
-    version: 'v6',
-    _demand: dem,
-  };
-  jobs.set(job.id, job);
-  cwSave();
-  return job;
-}
-
-// POST /api/cw-doc/submit-v6  → 单需求建表
-app.post('/api/cw-doc/submit-v6', async (req, res) => {
-  try {
-    let dem = req.body && req.body.demand;
-    if (!dem && req.body && req.body.demand_id) {
-      const [rows] = await pool.query('SELECT * FROM demands WHERE id=?', [req.body.demand_id]);
-      dem = rows[0];
-    }
-    if (!dem || !dem.id || !dem.task_name) return res.status(400).json({ error: 'demand{id,task_name} 或 demand_id 必填' });
-    const job = await cwMakeJob(dem);
-    cwRun();
-    res.json({ ok: true, job_id: job.id, job });
-  } catch (e) { res.status(500).json({ error: publicError(e) }); }
-});
-
-
-
-// GET /api/cw-doc/jobs  → 列表（支持 cw_id / release / status 过滤）；前端轮询用
-app.get('/api/cw-doc/jobs', (req, res) => {
-  let list = [...jobs.values()];
-  const cw = req.query.cw_id, rel = req.query.release, st = req.query.status;
-  if (cw) list = list.filter((j) => j.cw_id === cw);
-  if (rel) list = list.filter((j) => j.release === rel);
-  if (st) list = list.filter((j) => j.status === st);
-  list.sort((a, b) => b.created_at.localeCompare(a.created_at));
-  res.json({ jobs: list, count: list.length });
-});
-
-// PATCH /api/cw-doc/jobs/:id  → 状态回写（内部 worker 直接改内存，此端点供外部/兜底）
-app.patch('/api/cw-doc/jobs/:id', (req, res) => {
-  const job = jobs.get(req.params.id);
-  if (!job) return res.status(404).json({ error: 'job not found' });
-  ['status', 'doc_url', 'doc_title', 'doc_file_id', 'error', 'progress'].forEach((k) => {
-    if (k in req.body) job[k] = req.body[k];
-  });
-  job.updated_at = nowISO();
-  cwSave();
-  res.json({ ok: true, job });
-});
-} // end legacy cw jobs implementation
-
 // ============================================================
 // 统一需求Jobs：script_table + voice_estimates
 // 状态固定 pending/running/done/failed；幂等键 = type:demand:id:version
 // ============================================================
 const { createDemandJobs } = require('./demand_jobs');
-const unifiedCwExecutor = require('./cw_doc_executor');
 const demandJobs = createDemandJobs({
   file: process.env.DEMAND_JOBS_FILE || path.join(__dirname, '..', 'demand_jobs.json'),
   legacyFile: path.join(__dirname, '..', 'cw_jobs.json'),
@@ -1121,7 +986,7 @@ const demandJobs = createDemandJobs({
     const dem = rows[0];
     if (!dem) throw new Error('需求不存在或已删除');
     if (job.type === 'script_table') {
-      const r = await unifiedCwExecutor.generateForDemand(dem);
+      const r = await cwExecutor.generateForDemand(dem, { lite: !!job.lite });
       await pool.query(
         'UPDATE demands SET script_doc_url=? WHERE id=? AND (script_doc_url IS NULL OR script_doc_url="")',
         [r.url, dem.id]
@@ -1131,7 +996,7 @@ const demandJobs = createDemandJobs({
     if (job.type === 'voice_estimates') {
       const tableJob = demandJobs.latest('script_table', dem.id, 'v6');
       if (tableJob && tableJob.result && tableJob.result.doc_file_id) dem._doc_file_id = tableJob.result.doc_file_id;
-      const r = await unifiedCwExecutor.readVoiceEstimatesForDemand(dem);
+      const r = await cwExecutor.readVoiceEstimatesForDemand(dem);
       await pool.query('UPDATE demands SET voice_estimates=? WHERE id=?', [JSON.stringify(r.estimates), dem.id]);
       return { count:r.estimates.length, file_id:r.file_id, sheet_id:r.sheet_id };
     }
@@ -1148,7 +1013,7 @@ app.post('/api/cw-doc/jobs', async (req,res) => {
     const [rows]=await pool.query('SELECT * FROM demands WHERE id=?',[demandId]); const dem=rows[0];
     if(!dem) return res.status(404).json({ok:false,error:'demand_not_found'});
     const version=(req.body&&req.body.version)||(type==='script_table'?'v6':'v1');
-    const out=demandJobs.enqueue({type,demand:dem,release:dem.release_plan,version,title:dem.task_name,force:!!req.body.force});
+    const out=demandJobs.enqueue({type,demand:dem,release:dem.release_plan,version,title:dem.task_name,force:!!req.body.force,lite:!!req.body.lite});
     res.json({ok:true,...publicJobResult(out)});
   }catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
@@ -1234,10 +1099,12 @@ app.post('/api/cw-doc/summary-board', async (req, res) => {
   } catch (e) { res.status(500).json({ ok:false, error: e.message }); }
 });
 
-// 一键批量生成（sync-v6）已于 2026-08-21 按用户要求取消：改为手动「单个需求生成」入口，
-// 不再提供 release 级批量建表，避免误触产生大量孤儿文档。前端对应按钮需隐藏。
-app.post('/api/cw-doc/sync-v6', async (req, res) => {
-  res.status(410).json({ ok:false, error:'一键批量生成已取消（按用户 2026-08-21 要求）。请改用单个需求的「生成台词表」入口。' });
+// release 级 sync-v6 已下线：仅保留 410 语义，避免前端/自动化继续触发一键汇总生成。
+app.post('/api/cw-doc/sync-v6', (req, res) => {
+  return res.status(410).json({
+    ok: false,
+    error: 'sync-v6 已下线；请改用单需求 Jobs（/api/cw-doc/jobs，type=script_table）'
+  });
 });
 app.post('/api/cw-doc/sync-voice-estimates', async (req,res) => {
   try{

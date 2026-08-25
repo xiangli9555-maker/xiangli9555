@@ -23,20 +23,36 @@ function readTokenFile() {
   try { return fs.readFileSync(TOKEN_FILE, 'utf8').trim(); } catch (e) { return ''; }
 }
 const TOKEN = () => (process.env.TENCENT_DOCS_MCP_TOKEN || readTokenFile() || '').trim();
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function rawRequest(body, cookie) {
-  return new Promise((resolve, reject) => {
-    if (!TOKEN()) return reject(new Error('TENCENT_DOCS_MCP_TOKEN 未配置'));
-    let url;
-    try { url = new URL(MCP_URL); } catch (e) { return reject(e); }
-    const payload = JSON.stringify(body);
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json, text/event-stream',
-      'Authorization': TOKEN(),
-      'Content-Length': Buffer.byteLength(payload),
-    };
-    if (cookie) headers['Cookie'] = cookie;
+// 腾讯文档 MCP 网关对连续高频调用会临时限流，甚至弹出 WAF 验证码(501page / waf-captcha 重定向)。
+// 两层防护：
+//   1) 全局节流：任意两次 MCP 调用至少间隔 PACING_MS，避免突发请求触发 WAF 验证码。
+//   2) 传输层指数退避：对 WAF/HTML/3xx/5xx/429 重试；合法 JSON 业务错误(含 body.error)立即上抛。
+// 1600ms：实测 1000ms + ~40 请求仍会在中途被 WAF 拦（走到约第 26 个请求）；
+// 配合 executor 侧合并冗余调用（~40 → ~32），拉宽到 1600ms 可把峰值速率压到阈值下。
+// 可用环境变量 TENCENT_DOCS_MCP_PACING_MS 覆盖，便于线上不重建镜像即可调参。
+const PACING_MS = Number(process.env.TENCENT_DOCS_MCP_PACING_MS || 1600);
+let _lastCallTs = 0;
+async function rawRequest(body, cookie, attempt = 0) {
+  const MAX_RETRIES = 6;
+  if (!TOKEN()) throw new Error('TENCENT_DOCS_MCP_TOKEN 未配置');
+  // 全局节流：拉平请求节奏，避免一秒内密集调用触发 WAF
+  const now = Date.now();
+  const gap = PACING_MS - (now - _lastCallTs);
+  if (gap > 0) await sleep(gap);
+  _lastCallTs = Date.now();
+  let url;
+  try { url = new URL(MCP_URL); } catch (e) { throw e; }
+  const payload = JSON.stringify(body);
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json, text/event-stream',
+    'Authorization': TOKEN(),
+    'Content-Length': Buffer.byteLength(payload),
+  };
+  if (cookie) headers['Cookie'] = cookie;
+  const buf_obj = await new Promise((resolve, reject) => {
     const req = https.request({
       hostname: url.hostname,
       port: url.port || 443,
@@ -46,28 +62,37 @@ function rawRequest(body, cookie) {
     }, (res) => {
       let buf = '';
       res.on('data', (c) => (buf += c));
-      res.on('end', () => {
-        // 可能返回 set-cookie（维持会话）
-        const setCookie = res.headers['set-cookie'];
-        let cookieStr = cookie || '';
-        if (Array.isArray(setCookie) && setCookie.length) {
-          cookieStr = setCookie.map((c) => c.split(';')[0]).join('; ');
-        }
-        // 响应可能是 SSE（text/event-stream，包在 data: 里）或纯 JSON
-        let text = buf;
-        const m = buf.match(/data:\s*(\{[\s\S]*\})/);
-        if (m) text = m[1];
-        try {
-          resolve({ json: JSON.parse(text), cookie: cookieStr });
-        } catch (e) {
-          reject(new Error('MCP 响应解析失败: ' + buf.slice(0, 400)));
-        }
-      });
+      res.on('end', () => resolve({ buf, status: res.statusCode, setCookie: res.headers['set-cookie'], ct: res.headers['content-type'] || '' }));
     });
     req.on('error', reject);
     req.write(payload);
     req.end();
   });
+  const { buf, status, setCookie, ct } = buf_obj;
+  const isHtml = /^\s*<!DOCTYPE|<html/i.test(buf) || (ct && ct.includes('text/html'));
+  const isWaf = /waf-captcha|501page|captcha|verify\.html|security/i.test(buf);
+  const isRedirect = status >= 300 && status < 400;
+  const rateLimited = isHtml || isWaf || isRedirect || status === 429 || (status >= 500 && status < 600);
+  if (rateLimited) {
+    if (attempt < MAX_RETRIES) {
+      const delay = Math.min(15000, 1200 * Math.pow(2, attempt)) + Math.floor(Math.random() * 600);
+      await sleep(delay);
+      return rawRequest(body, cookie, attempt + 1);
+    }
+    throw new Error('MCP 网关限流/WAF拦截(重试耗尽): ' + buf.slice(0, 200));
+  }
+  let cookieStr = cookie || '';
+  if (Array.isArray(setCookie) && setCookie.length) {
+    cookieStr = setCookie.map((c) => c.split(';')[0]).join(' ');
+  }
+  let text = buf;
+  const m = buf.match(/data:\s*(\{[\s\S]*\})/);
+  if (m) text = m[1];
+  try {
+    return { json: JSON.parse(text), cookie: cookieStr };
+  } catch (e) {
+    throw new Error('MCP 响应解析失败: ' + buf.slice(0, 400));
+  }
 }
 
 // 开启一个 MCP 会话：initialize 并取回 cookie
@@ -368,34 +393,51 @@ async function insertImage(file_id, sheet_id, row_index, col_index, opts, cookie
 //   且参数结构与 openapi/mcp 不同（如 set_range_value 用 values[row,col,...] 而非 range）。
 //   统一 token 相同，同一 file_id 跨端点通用。
 const SHEET_MCP_URL = process.env.TENCENT_DOCS_SHEET_MCP_URL || 'https://docs.qq.com/api/v6/sheet/mcp';
-function smcpRaw(body) {
-  return new Promise((resolve, reject) => {
-    if (!TOKEN()) return reject(new Error('TENCENT_DOCS_MCP_TOKEN 未配置'));
-    let url;
-    try { url = new URL(SHEET_MCP_URL); } catch (e) { return reject(e); }
-    const payload = JSON.stringify(body);
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json, text/event-stream',
-      'Authorization': TOKEN(),
-      'Content-Length': Buffer.byteLength(payload),
-    };
+async function smcpRaw(body, attempt = 0) {
+  if (!TOKEN()) throw new Error('TENCENT_DOCS_MCP_TOKEN 未配置');
+  // 全局节流：与 openapi/mcp 共用 _lastCallTs，避免两端叠加请求触发 WAF 验证码
+  const now = Date.now();
+  const gap = PACING_MS - (now - _lastCallTs);
+  if (gap > 0) await sleep(gap);
+  _lastCallTs = Date.now();
+  let url;
+  try { url = new URL(SHEET_MCP_URL); } catch (e) { throw e; }
+  const payload = JSON.stringify(body);
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json, text/event-stream',
+    'Authorization': TOKEN(),
+    'Content-Length': Buffer.byteLength(payload),
+  };
+  const buf_obj = await new Promise((resolve, reject) => {
     const req = https.request({ hostname: url.hostname, port: url.port || 443, path: url.pathname + url.search, method: 'POST', headers }, (res) => {
       let buf = '';
       res.on('data', (c) => (buf += c));
-      res.on('end', () => {
-        const m = buf.match(/data:\s*(\{[\s\S]*\})/);
-        const text = m ? m[1] : buf;
-        try { resolve(JSON.parse(text)); } catch (e) { reject(new Error('sheet-mcp 响应解析失败: ' + buf.slice(0, 400))); }
-      });
+      res.on('end', () => resolve({ buf, status: res.statusCode, ct: res.headers['content-type'] || '' }));
     });
     req.on('error', reject);
     req.write(payload);
     req.end();
   });
+  const { buf, status, ct } = buf_obj;
+  const isHtml = /^\s*<!DOCTYPE|<html/i.test(buf) || (ct && ct.includes('text/html'));
+  const isWaf = /waf-captcha|501page|captcha|verify\.html|security/i.test(buf);
+  const isRedirect = status >= 300 && status < 400;
+  const rateLimited = isHtml || isWaf || isRedirect || status === 429 || (status >= 500 && status < 600);
+  if (rateLimited) {
+    if (attempt < 6) {
+      const delay = Math.min(15000, 1200 * Math.pow(2, attempt)) + Math.floor(Math.random() * 600);
+      await sleep(delay);
+      return smcpRaw(body, attempt + 1);
+    }
+    throw new Error('sheet-mcp 网关限流/WAF拦截(重试耗尽): ' + buf.slice(0, 200));
+  }
+  const m = buf.match(/data:\s*(\{[\s\S]*\})/);
+  const text = m ? m[1] : buf;
+  try { return JSON.parse(text); } catch (e) { throw new Error('sheet-mcp 响应解析失败: ' + buf.slice(0, 400)); }
 }
 async function smcpCall(name, args) {
-  await smcpRaw({ jsonrpc: '2.0', id: 0, method: 'initialize', params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'vo-backend', version: '1.0' } } });
+  // 注：initialize 的返回被丢弃、且 tools/call 不依赖其会话，移除该冗余预热调用可减半 sheet-mcp 请求量，降低触发 WAF 的概率。
   const r = await smcpRaw({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args || {} } });
   const body = r;
   if (body.error) throw new Error(`sheet-mcp ${name} error: ${JSON.stringify(body.error)}`);

@@ -422,7 +422,7 @@ body.embed .mid{width:100%}
         <button class="tool-btn tb-gender" data-gender="男" onclick="setRosterGender('男',this)" title="筛选男性"><span class="g-male">♂</span></button>
         <button class="tool-btn tb-gender" data-gender="女" onclick="setRosterGender('女',this)" title="筛选女性"><span class="g-female">♀</span></button>
         <span class="chip-divider"></span>
-        <button id="editModeBtn" class="tool-btn tb-edit" onclick="toggleEditMode(this)" title="编辑模式：允许直接就地修改声优/地点/棚/性别等" aria-pressed="false">
+        <button id="editModeBtn" class="tool-btn tb-edit" onclick="toggleEditMode(this)" title="编辑模式：允许直接就地修改大类/角色名/声优/地点/棚等" aria-pressed="false">
           <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
         </button>
       </div>
@@ -728,7 +728,8 @@ async function syncRosterToBackend(){
     const dbRes = await fetch(base + '/api/talents', {cache:'no-store'});
     if(!dbRes.ok) throw new Error('读取声优库失败 ('+dbRes.status+')');
     const db = await dbRes.json();
-    const dbByCn = new Map(db.map(r=>[r.role_cn, r]));
+    const dbByCn = new Map(db.map(r=>[String(r.role_cn||'').trim(), r]));
+    const dbById = new Map(db.map(r=>[Number(r.id), r]));
 
     const cur = TALENT_LIST || [];
     const deleteQueue = loadRosterDeleteQueue();
@@ -748,22 +749,41 @@ async function syncRosterToBackend(){
     });
     const FIELDS = ['module','role_cn','gender','role_en','cn_va','cn_loc','cn_studio','en_va','en_loc','en_studio'];
 
-    // 2) upsert：当前列表逐条按 role_cn 匹配 DB
+    // 2) upsert：优先按 db_id 命中（支持 role_cn 改名），其次按 role_cn 命中
+    const seenCn = new Set();
     for(const e of cur){
-      if(!e.role_cn) continue;
+      const roleCn = String(e.role_cn||'').trim();
+      if(!roleCn) continue;
+      if(seenCn.has(roleCn)) throw new Error('角色中文名重复：'+roleCn);
+      seenCn.add(roleCn);
+
       const p = toPayload(e);
-      const hit = dbByCn.get(e.role_cn);
+      const hitById = e.db_id ? dbById.get(Number(e.db_id)) : null;
+      const hitByCn = dbByCn.get(roleCn);
+      const hit = hitById || hitByCn;
+
       if(hit){
         const same = FIELDS.every(k => (hit[k]||'') === (p[k]||''));
         if(!same){
           const r = await fetch(base + '/api/talents/'+hit.id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p)});
-          if(!r.ok) throw new Error('更新角色失败: '+e.role_cn);
+          if(!r.ok) throw new Error('更新角色失败: '+roleCn);
           patched++;
+          const oldCn = String(hit.role_cn||'').trim();
+          Object.assign(hit, p);
+          if(oldCn && oldCn !== roleCn) dbByCn.delete(oldCn);
+          dbByCn.set(roleCn, hit);
+          dbById.set(Number(hit.id), hit);
         } else skipped++;
       } else {
         const r = await fetch(base + '/api/talents', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p)});
-        if(!r.ok) throw new Error('新增角色失败: '+e.role_cn);
+        if(!r.ok) throw new Error('新增角色失败: '+roleCn);
+        const created = await r.json().catch(()=>({}));
         posted++;
+        if(created && created.id){
+          const row = Object.assign({}, created, p);
+          dbById.set(Number(created.id), row);
+          dbByCn.set(roleCn, row);
+        }
       }
     }
 
@@ -862,7 +882,7 @@ function toggleEditMode(btn){
   if(btn){
     btn.classList.toggle('active', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    btn.setAttribute('title', on ? '编辑模式已开启：点击退出' : '编辑模式：允许直接就地修改声优/地点/棚/性别等');
+    btn.setAttribute('title', on ? '编辑模式已开启：点击退出' : '编辑模式：允许直接就地修改大类/角色名/声优/地点/棚等');
   }
   renderRoster();
 }
@@ -1026,9 +1046,15 @@ function renderRoster(){
     const pendingCast = pendingCn || pendingEn;
     return `
     <tr data-rid="${r.id}" oncontextmenu="openRowMenu(event,${r.id})">
-      <td>${catBadge(r.category)}</td>
-      <td>${escHtml(r.role_cn)}</td>
-      <td style="color:var(--c-text-2);font-family:'JetBrains Mono',monospace;font-size:11px">${escHtml(r.role_en||'')}</td>
+      ${document.body.classList.contains('edit-mode')
+        ? edCell(r.category, r.id, 'category', {extraStyle:'font-weight:600;'})
+        : `<td>${catBadge(r.category)}</td>`}
+      ${document.body.classList.contains('edit-mode')
+        ? edCell(r.role_cn, r.id, 'role_cn')
+        : `<td>${escHtml(r.role_cn)}</td>`}
+      ${document.body.classList.contains('edit-mode')
+        ? edCell(r.role_en, r.id, 'role_en', {dim:true, extraStyle:"font-family:'JetBrains Mono',monospace;font-size:11px"})
+        : `<td style="color:var(--c-text-2);font-family:'JetBrains Mono',monospace;font-size:11px">${escHtml(r.role_en||'')}</td>`}
       <td class="gender-cell">${genderIcon(r.gender)}</td>
       ${edCell(r.cn_va,   r.id,'cn_va', {pending: pendingCn})}
       ${locStudioCell(r.cn_location, r.cn_studio, r.id, 'cn', pendingCn)}
@@ -1091,6 +1117,21 @@ function initCellEdit(){
       td.dataset.studio = studio;
       td.style.color = clean ? 'var(--c-text-2)' : 'var(--c-text-dim)';
     } else {
+      if(field==='role_cn'){
+        if(!val){
+          alert('游戏角色（中）不能为空');
+          td.textContent = orig;
+          td.dataset.orig = orig;
+          return;
+        }
+        const dup = TALENT_LIST.some(r=>Number(r.id)!==rid && String(r.role_cn||'').trim()===val);
+        if(dup){
+          alert('角色中文名重复：'+val+'\n请改成唯一名称后再保存到系统。');
+          td.textContent = orig;
+          td.dataset.orig = orig;
+          return;
+        }
+      }
       saveCellEdit(rid, field, val);
       const row = TALENT_LIST.find(r=>r.id===rid);
       if(row){ row[field] = val; }

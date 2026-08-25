@@ -45,6 +45,7 @@ function createDemandJobs(options) {
       error: raw.error || '',
       progress: raw.progress || '',
       version,
+      lite: !!raw.lite,
       title: raw.title || raw.doc_title || raw.cw_name || '',
       result: raw.result || {
         doc_url: raw.doc_url || '', doc_file_id: raw.doc_file_id || '', doc_title: raw.doc_title || ''
@@ -74,7 +75,7 @@ function createDemandJobs(options) {
     const { payload, ...safe } = job;
     return safe;
   }
-  function enqueue({type,demand,release,version,title,max_attempts=3,force=false}) {
+  function enqueue({type,demand,release,version,title,max_attempts=3,force=false,lite=false}) {
     if(!demand || !demand.id) throw new Error('demand.id required');
     if(!['script_table','voice_estimates'].includes(type)) throw new Error('unsupported job type');
     const ver = version || (type==='script_table'?'v6':'v1');
@@ -89,7 +90,7 @@ function createDemandJobs(options) {
       idempotency_key:key, status:'pending', attempt:0, retry_count:0, max_attempts,
       created_at:now(), updated_at:now(), started_at:null, finished_at:null,
       error:'', progress:'queued', version:ver, title:title||demand.task_name||String(demand.id),
-      result:{}, payload:{demand_id:String(demand.id)}
+      result:{}, payload:{demand_id:String(demand.id)}, lite: !!lite
     };
     jobs.set(job.id,job); save(); run();
     return {job,created:true,reason:'created'};

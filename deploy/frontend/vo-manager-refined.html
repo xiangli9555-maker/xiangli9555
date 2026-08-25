@@ -170,7 +170,7 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
   </div>
   <span class="brand-spacer"></span>
 
-  <button class="brand-icon-btn is-disabled" title="通知 · 待真实通知系统接入后开启" tabindex="-1" aria-disabled="true">
+  <button class="brand-icon-btn is-disabled" id="notifyBell" title="通知" tabindex="-1" aria-disabled="true">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
   </button>
   <button class="brand-icon-btn" title="分享" onclick="sharePage()">
@@ -238,7 +238,7 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
 </div>
 
 <script>
-const __BUILD__ = '202608241556';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202608251313';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -508,6 +508,26 @@ function resolveUser(){
   if(q) return { id:q, name:q, role:'Writer', cw:q }; // 任意文案 id → 视为 Writer（用其 Q 版头像）
   return USER_PROFILES.pm;
 }
+function getRoleHint(user){
+  const raw = String(user?.id || user?.name || '').trim();
+  const key = raw.toLowerCase();
+  if(['pm','vomi','lycheelli'].includes(key)) return 'Vomi：通知、预约会议、聚合校验、锁表、管理修改权限';
+  if(['lixiang','李想'].includes(raw) || ['lixiang'].includes(key)) return '李想：推动版本 VO 流程，参与关键会议，处理紧急修改';
+  if(['zhaojieru','赵杰儒'].includes(raw) || ['zhaojieru'].includes(key)) return '赵杰儒：同步项目公告与提单截止时间';
+  if(['wangyaqian','汪亚茜','文案pm','copy_pm'].includes(raw) || ['wangyaqian','copy_pm'].includes(key)) return '汪亚茜（文案 PM）：组织需求分配台词，完成声优确认';
+  if(['audio','音频团队','audio_team'].includes(raw) || ['audio','audio_team'].includes(key)) return '音频团队：预约声优、补齐档期、推进录制与交付';
+  if(['writer','copywriter','文案策划','bojackgguan','关学院'].includes(raw) || ['writer','copywriter','bojackgguan'].includes(key)) return '文案策划：填写分表台词、角色、句数、选角资料';
+  return user?.role === 'PM'
+    ? 'Vomi：通知、预约会议、聚合校验、锁表、管理修改权限'
+    : '当前身份：请查看与你职责相关的节点提醒';
+}
+function applyNotificationHint(user){
+  const bell = document.getElementById('notifyBell');
+  if(!bell) return;
+  const hint = getRoleHint(user);
+  bell.title = '通知 · ' + hint;
+  bell.setAttribute('aria-label', bell.title);
+}
 function renderUserChip(){
   const u = CURRENT_USER = resolveUser();
   const chip = document.getElementById('brandUser');
@@ -520,6 +540,7 @@ function renderUserChip(){
   document.getElementById('buName').textContent = u.name;
   document.getElementById('buRole').textContent = u.role;
   chip.classList.toggle('is-writer', u.role === 'Writer');
+  applyNotificationHint(u);
 }
 let _userCycleIdx = 0;
 function cycleUser(){

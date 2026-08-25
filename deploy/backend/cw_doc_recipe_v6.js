@@ -9,13 +9,21 @@ function cleanDemandName(value) {
     .replace(/\s+/g, ' ')
     .trim();
 }
+// 子表名（腾讯表格 sheet 名）比文件标题更严格：禁止 : / \ ? * [ ] < > " | 及其全角变体。
+// 实测全角冒号「：」会导致 sheet.add_sheet 报 InsertSheet check failed → 整任务失败。
+function cleanSheetName(value) {
+  return String(value || '')
+    .replace(/[:：\/／\\＼?？\*＊\[\]［］<>＜＞"＂|｜]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 function docTitle(demand) {
   const rel = demand.release_plan || demand.release || '';
   const name = cleanDemandName(demand.task_name);
   return `《台词表·${rel}·${name}》`;
 }
 function tabName(demand) {
-  let name = cleanDemandName(demand.task_name);
+  let name = cleanSheetName(demand.task_name);
   if (name.length > 26) name = name.slice(0, 26) + '…';
   return name || String(demand.id);
 }
@@ -55,6 +63,7 @@ module.exports = {
   docTitle,
   tabName,
   cleanDemandName,
+  cleanSheetName,
   makeRowNo,
   deriveVoiceActors,
   template,

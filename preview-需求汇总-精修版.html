@@ -1425,6 +1425,19 @@ function rowHTML(d){
 }
 // release_plan 归一化：消除空格/.0 差异（防止数据库值 "Ma 5" 与按钮 "Ma5.0" 不匹配导致表格永远为空）
 function normRelease(v){ if(!v) return ''; return v.replace(/\s+/g,'').replace(/\.0$/,''); }
+function currentReleasePlan(){
+  const counts = {};
+  allDemands.forEach(d=>{
+    const rel = (d.release_plan||'').trim();
+    if(!rel) return;
+    const key = normRelease(rel);
+    if(!counts[key]) counts[key] = { name: rel, n: 0 };
+    counts[key].n += 1;
+  });
+  let best = null;
+  Object.values(counts).forEach(it=>{ if(!best || it.n > best.n) best = it; });
+  return best ? best.name : '';
+}
 function demandScheduleKeys(d){
   return [d.id,d.external_id,d.task_name].filter(Boolean).map(v=>String(v).trim()).filter(Boolean);
 }
@@ -1455,7 +1468,14 @@ function matchFilter(d){
     if(filterCw === '__none__'){ if(cw) return false; }        // 未分配：只保留空
     else if(cw !== filterCw) return false;
   }
-  if(filterRelease && normRelease(d.release_plan) !== normRelease(filterRelease)) return false;
+  if(filterRelease){
+    if(filterRelease === '__archive__'){
+      const cur = currentReleasePlan();
+      if(cur && normRelease(d.release_plan) === normRelease(cur)) return false;
+    }else if(normRelease(d.release_plan) !== normRelease(filterRelease)){
+      return false;
+    }
+  }
   if(filterStatus){
     // PM 手动值优先，否则用 TAPD 自动映射
     const raw = d.manual_status || tapdStage(d);
@@ -1553,7 +1573,7 @@ function updateResultBar(shown, total){
   if(sc) sc.innerHTML = `<b>${fmt(shown)}</b> / ${fmt(total)} 条`;
   const tags = [];
   Object.entries(headerFilters).forEach(([k,v])=>{if(v) tags.push([HEADER_FILTER_NAMES[k]||k,v]);});
-  if(filterRelease) tags.push(['发布计划', filterRelease]);
+  if(filterRelease) tags.push(['发布计划', filterRelease==='__archive__' ? '历史归档' : filterRelease]);
   if(filterArea)    tags.push(['AREA', filterArea]);
   if(filterCw){
     const cw = filterCw==='__none__' ? '未分配' : ((cwInfo(filterCw)||{}).name||filterCw);
@@ -1580,7 +1600,12 @@ function updateChipCounts(){
   let stPending=0, stWriting=0, stVo=0, stDone=0;
   allDemands.forEach(d=>{
     if(filterArea   && d.area        !== filterArea)   return;
-    if(filterRelease && normRelease(d.release_plan) !== normRelease(filterRelease)) return;
+    if(filterRelease){
+      if(filterRelease==='__archive__'){
+        const cur = currentReleasePlan();
+        if(cur && normRelease(d.release_plan)===normRelease(cur)) return;
+      }else if(normRelease(d.release_plan) !== normRelease(filterRelease)) return;
+    }
     // PM 手动值优先，否则 TAPD 自动映射
     const raw = d.manual_status || tapdStage(d);
     const s = (typeof migrateStatus==='function') ? migrateStatus(raw) : raw;
@@ -1868,30 +1893,32 @@ function updateKPI(){
   const allChip = document.querySelector('.chip-filter[data-fk="area"][data-fv=""]');
   if(allChip && !allChip.__bound){ allChip.addEventListener('click', onChipClick); allChip.__bound = true; }
 
-  // 侧栏：动态生成发布计划子页签（按实际数据）
-  const cntByRel = {'':total};
-  const relOrder = [];
+  // 侧栏：发布计划子页签（当前版本 + 历史归档）
+  const cntByRel = {};
   allDemands.forEach(d=>{
     const r = (d.release_plan||'未指定').trim();
-    if(!cntByRel[r]) relOrder.push(r);
     cntByRel[r]=(cntByRel[r]||0)+1;
   });
+  const curRel = currentReleasePlan();
+  const curCnt = curRel ? (cntByRel[curRel]||0) : 0;
+  const archiveCnt = Math.max(0, total - curCnt);
+
   // embed 模式下 → 向外壳汇报计数，供外壳侧栏子项显示；本页 nav-sub 已在 CSS 隐藏
   if(document.body.classList.contains('embed')){
     try{
       window.parent && window.parent.postMessage({
         type: 'release-counts',
         total: total,
-        counts: cntByRel
+        counts: cntByRel,
+        currentRelease: curRel
       }, '*');
     }catch(e){}
   }
   const sub = document.getElementById('releaseSubTabs');
+  const activeToken = filterRelease || curRel || '';
   sub.innerHTML =
-    `<button class="nav-sub-item${filterRelease===''?' active':''}" data-rel=""><span class="dot"></span>全部<span class="count">${total}</span></button>` +
-    relOrder.map(r =>
-      `<button class="nav-sub-item${filterRelease===r?' active':''}" data-rel="${esc(r)}"><span class="dot"></span>${esc(r)}<span class="count">${cntByRel[r]}</span></button>`
-    ).join('');
+    `<button class="nav-sub-item${activeToken===curRel?' active':''}" data-rel="${esc(curRel)}"><span class="dot"></span>当前版本-${esc(curRel||'—')}<span class="count">${curCnt}</span></button>` +
+    `<button class="nav-sub-item${filterRelease==='__archive__'?' active':''}" data-rel="__archive__"><span class="dot"></span>历史归档<span class="count">${archiveCnt}</span></button>`;
   sub.querySelectorAll('.nav-sub-item').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       filterRelease = btn.dataset.rel || '';

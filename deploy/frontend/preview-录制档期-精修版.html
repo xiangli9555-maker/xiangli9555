@@ -116,10 +116,11 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .mp-up-item{padding:8px 0;border-bottom:1px solid var(--c-hairline)}
 .mp-up-item:last-child{border-bottom:none;padding-bottom:0}
 .mp-up-meta{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--c-text-dim);letter-spacing:.2px}
-.mp-up-title{font-size:12px;line-height:1.35;margin-top:2px;color:#fff;font-weight:600}
-.mp-up-title .lang-cn{color:var(--c-primary)}
-.mp-up-title .lang-en{color:var(--c-warning)}
-.mp-up-sub{font-size:11px;color:var(--c-text-mute);margin-top:2px}
+.mp-up-role{font-size:13px;line-height:1.35;margin-top:3px;color:#fff;font-weight:700}
+.mp-up-demand{font-size:11.5px;line-height:1.35;margin-top:3px;color:var(--c-text)}
+.mp-up-demand .lang-badge{display:inline-flex;align-items:center;padding:1px 6px;border-radius:999px;font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:.3px;font-weight:700;margin-left:6px;vertical-align:baseline}
+.mp-up-demand .lang-badge.cn{color:var(--c-primary);background:rgba(15,247,150,.14);border:1px solid rgba(15,247,150,.34)}
+.mp-up-demand .lang-badge.en{color:var(--c-warning);background:rgba(255,210,76,.14);border:1px solid rgba(255,210,76,.34)}
 
 
 /* Embed 模式：iframe 内隐藏自身 brand-bar/sidebar，仅显示主内容 */
@@ -327,30 +328,18 @@ body.embed .main{width:100%}
       <div class="title-block">
         <div class="eyebrow"><span class="sig"></span>Recording Ops · Sched 07</div>
         <h1 class="page-title">录制档期 <span class="code">// 2026 · JUL</span></h1>
-        <div class="subtitle">草稿仅保存在本机 · 点击“发布草稿”后进入正式排期与需求 Max · <b style="color:var(--c-text-2)">正式数据只认数据库</b>。</div>
+        <div class="subtitle">草稿仅保存在本机 · 录制档期以数据库正式数据为准。</div>
       </div>
       <div class="actions">
-        <button class="btn btn-outline" onclick="exportSchedule()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出档期</button>
-        <button class="btn btn-outline" onclick="addEmptySched()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增排期</button>
-        <button id="publishDraftsBtn" class="btn btn-outline" onclick="publishScheduleDrafts()"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 14v6h14v-6"/></svg><span>发布草稿</span></button>
         <button class="btn btn-primary" onclick="openDraftWizard()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>从澄清看板生成草稿</button>
       </div>
     </div>
 
-    <!-- 视图切换 tab：仅保留角色汇总入口 -->
-    <div class="view-tabs">
-      <button class="view-tab" data-view="actors" onclick="toggleActorView()">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        角色汇总
-        <span class="tab-hint" id="actorTabHint"></span>
-      </button>
-      <div class="view-tab-spacer"></div>
-      <div class="view-release" id="viewReleaseFilter">
-        <span class="tb-label">RELEASE</span>
-        <select id="actorReleaseSel" onchange="renderActorRollup()">
-          <option value="">暂无数据</option>
-        </select>
-      </div>
+    <div class="view-release" id="viewReleaseFilter" style="display:none">
+      <span class="tb-label">RELEASE</span>
+      <select id="actorReleaseSel" onchange="renderActorRollup()">
+        <option value="">暂无数据</option>
+      </select>
     </div>
 
     <!-- 视图 A：档期日历 -->
@@ -392,14 +381,6 @@ body.embed .main{width:100%}
         <button class="tb-btn on" data-sched-lang="all" onclick="setSchedLang('all',this)">全部</button>
         <button class="tb-btn" data-sched-lang="cn" onclick="setSchedLang('cn',this)">中配</button>
         <button class="tb-btn" data-sched-lang="en" onclick="setSchedLang('en',this)">英配</button>
-      </div>
-      <div class="tb-group">
-        <span class="tb-label">STUDIO</span>
-        <button class="tb-btn on">全部</button>
-        <button class="tb-btn">8082</button>
-        <button class="tb-btn">居然翁</button>
-        <button class="tb-btn">叽咔</button>
-        <button class="tb-btn">SIDE</button>
       </div>
       <div style="margin-left:auto" class="legend">
         <span class="li"><span class="sw" style="background:var(--c-primary)"></span>中配</span>
@@ -475,7 +456,9 @@ body.embed .main{width:100%}
     }
     var qLang = (qs.get('lang')||'').toLowerCase();
     window.SHELL_LANG = (qLang==='cn'||qLang==='en') ? qLang : 'all';
-  }catch(e){ window.SHELL_LANG='all'; }
+    var qRelease = (qs.get('release')||'').trim();
+    window.SHELL_RELEASE = qRelease || '';
+  }catch(e){ window.SHELL_LANG='all'; window.SHELL_RELEASE=''; }
 })();
 </script>
 
@@ -508,8 +491,13 @@ body.embed .main{width:100%}
 // 【显示规则 2026-08-14】除声优库外，全站以"游戏角色名"为主体，演员名仅作 tooltip 溯源。
 // 归组键 = (lang, role)：同一角色的中/英配分开算一行；covers = 出现在哪些 story；actor = 演员名（tooltip 显示）。
 let ACTOR_STATE = { lang: 'all', status: 'all', release: '', demands: [], loaded: false };
-let SCHED_STATE = { lang: (window.SHELL_LANG==='cn'||window.SHELL_LANG==='en') ? window.SHELL_LANG : 'all' };
+let SCHED_STATE = {
+  lang: (window.SHELL_LANG==='cn'||window.SHELL_LANG==='en') ? window.SHELL_LANG : 'all',
+  releaseToken: window.SHELL_RELEASE || '',
+  currentRelease: ''
+};
 function actorEsc(s){ return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c])); }
+function normReleaseToken(v){ return String(v==null?'').trim().replace(/\s+/g,'').replace(/\.0$/,''); }
 function normLang(v){
   const s = String(v==null?'':v).trim().toLowerCase();
   if(!s) return '';
@@ -521,6 +509,42 @@ function setSchedLang(lang, btn){
   SCHED_STATE.lang = (lang==='cn'||lang==='en') ? lang : 'all';
   document.querySelectorAll('.toolbar [data-sched-lang]').forEach(b => b.classList.toggle('on', b.dataset.schedLang === SCHED_STATE.lang));
   renderSched();
+}
+function detectCurrentReleaseFromDemands(){
+  const counts = {};
+  (DEMAND_OPTIONS||[]).forEach(d=>{
+    const rel = String(d.release_plan||'').trim();
+    const key = normReleaseToken(rel);
+    if(!key) return;
+    if(!counts[key]) counts[key] = { name: rel, n: 0 };
+    counts[key].n += 1;
+  });
+  let best = null;
+  Object.values(counts).forEach(it=>{ if(!best || it.n > best.n) best = it; });
+  return best ? best.name : '';
+}
+function detectCurrentReleaseFromRows(rows){
+  const counts = {};
+  (rows||[]).forEach(r=>{
+    const rel = String(r.plan||r.release_plan||'').trim();
+    const key = normReleaseToken(rel);
+    if(!key) return;
+    if(!counts[key]) counts[key] = { name: rel, n: 0 };
+    counts[key].n += 1;
+  });
+  let best = null;
+  Object.values(counts).forEach(it=>{ if(!best || it.n > best.n) best = it; });
+  return best ? best.name : '';
+}
+function schedReleaseMatch(plan){
+  const token = String(SCHED_STATE.releaseToken||'').trim();
+  if(!token) return true;
+  if(token==='__archive__'){
+    const cur = SCHED_STATE.currentRelease || '';
+    if(!cur) return true;
+    return normReleaseToken(plan) !== normReleaseToken(cur);
+  }
+  return normReleaseToken(plan) === normReleaseToken(token);
 }
 
 function switchScheduleView(view){
@@ -699,7 +723,8 @@ function renderActorRollup(){
   }).join('');
   // tab hint = 未约角色数
   const pendingN = all.filter(a=>a.status==='pending').length;
-  document.getElementById('actorTabHint').textContent = pendingN ? `${pendingN} 未约` : '';
+  const actorTabHintEl = document.getElementById('actorTabHint');
+  if(actorTabHintEl) actorTabHintEl.textContent = pendingN ? `${pendingN} 未约` : '';
 }
 
 function escHtmlSafe(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -761,7 +786,12 @@ function bookActor(role, lang){
   }
   function loadClarify(){ try{return JSON.parse(localStorage.getItem(CLARIFY))||{}}catch(e){return{}} }
   var DEMAND_OPTIONS=[];
-  function loadDemandOptions(){ return fetch('/api/demands',{cache:'no-store'}).then(function(r){return r.ok?r.json():[]}).then(function(a){DEMAND_OPTIONS=Array.isArray(a)?a:[];renderSched();}).catch(function(){DEMAND_OPTIONS=[];}); }
+  function loadDemandOptions(){ return fetch('/api/demands',{cache:'no-store'}).then(function(r){return r.ok?r.json():[]}).then(function(a){
+    DEMAND_OPTIONS=Array.isArray(a)?a:[];
+    var cur = detectCurrentReleaseFromDemands();
+    if(cur) SCHED_STATE.currentRelease = cur;
+    renderSched();
+  }).catch(function(){DEMAND_OPTIONS=[];}); }
   function demandSel(r){
     var cur=String(r.demandId||r.demand_id||'');
     var opts='<option value="">— 未关联需求 —</option>'+DEMAND_OPTIONS.map(function(d){var v=String(d.id);return '<option value="'+esc(v)+'"'+(cur===v?' selected':'')+'>'+esc(d.task_name||('需求 '+v))+'</option>';}).join('');
@@ -791,29 +821,40 @@ function bookActor(role, lang){
     return hit ? String(hit.task_name||('需求 '+sid)) : ('需求 '+sid);
   }
   function buildPanelRows(draftRows,publishedRows){
+    function pickRole(r, lang){
+      if(!r) return '';
+      if(Array.isArray(r.roles) && r.roles.length) return String(r.roles.join(' / '));
+      if(lang==='en' && r.role_en) return String(r.role_en);
+      if(lang==='cn' && r.role_cn) return String(r.role_cn);
+      return String(r.role||r.character||r.game_role||'');
+    }
     var out=[];
     (draftRows||[]).forEach(function(r){
+      var lg = normLang(r.vaType||r.language||r.lang||r.voice_type);
       out.push({
         date:r.date||'', slot:r.slot||'', studio:r.studio||'',
-        lang:normLang(r.vaType||r.language||r.lang||r.voice_type),
+        lang:lg,
         demandId:r.demandId||r.demand_id||'',
         plan:r.plan||r.release_plan||'',
+        role:pickRole(r, lg),
         title:demandNameFromId(r.demandId||r.demand_id)
       });
     });
     (publishedRows||[]).forEach(function(r){
       var did=r.demand_id||r.demandId||'';
+      var lg = normLang(r.language||r.lang||r.vaType||r.va_type||r.voice_type);
       out.push({
         date:r.record_date||r.date||'', slot:r.time_slot||r.slot||'', studio:r.studio||'',
-        lang:normLang(r.language||r.lang||r.vaType||r.va_type||r.voice_type),
+        lang:lg,
         demandId:did,
         plan:r.release_plan||r.plan||'',
+        role:pickRole(r, lg),
         title:String(r.demand_name||r.task_name||demandNameFromId(did)||'')
       });
     });
     var seen={};
     return out.filter(function(r){
-      var k=[r.date,r.slot,r.studio,r.lang,r.demandId,r.plan].join('|');
+      var k=[r.date,r.slot,r.lang,r.demandId,r.plan,r.role,r.title].join('|');
       if(seen[k]) return false;
       seen[k]=1; return true;
     });
@@ -888,12 +929,13 @@ function bookActor(role, lang){
     var box=document.getElementById('mpUpcoming'); if(!box) return;
     var list=(rows||[]).map(function(r){
       var d=parseYMD(r.date); if(!d) return null;
+      var lg=(r.lang==='en'?'en':'cn');
       return {
         date:d,
         time:String(r.slot||'待定时段'),
-        lang:r.lang==='en'?'en':'cn',
-        title:String(r.title||demandNameFromId(r.demandId)||r.plan||'未关联需求'),
-        studio:String(r.studio||'待定棚')
+        lang:lg,
+        role:String(r.role||'未关联角色'),
+        demand:String(r.title||demandNameFromId(r.demandId)||r.plan||'未关联需求')
       };
     }).filter(Boolean).sort(function(a,b){ return a.date-b.date; }).slice(0,8);
 
@@ -903,11 +945,10 @@ function bookActor(role, lang){
       var m=it.date.getMonth()+1, d=it.date.getDate();
       var meta=m+'/'+d+' '+WEEK_CN[it.date.getDay()]+' · '+it.time;
       var langTxt=it.lang==='en'?'英配':'中配';
-      var langCls=it.lang==='en'?'lang-en':'lang-cn';
       html+='<div class="mp-up-item">'
         +'<div class="mp-up-meta">'+meta+'</div>'
-        +'<div class="mp-up-title">'+esc(it.title)+' <span class="'+langCls+'">'+langTxt+'</span></div>'
-        +'<div class="mp-up-sub">'+esc(it.studio)+'</div>'
+        +'<div class="mp-up-role">'+esc(it.role)+'</div>'
+        +'<div class="mp-up-demand">'+esc(it.demand)+' <span class="lang-badge '+it.lang+'">'+langTxt+'</span></div>'
       +'</div>';
     });
     box.innerHTML=html;
@@ -927,10 +968,16 @@ function bookActor(role, lang){
   function renderSched(){
     var rows=loadSched();
     var lang=SCHED_STATE.lang||'all';
-    var viewRows = lang==='all' ? rows : rows.filter(function(r){ return normLang(r.vaType)===lang; });
-    var pubRows = lang==='all' ? PUBLISHED_ROWS : PUBLISHED_ROWS.filter(function(r){ return normLang(r.language||r.lang||r.vaType||r.va_type||r.voice_type)===lang; });
+    if(!SCHED_STATE.currentRelease){
+      SCHED_STATE.currentRelease = detectCurrentReleaseFromDemands() || detectCurrentReleaseFromRows(rows) || detectCurrentReleaseFromRows(PUBLISHED_ROWS) || '';
+    }
+    var byReleaseDraft = rows.filter(function(r){ return schedReleaseMatch(r.plan||r.release_plan||''); });
+    var byReleasePub = PUBLISHED_ROWS.filter(function(r){ return schedReleaseMatch(r.release_plan||r.plan||''); });
+    var viewRows = lang==='all' ? byReleaseDraft : byReleaseDraft.filter(function(r){ return normLang(r.vaType)===lang; });
+    var pubRows = lang==='all' ? byReleasePub : byReleasePub.filter(function(r){ return normLang(r.language||r.lang||r.vaType||r.va_type||r.voice_type)===lang; });
     var panelRows = buildPanelRows(viewRows,pubRows);
-    document.getElementById('schedCount').textContent=viewRows.length+' 草稿 · '+pubRows.length+' 已发布';
+    var segLabel = SCHED_STATE.releaseToken==='__archive__' ? '历史归档' : (SCHED_STATE.releaseToken ? ('当前版本-'+SCHED_STATE.releaseToken) : '全部版本');
+    document.getElementById('schedCount').textContent=segLabel+' · '+viewRows.length+' 草稿 · '+pubRows.length+' 已发布';
     var pb=document.getElementById('publishDraftsBtn'); if(pb){pb.disabled=!rows.length;pb.querySelector('span').textContent=rows.length?'发布草稿 · '+rows.length:'发布草稿';}
     var body=document.getElementById('schedBody');
     if(!rows.length){
@@ -938,7 +985,8 @@ function bookActor(role, lang){
       renderAgg(); updateKPI(viewRows); renderMidPanel(panelRows); return;
     }
     if(!viewRows.length){
-      body.innerHTML='<div class="empty-hint">当前语言筛选下暂无档期草稿。</div>';
+      var emptyTxt = SCHED_STATE.releaseToken==='__archive__' ? '历史归档下暂无档期草稿。' : '当前版本筛选下暂无档期草稿。';
+      body.innerHTML='<div class="empty-hint">'+emptyTxt+'</div>';
       renderAgg(); updateKPI(viewRows); renderMidPanel(panelRows); return;
     }
     var html='<table class="sched-table"><thead><tr>'

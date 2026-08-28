@@ -204,7 +204,7 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
       <span class="label-text nav-label">需求汇总</span>
     </button>
     <div class="nav-sub label-text context-active" id="demandReleaseSubs">
-      <button class="nav-sub-item active" data-release="" onclick="switchDemandRelease(this,'')"><span class="dot"></span>当前版本<span class="count" id="cnt-rel-current">—</span></button>
+      <button class="nav-sub-item active" data-release="" onclick="switchDemandRelease(this,'')"><span class="dot"></span>加载中<span class="count" id="cnt-rel-current">—</span></button>
       <button class="nav-sub-item" data-release="__archive__" onclick="switchDemandRelease(this,'__archive__')"><span class="dot"></span>历史归档<span class="count" id="cnt-rel-archive">—</span></button>
     </div>
 
@@ -229,7 +229,7 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
       <span class="label-text nav-label">录制档期</span>
     </button>
     <div class="nav-sub label-text" id="calendarReleaseSubs">
-      <button class="nav-sub-item active" data-release="" onclick="switchCalendarRelease(this,'')"><span class="dot"></span>当前版本<span class="count" id="cnt-cal-current">—</span></button>
+      <button class="nav-sub-item active" data-release="" onclick="switchCalendarRelease(this,'')"><span class="dot"></span>加载中<span class="count" id="cnt-cal-current">—</span></button>
       <button class="nav-sub-item" data-release="__archive__" onclick="switchCalendarRelease(this,'__archive__')"><span class="dot"></span>历史归档<span class="count" id="cnt-cal-archive">—</span></button>
     </div>
 
@@ -254,7 +254,7 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
 </div>
 
 <script>
-const __BUILD__ = '202608281654';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202608281703';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -439,7 +439,7 @@ function renderReleaseSubs(currentName, currentCount, archiveCount){
   const demandBox = document.getElementById('demandReleaseSubs');
   const calBox = document.getElementById('calendarReleaseSubs');
   const curRel = currentName || '';
-  const curLabel = curRel ? ('当前版本-' + curRel) : '当前版本';
+  const curLabel = curRel ? curRel : '未指定版本';
   if(demandBox){
     demandBox.innerHTML =
       `<button class="nav-sub-item" data-release="${curRel ? curRel.replace(/"/g,'&quot;') : ''}" onclick="switchDemandRelease(this,'${curRel ? curRel.replace(/'/g,"\\'") : ''}')"><span class="dot"></span>${curLabel}<span class="count" id="cnt-rel-current">${currentCount}</span></button>`+

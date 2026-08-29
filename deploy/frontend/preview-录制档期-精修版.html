@@ -11,7 +11,7 @@
   --c-text:#FFFFFF;--c-text-2:#D4DDE3;--c-text-mute:#A1B1BC;--c-text-dim:#6B7A85;
   --c-info:#60A5FA;--c-warning:#FFD24C;--c-danger:#EF4444}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Inter','JetBrains Mono',-apple-system,"PingFang SC",sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);-webkit-font-smoothing:antialiased}
+html,body{height:100%;font-family:'Inter','JetBrains Mono',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);-webkit-font-smoothing:antialiased}
 body{display:flex;flex-direction:column;overflow:hidden}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--c-surface-3);border-radius:4px}
 
@@ -28,14 +28,14 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-spacer{flex:1}
 .layout{flex:1;display:flex;overflow:hidden}
 .sidebar{order:0;width:216px;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:16px 12px;flex-shrink:0;overflow-y:auto}
-.mid-panel{order:1;width:300px;flex-shrink:0;background:rgba(15,23,28,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-right:1px solid var(--c-hairline);padding:18px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:22px}
+.mid-panel{order:1;width:300px;flex-shrink:0;background:rgba(15,23,28,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-right:1px solid var(--c-hairline);padding:18px 14px;overflow:hidden;display:flex;flex-direction:column;gap:22px}
 .sec-label{font-size:10px;letter-spacing:1.5px;color:var(--c-text-dim);text-transform:uppercase;padding:16px 12px 6px;font-weight:600}
 .nav-item{width:100%;display:flex;align-items:center;gap:10px;padding:9px 12px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:6px;font-size:13px;text-align:left;font-family:inherit;transition:all .15s}
 .nav-item:hover{background:var(--c-surface);color:var(--c-text-2)}
 .nav-item.active{background:rgba(15,247,150,0.10);color:var(--c-primary);font-weight:600;box-shadow:inset 2px 0 0 var(--c-primary)}
 .nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
 
-.main{order:2;flex:1;padding:18px 22px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.main{order:2;flex:1;padding:18px 22px 22px;overflow:hidden;display:flex;flex-direction:column;gap:14px}
 
 .tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
 .tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
@@ -46,7 +46,12 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px}
 .page-title .code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
 .subtitle{font-size:12.5px;color:var(--c-text-mute);line-height:1.5;max-width:640px}
-.actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.actions .btn{width:auto}
+.sync-hint{font-size:11px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;letter-spacing:.3px;display:inline-flex;align-items:baseline;gap:7px;line-height:1.4;max-width:320px;text-align:right}
+.sync-hint .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55);flex-shrink:0;align-self:center;animation:pulse 2.2s infinite}
+.sync-spinner{display:inline-block;width:12px;height:12px;border:1.5px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
 .btn{border:none;font-family:inherit;cursor:pointer;font-size:12.5px;font-weight:600;border-radius:5px;padding:8px 14px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.3px}
 .btn-primary{background:var(--c-primary);color:#000}
 .btn-primary:hover{background:var(--c-primary-dark)}
@@ -61,12 +66,33 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .tb-btn{background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-mute);padding:5px 10px;font-size:11px;border-radius:3px;cursor:pointer;transition:all .12s;font-family:inherit;letter-spacing:0.3px}
 .tb-btn:hover{color:var(--c-primary);border-color:var(--c-primary)}
 .tb-btn.on{color:var(--c-primary);border-color:var(--c-primary);background:var(--c-primary-glow)}
-/* 录制档期 LANG：中配=荧光绿、英配=官方黄；全部=双拼 */
-.toolbar [data-sched-lang="cn"]:hover{color:var(--c-primary);border-color:var(--c-primary)}
-.toolbar [data-sched-lang="en"]:hover{color:var(--c-warning);border-color:var(--c-warning)}
-.toolbar [data-sched-lang].on[data-sched-lang="cn"]{color:var(--c-primary);border-color:var(--c-primary);background:rgba(15,247,150,.14)}
-.toolbar [data-sched-lang].on[data-sched-lang="en"]{color:var(--c-warning);border-color:var(--c-warning);background:rgba(255,210,76,.14)}
-.toolbar [data-sched-lang].on[data-sched-lang="all"]{color:#fff;border-color:rgba(255,210,76,.46);background:linear-gradient(90deg, rgba(15,247,150,.12) 0%, rgba(255,210,76,.12) 100%)}
+/* 录制档期头部（按截图改版） */
+.sched-hero{display:flex;flex-direction:column;gap:10px;padding:2px 0 2px;border-bottom:1px solid var(--c-hairline)}
+.sched-hero-main{display:flex;align-items:center;gap:12px;min-height:34px}
+.sched-hero-title{font-size:40px;line-height:1;font-weight:900;letter-spacing:.2px;color:#fff;font-family:'Inter','Microsoft YaHei UI',sans-serif}
+.sched-hero-sub{font-size:30px;line-height:1;color:#8CA0AF;white-space:nowrap}
+.sched-hero-line{height:1px;flex:1;min-width:120px;background:linear-gradient(90deg,rgba(140,160,175,.38),rgba(140,160,175,.14) 62%,transparent 100%)}
+.sched-hero-count{font-size:11px;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;display:none}
+
+.sched-filterbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:0 0 4px}
+.sched-filterbar .tb-group{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;letter-spacing:.6px}
+.sched-filterbar .tb-label{color:#4E6A7E;font-weight:700;letter-spacing:1.4px;font-size:24px;text-transform:uppercase}
+.sched-filterbar .tb-btn{background:rgba(15,23,28,.82);border:1px solid #22313B;color:var(--c-text-2);padding:8px 20px;font-size:30px;border-radius:999px;cursor:pointer;transition:all .12s;font-family:'Inter','Microsoft YaHei UI',sans-serif;line-height:1.1}
+.sched-filterbar .tb-btn:hover{border-color:var(--c-primary);color:#fff}
+.sched-filterbar [data-sched-lang].on[data-sched-lang="cn"]{color:#8CA8C1;border-color:#8CA8C1;background:rgba(58,82,102,.20);box-shadow:0 0 0 1px rgba(140,168,189,.20) inset}
+.sched-filterbar [data-sched-lang].on[data-sched-lang="en"]{color:var(--c-primary);border-color:var(--c-primary);background:rgba(15,247,150,.14);box-shadow:0 0 0 1px rgba(15,247,150,.18) inset}
+.sched-filterbar [data-sched-lang].on[data-sched-lang="all"]{color:#fff;border-color:rgba(15,247,150,.9);background:linear-gradient(90deg, rgba(15,247,150,.12) 0%, rgba(255,210,76,.12) 100%)}
+.sched-filterbar [data-sched-status].on[data-sched-status="all"]{color:#fff;border-color:rgba(15,247,150,.9);background:rgba(15,247,150,.14)}
+.sched-filterbar [data-sched-status].on[data-sched-status="full"]{color:var(--c-primary);border-color:rgba(15,247,150,.7);background:rgba(15,247,150,.10)}
+.sched-filterbar [data-sched-status].on[data-sched-status="partial"]{color:var(--c-warning);border-color:rgba(255,210,76,.72);background:rgba(255,210,76,.12)}
+.sched-filterbar [data-sched-status].on[data-sched-status="unbooked"]{color:#fff;border-color:#3B4B56;background:rgba(59,75,86,.22)}
+
+@media (max-width: 1600px){
+  .sched-hero-title{font-size:30px}
+  .sched-hero-sub{font-size:22px}
+  .sched-filterbar .tb-label{font-size:18px}
+  .sched-filterbar .tb-btn{font-size:22px;padding:7px 16px}
+}
 
 /* 战术仪表条 */
 .stat-strip{display:flex;gap:12px}
@@ -83,44 +109,108 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .wrap{display:block;flex:1;min-height:0}
 
 /* 中间侧边栏（录制进度 / 录制日历 / 即将录制） */
-.mp-section{display:flex;flex-direction:column;gap:12px}
+.mp-section{display:flex;flex-direction:column;gap:20px}
+/* 中间侧边栏最后一节（即将录制）：紧接日历下方，剩余空间内自适应，超出可滚动 */
+#schedMidPanel .mp-section:last-child{flex:1 1 0;min-height:0}
+#schedMidPanel .mp-section:last-child .mp-upcoming{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-right:6px;margin-right:-6px}
 .mp-sec-title{font-size:15px;letter-spacing:.2px;color:transparent;font-family:'Inter',sans-serif;font-weight:600;padding:1px 0 1px 33px;line-height:1.2;position:relative;display:flex;align-items:center;min-height:24px;background:linear-gradient(90deg,#0FF89B 0%,rgba(15,248,155,.55) 35%,rgba(15,248,155,.22) 65%,rgba(15,248,155,0) 100%);-webkit-background-clip:text;background-clip:text}
 .mp-sec-title::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:24px;height:24px;background-color:#6bd995;-webkit-mask:url('assets/DeltaForceLogo-Triangle.png') no-repeat center/contain,linear-gradient(90deg,#000 45%,transparent 100%);mask:url('assets/DeltaForceLogo-Triangle.png') no-repeat center/contain,linear-gradient(90deg,#000 45%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}
 .mp-sec-title::after{content:'';position:absolute;left:33px;right:0;bottom:-5px;height:1px;background:linear-gradient(90deg, rgba(202,225,207,.34), rgba(202,225,207,.10) 58%, transparent 92%)}
 .mp-empty{font-size:11px;color:var(--c-text-dim);font-style:italic;padding:4px 0}
 
-.mp-progress{display:flex;flex-direction:column;gap:10px}
-.mp-pr-row{display:grid;grid-template-columns:36px 1fr 44px;align-items:center;gap:10px}
-.mp-pr-label{font-size:11px;color:#fff;font-weight:700}
-.mp-pr-bar{height:7px;background:var(--c-bg-0);border-radius:999px;overflow:hidden}
-.mp-pr-fill{height:100%;border-radius:999px}
-.mp-pr-fill.cn{background:linear-gradient(90deg,rgba(15,247,150,.6),var(--c-primary))}
-.mp-pr-fill.en{background:linear-gradient(90deg,rgba(255,210,76,.55),var(--c-warning))}
-.mp-pr-fill.all{background:linear-gradient(90deg,rgba(15,247,150,.7),rgba(255,210,76,.9))}
-.mp-pr-val{font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right;color:var(--c-text-2)}
+.mp-progress{display:flex;flex-direction:column;gap:14px;padding:4px 0 2px}
+.mp-pr-row{display:grid;grid-template-columns:44px 1fr 60px;align-items:center;gap:10px;padding:4px 0}
+.mp-pr-row.total .mp-pr-label{font-weight:700}
+/* 药丸按钮：未激活也带语种色描边+淡底，激活时实色填充 */
+.mp-pr-label{font-size:11px;color:var(--c-text-2);font-weight:600;letter-spacing:.3px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.10);border-radius:999px;padding:3px 10px;text-align:center;cursor:pointer;transition:all .12s;font-family:inherit;line-height:1.2;user-select:none}
+/* 未激活 · 语种色描边 + 淡底 */
+.mp-pr-label[data-lang-pill="cn"]{background:rgba(140,168,189,.10);border-color:rgba(140,168,189,.36);color:#B8CBD8}
+.mp-pr-label[data-lang-pill="en"]{background:rgba(15,247,150,.08);border-color:rgba(15,247,150,.34);color:var(--c-primary)}
+.mp-pr-label[data-lang-pill="all"]{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.22);color:#fff}
+/* hover */
+.mp-pr-label[data-lang-pill="cn"]:hover{background:rgba(140,168,189,.20);border-color:rgba(140,168,189,.55);color:#fff}
+.mp-pr-label[data-lang-pill="en"]:hover{background:rgba(15,247,150,.14);border-color:rgba(15,247,150,.55);color:var(--c-primary)}
+.mp-pr-label[data-lang-pill="all"]:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.36);color:#fff}
+/* 激活 · 实色填充 + 光晕 */
+.mp-pr-label.on[data-lang-pill="cn"]{background:#3A5266;border-color:#8CA8C1;color:#fff;box-shadow:0 0 8px rgba(140,168,189,.40);font-weight:700}
+.mp-pr-label.on[data-lang-pill="en"]{background:var(--c-primary);border-color:var(--c-primary);color:#0F171C;box-shadow:0 0 10px rgba(15,247,150,.50);font-weight:700}
+.mp-pr-label.on[data-lang-pill="all"]{background:#8CA8C1;border-color:#B8CBD8;color:#0F171C;box-shadow:0 0 8px rgba(140,168,189,.40);font-weight:700}
+.mp-pr-row.total .mp-pr-val{color:#fff;font-weight:700;font-size:11.5px}
+/* 老 .mp-pr-label 单行样式已被上方胶囊按钮定义替换 */
+.mp-pr-bar{height:9px;background:var(--c-bg-0);border-radius:999px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.02)}
+.mp-pr-fill{height:100%;border-radius:999px;transition:width .3s ease}
+.mp-pr-fill.cn{background:#3A5266;box-shadow:0 0 6px rgba(58,82,102,.55),inset 0 1px 0 rgba(255,255,255,.14)}
+.mp-pr-fill.en{background:var(--c-primary);box-shadow:0 0 8px rgba(15,247,150,.55),inset 0 1px 0 rgba(255,255,255,.28)}
+.mp-pr-fill.all{background:#8CA8C1;box-shadow:0 0 6px rgba(140,168,189,.45),inset 0 1px 0 rgba(255,255,255,.18)}
+.mp-pr-val{font-family:'JetBrains Mono',monospace;font-size:11px;text-align:right;color:var(--c-text-mute);font-weight:500;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+.mp-pr-legend{margin-top:6px;font-size:10px;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;text-align:right;line-height:1.2}
 
-.mp-cal{display:flex;flex-direction:column;gap:10px}
-.mp-cal-head{display:flex;align-items:center;justify-content:space-between;color:var(--c-text)}
-.mp-cal-title{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.4px;font-weight:700}
+.mp-cal{display:flex;flex-direction:column;gap:16px;padding:4px 0 2px}
+.mp-cal-head{display:flex;align-items:center;justify-content:space-between;color:var(--c-text);padding:3px 0 6px}
+.mp-cal-title{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.3px;font-weight:400}
 .mp-cal-nav{border:none;background:transparent;color:var(--c-text-mute);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:4px}
 .mp-cal-nav:hover{color:var(--c-primary);background:var(--c-surface)}
-.mp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.mp-cal-dow{font-size:10px;color:var(--c-text-dim);text-align:center;font-family:'JetBrains Mono',monospace}
-.mp-cal-day{height:28px;border-radius:4px;border:1px solid transparent;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c-text-2);background:rgba(255,255,255,.01)}
-.mp-cal-day.empty{background:transparent;border-color:transparent}
-.mp-cal-day.cn{border-color:rgba(15,247,150,.55);box-shadow:inset 0 0 0 1px rgba(15,247,150,.24)}
-.mp-cal-day.en{border-color:rgba(255,210,76,.58);box-shadow:inset 0 0 0 1px rgba(255,210,76,.24)}
-.mp-cal-day.both{border-image:linear-gradient(135deg,rgba(15,247,150,.85),rgba(255,210,76,.9)) 1;background:linear-gradient(135deg,rgba(15,247,150,.10),rgba(255,210,76,.10))}
+.mp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.mp-cal-dow{font-size:10px;color:var(--c-text-dim);text-align:center;font-family:'JetBrains Mono',monospace;padding:3px 0}
+.mp-cal-day{position:relative;height:42px;border-radius:9px;border:1px solid var(--c-hairline);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c-text-2);background:rgba(255,255,255,.015);overflow:hidden;cursor:default;transition:all .15s}
+/* 录制标记条：居中收窄到格子宽度的 80%，胶囊圆角 */
+.mp-cal-day::before,
+.mp-cal-day::after{content:"";position:absolute;left:10%;right:10%;height:3px;border-radius:999px;background:transparent;pointer-events:none;transition:opacity .15s}
+.mp-cal-day::before{bottom:8px}   /* 中配色条（上） */
+.mp-cal-day::after{bottom:3px}    /* 英配色条（下） */
+.mp-cal-day .d-num{position:relative;z-index:2;line-height:1}
+.mp-cal-day .d-tag{position:absolute;top:1px;left:50%;transform:translateX(-50%);font-size:8.5px;line-height:1;color:#FFD24C;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:0;white-space:nowrap;padding:0 2px;max-width:96%;overflow:hidden;text-overflow:ellipsis;z-index:2}
+.mp-cal-day.empty{background:transparent;border-color:transparent;cursor:default}
+.mp-cal-day.empty::after,.mp-cal-day.empty::before{display:none}
+/* 只有中配 */
+.mp-cal-day.cn{background:rgba(58,82,102,.32);border-color:rgba(140,168,189,.45);color:#fff;cursor:pointer}
+.mp-cal-day.cn::after{background:#8CA8C1;box-shadow:0 0 6px rgba(140,168,189,.45)}
+/* 只有英配 */
+.mp-cal-day.en{background:rgba(15,247,150,.10);border-color:rgba(15,247,150,.35);color:#fff;cursor:pointer}
+.mp-cal-day.en::after{background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55)}
+/* 双语种：底部两条横线（中配色条在上，英配色条在下） */
+.mp-cal-day.both{background:rgba(58,82,102,.22);border-color:rgba(140,168,189,.50);color:#fff;cursor:pointer}
+.mp-cal-day.both::before{background:#8CA8C1;box-shadow:0 0 6px rgba(140,168,189,.45)}
+.mp-cal-day.both::after{background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55)}
+/* 节假日：叠加预约时黄色优先（黄底/黄字/黄框），底部色条仍由 cn/en/both 提供 → 预约+节假日同时可见 */
+.mp-cal-day.holiday{background:rgba(255,210,76,.10);border-color:rgba(255,210,76,.55);color:#FFD24C;cursor:pointer}
+/* hover */
+.mp-cal-day:not(.empty):hover{border-color:rgba(255,255,255,.42);background:rgba(255,255,255,.05)}
+/* 聚焦态（点选后）：加粗描边 + 光晕 */
+.mp-cal-day.focused{border-color:#fff !important;background:rgba(255,255,255,.10) !important;box-shadow:0 0 0 1px rgba(255,255,255,.35),0 0 12px rgba(255,255,255,.20);z-index:3}
+/* 淡化态：未选中的日期在 focus 模式下压暗 */
+.mp-cal-day.dimmed{opacity:.28}
+.mp-cal-day.dimmed .d-tag{opacity:.5}
 
 .mp-upcoming{display:flex;flex-direction:column;gap:8px}
-.mp-up-item{padding:8px 0;border-bottom:1px solid var(--c-hairline)}
+/* 暗色细滚动条（即将录制列表溢出时） */
+.mp-upcoming::-webkit-scrollbar{width:4px}
+.mp-upcoming::-webkit-scrollbar-track{background:transparent}
+.mp-upcoming::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:2px}
+.mp-upcoming::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.24)}
+.mp-up-item{padding:8px 6px;border-bottom:1px solid var(--c-hairline);border-radius:4px;margin:0 -6px;cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.mp-up-item:hover{background:rgba(255,255,255,.03);border-left-color:rgba(255,255,255,.28)}
+.mp-up-item.focused{background:rgba(255,255,255,.06);border-left-color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.mp-up-item.dimmed{opacity:.32}
 .mp-up-item:last-child{border-bottom:none;padding-bottom:0}
 .mp-up-meta{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--c-text-dim);letter-spacing:.2px}
 .mp-up-role{font-size:13px;line-height:1.35;margin-top:3px;color:#fff;font-weight:700}
 .mp-up-demand{font-size:11.5px;line-height:1.35;margin-top:3px;color:var(--c-text)}
-.mp-up-demand .lang-badge{display:inline-flex;align-items:center;padding:1px 6px;border-radius:999px;font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:.3px;font-weight:700;margin-left:6px;vertical-align:baseline}
-.mp-up-demand .lang-badge.cn{color:var(--c-primary);background:rgba(15,247,150,.14);border:1px solid rgba(15,247,150,.34)}
-.mp-up-demand .lang-badge.en{color:var(--c-warning);background:rgba(255,210,76,.14);border:1px solid rgba(255,210,76,.34)}
+.mp-up-demand .lang-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;font-size:11px;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.3px;font-weight:600;margin-left:6px;vertical-align:baseline;border:1px solid;cursor:default;line-height:1}
+.mp-up-demand .lang-badge.cn{background:rgba(140,168,189,.10);border-color:rgba(140,168,189,.36);color:#B8CBD8}
+.mp-up-demand .lang-badge.en{background:rgba(15,247,150,.08);border-color:rgba(15,247,150,.34);color:var(--c-primary)}
+/* 即将录制 · pill（对齐主表 sc-pill：圆点+日期+时间，过去态灰化） */
+.mp-up-pill{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;color:#fff;letter-spacing:.3px;white-space:nowrap;line-height:1.2}
+.mp-up-pill-dot{width:5px;height:5px;border-radius:50%;background:var(--up-dot,#8CA8C1);box-shadow:var(--up-shadow,0 0 4px currentColor);flex-shrink:0}
+.mp-up-pill-date{color:var(--up-date,#fff)}
+.mp-up-pill-time{color:var(--up-time,rgba(255,255,255,.7));margin-left:2px;font-size:12px}
+/* 过去态：灰点无光晕 + 字灰 + 70% 透明 */
+.mp-up-pill.past{opacity:.7}
+.mp-up-pill.past .mp-up-pill-dot{background:#5D6E78 !important;box-shadow:none !important}
+.mp-up-pill.past .mp-up-pill-date{color:var(--c-text-mute)}
+.mp-up-pill.past .mp-up-pill-time{color:var(--c-text-dim)}
+/* 整行过去态也降透明 */
+.mp-up-item.past{opacity:.7}
 
 
 /* Embed 模式：iframe 内隐藏自身 brand-bar/sidebar，仅显示主内容 */
@@ -143,8 +233,8 @@ body.embed .main{width:100%}
 .sched-table tr:last-child td{border-bottom:none}
 .sched-table tr:hover td{background:var(--c-surface-2)}
 .tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace}
-.tag.cn{background:var(--c-primary-glow);color:var(--c-primary)}
-.tag.en{background:rgba(96,165,250,0.15);color:var(--c-info)}
+.tag.cn{background:rgba(58,82,102,.32);color:#8CA8C1}
+.tag.en{background:var(--c-primary-glow);color:var(--c-primary)}
 .sched-input{background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text);border-radius:4px;padding:5px 8px;font-size:12.5px;font-family:inherit;width:100%}
 .sched-input:focus{outline:none;border-color:var(--c-primary)}
 .sched-demand{min-width:210px;max-width:280px}
@@ -201,17 +291,69 @@ body.embed .main{width:100%}
 .view-release select{background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:5px 10px;border-radius:4px;font-size:12px;font-family:inherit;cursor:pointer}
 .view-release select:hover{border-color:var(--c-primary)}
 .view-pane{display:none}
-.view-pane.active{display:block}
+.view-pane.active{display:flex;flex-direction:column;overflow:hidden}
 
 /* 演员汇总 · 工具栏 */
 .actor-toolbar{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .actor-toolbar .tb-group{display:flex;align-items:center;gap:6px}
 .actor-toolbar .tb-label{font-size:10.5px;letter-spacing:1.5px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;margin-right:2px}
-.actor-toolbar .tb-btn{background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text-2);padding:5px 12px;font-size:12px;font-family:inherit;border-radius:3px;cursor:pointer;transition:all .12s}
-.actor-toolbar .tb-btn:hover{border-color:var(--c-primary);color:var(--c-text)}
-.actor-toolbar .tb-btn.on{background:rgba(15,247,150,.14);border-color:var(--c-primary);color:var(--c-primary)}
+/* 椭圆胶囊按钮：与侧栏预约进度胶囊保持一致的视觉语言 */
+.actor-toolbar .tb-btn{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.10);color:var(--c-text-2);padding:4px 12px;font-size:12px;font-family:inherit;border-radius:999px;cursor:pointer;transition:all .12s;line-height:1.3}
+.actor-toolbar .tb-btn:hover{border-color:rgba(255,255,255,.28);color:#fff;background:rgba(255,255,255,.06)}
+.actor-toolbar .tb-btn.on{background:var(--c-primary);border-color:var(--c-primary);color:#0F171C;font-weight:700;box-shadow:0 0 8px rgba(15,247,150,.40)}
+/* AREA/大类 pill 内的数量角标 */
+.actor-toolbar .tb-btn .dim-count{font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.65;margin-left:2px;font-weight:400}
+.actor-toolbar .tb-btn.on .dim-count{opacity:1;font-weight:700}
+/* 性别图标按钮：椭圆形（不再是正方形） */
+.actor-toolbar .tb-btn.tb-icon{width:auto;min-width:32px;padding:3px 10px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px}
+.actor-toolbar .tb-btn.tb-icon .g-icon{font-size:14px;line-height:1;font-weight:700}
+.actor-toolbar .tb-btn.tb-icon .g-male{color:#60A5FA}
+.actor-toolbar .tb-btn.tb-icon .g-female{color:#F0ABFC}
+.actor-toolbar .tb-btn.tb-icon:hover{border-color:currentColor;background:rgba(255,255,255,.06)}
+.actor-toolbar .tb-btn.tb-icon.on{box-shadow:none;font-weight:normal}
+.actor-toolbar .tb-btn.tb-icon.on[data-gender="male"]{background:#60A5FA;border-color:#60A5FA;box-shadow:0 0 8px rgba(96,165,250,.40)}
+.actor-toolbar .tb-btn.tb-icon.on[data-gender="female"]{background:#F0ABFC;border-color:#F0ABFC;box-shadow:0 0 8px rgba(240,171,252,.40)}
+.actor-toolbar .tb-btn.tb-icon.on[data-gender] .g-icon{color:#0F171C}
+/* 状态图标 */
+.actor-toolbar .tb-btn .s-icon{font-size:11px;font-weight:700;margin-right:1px;display:inline-block}
+.actor-toolbar .tb-btn .s-icon.warn{color:#FFD24C}
+.actor-toolbar .tb-btn .s-icon.ok{color:var(--c-primary)}
+/* 状态按钮激活态：按图标语义色（未约=黄，已约=绿）覆盖默认绿激活态 */
+.actor-toolbar .tb-btn.on[data-status="pending"]{background:#FFD24C;border-color:#FFD24C;color:#0F171C;box-shadow:0 0 8px rgba(255,210,76,.40)}
+.actor-toolbar .tb-btn.on[data-status="pending"] .s-icon{color:#0F171C}
+.actor-toolbar .tb-btn.on[data-status="booked"]{background:var(--c-primary);border-color:var(--c-primary);color:#0F171C}
+.actor-toolbar .tb-btn.on[data-status="booked"] .s-icon{color:#0F171C}
 
-/* 演员汇总 · KPI 条 */
+/* 风险公告（替换原 4 张统计卡） */
+/* 风险公告 v2 · 与主表 3 级字体音阶对齐 */
+.risk-banner{display:flex;align-items:center;gap:20px;padding:14px 18px;background:linear-gradient(90deg,rgba(255,210,76,.08) 0%,rgba(255,210,76,.02) 60%,transparent 100%);border:1px solid rgba(255,210,76,.28);border-radius:6px;margin-bottom:14px;position:relative;overflow:hidden}
+.risk-banner::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFD24C}
+.risk-banner.calm{background:linear-gradient(90deg,rgba(15,247,150,.08) 0%,rgba(15,247,150,.02) 60%,transparent 100%);border-color:rgba(15,247,150,.28)}
+.risk-banner.calm::before{background:var(--c-primary)}
+.risk-banner.calm .risk-icon{background:rgba(15,247,150,.12);border-color:rgba(15,247,150,.42);color:var(--c-primary)}
+.risk-banner.calm .risk-title{color:var(--c-primary)}
+.risk-icon{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:rgba(255,210,76,.12);border:1px solid rgba(255,210,76,.42);color:#FFD24C;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+.risk-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+/* L1 标题：14/700，与主表 L1 完全对齐 */
+.risk-title{font-size:14px;font-weight:700;color:#FFD24C;letter-spacing:.3px;line-height:1.3}
+/* L2 副标题：12/500 灰 */
+.risk-sub{font-size:12px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI',sans-serif;line-height:1.4;font-weight:400;letter-spacing:.2px}
+.risk-stats{display:flex;align-items:center;gap:28px;flex-shrink:0}
+.risk-stats .risk-stat{display:flex;flex-direction:column;align-items:flex-end;gap:4px;line-height:1.1}
+/* L3 标签：10.5/500，跟大类分节对齐 */
+.risk-stats .risk-stat .k{font-size:10.5px;letter-spacing:1px;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;text-transform:uppercase;font-weight:500}
+/* L1 数值：18/700，等宽数字 */
+.risk-stats .risk-stat .v{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#fff;line-height:1;letter-spacing:.3px;font-variant-numeric:tabular-nums;display:inline-flex;align-items:baseline;gap:3px}
+.risk-stats .risk-stat .v.warn{color:#FFD24C;opacity:.88}
+.risk-stats .risk-stat .v.ok{color:var(--c-primary)}
+/* 单位内联，10.5 灰 */
+.risk-stats .risk-stat .v .unit{font-size:10.5px;color:var(--c-text-dim);font-weight:400;letter-spacing:.6px;font-family:'Microsoft YaHei UI',sans-serif}
+/* 按钮 L2 级 */
+.risk-action{flex-shrink:0;background:rgba(255,210,76,.10);border:1px solid rgba(255,210,76,.45);color:#FFD24C;padding:7px 14px;border-radius:3px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .12s;letter-spacing:.4px;white-space:nowrap}
+.risk-action:hover{background:rgba(255,210,76,.22);color:#fff}
+.risk-action.active{background:#FFD24C;color:#0F171C;border-color:#FFD24C}
+
+/* 演员汇总 · KPI 条（保留备用，可被风险公告替代） */
 .actor-stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 .actor-stat{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:12px 16px}
 .actor-stat .lbl{font-size:10.5px;letter-spacing:1.5px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;margin-bottom:6px}
@@ -220,20 +362,138 @@ body.embed .main{width:100%}
 .actor-stat.warn .val{color:var(--c-warning)}
 .actor-stat.ok .val{color:var(--c-primary)}
 .actor-stat.info .val{color:var(--c-info)}
+.actor-stat.danger .val{color:#D699BE}
 
 /* 演员汇总 · 表格 */
-.actor-table-wrap{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden}
+.actor-table-wrap{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow-y:auto;flex:1;min-height:0;display:flex;flex-direction:column}
 .actor-table{width:100%;border-collapse:collapse}
 .actor-table th{background:var(--c-bg-0);color:var(--c-text-mute);font-size:10.5px;letter-spacing:1.5px;font-family:'JetBrains Mono',monospace;text-align:left;padding:12px 14px;font-weight:600;border-bottom:1px solid var(--c-hairline);text-transform:uppercase}
-.actor-table td{padding:14px 14px;border-bottom:1px solid var(--c-hairline);vertical-align:top}
-.actor-table tr:hover td{background:rgba(15,247,150,.03)}
-.actor-table tr:last-child td{border-bottom:none}
-.actor-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(15,247,150,.28),rgba(96,165,250,.28));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;font-family:inherit}
-.actor-avatar.en{background:linear-gradient(135deg,rgba(96,165,250,.35),rgba(15,247,150,.22))}
+/* v1 通用行样式已下线：留给 .actor-table-role / .actor-table-demand 各自 v2 定义。
+   （原 292-298 的 border-bottom / 绿色 hover / 黄色 pending 底 → 冲突源，删除）*/
+/* 当前版本徽标 */
+.actor-current-release{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:rgba(15,247,150,.10);border:1px solid rgba(15,247,150,.40);color:var(--c-primary);font-size:12px;font-weight:700;border-radius:3px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
+.actor-current-release::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.6)}
+
+/* 视图切换器（按角色 / 按需求） · 页面级 tab */
+.view-tabs{display:flex;align-items:flex-end;gap:28px;padding:0 0 0 2px;margin:0 0 16px;border-bottom:1px solid var(--c-hairline);position:relative}
+.view-tabs::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,var(--c-primary) 0%,rgba(15,247,150,0) 22%,rgba(15,247,150,0) 78%,rgba(140,168,189,0) 100%);opacity:.18}
+.view-tabs .view-tab{display:inline-flex;align-items:center;gap:8px;background:transparent;border:none;color:var(--c-text-mute);padding:14px 8px 16px;font-size:17px;font-weight:700;font-family:'Inter','Microsoft YaHei UI',sans-serif;letter-spacing:1.5px;position:relative;cursor:pointer;transition:color .12s}
+.view-tabs .view-tab svg{flex-shrink:0;opacity:.7;transition:opacity .15s,filter .15s}
+.view-tabs .view-tab:hover{color:var(--c-text)}
+.view-tabs .view-tab:hover svg{opacity:.95}
+.view-tabs .view-tab.on{color:var(--c-primary);text-shadow:0 0 12px rgba(15,247,150,.25)}
+.view-tabs .view-tab.on svg{opacity:1;filter:drop-shadow(0 0 6px rgba(15,247,150,.5))}
+.view-tabs .view-tab::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:transparent;transition:background .15s, box-shadow .15s}
+.view-tabs .view-tab.on::after{background:var(--c-primary);box-shadow:0 0 12px rgba(15,247,150,.55)}
+
+/* 档期单元：已约时间（彩色徽标 + 时间） / 待预约（黄色提示） */
+.sched-cell{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#fff;letter-spacing:.2px}
+.sched-cell .sched-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:rgba(58,82,102,.45);border:1px solid rgba(140,168,189,.35);font-weight:600;line-height:1}
+.sched-cell .sched-pill.cn{background:rgba(58,82,102,.45);border-color:rgba(140,168,189,.40);color:#fff}
+.sched-cell .sched-pill.en{background:rgba(15,247,150,.16);border-color:rgba(15,247,150,.45);color:var(--c-primary)}
+.sched-cell .sched-pill .date{font-weight:700;letter-spacing:.3px}
+.sched-cell .sched-pill .sep{color:rgba(255,255,255,.3);margin:0 2px}
+.sched-cell .sched-pill .time{color:var(--c-text-2);font-weight:500}
+.sched-cell .sched-note{margin-left:auto;font-size:11px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:0}
+.sched-cell.empty{justify-content:flex-start;width:100%}
+.sched-cell.empty .pending-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;background:rgba(255,210,76,.10);border:1px solid rgba(255,210,76,.40);color:#FFD24C;font-size:12px;font-weight:700;letter-spacing:.3px;width:100%;justify-content:center}
+.sched-cell.empty .pending-tag::before{content:"⚠";font-size:13px}
+
+/* 角色行容器（按角色视图的左中配 / 右英配 cell） */
+.actor-table-role{border-collapse:separate;border-spacing:0 6px}
+/* 老 v1 规则已被下方 v2 收敛，删除以避免冲突（原 329-364） */
+
+/* 按需求视图 */
+.actor-table-demand td{padding:12px 16px;vertical-align:middle;font-size:13px}
+.actor-table-demand .demand-name{font-weight:700;color:#fff;display:block}
+.actor-table-demand .demand-meta{font-size:10.5px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI',sans-serif;margin-top:2px}
+.actor-table-demand .actor-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:3px;background:rgba(255,255,255,.04);border:1px solid var(--c-hairline);font-size:12px;font-family:inherit}
+.actor-table-demand .actor-pill .actor-name{color:#fff;font-weight:600}
+.actor-table-demand .actor-pill .actor-id{color:var(--c-text-mute);font-size:10.5px;font-family:'JetBrains Mono',monospace}
+.actor-table-demand .lang-tag{display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:3px;font-size:10.5px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.3px}
+.actor-table-demand .lang-tag.cn{background:rgba(58,82,102,.45);color:#fff}
+.actor-table-demand .lang-tag.en{background:rgba(15,247,150,.16);color:var(--c-primary)}
+.actor-table-demand tr.row-pending td{background:rgba(255,210,76,.04)}
+.actor-table-demand tr.row-pending td:first-child{box-shadow:inset 4px 0 0 0 #FFD24C}
+
+/* 需求视图 · 卡片网格 */
+.demand-cards-wrap{background:transparent}
+/* 需求视图：单列通栏（与声优视图的表格形成区分），给足宽度让需求名/档期时间完整显示 */
+.demand-cards{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.demand-cards .dcard{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0;position:relative}
+/* 每张卡片都留一条状态竖条：待预约=黄（发光）/ 已齐=绿（内敛），整列节奏统一 */
+.demand-cards .dcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:rgba(15,247,150,.40);border-radius:6px 0 0 6px}
+.demand-cards .dcard.has-pending{border-color:rgba(255,210,76,.42);background:linear-gradient(180deg,rgba(255,210,76,.05) 0%,var(--c-surface) 60%)}
+.demand-cards .dcard.has-pending::before{background:#FFD24C;box-shadow:0 0 6px rgba(255,210,76,.45)}
+.demand-cards .dcard-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--c-hairline)}
+.demand-cards .dcard-id{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--c-text-mute);letter-spacing:.5px}
+.demand-cards .dcard-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px}
+.demand-cards .dcard-pending{font-size:10.5px;color:#FFD24C;background:rgba(255,210,76,.10);border:1px solid rgba(255,210,76,.40);padding:3px 8px;border-radius:999px;font-weight:700;font-family:'Microsoft YaHei UI',sans-serif;white-space:nowrap;flex-shrink:0}
+.demand-cards .dcard-pending.ok{color:var(--c-primary);background:rgba(15,247,150,.10);border-color:rgba(15,247,150,.40)}
+/* 角色块：横向铺开，一块 = 一个游戏角色（含中/英配档期） */
+.demand-cards .dcard-roles{display:flex;flex-wrap:wrap;gap:10px}
+.demand-cards .role-chip{flex:1 1 210px;min-width:210px;background:rgba(255,255,255,.025);border:1px solid var(--c-hairline);border-radius:5px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.demand-cards .role-chip.is-pending{border-color:rgba(255,210,76,.34);background:rgba(255,210,76,.045)}
+/* 角色名是卡片主要信息 */
+.demand-cards .role-chip .rc-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px;line-height:1.25;word-break:break-all}
+.demand-cards .role-chip .rc-scheds{display:flex;flex-direction:column;gap:4px}
+.demand-cards .role-chip .rc-line{display:flex;align-items:center;gap:8px;min-width:0}
+.demand-cards .role-chip .rc-lang{flex-shrink:0;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;border-radius:3px;font-size:10.5px;font-weight:700;font-family:'Microsoft YaHei UI',sans-serif}
+.demand-cards .role-chip .rc-lang.cn{background:rgba(140,168,189,.20);color:#B8CBD8}
+.demand-cards .role-chip .rc-lang.en{background:rgba(15,247,150,.16);color:var(--c-primary)}
+.demand-cards .role-chip .rc-time{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:#fff;letter-spacing:.2px;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.demand-cards .role-chip .rc-line.pend .rc-time{color:#FFD24C;font-family:'Microsoft YaHei UI',sans-serif;font-weight:600;opacity:.9}
+.demand-cards .dcard-foot{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--c-hairline);font-size:11px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace}
+.demand-cards .dcard-foot .totals span{color:#fff;font-weight:700;margin-left:4px}
+/* 需求视图 · AREA 分组（Tactical Dossier 分节头） */
+.demand-area-stack{display:flex;flex-direction:column;gap:22px}
+.area-section{display:flex;flex-direction:column;gap:12px;position:relative;padding-left:14px}
+/* 左侧状态竖条：待预约=黄 / 已出齐=绿 / 默认灰 —— 扫一眼即知哪些 AREA 有问题 */
+.area-section::before{content:'';position:absolute;left:0;top:1px;bottom:1px;width:2px;border-radius:1px;background:rgba(255,255,255,.10)}
+.area-section.has-pending::before{background:#FFD24C;box-shadow:0 0 8px rgba(255,210,76,.38)}
+.area-section.is-done::before{background:var(--c-primary);opacity:.75}
+.area-head{display:flex;align-items:center;gap:12px;padding:0 0 9px;position:relative}
+/* 渐隐分割线：左实右虚，比通栏实线更克制 */
+.area-head::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.16) 0,rgba(255,255,255,.14) 42%,rgba(255,255,255,.02) 100%)}
+/* 军事编号 */
+.area-head .area-idx{flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--c-text-dim);padding:3px 6px;border:1px solid var(--c-hairline);border-radius:3px;line-height:1}
+.area-section.has-pending .area-head .area-idx{color:#FFD24C;border-color:rgba(255,210,76,.34);background:rgba(255,210,76,.07)}
+/* 名称块：中文名 + 英文军事代号 */
+.area-head .area-idblock{display:flex;flex-direction:column;gap:3px;min-width:0}
+.area-head .area-title{display:flex;align-items:baseline;gap:9px;min-width:0}
+.area-head .area-name{font-size:15px;font-weight:800;color:#fff;letter-spacing:1.2px;line-height:1.1;white-space:nowrap}
+.area-head .area-codename{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:2px;color:var(--c-text-mute);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 统计块：右端对齐 */
+.area-head .area-stat{margin-left:auto;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.area-head .area-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-mute);letter-spacing:.5px;white-space:nowrap}
+.area-head .area-count b{color:#fff;font-weight:700}
+.area-head .area-count .pend{color:#FFD24C;font-weight:700}
+/* 完成度细进度条 */
+.area-head .area-bar{width:76px;height:3px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
+.area-head .area-bar i{display:block;height:100%;border-radius:2px;background:rgba(255,255,255,.32);transition:width .35s ease}
+.area-section.has-pending .area-head .area-bar i{background:#FFD24C}
+.area-section.is-done .area-head .area-bar i{background:var(--c-primary);opacity:.8}
+@media (max-width: 1600px){
+  /* 窄屏下角色块收窄，保证一行仍能并排放下多块 */
+  .demand-cards .role-chip{flex:1 1 180px;min-width:180px;padding:9px 11px}
+}
+
+/* 档期草稿 · 折叠区 */
+.sched-collapsed{background:rgba(31,42,50,.40);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden;margin-top:18px}
+.sched-collapsed[open]{background:var(--c-surface)}
+.sched-collapsed-summary{display:flex;align-items:center;gap:10px;padding:14px 18px;cursor:pointer;list-style:none;font-size:13px;color:var(--c-text);font-weight:700;user-select:none;background:rgba(255,255,255,.02)}
+.sched-collapsed-summary::-webkit-details-marker{display:none}
+.sched-collapsed-summary::after{content:"▾";margin-left:auto;color:var(--c-text-mute);transition:transform .2s}
+.sched-collapsed[open] .sched-collapsed-summary::after{transform:rotate(180deg)}
+.sched-collapsed-summary svg{width:16px;height:16px;stroke:var(--c-primary);fill:none;stroke-width:1.8}
+.sched-collapsed-count{margin-left:auto;font-size:11px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;font-weight:500;letter-spacing:.3px}
+.sched-filterbar-collapsed{background:transparent;border:none;padding:0 18px 14px;border-radius:0}
+.actor-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(58,82,102,.40),rgba(140,168,189,.28));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;font-family:inherit}
+.actor-avatar.en{background:linear-gradient(135deg,rgba(15,247,150,.35),rgba(58,82,102,.15))}
 .actor-name{font-weight:600;color:var(--c-text);font-size:13.5px;letter-spacing:.3px}
 .actor-tag-lang{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10.5px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;font-weight:600}
-.actor-tag-lang.cn{background:rgba(15,247,150,.14);color:var(--c-primary)}
-.actor-tag-lang.en{background:rgba(96,165,250,.15);color:var(--c-info)}
+.actor-tag-lang.cn{background:rgba(58,82,102,.32);color:#8CA8C1}
+.actor-tag-lang.en{background:rgba(15,247,150,.14);color:var(--c-primary)}
 .actor-coverage{display:flex;flex-direction:column;gap:4px}
 .actor-cov-item{display:flex;gap:8px;font-size:12px;align-items:baseline}
 .actor-cov-item .role{color:var(--c-text);font-weight:500}
@@ -251,6 +511,165 @@ body.embed .main{width:100%}
 .actor-btn.secondary{border-color:var(--c-hairline);color:var(--c-text-2)}
 .actor-btn.secondary:hover{background:var(--c-hairline);color:var(--c-text)}
 .actor-empty{padding:60px 20px;text-align:center;color:var(--c-text-mute);font-size:13px;line-height:1.8}
+
+/* ============ 字体系统 · 全站统一收敛（录制档期） ============ */
+/* 数字/时间/编号 → 等宽（JetBrains Mono）；中文正文 → Inter+YaHei，不混排 */
+:root{
+  --fz-hero:22px;       /* 页面主标题 */
+  --fz-h2:16px;         /* 分节大标题（大类/AREA/角色名） */
+  --fz-h3:14px;         /* 卡片主标题 */
+  --fz-body:13px;       /* 正文/表格 */
+  --fz-small:12px;      /* 辅助信息 */
+  --fz-tiny:11px;       /* 标签/单位 */
+  --fz-micro:10.5px;    /* 表头 UPPERCASE / 图注 */
+}
+.page-title{font-size:var(--fz-hero);font-weight:700;letter-spacing:.4px}
+.page-title .code{font-size:12px;letter-spacing:.8px}
+.subtitle{font-size:12px}
+
+/* ============ 声优表 v2 · 战术档案风格 ============ */
+/* 行间距收紧，单行更瘦，靠留白和分隔线分层 */
+.actor-table-role{border-collapse:separate;border-spacing:0 6px}
+.actor-table-role thead{position:sticky;top:0;z-index:2}
+.actor-table-role thead th{background:var(--c-surface);border-bottom:1px solid rgba(255,255,255,.06);font-size:var(--fz-micro);color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:1.4px;padding:10px 18px;font-weight:600;text-transform:uppercase}
+.actor-table-role tbody tr{background:rgba(31,42,50,.28);border:1px solid transparent;transition:background .12s}
+.actor-table-role tbody tr:hover{background:rgba(31,42,50,.55)}
+.actor-table-role tbody tr.row-pending{background:rgba(31,42,50,.32)}
+.actor-table-role tbody tr.row-pending:hover{background:rgba(31,42,50,.55)}
+/* 关键：待预约行左侧 2px 黄边条，替代原来大黄色渐变（更克制） */
+.actor-table-role tbody tr.row-pending td:first-child{box-shadow:inset 2px 0 0 0 rgba(255,210,76,.75)}
+.actor-table-role tbody td{border:none;background:transparent;padding:14px 18px;vertical-align:middle}
+.actor-table-role tbody td:first-child{border-radius:4px 0 0 4px}
+.actor-table-role tbody td:last-child{border-radius:0 4px 4px 0}
+/* ========== 声优表 v3 · 3 级字体音阶 ==========
+   L1 主信息（14px 700 白）：角色名 / 档期时间
+   L2 副信息（12px 500 灰）：预约状态 / 需求名 / 大类英文
+   L3 辅助（10.5px 400 更灰）：编号 / 中文小字 / 分数
+*/
+/* 角色单元 v3：只留头像 + 角色名，story 已移到档期卡里 */
+.actor-table-role td.role-cell{display:flex;align-items:center;gap:12px;padding:14px 18px;height:56px}
+.actor-table-role td.role-cell .role-avatar{width:30px;height:30px;border-radius:50%;background:rgba(140,168,189,.10);border:1px solid rgba(140,168,189,.16);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--c-text-mute);font-family:inherit;flex-shrink:0;letter-spacing:.3px}
+.actor-table-role td.role-cell .role-avatar.en{background:rgba(140,168,189,.10);border-color:rgba(140,168,189,.16)}
+.actor-table-role td.role-cell .role-name{font-size:14px;font-weight:700;color:#fff;line-height:1.2;letter-spacing:.2px}
+/* story 相关旧规则失效 —— 已移到 sched-card 内 */
+.actor-table-role td.role-cell .role-stories{display:none}
+/* 档期卡 v3：左侧竖条 + L1 时间（14/700）+ L2 需求名（12/500 灰） */
+.actor-table-role .sched-card{background:transparent !important;border:none;border-left:3px solid rgba(140,168,189,.22);border-radius:0;padding:2px 0 2px 14px;display:flex;flex-direction:column;gap:4px;min-height:38px;justify-content:center;position:relative}
+.actor-table-role .sched-card.booked-cn{border-left-color:#8CA8C1}
+.actor-table-role .sched-card.booked-en{border-left-color:var(--c-primary)}
+.actor-table-role .sched-card.pending{border-left-color:rgba(255,210,76,.55);border-left-style:dashed}
+/* L1：时间（等宽数字，粗白，主视觉） */
+.actor-table-role .sched-card .sc-time{font-size:14px;color:#fff;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.4px;line-height:1.2;font-variant-numeric:tabular-nums}
+.actor-table-role .sched-card.booked-en .sc-time{color:#fff}
+/* L2：需求名（YaHei 中文，中灰） */
+.actor-table-role .sched-card .sc-story{font-size:12px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI',sans-serif;line-height:1.3;letter-spacing:.2px;font-weight:400}
+.actor-table-role .sched-card.pending .sc-story{color:var(--c-text-dim)}
+/* 待预约文案：跟"已完成"状态字体保持一致的等级 */
+.actor-table-role .sched-card .sc-empty{font-size:12px;color:#FFD24C;font-weight:600;font-family:'Microsoft YaHei UI',sans-serif;text-align:left;letter-spacing:.3px;line-height:1.2;opacity:.85}
+/* 旧字段 sc-actor 已下线 */
+.actor-table-role .sched-card .sc-actor{display:none}
+/* ====== 多档序列（方案 C · 横排压缩） ====== */
+.actor-table-role .sched-card.multi{gap:5px}
+.actor-table-role .sched-card .sc-pills{display:flex;align-items:center;flex-wrap:wrap;gap:32px;line-height:1.2}
+.actor-table-role .sched-card .sc-pill{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:14px;font-weight:700;color:#fff;letter-spacing:.4px;white-space:nowrap;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:4px;padding:3px 10px}
+.actor-table-role .sched-card .sc-pill-dot{width:5px;height:5px;border-radius:50%;background:currentColor;box-shadow:0 0 4px currentColor;opacity:.85}
+.actor-table-role .sched-card.booked-cn .sc-pill{color:#fff}
+.actor-table-role .sched-card.booked-cn .sc-pill-dot{background:#8CA8C1;box-shadow:0 0 4px rgba(140,168,189,.6)}
+.actor-table-role .sched-card.booked-en .sc-pill{color:#fff}
+.actor-table-role .sched-card.booked-en .sc-pill-dot{background:var(--c-primary);box-shadow:0 0 4px rgba(15,247,150,.6)}
+.actor-table-role .sched-card .sc-pill-date{opacity:.95;font-weight:700}
+.actor-table-role .sched-card .sc-pill-time{opacity:.7;font-size:14px;margin-left:2px}
+.actor-table-role .sched-card .sc-more{color:var(--c-text-dim);font-size:10.5px;letter-spacing:.6px;font-family:'JetBrains Mono',monospace}
+/* ====== 日历 / 即将录制 → 主表 反向联动高亮 ====== */
+.actor-table-role .sched-card.mid-focus{background:rgba(255,255,255,.07) !important;border-radius:4px;box-shadow:0 0 0 1px rgba(255,255,255,.42),0 0 12px rgba(255,255,255,.14)}
+.actor-table-role .sc-pill.mid-focus{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.36);box-shadow:0 0 0 1px rgba(255,255,255,.42),0 0 10px rgba(255,255,255,.12)}
+.actor-table-role .sched-card.mid-dim,
+.actor-table-role .sc-pill.mid-dim{opacity:.32}
+/* ====== "已过档期" 灰化态（单档 / 多档统一：灰点无光晕 + 字灰 + 70% 透明） ====== */
+/* 单档 · past：整卡淡化 + 竖条转灰 */
+.actor-table-role .sched-card.past{border-left-color:#5D6E78 !important;opacity:.7}
+.actor-table-role .sched-card.past .sc-time{color:var(--c-text-mute);font-weight:600}
+.actor-table-role .sched-card.past .sc-story{color:var(--c-text-mute)}
+/* 多档 · 混合态（卡片未整体 past）：仅过期的那颗 pill 走 70% 透明 + 灰点无光晕 + 字灰 */
+.actor-table-role .sched-card .sc-pill.past{background:transparent;border-color:transparent;opacity:.7}
+/* 灰点无光晕 + 字灰：无论混合/整体，一律生效 */
+.actor-table-role .sched-card .sc-pill.past .sc-pill-dot{background:#5D6E78 !important;box-shadow:none !important}
+.actor-table-role .sched-card .sc-pill.past .sc-pill-date{color:var(--c-text-mute);font-weight:600}
+.actor-table-role .sched-card .sc-pill.past .sc-pill-time{color:var(--c-text-dim)}
+/* 多档 · 全部已过 → 整卡统一 70%（pill 不再叠加，避免 0.49 过度淡化） */
+.actor-table-role .sched-card.multi.past{opacity:.7}
+.actor-table-role .sched-card.multi.past .sc-story{color:var(--c-text-mute)}
+/* 预约状态列：L2 级别（12/500）单色文字 + 状态色点 */
+.actor-table-role .role-status{display:inline-flex;align-items:center;gap:6px;padding:0;background:transparent !important;border:none !important;font-size:12px;font-weight:500;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.3px;white-space:nowrap;line-height:1.2}
+.actor-table-role .role-status.ok{color:var(--c-text-mute)}
+.actor-table-role .role-status.warn{
+  color:#FFD24C;
+  background:rgba(255,210,76,.10) !important;
+  border:1px solid rgba(255,210,76,.45) !important;
+  border-radius:3px;
+  padding:5px 12px;
+  font-weight:600;
+  letter-spacing:.4px;
+}
+.actor-table-role .role-status .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.actor-table-role .role-status.ok .dot{background:#5D6E78;box-shadow:none}
+.actor-table-role .role-status.warn .dot{background:#FFD24C;box-shadow:0 0 5px rgba(255,210,76,.5)}
+.actor-table-role .col-action{text-align:right;white-space:nowrap;padding-right:22px !important}
+/* 语种联动：只看 cn 隐藏 en 列（连表头一起隐藏） */
+.actor-table-role.lang-only-cn td.col-en,
+.actor-table-role.lang-only-cn thead th:nth-child(3){display:none}
+.actor-table-role.lang-only-en td.col-cn,
+.actor-table-role.lang-only-en thead th:nth-child(2){display:none}
+
+/* 大类分节 v2：横线 + 数字编号 + 完成度分数（军事文档感） */
+.actor-table-role tr.role-cat-head td{background:transparent;border:none;padding:24px 4px 4px}
+.role-cat-title{display:flex;align-items:baseline;gap:14px;font-family:'JetBrains Mono',monospace;border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:8px}
+.role-cat-title .cat-dot{display:none}
+.role-cat-title .cat-idx{font-size:10.5px;font-weight:500;color:var(--c-text-dim);letter-spacing:1.2px;font-variant-numeric:tabular-nums}
+.role-cat-title .cat-name{font-size:12.5px;font-weight:700;letter-spacing:2px;color:var(--c-text);text-transform:uppercase;font-family:'Inter',sans-serif}
+.role-cat-title .cat-name-cn{font-size:10.5px;font-weight:400;color:var(--c-text-dim);letter-spacing:1px;font-family:'Microsoft YaHei UI',sans-serif}
+.role-cat-title .cat-count{margin-left:auto;font-size:10.5px;color:var(--c-text-dim);letter-spacing:.6px;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace}
+.role-cat-title .cat-count .cur{color:var(--c-text-2);font-weight:600}
+.role-cat-title .cat-count .warn{color:#FFD24C;font-weight:600}
+/* 大类颜色仅作为侧边窄条应用于该组第一行角色的左侧 —— 保留识别性但不喧哗 */
+.actor-table-role tr[data-cat-color]{position:relative}
+
+/* 需求视图 · 卡片 */
+.demand-cards .dcard{padding:16px 18px}
+.demand-cards .dcard-head{padding-bottom:12px;margin-bottom:12px;align-items:flex-start}
+.demand-cards .dcard-name{font-size:15px;font-weight:700;letter-spacing:.2px}
+.demand-cards .dcard-id{font-size:var(--fz-micro);letter-spacing:1.2px;margin-top:3px}
+.demand-cards .dcard-pending{font-size:11px;padding:4px 10px;letter-spacing:.3px}
+.demand-cards .role-chip .rc-name{font-size:15px;letter-spacing:.2px}
+.demand-cards .role-chip .rc-lang{font-size:var(--fz-tiny)}
+.demand-cards .role-chip .rc-time{font-size:12.5px;font-variant-numeric:tabular-nums;letter-spacing:.2px}
+.demand-cards .dcard-foot{font-size:var(--fz-tiny);padding-top:12px;margin-top:12px;letter-spacing:.3px}
+/* AREA 分节 */
+.area-head .area-idx{font-size:var(--fz-micro);letter-spacing:1px;padding:3px 6px}
+.area-head .area-name{font-size:var(--fz-h2);font-weight:800;letter-spacing:1.2px}
+.area-head .area-codename{font-size:var(--fz-micro);letter-spacing:2px}
+.area-head .area-count{font-size:var(--fz-tiny);letter-spacing:.5px}
+/* 风险公告字体已在上方 v2 完整定义（256-284）；此处不再重复覆盖 */
+/* 视图 tab */
+.view-tabs .view-tab{font-size:17px;letter-spacing:1px}
+/* 需求视图 · 卡片 */
+.demand-cards .dcard{padding:16px 18px}
+.demand-cards .dcard-head{padding-bottom:12px;margin-bottom:12px;align-items:flex-start}
+.demand-cards .dcard-name{font-size:15px;font-weight:700;letter-spacing:.2px}
+.demand-cards .dcard-id{font-size:var(--fz-micro);letter-spacing:1.2px;margin-top:3px}
+.demand-cards .dcard-pending{font-size:11px;padding:4px 10px;letter-spacing:.3px}
+.demand-cards .role-chip .rc-name{font-size:15px;letter-spacing:.2px}
+.demand-cards .role-chip .rc-lang{font-size:var(--fz-tiny)}
+.demand-cards .role-chip .rc-time{font-size:12.5px;font-variant-numeric:tabular-nums;letter-spacing:.2px}
+.demand-cards .dcard-foot{font-size:var(--fz-tiny);padding-top:12px;margin-top:12px;letter-spacing:.3px}
+/* AREA 分节 */
+.area-head .area-idx{font-size:var(--fz-micro);letter-spacing:1px;padding:3px 6px}
+.area-head .area-name{font-size:var(--fz-h2);font-weight:800;letter-spacing:1.2px}
+.area-head .area-codename{font-size:var(--fz-micro);letter-spacing:2px}
+.area-head .area-count{font-size:var(--fz-tiny);letter-spacing:.5px}
+/* 风险公告字体已在上方 v2 完整定义（256-284）；此处不再重复覆盖 */
+/* 视图 tab */
+.view-tabs .view-tab{font-size:17px;letter-spacing:1px}
 
 /* 通用底图玻璃层 */
 .toolbar,.stat,.cal-card,.side-card,.sched-section{background:rgba(31,42,50,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -301,8 +720,25 @@ body.embed .main{width:100%}
 
   <aside class="mid-panel" id="schedMidPanel">
     <div class="mp-section">
-      <div class="mp-sec-title">录制进度</div>
-      <div class="mp-progress" id="mpProgress"></div>
+      <div class="mp-sec-title">预约进度</div>
+      <div class="mp-progress" id="mpProgress">
+        <div class="mp-pr-row">
+          <button class="mp-pr-label" data-lang-pill="cn" onclick="setActorLangFromPanel('cn',this)" type="button">中配</button>
+          <div class="mp-pr-bar"><div class="mp-pr-fill cn" style="width:50%"></div></div>
+          <div class="mp-pr-val">2 / 4</div>
+        </div>
+        <div class="mp-pr-row">
+          <button class="mp-pr-label" data-lang-pill="en" onclick="setActorLangFromPanel('en',this)" type="button">英配</button>
+          <div class="mp-pr-bar"><div class="mp-pr-fill en" style="width:50%"></div></div>
+          <div class="mp-pr-val">2 / 4</div>
+        </div>
+        <div class="mp-pr-row total">
+          <button class="mp-pr-label on" data-lang-pill="all" onclick="setActorLangFromPanel('all',this)" type="button">总计</button>
+          <div class="mp-pr-bar"><div class="mp-pr-fill all" style="width:50%"></div></div>
+          <div class="mp-pr-val">4 / 8</div>
+        </div>
+        <div class="mp-pr-legend">已预约场次 / 预估录制次数</div>
+      </div>
     </div>
 
     <div class="mp-section">
@@ -310,16 +746,51 @@ body.embed .main{width:100%}
       <div class="mp-cal">
         <div class="mp-cal-head">
           <button class="mp-cal-nav" onclick="shiftMidMonth(-1)">‹</button>
-          <div class="mp-cal-title" id="mpCalTitle">—</div>
+          <div class="mp-cal-title" id="mpCalTitle">2026 · 9月</div>
           <button class="mp-cal-nav" onclick="shiftMidMonth(1)">›</button>
         </div>
-        <div class="mp-cal-grid" id="mpCalendarGrid"></div>
+        <div class="mp-cal-grid" id="mpCalendarGrid">
+          <div class="mp-cal-dow">一</div><div class="mp-cal-dow">二</div><div class="mp-cal-dow">三</div><div class="mp-cal-dow">四</div><div class="mp-cal-dow">五</div><div class="mp-cal-dow">六</div><div class="mp-cal-dow">日</div>
+          <div class="mp-cal-day empty"></div><div class="mp-cal-day">1</div><div class="mp-cal-day both">2</div><div class="mp-cal-day en">3</div><div class="mp-cal-day">4</div><div class="mp-cal-day cn">5</div><div class="mp-cal-day">6</div>
+          <div class="mp-cal-day">7</div><div class="mp-cal-day">8</div><div class="mp-cal-day">9</div><div class="mp-cal-day en">10</div><div class="mp-cal-day">11</div><div class="mp-cal-day">12</div><div class="mp-cal-day">13</div>
+          <div class="mp-cal-day">14</div><div class="mp-cal-day">15</div><div class="mp-cal-day cn">16</div><div class="mp-cal-day">17</div><div class="mp-cal-day">18</div><div class="mp-cal-day">19</div><div class="mp-cal-day">20</div>
+          <div class="mp-cal-day">21</div><div class="mp-cal-day">22</div><div class="mp-cal-day">23</div><div class="mp-cal-day both">24</div><div class="mp-cal-day holiday cn"><span class="d-num">25</span><span class="d-tag">中秋</span></div><div class="mp-cal-day holiday"><span class="d-num">26</span><span class="d-tag">中秋</span></div><div class="mp-cal-day holiday"><span class="d-num">27</span><span class="d-tag">中秋</span></div>
+          <div class="mp-cal-day">28</div><div class="mp-cal-day en">29</div><div class="mp-cal-day">30</div><div class="mp-cal-day empty"></div><div class="mp-cal-day empty"></div><div class="mp-cal-day empty"></div><div class="mp-cal-day empty"></div>
+        </div>
       </div>
     </div>
 
     <div class="mp-section">
-      <div class="mp-sec-title">即将录制</div>
-      <div class="mp-upcoming" id="mpUpcoming"></div>
+      <div class="mp-sec-title" id="mpUpcomingTitle">8月 · 即将录制</div>
+      <div class="mp-upcoming" id="mpUpcoming">
+        <div class="mp-up-item" data-ymd="2026-08-29">
+          <div class="mp-up-pill" style="--up-dot:#8CA8C1;--up-shadow:0 0 4px rgba(140,168,189,.6);--up-date:#fff;--up-time:rgba(255,255,255,.7)">
+            <span class="mp-up-pill-dot"></span>
+            <span class="mp-up-pill-date">8/29</span>
+            <span class="mp-up-pill-time">10:00-12:30</span>
+          </div>
+          <div class="mp-up-role">红狼</div>
+          <div class="mp-up-demand">据点攻防 · 角色语音 <span class="lang-badge cn">中配</span></div>
+        </div>
+        <div class="mp-up-item" data-ymd="2026-08-30">
+          <div class="mp-up-pill" style="--up-dot:var(--c-primary);--up-shadow:0 0 4px rgba(15,247,150,.6);--up-date:#fff;--up-time:rgba(255,255,255,.7)">
+            <span class="mp-up-pill-dot"></span>
+            <span class="mp-up-pill-date">8/30</span>
+            <span class="mp-up-pill-time">09:30-12:00</span>
+          </div>
+          <div class="mp-up-role">钟婉</div>
+          <div class="mp-up-demand">撤离任务 · 关尾语音 <span class="lang-badge en">英配</span></div>
+        </div>
+        <div class="mp-up-item" data-ymd="2026-08-31">
+          <div class="mp-up-pill" style="--up-dot:var(--c-primary);--up-shadow:0 0 4px rgba(15,247,150,.6);--up-date:#fff;--up-time:rgba(255,255,255,.7)">
+            <span class="mp-up-pill-dot"></span>
+            <span class="mp-up-pill-date">8/31</span>
+            <span class="mp-up-pill-time">14:00-17:00</span>
+          </div>
+          <div class="mp-up-role">红狼</div>
+          <div class="mp-up-demand">突击推进 · 战斗提示 <span class="lang-badge en">英配</span></div>
+        </div>
+      </div>
     </div>
   </aside>
 
@@ -331,115 +802,69 @@ body.embed .main{width:100%}
         <div class="subtitle">草稿仅保存在本机 · 录制档期以数据库正式数据为准。</div>
       </div>
       <div class="actions">
-        <button class="btn btn-primary" onclick="openDraftWizard()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>从澄清看板生成草稿</button>
+        <button id="syncFromSummaryBtn" class="btn btn-primary" onclick="syncFromVersionSummary()"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>从 Vo 版本汇总表同步</button>
+        <div class="sync-hint"><span class="sync-dot"></span>固定同步刷新时间：每日 10:30</div>
       </div>
     </div>
 
-    <div class="view-release" id="viewReleaseFilter" style="display:none">
-      <span class="tb-label">RELEASE</span>
-      <select id="actorReleaseSel" onchange="renderActorRollup()">
-        <option value="">暂无数据</option>
-      </select>
-    </div>
+    <!-- 视图切换已并入演员汇总的 toolbar（"按角色 / 按需求"） -->
 
-    <!-- 视图 A：档期日历 -->
-    <div id="viewSched" class="view-pane active">
-    <!-- KPI 战术条 -->
-    <div class="stat-strip">
-      <div class="stat">
-        <div class="stat-label">场数 · 总草稿</div>
-        <div class="stat-value">0<span class="unit">/ 场</span></div>
-        <div class="stat-sub">—</div>
+    <!-- 视图 A：演员预约明细（主视图 · 双视角：按角色 / 按需求） -->
+    <div id="viewActors" class="view-pane active">
+      <div class="view-tabs">
+        <button class="view-tab" data-vmode="demand" onclick="setActorView('demand',this)">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="9" y1="3" x2="9" y2="7"/><line x1="15" y1="3" x2="15" y2="7"/><line x1="9" y1="14" x2="9" y2="14"/><line x1="13" y1="14" x2="13" y2="14"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+          需求视图
+        </button>
+        <button class="view-tab on" data-vmode="role" onclick="setActorView('role',this)">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 20c0-2.4 1.6-4.4 4-5"/></svg>
+          声优视图
+        </button>
       </div>
-      <div class="stat info">
-        <div class="stat-label">时长 · 预估总</div>
-        <div class="stat-value">0<span class="unit">h</span></div>
-        <div class="stat-sub">—</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">棚 · 已排</div>
-        <div class="stat-value">0<span class="unit">家</span></div>
-        <div class="stat-sub">—</div>
-      </div>
-      <div class="stat warn">
-        <div class="stat-label">冲突 · 同档期同棚</div>
-        <div class="stat-value" style="color:var(--c-danger)">0<span class="unit">个</span></div>
-        <div class="stat-sub" style="color:var(--c-danger)">—</div>
-      </div>
-    </div>
-
-    <!-- 工具栏 -->
-    <div class="toolbar">
-      <div class="tb-group">
-        <span class="tb-label">VIEW</span>
-        <button class="tb-btn on">MONTH</button>
-        <button class="tb-btn">WEEK</button>
-        <button class="tb-btn">DAY</button>
-      </div>
-      <div class="tb-group">
-        <span class="tb-label">LANG</span>
-        <button class="tb-btn on" data-sched-lang="all" onclick="setSchedLang('all',this)">全部</button>
-        <button class="tb-btn" data-sched-lang="cn" onclick="setSchedLang('cn',this)">中配</button>
-        <button class="tb-btn" data-sched-lang="en" onclick="setSchedLang('en',this)">英配</button>
-      </div>
-      <div style="margin-left:auto" class="legend">
-        <span class="li"><span class="sw" style="background:var(--c-primary)"></span>中配</span>
-        <span class="li"><span class="sw" style="background:var(--c-info)"></span>英配</span>
-        <span class="li"><span class="sw" style="background:var(--c-warning)"></span>中+英</span>
-      </div>
-    </div>
-
-    <div class="wrap">
-      <!-- 左：档期草稿表 -->
-      <div class="sched-section">
-        <div class="sched-head">
-          <div class="t"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>档期草稿 · 录制排期</div>
-          <div class="code" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-mute)" id="schedCount">0 场</div>
-        </div>
-        <div id="schedBody"></div>
-      </div>
-
-    </div>
-    </div><!-- /#viewSched -->
-
-    <!-- 视图 B：演员汇总（跨 story 按演员归组 → 预约档期前置） -->
-    <div id="viewActors" class="view-pane">
       <div class="actor-toolbar">
-        <div class="tb-group">
-          <span class="tb-label">LANG</span>
-          <button class="tb-btn on" data-lang="all" onclick="setActorLang('all',this)">全部</button>
-          <button class="tb-btn" data-lang="cn" onclick="setActorLang('cn',this)">中配</button>
-          <button class="tb-btn" data-lang="en" onclick="setActorLang('en',this)">英配</button>
+        <div class="tb-group" id="actorDimGroup">
+          <!-- 动态渲染：角色视图=大类 pill / 需求视图=AREA pill（含数量） -->
         </div>
         <div class="tb-group">
           <span class="tb-label">状态</span>
           <button class="tb-btn on" data-status="all" onclick="setActorStatus('all',this)">全部</button>
-          <button class="tb-btn" data-status="pending" onclick="setActorStatus('pending',this)">未约</button>
-          <button class="tb-btn" data-status="booked" onclick="setActorStatus('booked',this)">已约</button>
+          <button class="tb-btn" data-status="pending" onclick="setActorStatus('pending',this)"><span class="s-icon warn">⚠</span> 未约</button>
+          <button class="tb-btn" data-status="booked" onclick="setActorStatus('booked',this)"><span class="s-icon ok">✓</span> 已约</button>
         </div>
         <div class="tb-group" style="margin-left:auto">
           <input id="actorSearch" placeholder="搜索游戏角色 / story" oninput="renderActorRollup()" style="background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:6px 10px;border-radius:4px;font-size:12px;min-width:200px"/>
         </div>
       </div>
 
-      <div class="actor-stat-strip" id="actorStatStrip"></div>
+      <div class="risk-banner" id="riskBanner">
+        <div class="risk-icon">⚠</div>
+        <div class="risk-body">
+          <div class="risk-title" id="riskTitle">计算中…</div>
+          <div class="risk-sub" id="riskSub">正在汇总当前版本的中英配预约状态。</div>
+        </div>
+        <div class="risk-stats" id="riskStats"></div>
+      </div>
 
-      <div class="actor-table-wrap">
-        <table class="actor-table">
+      <!-- 视图 A · 按角色：左中配 / 右英配 双轨制 -->
+      <div class="actor-table-wrap" id="actorRoleView">
+        <table class="actor-table actor-table-role">
           <thead>
             <tr>
-              <th style="width:40px"></th>
-              <th style="min-width:130px">游戏角色</th>
-              <th style="width:56px">语种</th>
-              <th style="min-width:280px">覆盖需求（Story）</th>
-              <th style="width:100px;text-align:right">预估句数</th>
-              <th style="width:90px">档期状态</th>
-              <th style="width:120px">操作</th>
+              <th style="width:170px;min-width:140px">游戏角色</th>
+              <th style="width:38%">中配档期</th>
+              <th style="width:38%">英配档期</th>
+              <th style="width:130px;text-align:right">预约状态</th>
             </tr>
           </thead>
-          <tbody id="actorTbody"></tbody>
+          <tbody id="actorRoleTbody"></tbody>
         </table>
-        <div id="actorEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无角色数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
+        <div id="actorRoleEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无角色数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
+      </div>
+
+      <!-- 视图 B · 按需求：按 AREA 分组 → 每 AREA 下需求卡片（1 卡 = 1 需求） -->
+      <div class="demand-cards-wrap" id="actorDemandView" style="display:none">
+        <div class="demand-area-stack" id="actorDemandTbody"></div>
+        <div id="actorDemandEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无需求档期数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
       </div>
     </div><!-- /#viewActors -->
   </main>
@@ -458,7 +883,16 @@ body.embed .main{width:100%}
     window.SHELL_LANG = (qLang==='cn'||qLang==='en') ? qLang : 'all';
     var qRelease = (qs.get('release')||'').trim();
     window.SHELL_RELEASE = qRelease || '';
-  }catch(e){ window.SHELL_LANG='all'; window.SHELL_RELEASE=''; }
+    var qMock = (qs.get('mock')||qs.get('preview_mock')||'').trim().toLowerCase();
+    if(qMock==='1' || qMock==='true' || qMock==='yes' || qMock==='on' || qMock==='force'){
+      window.FORCE_SCHED_MOCK = true;
+    }else if(qMock==='0' || qMock==='false' || qMock==='no' || qMock==='off'){
+      window.FORCE_SCHED_MOCK = false;
+    }else{
+      // 本地 file:// 直开时默认强制虚拟预览，避免被历史草稿/路由筛选误伤看不到样例。
+      window.FORCE_SCHED_MOCK = (window.location.protocol === 'file:');
+    }
+  }catch(e){ window.SHELL_LANG='all'; window.SHELL_RELEASE=''; window.FORCE_SCHED_MOCK=false; }
 })();
 </script>
 
@@ -490,14 +924,53 @@ body.embed .main{width:100%}
 // 数据源：GET /api/demands → voice_estimates（同 release 内按角色归组）
 // 【显示规则 2026-08-14】除声优库外，全站以"游戏角色名"为主体，演员名仅作 tooltip 溯源。
 // 归组键 = (lang, role)：同一角色的中/英配分开算一行；covers = 出现在哪些 story；actor = 演员名（tooltip 显示）。
-let ACTOR_STATE = { lang: 'all', status: 'all', release: '', demands: [], loaded: false };
+let ACTOR_STATE = { lang: 'all', status: 'all', cat: 'all', gender: 'all', area: 'all', release: '', demands: [], loaded: false, vmode: 'role' };
 let SCHED_STATE = {
   lang: (window.SHELL_LANG==='cn'||window.SHELL_LANG==='en') ? window.SHELL_LANG : 'all',
+  status: 'all',
   releaseToken: window.SHELL_RELEASE || '',
   currentRelease: ''
 };
 function actorEsc(s){ return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c])); }
-function normReleaseToken(v){ return String(v==null?'').trim().replace(/\s+/g,'').replace(/\.0$/,''); }
+
+// ===== 大类 / AREA 聚合维度 =====
+// 声优视图按「所属大类」(category/module) 聚合；需求视图按「AREA」(demand.area) 聚合。
+// 大类顺序与配色复用声优库页 CAT_COLORS，保证跨页一致。
+const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'AI系统音':6};
+const CAT_COLORS = {'指挥官':'#60A5FA','干员':'#F59E0B','Boss':'#EF4444','AI兵':'#0FF796','NPC':'#D4DDE3','AI系统音':'#3D4C57'};
+const CAT_EN_MAP = {'指挥官':'COMMANDER','干员':'OPERATOR','Boss':'BOSS','AI兵':'AI SOLDIER','NPC':'NPC','AI系统音':'SYSTEM VOICE'};
+const ROLE_CATEGORY_MAP = new Map(); // role_cn -> category
+function setRoleCategoryMap(rows){
+  ROLE_CATEGORY_MAP.clear();
+  (rows||[]).forEach(function(r){
+    const rc = String(r && r.role_cn || '').trim();
+    const re = String(r && r.role_en || '').trim();
+    const cat = String(r && (r.category || r.module) || '').trim();
+    if(rc && cat) ROLE_CATEGORY_MAP.set(rc, cat);
+    if(re && cat && !ROLE_CATEGORY_MAP.has(re)) ROLE_CATEGORY_MAP.set(re, cat);
+  });
+}
+// 解析某个 voice_estimate 的大类：优先 ve.category，其次按 role 查声优库
+function categoryOf(ve){
+  const direct = String(ve && ve.category || '').trim();
+  if(direct) return direct;
+  const role = String(ve && ve.role || '').trim();
+  return ROLE_CATEGORY_MAP.get(role) || '';
+}
+// 角色 → 性别兜底映射（真实数据接入声优库前用 mock 演示）
+const ROLE_GENDER_MAP = new Map();
+function setRoleGenderMap(rows){
+  ROLE_GENDER_MAP.clear();
+  (rows||[]).forEach(r=>{
+    const rc = String(r && r.role_cn || '').trim();
+    const g = String(r && (r.gender || r.sex) || '').trim();
+    if(rc && g) ROLE_GENDER_MAP.set(rc, g);
+  });
+}
+function genderOf(role){
+  return ROLE_GENDER_MAP.get(String(role||'').trim()) || '';
+}
+function normReleaseToken(v){ return String(v==null?'':v).trim().replace(/\s+/g,'').replace(/\.0$/,''); }
 function normLang(v){
   const s = String(v==null?'':v).trim().toLowerCase();
   if(!s) return '';
@@ -505,15 +978,30 @@ function normLang(v){
   if(s==='cn' || s==='zh' || s==='中文' || s==='中配') return 'cn';
   return '';
 }
+function schedStatusBucket(v){
+  const s = String(v==null?'':v).trim().toLowerCase();
+  if(!s || s==='draft' || s==='pending' || s==='草稿' || s==='未约') return 'unbooked';
+  if(s==='confirmed' || s==='partial' || s==='已确认' || s==='部分约') return 'partial';
+  if(s==='done' || s==='booked' || s==='completed' || s==='已完成' || s==='已约完') return 'full';
+  return 'unbooked';
+}
 function setSchedLang(lang, btn){
   SCHED_STATE.lang = (lang==='cn'||lang==='en') ? lang : 'all';
-  document.querySelectorAll('.toolbar [data-sched-lang]').forEach(b => b.classList.toggle('on', b.dataset.schedLang === SCHED_STATE.lang));
-  renderSched();
+  document.querySelectorAll('[data-sched-lang]').forEach(b => b.classList.toggle('on', b.dataset.schedLang === SCHED_STATE.lang));
+  // renderSched 定义在 IIFE 里，外部作用域无法直接引用；仅当 IIFE 已把它挂到 window 时再调
+  if(typeof window.renderSched === 'function') window.renderSched();
+}
+function setSchedStatus(st, btn){
+  SCHED_STATE.status = (st==='full'||st==='partial'||st==='unbooked') ? st : 'all';
+  document.querySelectorAll('[data-sched-status]').forEach(b => b.classList.toggle('on', b.dataset.schedStatus === SCHED_STATE.status));
+  if(typeof window.renderSched === 'function') window.renderSched();
 }
 function detectCurrentReleaseFromDemands(){
+  // 以已加载到 ACTOR_STATE.demands 的需求为准（避免 3B 草稿下拉/全局 DEMAND_OPTIONS 干扰演员视图）
+  const pool = (ACTOR_STATE && ACTOR_STATE.demands) || [];
   const counts = {};
-  (DEMAND_OPTIONS||[]).forEach(d=>{
-    const rel = String(d.release_plan||'').trim();
+  pool.forEach(d=>{
+    const rel = String((d && d.release_plan) || '').trim();
     const key = normReleaseToken(rel);
     if(!key) return;
     if(!counts[key]) counts[key] = { name: rel, n: 0 };
@@ -550,58 +1038,261 @@ function schedReleaseMatch(plan){
 function switchScheduleView(view){
   const tabs = document.querySelectorAll('.view-tab');
   tabs.forEach(t => t.classList.toggle('active', t.dataset.view === view));
-  document.getElementById('viewSched').classList.toggle('active', view === 'sched');
-  document.getElementById('viewActors').classList.toggle('active', view === 'actors');
-  document.getElementById('viewReleaseFilter').style.display = view === 'actors' ? 'flex' : 'none';
+  const sched = document.getElementById('viewSched');       if(sched)   sched.classList.toggle('active', view === 'sched');
+  const actors = document.getElementById('viewActors');     if(actors)  actors.classList.toggle('active', view === 'actors');
+  const rf = document.getElementById('viewReleaseFilter');  if(rf)      rf.style.display = view === 'actors' ? 'flex' : 'none';
   if(view === 'actors' && !ACTOR_STATE.loaded){ loadActorData(); }
 }
 function toggleActorView(){
-  const inActors = document.getElementById('viewActors').classList.contains('active');
+  const el = document.getElementById('viewActors');
+  const inActors = el ? el.classList.contains('active') : true;
   switchScheduleView(inActors ? 'sched' : 'actors');
 }
-// 默认隐藏 release 筛选（sched 视图不需要）
+// 默认隐藏 release 筛选（sched 视图不需要） + 初始化主视图
 document.addEventListener('DOMContentLoaded', ()=>{
-  const rf = document.getElementById('viewReleaseFilter'); if(rf) rf.style.display='none';
   const initLang = (window.SHELL_LANG==='cn'||window.SHELL_LANG==='en') ? window.SHELL_LANG : 'all';
-  const schedBtn = document.querySelector(`.toolbar [data-sched-lang="${initLang}"]`) || document.querySelector('.toolbar [data-sched-lang="all"]');
-  if(schedBtn) setSchedLang(initLang, schedBtn);
-  const actorBtn = document.querySelector(`.actor-toolbar [data-lang="${initLang}"]`) || document.querySelector('.actor-toolbar [data-lang="all"]');
-  if(actorBtn) setActorLang(initLang, actorBtn);
+  // 档期草稿区筛选初始化（sched 区块已从主页面移除，改为容错调用）
+  try{
+    const schedBtn = document.querySelector(`.sched-filterbar-collapsed [data-sched-lang="${initLang}"]`) || document.querySelector('.sched-filterbar-collapsed [data-sched-lang="all"]');
+    if(schedBtn) setSchedLang(initLang, schedBtn);
+    const schedStatusBtn = document.querySelector('.sched-filterbar-collapsed [data-sched-status="all"]');
+    if(schedStatusBtn) setSchedStatus('all', schedStatusBtn);
+  }catch(e){ console.warn('[sched init skipped]', e); }
+  // 演员汇总筛选初始化
+  try{
+    const actorBtn = document.querySelector(`.actor-toolbar [data-lang="${initLang}"]`) || document.querySelector('.actor-toolbar [data-lang="all"]');
+    if(actorBtn) setActorLang(initLang, actorBtn);
+  }catch(e){ console.warn('[actor init skipped]', e); }
+
+  // ★ 兜底：立即同步注入 mock 演员数据 + 立即渲染。file:// 直开时，即便所有 async fetch 都失败也保证有内容。
+  try{
+    if(!ACTOR_STATE.demands || !ACTOR_STATE.demands.length){
+      ACTOR_STATE.demands = buildMockDemands();
+      ACTOR_STATE.release = 'Yang1';
+    }
+    if(typeof buildMockSchedules === 'function' && (!window.PUBLISHED_SCHEDULES || !window.PUBLISHED_SCHEDULES.length)){
+      window.PUBLISHED_SCHEDULES = buildMockSchedules();
+    }
+    ACTOR_STATE.loaded = true;
+    renderActorRollup();
+  }catch(e){ console.error('[actor mock render failed]', e); }
+
+  // 之后再异步尝试真实数据（若成功会覆盖 mock）
+  try{ loadActorData(); }catch(e){ console.warn('[loadActorData skipped]', e); }
 });
 
 function setActorLang(lang, btn){
   ACTOR_STATE.lang = lang;
   document.querySelectorAll('.actor-toolbar [data-lang]').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
+  // 侧栏预约进度胶囊同步
+  document.querySelectorAll('[data-lang-pill]').forEach(b => b.classList.toggle('on', b.dataset.langPill === lang));
   renderActorRollup();
+}
+// 侧栏「预约进度」中的胶囊点击 → 联动主视图筛选
+function setActorLangFromPanel(lang, btn){
+  const next = (ACTOR_STATE.lang === lang) ? 'all' : lang;  // 再点一次取消（回到总计）
+  setActorLang(next, btn);
+  // 同步 toolbar 里 lang 按钮状态（如果 toolbar 里还有 data-lang，兼容）
+  document.querySelectorAll('.actor-toolbar [data-lang]').forEach(b => b.classList.toggle('on', b.dataset.lang === next));
 }
 function setActorStatus(st, btn){
   ACTOR_STATE.status = st;
   document.querySelectorAll('.actor-toolbar [data-status]').forEach(b => b.classList.toggle('on', b.dataset.status === st));
   renderActorRollup();
 }
+function setActorCat(cat, btn){
+  ACTOR_STATE.cat = cat;
+  document.querySelectorAll('.actor-toolbar [data-cat]').forEach(b => b.classList.toggle('on', b.dataset.cat === cat));
+  renderActorRollup();
+}
+function setActorGender(g, btn){
+  // 再点一次 → 取消（回到 all）
+  ACTOR_STATE.gender = (ACTOR_STATE.gender === g) ? 'all' : g;
+  document.querySelectorAll('.actor-toolbar [data-gender]').forEach(b => b.classList.toggle('on', b.dataset.gender === ACTOR_STATE.gender));
+  renderActorRollup();
+}
+
+/* ===== 筛选栏动态渲染：角色视图=大类 / 需求视图=AREA（带数量） ===== */
+function renderFilterBar(){
+  var g = document.getElementById('actorDimGroup');
+  if(!g) return;
+  if(ACTOR_STATE.vmode === 'demand'){
+    /* 需求视图：AREA 维度，从数据中统计数量 */
+    var all = ACTOR_STATE.demands || [];
+    var areaCnt = {};
+    var total = 0;
+    all.forEach(function(d){
+      var a = d.area || '未分类';
+      areaCnt[a] = (areaCnt[a]||0) + 1;
+      total++;
+    });
+    // 固定顺序：SOL / 大战场 / 系统 / 商业化 / 干员 / 其余按名称
+    var AREA_ORDER = ['SOL','大战场','系统','商业化','干员'];
+    var ordered = [];
+    AREA_ORDER.forEach(function(a){ if(areaCnt[a]) ordered.push(a); });
+    Object.keys(areaCnt).forEach(function(a){ if(ordered.indexOf(a)<0) ordered.push(a); });
+    var label = '<span class="tb-label">AREA</span>';
+    var pills = '';
+    // 全部 pill
+    var isAllOn = !ACTOR_STATE.area || ACTOR_STATE.area === 'all';
+    pills += '<button class="tb-btn'+(isAllOn?' on':'')+'" data-area="all" onclick="setActorArea(\'all\',this)">全部 <span class="dim-count">'+total+'</span></button>';
+    // 各 AREA pill
+    ordered.forEach(function(a){
+      var c = areaCnt[a] || 0;
+      var isOn = ACTOR_STATE.area === a;
+      pills += '<button class="tb-btn'+(isOn?' on':'')+'" data-area="'+escHtmlSafe(a)+'" onclick="setActorArea(\''+escHtmlSafe(a)+'\',this)">'+escHtmlSafe(a)+' <span class="dim-count">'+c+'</span></button>';
+    });
+    g.innerHTML = label + pills;
+  } else {
+    /* 角色视图：大类维度（原始静态结构） */
+    g.innerHTML =
+      '<span class="tb-label">大类</span>' +
+      '<button class="tb-btn'+(ACTOR_STATE.cat==='all'?' on':'')+'" data-cat="all" onclick="setActorCat(\'all\',this)">全部</button>' +
+      '<button class="tb-btn'+(ACTOR_STATE.cat==='指挥官'?' on':'')+'" data-cat="指挥官" onclick="setActorCat(\'指挥官\',this)">指挥官</button>' +
+      '<button class="tb-btn'+(ACTOR_STATE.cat==='干员'?' on':'')+'" data-cat="干员" onclick="setActorCat(\'干员\',this)">干员</button>' +
+      '<button class="tb-btn'+(ACTOR_STATE.cat==='Boss'?' on':'')+'" data-cat="Boss" onclick="setActorCat(\'Boss\',this)">Boss</button>' +
+      '<button class="tb-btn'+(ACTOR_STATE.cat==='AI兵'?' on':'')+'" data-cat="AI兵" onclick="setActorCat(\'AI兵\',this)">AI兵</button>' +
+      '<button class="tb-btn'+(ACTOR_STATE.cat==='NPC'?' on':'')+'" data-cat="NPC" onclick="setActorCat(\'NPC\',this)">NPC</button>' +
+      '<button class="tb-btn'+(ACTOR_STATE.cat==='AI系统音'?' on':'')+'" data-cat="AI系统音" onclick="setActorCat(\'AI系统音\',this)">AI系统音</button>' +
+      '<button class="tb-btn tb-icon'+(ACTOR_STATE.gender==='male'?' on':'')+'" data-gender="male" onclick="setActorGender(\'male\',this)" title="仅看男声"><span class="g-icon g-male">♂</span></button>' +
+      '<button class="tb-btn tb-icon'+(ACTOR_STATE.gender==='female'?' on':'')+'" data-gender="female" onclick="setActorGender(\'female\',this)" title="仅看女声"><span class="g-icon g-female">♀</span></button>';
+  }
+}
+
+function setActorArea(area, btn){
+  ACTOR_STATE.area = area;
+  document.querySelectorAll('#actorDimGroup [data-area]').forEach(function(b){
+    b.classList.toggle('on', b.dataset.area === area);
+  });
+  renderActorRollup();
+}
 
 async function loadActorData(){
+  let arr = [];
+  let talents = [];
   try{
     const r = await fetch('/api/demands', {cache:'no-store'});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const j = await r.json();
-    ACTOR_STATE.demands = Array.isArray(j) ? j : (j.data || []);
-    ACTOR_STATE.loaded = true;
-    // release 选项只来自真实 demands 数据，不展示任何预设版本。
-    const releases = Array.from(new Set(ACTOR_STATE.demands.map(d=>(d.release_plan||'').trim()).filter(Boolean))).sort();
-    const sel = document.getElementById('actorReleaseSel');
-    if(sel){
-      sel.innerHTML = releases.length ? releases.map(r=>`<option value="${actorEsc(r)}">${actorEsc(r)}</option>`).join('') : '<option value="">暂无数据</option>';
-      ACTOR_STATE.release = releases.includes(ACTOR_STATE.release) ? ACTOR_STATE.release : (releases[0] || '');
-      sel.value = ACTOR_STATE.release;
-    }
-    renderActorRollup();
+    arr = Array.isArray(j) ? j : (j.data || []);
   }catch(e){
-    document.getElementById('actorTbody').innerHTML = '';
-    const empty = document.getElementById('actorEmpty');
-    empty.style.display = 'block';
-    empty.innerHTML = '⚠️ 无法加载需求数据：' + e.message;
+    arr = [];
   }
+  // 拉取声优库（/api/talents = voice_roles）用于 role→大类 映射
+  try{
+    const t = await fetch('/api/talents', {cache:'no-store'});
+    if(t.ok){ const j = await t.json(); talents = Array.isArray(j) ? j : (j.data || []); }
+  }catch(e){ talents = []; }
+  // 虚拟数据兜底：file:// 直开或后端不可用时注入验收样例（用户验收后删除）
+  if(!arr || !arr.length) arr = buildMockDemands();
+  setRoleCategoryMap(talents);
+  ACTOR_STATE.demands = arr;
+  ACTOR_STATE.loaded = true;
+  renderFilterBar();
+  renderActorRollup();
+}
+
+// ===== 验收用虚拟数据（用户验收后删除）=====
+// 覆盖 7 大类 / 16 角色 / 8 需求，含长名字、跨月、极端时段等边界场景
+function buildMockDemands(){
+  const base = 'Yang1';
+  return [
+    { id:'99001', release_plan:base, area:'SOL', task_name:'据点攻防', voice_estimates:[
+      {role:'牧羊人', category:'干员', gender:'M', est_lines:148, cn_va:'李想', en_va:'Joe'},
+      {role:'红狼',   category:'干员', gender:'M', est_lines:96,  cn_va:'洪晓', en_va:'Starry'},
+      {role:'蜂医',   category:'干员', gender:'F', est_lines:112, cn_va:'陈晓', en_va:'Mary'}
+    ]},
+    { id:'99002', release_plan:base, area:'大战场', task_name:'突击推进', voice_estimates:[
+      {role:'牧羊人', category:'干员',   gender:'M', est_lines:132, cn_va:'李想',   en_va:'Joe'},
+      {role:'露娜',   category:'指挥官', gender:'F', est_lines:84,  cn_va:'罗婧文', en_va:'Luna'}
+    ]},
+    { id:'99003', release_plan:base, area:'撤离', task_name:'撤离任务', voice_estimates:[
+      {role:'铁腕', category:'Boss', gender:'M', est_lines:73,  cn_va:'汪亚茜', en_va:'Iron'},
+      {role:'钟婉', category:'Boss', gender:'F', est_lines:120, cn_va:'杨开元', en_va:'Zhong'}
+    ]},
+    { id:'99004', release_plan:base, area:'系统', task_name:'轮班开场', voice_estimates:[
+      {role:'钟婉',     category:'Boss',    gender:'F',  est_lines:60, cn_va:'杨开元', en_va:'Zhong'},
+      {role:'露娜',     category:'指挥官',  gender:'F',  est_lines:45, cn_va:'罗婧文', en_va:'Luna'},
+      {role:'系统播报', category:'AI系统音', gender:'',  est_lines:30, cn_va:'hayden', en_va:'System'}
+    ]},
+    { id:'99005', release_plan:base, area:'剧情', task_name:'剧情序章', voice_estimates:[
+      {role:'疾风',     category:'干员',   gender:'M', est_lines:90, cn_va:'关学院', en_va:'Wind'},
+      {role:'幽兰',     category:'干员',   gender:'F', est_lines:78, cn_va:'罗婧文', en_va:'Orchid'},
+      {role:'情报贩子', category:'NPC',    gender:'M', est_lines:52, cn_va:'陈晨',   en_va:'Spy'}
+    ]},
+    { id:'99006', release_plan:base, area:'多人', task_name:'多人竞技', voice_estimates:[
+      {role:'暗影',     category:'干员',     gender:'M',  est_lines:136, cn_va:'杨开元', en_va:'Shadow'},
+      {role:'机械守卫', category:'AI兵',     gender:'M',  est_lines:64,  cn_va:'谢佳洺', en_va:'Mech'},
+      {role:'平民A',    category:'路人角色', gender:'F',  est_lines:24,  cn_va:'郑懿',   en_va:'Civil'}
+    ]},
+    { id:'99007', release_plan:base, area:'大战场', task_name:'战术演练', voice_estimates:[
+      {role:'巡逻无人机', category:'AI兵', gender:'',  est_lines:40, cn_va:'胡瑞璋', en_va:'Drone'},
+      {role:'商人老陈',   category:'NPC',  gender:'M', est_lines:36, cn_va:'陈晨',   en_va:'Chen'},
+      {role:'暗影',       category:'干员', gender:'M', est_lines:88, cn_va:'杨开元', en_va:'Shadow'}
+    ]},
+    { id:'99008', release_plan:base, area:'SOL', task_name:'超长需求名称测试（验证表格与卡片的文本截断表现）', voice_estimates:[
+      {role:'超长名字测试角色（用于验证文本截断）', category:'干员', gender:'M', est_lines:120, cn_va:'测试', en_va:'Test'}
+    ]}
+  ];
+}
+function buildMockSchedules(){
+  // 已约的 recording_schedules 样例：有 role_cn/role_en + date + slot + 精确时间
+  // 覆盖边界：过去/今天/未来、同日多角色、同日中+英、5 档溢出、跨月、极端时段
+  const S = (role, isEn, date, st, et, slot, studio) => ({
+    role_cn: isEn ? '' : role,
+    role_en: isEn ? role : '',
+    date, start_time: st, end_time: et, slot: slot||'', studio: studio||'棚A',
+    lang: isEn ? 'en' : 'cn'
+  });
+  return [
+    /* ===== B 组：昨天及以前（灰点无光晕 + 字灰 + 70% 透明）===== */
+    S('牧羊人',   false, '2026-08-20', '08:00', '11:00', '上午', '棚A'), // 极端早时段
+    S('红狼',     false, '2026-08-21', '14:00', '17:00', '下午', '棚A'),
+    S('机械守卫', false, '2026-08-22', '10:00', '12:00', '上午', '棚B'),
+    S('系统播报', false, '2026-08-23', '15:00', '16:00', '下午', '棚A'),
+    S('蜂医',     true,  '2026-08-24', '13:00', '17:00', '下午', '棚B'),
+    S('牧羊人',   false, '2026-08-25', '10:00', '16:00', '上午', '棚A'), // 牧羊人 6 小时长档
+    S('露娜',     true,  '2026-08-26', '10:00', '14:00', '上午', '棚B'),
+    S('钟婉',     false, '2026-08-27', '10:00', '13:00', '上午', '棚A'),
+    S('露娜',     true,  '2026-08-28', '14:00', '17:00', '下午', '棚B'), // 昨天
+
+    /* ===== A 组：今天（2026-08-29）===== */
+    S('红狼',     false, '2026-08-29', '10:00', '12:00', '上午', '棚A'),
+    S('机械守卫', true,  '2026-08-29', '14:00', '16:00', '下午', '棚B'), // 同日·另一角色
+    S('暗影',     false, '2026-08-29', '19:00', '22:00', '晚间', '棚A'), // 极端晚时段
+
+    /* ===== A 组：未来 ===== */
+    S('牧羊人',   false, '2026-08-30', '09:00', '12:00', '上午', '棚A'), // 同日·另一角色
+    S('钟婉',     true,  '2026-08-30', '13:00', '17:00', '下午', '棚B'),
+    S('红狼',     true,  '2026-08-31', '14:00', '17:00', '下午', '棚B'),
+    S('露娜',     false, '2026-09-01', '10:00', '14:00', '上午', '棚A'),
+    S('钟婉',     false, '2026-09-02', '14:00', '18:00', '下午', '棚A'),
+    S('露娜',     false, '2026-09-03', '14:00', '17:00', '下午', '棚A'),
+    S('疾风',     false, '2026-09-04', '10:00', '13:00', '上午', '棚A'), // ┐ 同日中+英
+    S('疾风',     true,  '2026-09-04', '15:00', '18:00', '下午', '棚B'), // ┘ → 两条横线
+    S('幽兰',     false, '2026-09-05', '10:00', '12:00', '上午', '棚A'), // ┐ 同日中+英
+    S('幽兰',     true,  '2026-09-05', '14:00', '16:00', '下午', '棚B'), // ┘ → 两条横线
+    S('商人老陈', false, '2026-09-07', '11:00', '12:00', '上午', '棚A'),
+    S('情报贩子', false, '2026-09-08', '16:00', '18:00', '下午', '棚B'),
+    S('平民A',    true,  '2026-09-09', '10:00', '11:00', '上午', '棚B'),
+    S('系统播报', true,  '2026-09-10', '09:00', '10:00', '上午', '棚A'),
+    S('巡逻无人机', false, '2026-09-11', '13:00', '15:00', '下午', '棚B'),
+    S('铁腕',     false, '2026-09-12', '10:00', '13:00', '上午', '棚A'), // ┐ 同日中+英
+    S('铁腕',     true,  '2026-09-12', '15:00', '18:00', '下午', '棚B'), // ┘ → 两条横线
+    /* 暗影：5 档（多档横排溢出测试） */
+    S('暗影',     false, '2026-09-15', '10:00', '12:00', '上午', '棚A'),
+    S('暗影',     true,  '2026-09-16', '14:00', '16:00', '下午', '棚B'),
+    S('暗影',     false, '2026-09-17', '10:00', '12:00', '上午', '棚A'),
+    S('暗影',     false, '2026-09-18', '14:00', '16:00', '下午', '棚A'),
+    S('暗影',     false, '2026-09-19', '10:00', '12:00', '上午', '棚A'),
+    /* 露娜收尾 */
+    S('露娜',     false, '2026-09-22', '10:00', '12:00', '上午', '棚A'),
+    S('露娜',     true,  '2026-09-23', '14:00', '17:00', '下午', '棚B'),
+    S('牧羊人',   true,  '2026-09-24', '15:00', '18:00', '下午', '棚B'),
+    /* 跨月（10 月） */
+    S('牧羊人',   false, '2026-10-05', '10:00', '12:00', '上午', '棚A'),
+    S('红狼',     true,  '2026-10-06', '14:00', '17:00', '下午', '棚B')
+  ];
 }
 
 // 按 (lang, role) 归组：一行 = 同一游戏角色的中配/英配之一
@@ -615,15 +1306,17 @@ function aggregateActors(demands, release){
     if(!Array.isArray(ves)) return;
     ves.forEach(v => {
       const role  = (v.role || '').trim() || '(未指定角色)';
+      const cat   = categoryOf(v) || 'NPC';
+      const gender = String(v.gender || '').trim();
       const est   = parseInt(v.est_lines || v.est || 0, 10) || 0;
       const story = (dem.task_name || '').trim();
       // 中配
       const cn = (v.cn_va || '').trim();
       if(cn && cn !== 'N/A'){
         const k = 'cn|' + role;
-        if(!map.has(k)) map.set(k, { role, lang: 'cn', actor: cn, covers: [], total: 0, status: 'pending' });
+        if(!map.has(k)) map.set(k, { role, category: cat, gender, lang: 'cn', actor: cn, covers: [], total: 0, status: 'pending' });
         const g = map.get(k);
-        // actor 冲突时用 " / " 拼接（同一角色不同 story 换了演员，罕见但要能看出来）
+        if(!g.gender && gender) g.gender = gender;
         if(g.actor.indexOf(cn) < 0) g.actor = g.actor ? (g.actor + ' / ' + cn) : cn;
         g.covers.push({ story, est });
         g.total += est;
@@ -632,8 +1325,9 @@ function aggregateActors(demands, release){
       const en = (v.en_va || '').trim();
       if(en && en !== 'N/A'){
         const k = 'en|' + role;
-        if(!map.has(k)) map.set(k, { role, lang: 'en', actor: en, covers: [], total: 0, status: 'pending' });
+        if(!map.has(k)) map.set(k, { role, category: cat, gender, lang: 'en', actor: en, covers: [], total: 0, status: 'pending' });
         const g = map.get(k);
+        if(!g.gender && gender) g.gender = gender;
         if(g.actor.indexOf(en) < 0) g.actor = g.actor ? (g.actor + ' / ' + en) : en;
         g.covers.push({ story, est });
         g.total += est;
@@ -641,29 +1335,167 @@ function aggregateActors(demands, release){
     });
   });
   // “已约”只认recording_schedules正式数据；未发布草稿不参与。
+  // 同时为每个 (lang, role) 找一条最近档期（含 date/slot/start_time/end_time）用于左右双轨制展示
   const sched = window.PUBLISHED_SCHEDULES || [];
   const bookedRoles = new Set();
+  const scheduleByKey = {};      // key = 'lang|role' -> 最近一档（保留兼容 formatScheduleLabel）
+  const schedulesByKey = {};     // key = 'lang|role' -> 全量档期数组（按 date 升序）
   sched.forEach(s => {
     const lang = s.lang === '英配' ? 'en' : 'cn';
     (s.roles || []).forEach(r => bookedRoles.add(lang + '|' + r));
     if(s.role_cn) bookedRoles.add('cn|' + s.role_cn);
     if(s.role_en) bookedRoles.add('en|' + s.role_en);
     if(s.role)    bookedRoles.add(lang + '|' + s.role);
+    // 归组：一个 (lang, role) 可能有多档
+    const keys = [];
+    if(s.role_cn) keys.push('cn|' + s.role_cn);
+    if(s.role_en) keys.push('en|' + s.role_en);
+    if(s.role){
+      const lg = (s.lang==='英配'?'en':'cn');
+      keys.push(lg + '|' + s.role);
+    }
+    const entry = {
+      date: s.date || '',
+      slot: s.slot || s.time_slot || '',
+      start_time: s.start_time || '',
+      end_time:   s.end_time || '',
+      studio: s.studio || ''
+    };
+    keys.forEach(k => {
+      if(!schedulesByKey[k]) schedulesByKey[k] = [];
+      schedulesByKey[k].push(entry);
+      // scheduleByKey 保留最近一档兼容旧调用
+      const cur = scheduleByKey[k];
+      if(!cur || (entry.date||'') > (cur.date||'')){
+        scheduleByKey[k] = entry;
+      }
+    });
+  });
+  // 按日期升序 + 去重
+  Object.keys(schedulesByKey).forEach(k => {
+    const seen = new Set();
+    schedulesByKey[k] = schedulesByKey[k]
+      .filter(x => { const sig = x.date+'|'+x.start_time+'|'+x.end_time; if(seen.has(sig)) return false; seen.add(sig); return true; })
+      .sort((a,b) => (a.date||'').localeCompare(b.date||''));
   });
   const list = [...map.values()];
-  list.forEach(a => { if(bookedRoles.has(a.lang+'|'+a.role)) a.status = 'booked'; });
+  list.forEach(a => {
+    const k = a.lang + '|' + a.role;
+    if(bookedRoles.has(k)) a.status = 'booked';
+    a.schedule = scheduleByKey[k] || null;
+    a.schedules = schedulesByKey[k] || []; // ← 新增：全量档期数组
+  });
   list.sort((a,b) => b.total - a.total);
   return list;
 }
 
+// 按角色视图聚合：把 (cn|role) + (en|role) 合并到同一个 role（带所属大类）
+function aggregateByRole(demands, release){
+  const flat = aggregateActors(demands, release);
+  const map = new Map(); // key = role
+  flat.forEach(a => {
+    if(!map.has(a.role)){
+      map.set(a.role, { role: a.role, category: a.category || '', covers: [], total: 0, cn: null, en: null, hasPending: false });
+    }
+    const g = map.get(a.role);
+    if(!g.category && a.category) g.category = a.category;
+    g.covers.push(...a.covers);
+    g.total += a.total;
+    if(a.lang === 'cn') g.cn = a;
+    else g.en = a;
+    if(a.status === 'pending') g.hasPending = true;
+  });
+  // 排序：未约的（任一语种）排前
+  const list = [...map.values()];
+  list.sort((a,b) => {
+    if(a.hasPending !== b.hasPending) return a.hasPending ? -1 : 1;
+    return b.total - a.total;
+  });
+  return list;
+}
+
+// 按需求视图聚合：1 行 = 需求 × 演员 × 语种
+function aggregateByDemand(demands, release){
+  const map = new Map(); // key = demandId|lang|role
+  const sched = window.PUBLISHED_SCHEDULES || [];
+  // 简化版：复用 aggregateActors 找 schedule
+  const flat = aggregateActors(demands, release);
+  demands.forEach(dem => {
+    if((dem.release_plan||'') !== release) return;
+    let ves = dem.voice_estimates;
+    if(typeof ves === 'string'){ try{ ves = JSON.parse(ves); }catch(_){ ves = []; } }
+    if(!Array.isArray(ves)) return;
+    ves.forEach(v => {
+      const role  = (v.role || '').trim() || '(未指定角色)';
+      const est   = parseInt(v.est_lines || v.est || 0, 10) || 0;
+      const story = (dem.task_name || '').trim() || ('需求 ' + dem.id);
+      const area  = String(dem.area || '').trim();
+      [['cn', v.cn_va], ['en', v.en_va]].forEach(([lang, actor]) => {
+        const name = String(actor||'').trim();
+        if(!name || name === 'N/A') return;
+        const k = (dem.id||'') + '|' + lang + '|' + role;
+        const found = flat.find(a => a.role === role && a.lang === lang);
+        const schedInfo = found ? found.schedule : null;
+        const status = found ? found.status : 'pending';
+        map.set(k, {
+          demandId: dem.id,
+          area: area,
+          story: story,
+          lang: lang,
+          role: role,
+          actor: name,
+          est: est,
+          schedule: schedInfo,
+          status: status
+        });
+      });
+    });
+  });
+  const list = [...map.values()];
+  // 排序：未约置顶 → 同需求 → 同语种
+  list.sort((a,b) => {
+    if((a.status==='pending') !== (b.status==='pending')) return a.status==='pending' ? -1 : 1;
+    if(a.story !== b.story) return a.story < b.story ? -1 : 1;
+    if(a.lang !== b.lang) return a.lang < b.lang ? -1 : 1;
+    return b.est - a.est;
+  });
+  return list;
+}
+
 function renderActorRollup(){
-  ACTOR_STATE.release = document.getElementById('actorReleaseSel').value;
+  // 若 release 为空，自动用 demands 中出现次数最多的版本作为"当前版本"
+  if(!ACTOR_STATE.release && ACTOR_STATE.demands && ACTOR_STATE.demands.length){
+    const auto = detectCurrentReleaseFromDemands();
+    if(auto) ACTOR_STATE.release = auto;
+  }
+
+  // 视图切换器显示
+  document.querySelectorAll('.view-tabs [data-vmode]').forEach(b => {
+    b.classList.toggle('on', b.dataset.vmode === ACTOR_STATE.vmode);
+  });
+  const roleView = document.getElementById('actorRoleView');
+  const demandView = document.getElementById('actorDemandView');
+  if(roleView)   roleView.style.display   = ACTOR_STATE.vmode === 'role'   ? '' : 'none';
+  if(demandView) demandView.style.display = ACTOR_STATE.vmode === 'demand' ? '' : 'none';
+
+  // KPI 卡：基于 aggregateActors 全量
   const all = aggregateActors(ACTOR_STATE.demands, ACTOR_STATE.release);
-  // 应用筛选
+  // 应用筛选（按角色视图的搜索仍作用于需求视图）
   const q = (document.getElementById('actorSearch').value || '').trim().toLowerCase();
   const list = all.filter(a => {
+    // lang 仅在侧栏胶囊被点击时使用，主表按 role 合并展示时不过滤单条 flat（避免误伤对侧语种的角色）
+    // → 现在保留：只看某语种时，仅显示"在该语种下有应约的角色"
     if(ACTOR_STATE.lang !== 'all' && a.lang !== ACTOR_STATE.lang) return false;
     if(ACTOR_STATE.status !== 'all' && a.status !== ACTOR_STATE.status) return false;
+    if(ACTOR_STATE.cat !== 'all'){
+      const c = (a.category || categoryOf(a.role) || '').trim();
+      if(c !== ACTOR_STATE.cat) return false;
+    }
+    if(ACTOR_STATE.gender !== 'all'){
+      const g = String(a.gender || genderOf(a.role) || '').toLowerCase();
+      if(ACTOR_STATE.gender === 'male'   && !(g==='m'||g==='male'||g==='男')) return false;
+      if(ACTOR_STATE.gender === 'female' && !(g==='f'||g==='female'||g==='女')) return false;
+    }
     if(q){
       const hay = (a.role + ' ' + a.covers.map(c=>c.story).join(' ')).toLowerCase();
       if(hay.indexOf(q) < 0) return false;
@@ -671,21 +1503,170 @@ function renderActorRollup(){
     return true;
   });
 
-  // KPI 条：角色总数 / 预估句数总计 / 中英分布 / 已排档期
-  const totalRoles = list.length;
-  const totalLines = list.reduce((s,a)=>s+a.total, 0);
-  const bookedCnt = list.filter(a=>a.status==='booked').length;
-  const cnCnt = list.filter(a=>a.lang==='cn').length;
-  document.getElementById('actorStatStrip').innerHTML = `
-    <div class="actor-stat ok"><div class="lbl">角色总数</div><div class="val">${totalRoles}<span class="unit">项</span></div></div>
-    <div class="actor-stat ok"><div class="lbl">预估句数总计</div><div class="val">${totalLines.toLocaleString()}<span class="unit">句</span></div></div>
-    <div class="actor-stat info"><div class="lbl">中/英分布</div><div class="val">${cnCnt}<span class="unit">中</span> · ${totalRoles-cnCnt}<span class="unit">英</span></div></div>
-    <div class="actor-stat warn"><div class="lbl">已排档期</div><div class="val">${bookedCnt}<span class="unit">/ ${totalRoles}</span></div></div>
-  `;
+  const cnAll = list.filter(a=>a.lang==='cn');
+  const enAll = list.filter(a=>a.lang==='en');
+  const cnTotal = cnAll.length, cnBooked = cnAll.filter(a=>a.status==='booked').length;
+  const enTotal = enAll.length, enBooked = enAll.filter(a=>a.status==='booked').length;
+  const pendingN = list.filter(a=>a.status==='pending').length;
+  // 风险公告：3 个业务核心数据点（品牌黄 + 透明度）+ 1 个时间维度
+  // · 未约齐演员：至少 1 语种未约的 unique 角色数
+  // · 缺少档期：当前未约的 (lang, role) 行数
+  // · 受影响需求：至少 1 个 voice_estimate 角色未约的需求数
+  const unalignedRoles = (function(){
+    const m = new Set();
+    list.forEach(a => { if(a.status==='pending') m.add(a.role); });
+    return m.size;
+  })();
+  // 未预约角色名列表（用于副标题展示）
+  const pendingRoleNames = (function(){
+    const names = new Set();
+    list.forEach(a => { if(a.status==='pending') names.add(a.role); });
+    return Array.from(names);
+  })();
+  // 按语种拆分未约数
+  const cnPendingN = list.filter(a=>a.lang==='cn' && a.status==='pending').length;
+  const enPendingN = list.filter(a=>a.lang==='en' && a.status==='pending').length;
+  const affectedDemands = (function(){
+    const m = new Set();
+    const pendingRoles = new Set(list.filter(a=>a.status==='pending').map(a=>a.role));
+    (ACTOR_STATE.demands||[]).forEach(d => {
+      if(ACTOR_STATE.release && (d.release_plan||'') !== ACTOR_STATE.release) return;
+      let ves = d.voice_estimates;
+      if(typeof ves === 'string'){ try{ ves = JSON.parse(ves); }catch(_){ ves = []; } }
+      if(!Array.isArray(ves)) return;
+      ves.forEach(v => {
+        const role = (v.role||'').trim();
+        if(role && pendingRoles.has(role)) m.add(d.id || (d.task_name||''));
+      });
+    });
+    return m.size;
+  })();
+  // ===== 需求视图专用：按 AREA 统计"未出完整档期"的需求数 =====
+  const AREA_ORDER = ['SOL','大战场','系统','商业化','干员'];
+  const areaPendingStats = (function(){
+    const byDemand = aggregateByDemand(ACTOR_STATE.demands, ACTOR_STATE.release);
+    // 需求维度：只要该需求有 >=1 行 pending，就算"尚未出完整档期"
+    const pendMap = new Map(); // demandKey -> {area, story, pendingCount}
+    byDemand.forEach(r => {
+      const key = (r.demandId||'—') + '|' + (r.story||'');
+      if(!pendMap.has(key)) pendMap.set(key, { area:(r.area||'未分类'), story:(r.story||''), pendingCount:0 });
+      if(r.status === 'pending') pendMap.get(key).pendingCount++;
+    });
+    const pendDemands = [...pendMap.values()].filter(x => x.pendingCount > 0);
+    // 按 AREA 计数
+    const cnt = {};
+    pendDemands.forEach(x => { cnt[x.area] = (cnt[x.area]||0) + 1; });
+    // 待预约最多的需求名（按 pendingCount 降序，取前 3）
+    const topNames = pendDemands
+      .sort((a,b) => b.pendingCount - a.pendingCount)
+      .slice(0,3)
+      .map(x => x.story);
+    return { total:pendDemands.length, cnt, topNames };
+  })();
+  const deliveryDate = deliveryDayOf(ACTOR_STATE.release);
+  const workDaysLeft = workingDaysUntil(deliveryDate);
+  let deliveryHtml = '—';
+  if(deliveryDate && workDaysLeft !== null){
+    if(workDaysLeft > 0)      deliveryHtml = String(workDaysLeft);
+    else if(workDaysLeft === 0) deliveryHtml = '今天';
+    else                      deliveryHtml = String(-workDaysLeft) + '↓';
+  }
+  const banner = document.getElementById('riskBanner');
+  const title = document.getElementById('riskTitle');
+  const sub = document.getElementById('riskSub');
+  const stats = document.getElementById('riskStats');
+  const action = document.getElementById('riskAction'); // 已下线：筛选器里已有"未约"选项
+  if(banner && title && sub && stats){
+    if(ACTOR_STATE.vmode === 'demand'){
+      // ===== 需求视图：按 AREA 口径 =====
+      const ap = areaPendingStats;
+      if(ap.total > 0){
+        banner.classList.remove('calm');
+        // 预设顺序优先，数据里出现但不在预设内的 AREA 追加在后面（避免漏统计）
+        const extraAreas = Object.keys(ap.cnt).filter(a => AREA_ORDER.indexOf(a) < 0);
+        const areaTxt = AREA_ORDER.concat(extraAreas)
+          .filter(a => (ap.cnt[a]||0) > 0)
+          .map(a => `${a} ${ap.cnt[a]} 个`)
+          .join('，');
+        title.textContent = `风险预警 · ${ap.total} 个需求尚未出完整录制档期（${areaTxt}）`;
+        const nameTxt = ap.topNames.length
+          ? ap.topNames.map(n => escHtmlSafe(n)).join('、')
+          : '—';
+        sub.innerHTML = `${nameTxt} 需要音频尽快确认预约`;
+        if(action){ action.classList.remove('active'); action.textContent = '仅看未预约'; }
+      } else {
+        banner.classList.add('calm');
+        title.textContent = '全部需求档期已出齐';
+        sub.innerHTML = '当前版本所有需求的录制档期均已排期完成。';
+        if(action){ action.classList.add('active'); action.textContent = '✓ 全部完成'; }
+      }
+    } else if(pendingN > 0){
+      // ===== 声优视图：按语种口径 =====
+      banner.classList.remove('calm');
+      title.textContent = `${unalignedRoles} 位声优尚未预约档期（中配 ${cnPendingN} ，英配 ${enPendingN} ）`;
+      sub.innerHTML = '录制时间需要音频同学尽快确认';
+      if(action){ action.classList.remove('active'); action.textContent = '仅看未预约'; }
+    } else {
+      banner.classList.add('calm');
+      title.textContent = '全部声优档期已确认';
+      sub.innerHTML = `当前版本共 ${cnTotal+enTotal} 位应约的中英配档期均已排期完成。`;
+      if(action){ action.classList.add('active'); action.textContent = '✓ 全部完成'; }
+    }
+    stats.innerHTML = `
+      <div class="risk-stat"><div class="k">受影响需求</div><div class="v ${pendingN>0?'warn':'ok'}">${affectedDemands}<span class="unit">个</span></div></div>
+      <div class="risk-stat"><div class="k">距 VO 资源交付</div><div class="v">${deliveryHtml}<span class="unit">工作日</span></div></div>
+    `;
+  }
+  // 保留旧 actorStatStrip 兼容（如有其它地方引用，避免报错）
+  const oldStrip = document.getElementById('actorStatStrip');
+  if(oldStrip) oldStrip.innerHTML = '';
 
-  // 角色表
-  const empty = document.getElementById('actorEmpty');
-  const tbody = document.getElementById('actorTbody');
+  // 分发到两个视图
+  if(ACTOR_STATE.vmode === 'role')   renderActorRoleTable(list);
+  if(ACTOR_STATE.vmode === 'demand') renderActorDemandTable();
+  // 主表重渲染后恢复日历 focus 的高亮（保证筛选/搜索不打断联动）
+  if(typeof window.applyMidFocus === 'function'){
+    try{ window.applyMidFocus(); }catch(_){}
+  }
+
+  const actorTabHintEl = document.getElementById('actorTabHint');
+  if(actorTabHintEl) actorTabHintEl.textContent = pendingN ? `${pendingN} 未约` : '';
+}
+
+// 格式化档期时间：从 schedule 渲染 "9/08 14:00-18:00" 或 fallback "9/08 上午"
+function formatScheduleLabel(s){
+  if(!s) return '';
+  var d = s.date || '';
+  var md = '';
+  if(d){
+    var p = d.split('-');
+    if(p.length === 3) md = parseInt(p[1],10) + '/' + parseInt(p[2],10);
+    else md = d;
+  }
+  var st = s.start_time || '';
+  var et = s.end_time || '';
+  if(st && et) return { date: md, time: st + '-' + et };
+  if(s.slot) return { date: md, time: s.slot };
+  return { date: md, time: '' };
+}
+
+function renderActorRoleTable(filteredFlat){
+  // filteredFlat 是已应用 lang/status/search 后的 (lang, role) flat 列表
+  // 转化为按 role 合并
+  const all = aggregateByRole(ACTOR_STATE.demands, ACTOR_STATE.release);
+  const hitRoles = new Set((filteredFlat||[]).map(a => a.role));
+  const list = all.filter(g => hitRoles.has(g.role));
+
+  // lang 联动：只看某一语种时，隐藏对侧的列
+  const wrap = document.querySelector('#viewActors .actor-table-wrap-role') || document.getElementById('actorRoleTbody');
+  const tableEl = document.querySelector('#viewActors .actor-table-role');
+  if(tableEl){
+    tableEl.classList.toggle('lang-only-cn', ACTOR_STATE.lang === 'cn');
+    tableEl.classList.toggle('lang-only-en', ACTOR_STATE.lang === 'en');
+  }
+
+  const empty = document.getElementById('actorRoleEmpty');
+  const tbody = document.getElementById('actorRoleTbody');
   if(!list.length){
     tbody.innerHTML = '';
     empty.style.display = 'block';
@@ -695,39 +1676,363 @@ function renderActorRollup(){
     return;
   }
   empty.style.display = 'none';
-  tbody.innerHTML = list.map(a => {
-    const initial = (a.role || '?').charAt(0);
-    const covHtml = a.covers.map(c => `
-      <div class="actor-cov-item">
-        <span class="story">${escHtmlSafe(c.story)}</span>
-        <span class="est">${c.est}句</span>
-      </div>`).join('');
-    const statusLabel = a.status === 'booked' ? '已约' : '未约';
-    const statusIcon = a.status === 'booked' ? '✓' : '○';
-    // actor 名放 title tooltip；hasActor 决定是否显示黄色小灯
-    const actorTip = a.actor ? `${a.lang==='cn'?'中配':'英配'}演员：${a.actor}` : `${a.lang==='cn'?'中配':'英配'} · 待选角`;
-    return `
-      <tr title="${escAttr(actorTip)}">
-        <td><div class="actor-avatar ${a.lang}">${escHtmlSafe(initial)}</div></td>
-        <td><div class="actor-name">${escHtmlSafe(a.role)}</div>${a.actor ? '' : '<div style="font-size:10.5px;color:var(--c-warning);font-family:\'JetBrains Mono\',monospace;margin-top:2px">· 待选角</div>'}</td>
-        <td><span class="actor-tag-lang ${a.lang}">${a.lang==='cn'?'中配':'英配'}</span></td>
-        <td><div class="actor-coverage">${covHtml}</div></td>
-        <td><div class="actor-lines-total">${a.total}<span class="unit">句</span></div></td>
-        <td><span class="actor-status ${a.status}"><span class="dot"></span>${statusIcon} ${statusLabel}</span></td>
-        <td>
-          ${a.status==='pending'
-            ? `<button class="actor-btn" onclick="bookActor('${escAttr(a.role)}','${a.lang}')">预约档期</button>`
-            : `<button class="actor-btn secondary" onclick="switchScheduleView('sched')">查看档期</button>`}
+
+  // 按「所属大类」分组（CAT_ORDER 固定顺序，未知大类兜底排最后）
+  const byCat = new Map();
+  list.forEach(g => {
+    const cat = g.category || '未分类';
+    if(!byCat.has(cat)) byCat.set(cat, []);
+    byCat.get(cat).push(g);
+  });
+  const cats = [...byCat.keys()].sort((a,b) => {
+    const oa = CAT_ORDER[a] != null ? CAT_ORDER[a] : 99;
+    const ob = CAT_ORDER[b] != null ? CAT_ORDER[b] : 99;
+    if(oa !== ob) return oa - ob;
+    return a < b ? -1 : 1;
+  });
+
+  tbody.innerHTML = cats.map((cat, idx) => {
+    const roles = byCat.get(cat);
+    const pendingCnt = roles.filter(g => g.hasPending).length;
+    const bookedCnt = roles.length - pendingCnt;
+    const catEn = CAT_EN_MAP[cat] || cat;
+    const idxStr = String(idx+1).padStart(2, '0');
+    const countHtml = pendingCnt > 0
+      ? `<span class="cat-count"><span class="cur">${bookedCnt}</span> / ${roles.length} 完成 · <span class="warn">${pendingCnt}</span> 待预约</span>`
+      : `<span class="cat-count"><span class="cur">${roles.length}</span> / ${roles.length} 已完成</span>`;
+    const head = `
+      <tr class="role-cat-head">
+        <td colspan="4">
+          <div class="role-cat-title">
+            <span class="cat-idx">${idxStr}</span>
+            <span class="cat-name">${escHtmlSafe(catEn)}</span>
+            <span class="cat-name-cn">${escHtmlSafe(cat)}</span>
+            ${countHtml}
+          </div>
         </td>
       </tr>`;
+    const rows = roles.map(g => {
+      const initial = (g.role || '?').charAt(0);
+      const langClass = (g.cn ? 'cn' : (g.en ? 'en' : 'cn'));
+      const cnCard = renderRoleSchedCard(g.cn, 'cn');
+      const enCard = renderRoleSchedCard(g.en, 'en');
+      const statusBadge = g.hasPending
+        ? `<span class="role-status warn"><span class="dot"></span>待 ${g.cn && g.cn.status==='pending' && g.en && g.en.status==='pending' ? '中+英' : (g.cn && g.cn.status==='pending' ? '中' : '英')} 配</span>`
+        : `<span class="role-status ok"><span class="dot"></span>已完成</span>`;
+      return `
+        <tr class="row-${g.hasPending?'pending':'booked'}">
+          <td class="role-cell">
+            <div class="role-avatar ${langClass}">${escHtmlSafe(initial)}</div>
+            <div class="role-name">${escHtmlSafe(g.role)}</div>
+          </td>
+          <td class="col-cn">${cnCard}</td>
+          <td class="col-en">${enCard}</td>
+          <td class="col-action">
+            ${statusBadge}
+          </td>
+        </tr>`;
+    }).join('');
+    return head + rows;
   }).join('');
-  // tab hint = 未约角色数
-  const pendingN = all.filter(a=>a.status==='pending').length;
-  const actorTabHintEl = document.getElementById('actorTabHint');
-  if(actorTabHintEl) actorTabHintEl.textContent = pendingN ? `${pendingN} 未约` : '';
+}
+
+// 档期卡 v4 · 方案 C 横排压缩：
+//   单档 → 大字完整时间「9/11 10:00-14:00」
+//   多档 → 序列条「● 9/11 10-14   ● 9/22 14-17」+ 底部一行「据点攻防（+2 场）」
+function renderRoleSchedCard(item, lang){
+  const schedules = (item && Array.isArray(item.schedules) && item.schedules.length) ? item.schedules : (item && item.schedule ? [item.schedule] : []);
+  const covers = item && Array.isArray(item.covers) ? item.covers : [];
+  const storyNames = [...new Set(covers.map(c => (c.story||'').trim()).filter(Boolean))].slice(0,2).join(' · ');
+  // "已过"判定：日期 < 今天（不含今天）
+  const _today = new Date(); _today.setHours(0,0,0,0);
+  function _isPast(s){
+    const d = s && s.date ? new Date(String(s.date)) : null;
+    if(!d || isNaN(d)) return false;
+    d.setHours(0,0,0,0);
+    return d < _today;
+  }
+
+  if(item && item.status === 'booked' && schedules.length){
+    if(schedules.length === 1){
+      const lab = formatScheduleLabel(schedules[0]);
+      const pastCls = _isPast(schedules[0]) ? ' past' : '';
+      const storyLine = storyNames ? `<span class="sc-story">${escHtml(storyNames)}</span>` : '';
+      // data-ymd：供日历 / 即将录制 focus 时反向定位到主表这一格
+      const ymdAttr = schedules[0] && schedules[0].date ? ` data-ymd="${escHtml(String(schedules[0].date).slice(0,10))}"` : '';
+      return `<div class="sched-card booked-${lang}${pastCls}"${ymdAttr}>
+        <span class="sc-time">${escHtml(lab.date||'')}${lab.time?` ${escHtml(lab.time)}`:''}</span>
+        ${storyLine}
+      </div>`;
+    }
+    // 多档 → 横排展示：完整时间 · 每档带小圆点（每档独立判定 past）
+    const pills = schedules.map(s => {
+      const lab = formatScheduleLabel(s);
+      const timeStr = lab.time || '';
+      const pastCls = _isPast(s) ? ' past' : '';
+      const pillYmd = s && s.date ? ` data-ymd="${escHtml(String(s.date).slice(0,10))}"` : '';
+      return `<span class="sc-pill${pastCls}"${pillYmd}><span class="sc-pill-dot"></span><span class="sc-pill-date">${escHtml(lab.date||'')}</span><span class="sc-pill-time">${escHtml(timeStr)}</span></span>`;
+    }).join('');
+    // 若所有档期都已过，卡片整体加 past
+    const allPast = schedules.every(_isPast);
+    const tail = storyNames ? `<span class="sc-story">${escHtml(storyNames)} <span class="sc-more">· 共 ${schedules.length} 场</span></span>` : `<span class="sc-story"><span class="sc-more">共 ${schedules.length} 场</span></span>`;
+    return `<div class="sched-card booked-${lang} multi${allPast?' past':''}">
+      <span class="sc-pills">${pills}</span>
+      ${tail}
+    </div>`;
+  }
+  const storyLine = storyNames ? `<span class="sc-story">${escHtml(storyNames)}</span>` : '';
+  return `<div class="sched-card pending">
+    <span class="sc-empty">待预约</span>
+    ${storyLine}
+  </div>`;
+}
+
+function renderSchedCell(item, lang){
+  if(item && item.status === 'booked' && item.schedule){
+    const lab = formatScheduleLabel(item.schedule);
+    return `<div class="sched-cell"><span class="sched-pill ${lang}"><span class="date">${escHtml(lab.date||'')}</span>${lab.time?`<span class="sep">·</span><span class="time">${escHtml(lab.time)}</span>`:''}</span>${item.actor?`<span class="sched-note">演员：${escHtml(item.actor)}</span>`:''}</div>`;
+  }
+  if(item && item.status === 'booked'){
+    return `<div class="sched-cell"><span class="sched-pill ${lang}"><span class="time">✓ 已约 · 演员 ${escHtml(item.actor||'—')}</span></span></div>`;
+  }
+  return `<div class="sched-cell empty"><span class="pending-tag">待预约</span></div>`;
+}
+
+/* AREA → 英文军事代号（Tactical Dossier 分节头的第二行小字） */
+const AREA_CODENAME = {
+  'SOL':    'SOLO OPS',
+  '大战场':  'WARFARE',
+  '系统':    'SYSTEM CORE',
+  '商业化':  'COMMERCE',
+  '干员':    'OPERATOR',
+  '未分类':  'UNCLASSIFIED'
+};
+
+function renderActorDemandTable(){
+  const all = aggregateByDemand(ACTOR_STATE.demands, ACTOR_STATE.release);
+  // 筛选：搜索框作用于 story/role/actor；需求视图额外按 AREA 筛
+  const q = (document.getElementById('actorSearch').value || '').trim().toLowerCase();
+  const list = all.filter(r => {
+    if(ACTOR_STATE.lang !== 'all' && r.lang !== ACTOR_STATE.lang) return false;
+    if(ACTOR_STATE.status !== 'all' && r.status !== ACTOR_STATE.status) return false;
+    if(ACTOR_STATE.area && ACTOR_STATE.area !== 'all' && (r.area||'未分类') !== ACTOR_STATE.area) return false;
+    if(q){
+      const hay = (r.story + ' ' + r.role + ' ' + r.actor).toLowerCase();
+      if(hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+
+  const empty = document.getElementById('actorDemandEmpty');
+  const grid = document.getElementById('actorDemandTbody');
+  if(!list.length){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    empty.innerHTML = ACTOR_STATE.demands.length === 0
+      ? '⏳ 数据加载中或当前 release 无声优预估。<br/>先到「需求汇总」页点表头「声优预估 ↻」同步。'
+      : `当前筛选下无匹配需求（release=${ACTOR_STATE.release}）。`;
+    return;
+  }
+  empty.style.display = 'none';
+
+  // ① 按需求 ID + story 分组（保留 AREA）
+  const groups = new Map();
+  list.forEach(r => {
+    const key = (r.demandId||'—') + '|' + (r.story||'');
+    if(!groups.has(key)) groups.set(key, { demandId: r.demandId, story: r.story, area: r.area || '未分类', rows: [], pendingCount: 0 });
+    const g = groups.get(key);
+    g.rows.push(r);
+    if(r.status === 'pending') g.pendingCount++;
+  });
+
+  // ② 按 AREA 分组（有未约的 AREA 排前，其余按名称）
+  const areaMap = new Map();
+  [...groups.values()].forEach(g => {
+    if(!areaMap.has(g.area)) areaMap.set(g.area, []);
+    areaMap.get(g.area).push(g);
+  });
+  const areas = [...areaMap.keys()].sort((a,b) => {
+    const pa = areaMap.get(a).some(g => g.pendingCount > 0) ? 0 : 1;
+    const pb = areaMap.get(b).some(g => g.pendingCount > 0) ? 0 : 1;
+    if(pa !== pb) return pa - pb;
+    return a < b ? -1 : 1;
+  });
+
+  // 档期文案：已约 → "M/D HH:MM-HH:MM"；未约 → 空（由调用方渲染"待预约"）
+  const schedTxt = r => {
+    if(!r || r.status !== 'booked' || !r.schedule) return '';
+    const lab = formatScheduleLabel(r.schedule);
+    if(!lab) return '';
+    return (lab.date||'') + (lab.time ? ' ' + lab.time : '');
+  };
+
+  const renderCard = g => {
+    const hasPending = g.pendingCount > 0;
+    const estTotal = g.rows.reduce((s,r)=>s+r.est,0);
+    const cnCnt = g.rows.filter(r=>r.lang==='cn').length;
+    const enCnt = g.rows.filter(r=>r.lang==='en').length;
+    // ★ 按角色聚合：一个角色一块，块内并列中配 / 英配档期（待预约的角色排前）
+    const roleMap = new Map();
+    g.rows.forEach(r => {
+      const rk = (r.role || '—');
+      if(!roleMap.has(rk)) roleMap.set(rk, { role:rk, actor:r.actor, cn:null, en:null, pend:0 });
+      const e = roleMap.get(rk);
+      if(r.lang === 'cn') e.cn = r; else e.en = r;
+      if(r.status === 'pending') e.pend++;
+    });
+    const roles = [...roleMap.values()].sort((a,b) => b.pend - a.pend);
+    return `
+      <div class="dcard ${hasPending?'has-pending':''}">
+        <div class="dcard-head">
+          <div class="dcard-headline">
+            <div class="dcard-name">${escHtmlSafe(g.story||'—')}</div>
+            <div class="dcard-id">DEMAND #${escHtmlSafe(g.demandId||'—')}</div>
+          </div>
+          <div class="dcard-pending ${hasPending?'':'ok'}">${hasPending ? `${g.pendingCount} 位演员待预约` : '✓ 已完成'}</div>
+        </div>
+        <div class="dcard-roles">
+          ${roles.map(e => {
+            const cnTxt = schedTxt(e.cn), enTxt = schedTxt(e.en);
+            const cnPend = e.cn && e.cn.status !== 'booked';
+            const enPend = e.en && e.en.status !== 'booked';
+            return `
+              <div class="role-chip ${e.pend?'is-pending':''}">
+                <div class="rc-name" title="${escHtmlSafe(e.role)}">${escHtmlSafe(e.role)}</div>
+                <div class="rc-scheds">
+                  <div class="rc-line ${cnPend?'pend':''}">
+                    <span class="rc-lang cn">中</span>
+                    <span class="rc-time">${cnTxt ? escHtmlSafe(cnTxt) : (e.cn ? '待预约' : '—')}</span>
+                  </div>
+                  <div class="rc-line ${enPend?'pend':''}">
+                    <span class="rc-lang en">英</span>
+                    <span class="rc-time">${enTxt ? escHtmlSafe(enTxt) : (e.en ? '待预约' : '—')}</span>
+                  </div>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+        <div class="dcard-foot">
+          <span>角色 <span>${roles.length}</span> 位 · 句数 <span>${estTotal}</span></span>
+          <span>${cnCnt} 中配 · ${enCnt} 英配</span>
+        </div>
+      </div>`;
+  };
+
+  grid.innerHTML = areas.map((area, ai) => {
+    const demands = areaMap.get(area);
+    // AREA 内：未约需求排前
+    demands.sort((a,b) => {
+      if((a.pendingCount>0) !== (b.pendingCount>0)) return a.pendingCount>0 ? -1 : 1;
+      return a.story < b.story ? -1 : 1;
+    });
+    const areaPending = demands.reduce((s,g)=>s+g.pendingCount,0);
+    // 完成度 = 该 AREA 下已排期的档期数 / 总档期数
+    const allSlots  = demands.reduce((s,g)=>s+g.rows.length, 0);
+    const doneSlots = demands.reduce((s,g)=>s+g.rows.filter(r=>r.status==='booked').length, 0);
+    const pct  = allSlots ? Math.round(doneSlots / allSlots * 100) : 0;
+    const cls  = areaPending > 0 ? 'has-pending' : 'is-done';
+    const code = AREA_CODENAME[area] || 'UNCLASSIFIED';
+    return `
+      <div class="area-section ${cls}">
+        <div class="area-head">
+          <span class="area-idx">${String(ai+1).padStart(2,'0')}</span>
+          <div class="area-idblock">
+            <div class="area-title">
+              <span class="area-name">${escHtmlSafe(area)}</span>
+              <span class="area-codename">${code}</span>
+            </div>
+          </div>
+          <div class="area-stat">
+            <span class="area-count"><b>${demands.length}</b> 需求 · ${allSlots} 档期${areaPending ? ` · <span class="pend">${areaPending} 待预约</span>` : ' · 已出齐'}</span>
+            <span class="area-bar" title="档期完成度 ${pct}%（${doneSlots}/${allSlots}）"><i style="width:${pct}%"></i></span>
+          </div>
+        </div>
+        <div class="demand-cards">${demands.map(renderCard).join('')}</div>
+      </div>`;
+  }).join('');
+}
+
+function setActorView(mode, btn){
+  ACTOR_STATE.vmode = (mode==='demand') ? 'demand' : 'role';
+  document.querySelectorAll('.view-tabs [data-vmode]').forEach(b => b.classList.toggle('on', b.dataset.vmode === ACTOR_STATE.vmode));
+  renderFilterBar();
+  renderActorRollup();
+}
+
+// 当前版本 → 声优锁日期（简版映射；后续可从 /api/version-nodes 取 estimateDay 替换）
+function estimateDayOf(release){
+  const map = {
+    'Ma4':   new Date('2026-08-13'),
+    'Ma5':   new Date('2026-07-30'),
+    'Yang1': new Date('2026-10-28'),
+    'Yang2': new Date('2026-12-17'),
+    'Yang3': new Date('2027-02-25')
+  };
+  return map[String(release||'').trim()] || null;
+}
+// VO 资源交付日（开发倒数第 2 周周五；无效周前推）。当前硬编码各版本，后续可从 /api/version-nodes 取 delivery_day。
+function deliveryDayOf(release){
+  const map = {
+    'Ma4':   new Date('2026-08-21'),
+    'Ma5':   new Date('2026-09-11'),
+    'Yang1': new Date('2026-11-06'),
+    'Yang2': new Date('2026-12-19'),
+    'Yang3': new Date('2027-02-27')
+  };
+  return map[String(release||'').trim()] || null;
+}
+// 工作日计算：跳过周末 + 国内法定节假日 + 海外圣诞周（12.25 - 次年 1.3）
+// ★ 自包含 HOLIDAY_RANGES（不依赖 IIFE 内的 HOLIDAYS）：每项 [startYMD, endYMD]
+var HOLIDAY_RANGES_WD = [
+  ['2026-01-01','2026-01-03'], // 元旦
+  ['2026-02-15','2026-02-23'], // 春节
+  ['2026-04-04','2026-04-06'], // 清明
+  ['2026-05-01','2026-05-05'], // 劳动节
+  ['2026-06-19','2026-06-21'], // 端午
+  ['2026-09-25','2026-09-27'], // 中秋
+  ['2026-10-01','2026-10-07'], // 国庆
+  ['2027-01-01','2027-01-03'], // 元旦
+  ['2027-02-05','2027-02-13']  // 春节
+];
+function isHolidayOrWeekend(day){
+  const dow = day.getDay();
+  if(dow === 0 || dow === 6) return true; // 周末
+  const m = day.getMonth();
+  const d = day.getDate();
+  const y = day.getFullYear();
+  // 国内法定假区间命中
+  const ymd = y + '-' + (m+1<10?'0':'') + (m+1) + '-' + (d<10?'0':'') + d;
+  for(let i=0;i<HOLIDAY_RANGES_WD.length;i++){
+    const r = HOLIDAY_RANGES_WD[i];
+    if(ymd >= r[0] && ymd <= r[1]) return true;
+  }
+  // 海外圣诞周：当年 12.25-31 + 次年 1.1-3
+  if(m === 11 && d >= 25) return true;
+  if(m === 0 && d >= 1 && d <= 3) return true;
+  return false;
+}
+// 从 today 到 targetDate 之间的工作日数（不含起点，含终点）
+function workingDaysUntil(targetDate){
+  if(!targetDate) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const oneDay = 86400000;
+  let n = 0;
+  for(let t = today.getTime() + oneDay; t <= targetDate.getTime(); t += oneDay){
+    if(isHolidayOrWeekend(new Date(t))) continue;
+    n++;
+  }
+  return n;
+}
+// 占位：未约角色点击"查看档期"时打开档期草稿（后续可跳到 sched 视图 + 预填该角色）
+function openScheduleForRole(role, lang){
+  try{ localStorage.setItem('vo_actor_prefill', JSON.stringify({role, lang, release: ACTOR_STATE.release, ts: Date.now()})); }catch(_){}
+  var det = document.getElementById('viewSched');
+  if(det && det.tagName === 'DETAILS'){ det.open = true; det.scrollIntoView({behavior:'smooth', block:'start'}); }
+  if(typeof toast==='function') toast('已展开档期草稿 · 角色：' + role);
 }
 
 function escHtmlSafe(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escHtml(s){ return escHtmlSafe(s); }
 function escAttr(s){ return String(s==null?'':s).replace(/['"\\]/g, '\\$&'); }
 
 // 预约档期：跳到 sched 视图并预填角色（把 role 塞进 localStorage 作提示，档期草稿 wizard 可读取）
@@ -746,6 +2051,28 @@ function bookActor(role, lang){
 (function(){
   var LS='vo_schedule_drafts_v2', LEGACY_LS='vo_schedule_v1', CLARIFY='vo_clarify_v1', RATE_DEFAULT=25;
   var PUBLISHED_ROWS=[];
+  // 预览用虚拟数据（用户确认后删除）：仅在本地草稿为空时注入，不写后端。
+  function pickMockDemandId(idx){
+    var pool = (DEMAND_OPTIONS||[]).filter(function(d){ return schedReleaseMatch(d.release_plan||''); });
+    if(!pool.length) pool = (DEMAND_OPTIONS||[]);
+    var hit = pool[idx % Math.max(pool.length,1)];
+    return hit ? String(hit.id) : ('99'+String(idx+1).padStart(3,'0'));
+  }
+  function buildMockDraftRows(){
+    var cur = String(SCHED_STATE.currentRelease || detectCurrentReleaseFromDemands() || 'Yang1').trim() || 'Yang1';
+    var arc = cur === 'Ma4' ? 'Yang1' : 'Ma4';
+    return [
+      {id:'mock_s1',plan:cur,demandId:pickMockDemandId(0),vaType:'cn',lines:148,estHours:1.9,studio:'待定',date:'2026-09-02',slot:'上午',status:'draft',role_cn:'牧羊人',role:'牧羊人'},
+      {id:'mock_s2',plan:cur,demandId:pickMockDemandId(1),vaType:'en',lines:132,estHours:1.7,studio:'待定',date:'2026-09-03',slot:'下午',status:'draft',role_cn:'牧羊人',role_en:'牧羊人（英）',role:'牧羊人（英）'},
+      {id:'mock_s3',plan:cur,demandId:pickMockDemandId(2),vaType:'cn',lines:96,estHours:1.2,studio:'待定',date:'2026-09-04',slot:'晚间',status:'confirmed',role_cn:'红狼',role:'红狼'},
+      {id:'mock_s4',plan:cur,demandId:pickMockDemandId(3),vaType:'en',lines:84,estHours:1.1,studio:'待定',date:'2026-09-05',slot:'上午',status:'draft',role_cn:'红狼',role_en:'红狼（英）',role:'红狼（英）'},
+      {id:'mock_s5',plan:arc,demandId:pickMockDemandId(4),vaType:'cn',lines:112,estHours:1.4,studio:'待定',date:'2026-08-26',slot:'下午',status:'done',role_cn:'蜂医',role:'蜂医'},
+      {id:'mock_s6',plan:arc,demandId:pickMockDemandId(5),vaType:'en',lines:73,estHours:0.9,studio:'待定',date:'2026-08-27',slot:'晚间',status:'confirmed',role_cn:'蜂医',role_en:'蜂医（英）',role:'蜂医（英）'}
+    ];
+  }
+  function isMockRows(rows){
+    return Array.isArray(rows) && rows.length>0 && rows.every(function(r){ return String(r.id||'').indexOf('mock_s')===0; });
+  }
   // ===== KV 云备份：revision乐观锁，冲突时保留本地草稿并提示 =====
   var KV_REV={};
   function kvPush(key){
@@ -770,19 +2097,36 @@ function bookActor(role, lang){
   }
   function loadSched(){
     try{
+      if(window.FORCE_SCHED_MOCK) return buildMockDraftRows();
       var current=localStorage.getItem(LS);
-      if(current) return JSON.parse(current)||[];
+      if(current){
+        var curRows = JSON.parse(current)||[];
+        // 预览模式：若本地草稿存在但为空数组，也回退到虚拟数据，便于看版式。
+        if(Array.isArray(curRows) && curRows.length) return curRows;
+        return buildMockDraftRows();
+      }
       var legacy=JSON.parse(localStorage.getItem(LEGACY_LS)||'[]')||[];
-      if(legacy.length){ localStorage.setItem(LS,JSON.stringify(legacy)); localStorage.removeItem(LEGACY_LS); }
-      return legacy;
-    }catch(e){return[]}
+      if(legacy.length){ localStorage.setItem(LS,JSON.stringify(legacy)); localStorage.removeItem(LEGACY_LS); return legacy; }
+      return buildMockDraftRows();
+    }catch(e){return buildMockDraftRows();}
   }
   // 草稿只存在本机，不再写KV；只有显式发布后才进入recording_schedules。
   function saveSched(a){ try{localStorage.setItem(LS,JSON.stringify(a));return true;}catch(e){toast('草稿保存失败：本地存储不可用',true);return false;} }
   function loadPublishedSchedules(){
     return fetch('/api/schedules',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
-      .then(function(rows){PUBLISHED_ROWS=Array.isArray(rows)?rows:[];window.PUBLISHED_SCHEDULES=PUBLISHED_ROWS;renderSched();if(typeof renderActorRollup==='function')renderActorRollup();return PUBLISHED_ROWS;})
-      .catch(function(e){toast('正式档期读取失败：'+e.message,true);return[];});
+      .then(function(rows){
+        var arr = Array.isArray(rows)?rows:[];
+        // 虚拟数据兜底：file:// 直开或后端不可用时注入验收样例
+        if(!arr.length) arr = buildMockSchedules();
+        PUBLISHED_ROWS=arr;window.PUBLISHED_SCHEDULES=PUBLISHED_ROWS;
+        renderSched();if(typeof renderActorRollup==='function')renderActorRollup();
+        return PUBLISHED_ROWS;
+      })
+      .catch(function(e){
+        PUBLISHED_ROWS = buildMockSchedules();window.PUBLISHED_SCHEDULES=PUBLISHED_ROWS;
+        if(typeof renderActorRollup==='function')renderActorRollup();
+        return PUBLISHED_ROWS;
+      });
   }
   function loadClarify(){ try{return JSON.parse(localStorage.getItem(CLARIFY))||{}}catch(e){return{}} }
   var DEMAND_OPTIONS=[];
@@ -815,6 +2159,48 @@ function bookActor(role, lang){
   }
   function monthStart(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
   function addMonth(base,delta){ return new Date(base.getFullYear(), base.getMonth()+delta, 1); }
+  // 节假日真源：与「版本节点页」完全一致（国务院正式放假区间 + 海外圣诞 12/25）。
+  // 结构 { region, year, tag, label, start:'YYYY/M/D', end:'YYYY/M/D' }；按区间命中整段假期。
+  var HOLIDAYS = [
+    { region:'CN', year:2026, tag:'元旦', label:'元旦',   start:'2026/1/1',  end:'2026/1/3' },
+    { region:'CN', year:2026, tag:'春节', label:'春节',   start:'2026/2/15', end:'2026/2/23' },
+    { region:'CN', year:2026, tag:'清明', label:'清明节', start:'2026/4/4',  end:'2026/4/6' },
+    { region:'CN', year:2026, tag:'劳动', label:'劳动节', start:'2026/5/1',  end:'2026/5/5' },
+    { region:'CN', year:2026, tag:'端午', label:'端午节', start:'2026/6/19', end:'2026/6/21' },
+    { region:'CN', year:2026, tag:'中秋', label:'中秋节', start:'2026/9/25', end:'2026/9/27' },
+    { region:'CN', year:2026, tag:'国庆', label:'国庆节', start:'2026/10/1', end:'2026/10/7' },
+    { region:'CN', year:2027, tag:'元旦', label:'元旦',   start:'2027/1/1',  end:'2027/1/3' },
+    { region:'CN', year:2027, tag:'春节', label:'春节',   start:'2027/2/5',  end:'2027/2/13' },
+    { region:'CN', year:2027, tag:'清明', label:'清明节', start:'2027/4/5',  end:'2027/4/7' },
+    { region:'CN', year:2027, tag:'劳动', label:'劳动节', start:'2027/5/1',  end:'2027/5/5' },
+    { region:'CN', year:2027, tag:'端午', label:'端午节', start:'2027/5/28', end:'2027/5/30' },
+    { region:'CN', year:2027, tag:'中秋', label:'中秋节', start:'2027/9/20', end:'2027/9/22' },
+    { region:'CN', year:2027, tag:'国庆', label:'国庆节', start:'2027/10/1', end:'2027/10/7' },
+    { region:'CN', year:2028, tag:'元旦', label:'元旦',   start:'2028/1/1',  end:'2028/1/3' },
+    { region:'CN', year:2028, tag:'春节', label:'春节',   start:'2028/1/25', end:'2028/2/1' },
+    { region:'CN', year:2028, tag:'清明', label:'清明节', start:'2028/4/4',  end:'2028/4/6' },
+    { region:'CN', year:2028, tag:'劳动', label:'劳动节', start:'2028/5/1',  end:'2028/5/5' },
+    { region:'CN', year:2028, tag:'端午', label:'端午节', start:'2028/6/19', end:'2028/6/21' },
+    { region:'CN', year:2028, tag:'中秋', label:'中秋节', start:'2028/9/14', end:'2028/9/16' },
+    { region:'CN', year:2028, tag:'国庆', label:'国庆节', start:'2028/10/1', end:'2028/10/7' },
+    { region:'XMAS', year:2025, tag:'圣诞', label:'圣诞节', start:'2025/12/25', end:'2025/12/25' },
+    { region:'XMAS', year:2026, tag:'圣诞', label:'圣诞节', start:'2026/12/25', end:'2026/12/25' },
+    { region:'XMAS', year:2027, tag:'圣诞', label:'圣诞节', start:'2027/12/25', end:'2027/12/25' },
+    { region:'XMAS', year:2028, tag:'圣诞', label:'圣诞节', start:'2028/12/25', end:'2028/12/25' },
+    { region:'XMAS', year:2029, tag:'圣诞', label:'圣诞节', start:'2029/12/25', end:'2029/12/25' }
+  ];
+  function parseHDate(s){ var p=String(s).split('/'); return new Date(+p[0], (+p[1])-1, +p[2]); }
+  function holidayInfo(y, m, d){
+    var dt = new Date(y, m, d).getTime();
+    for(var i=0;i<HOLIDAYS.length;i++){
+      var h = HOLIDAYS[i];
+      var s = parseHDate(h.start).getTime(), e = parseHDate(h.end).getTime();
+      if(dt >= s && dt <= e){
+        return { tag: h.tag, label: (h.region==='XMAS' ? '海外 · ' : '国内 · ') + h.label };
+      }
+    }
+    return null;
+  }
   function demandNameFromId(id){
     var sid=String(id||'').trim(); if(!sid) return '';
     var hit=(DEMAND_OPTIONS||[]).find(function(d){ return String(d.id)===sid; });
@@ -824,6 +2210,9 @@ function bookActor(role, lang){
     function pickRole(r, lang){
       if(!r) return '';
       if(Array.isArray(r.roles) && r.roles.length) return String(r.roles.join(' / '));
+      // 显示规则：即便语种是英配，主体也展示中文游戏角色名，避免英文名出现在全部 UI 上。
+      var base = r.role_cn || r.role || r.character || r.game_role || '';
+      if(lang==='en' && base) return base + '（英）';
       if(lang==='en' && r.role_en) return String(r.role_en);
       if(lang==='cn' && r.role_cn) return String(r.role_cn);
       return String(r.role||r.character||r.game_role||'');
@@ -833,6 +2222,8 @@ function bookActor(role, lang){
       var lg = normLang(r.vaType||r.language||r.lang||r.voice_type);
       out.push({
         date:r.date||'', slot:r.slot||'', studio:r.studio||'',
+        start_time:r.start_time||r.startTime||'',
+        end_time:r.end_time||r.endTime||'',
         lang:lg,
         demandId:r.demandId||r.demand_id||'',
         plan:r.plan||r.release_plan||'',
@@ -845,6 +2236,8 @@ function bookActor(role, lang){
       var lg = normLang(r.language||r.lang||r.vaType||r.va_type||r.voice_type);
       out.push({
         date:r.record_date||r.date||'', slot:r.time_slot||r.slot||'', studio:r.studio||'',
+        start_time:r.start_time||r.startTime||'',
+        end_time:r.end_time||r.endTime||'',
         lang:lg,
         demandId:did,
         plan:r.release_plan||r.plan||'',
@@ -854,7 +2247,7 @@ function bookActor(role, lang){
     });
     var seen={};
     return out.filter(function(r){
-      var k=[r.date,r.slot,r.lang,r.demandId,r.plan,r.role,r.title].join('|');
+      var k=[r.date,r.slot,r.start_time,r.end_time,r.lang,r.demandId,r.plan,r.role,r.title].join('|');
       if(seen[k]) return false;
       seen[k]=1; return true;
     });
@@ -867,12 +2260,51 @@ function bookActor(role, lang){
   window.shiftMidMonth=function(delta){
     var n=Number(delta||0); if(!n) return;
     MID_STATE.monthAnchor=addMonth(MID_STATE.monthAnchor||monthStart(new Date()), n);
-    renderSched();
+    // 翻月后 focus 的日期很可能不在视野内 → 清除高亮，避免主表被"看不见的日期"锁住
+    MID_FOCUS_YMD = null;
+    renderMidPanel();
   };
+  function buildMidPanelMockRows(){
+    var cur = String(SCHED_STATE.currentRelease || detectCurrentReleaseFromDemands() || 'Yang1').trim() || 'Yang1';
+    // 从 buildMockSchedules 单一数据源派生，避免两份 mock 不一致
+    var scheds = (typeof buildMockSchedules === 'function') ? buildMockSchedules() : [];
+    // role → 所属需求名（取首个包含该角色的需求）
+    var roleDemand = {};
+    (ACTOR_STATE.demands||[]).forEach(function(d){
+      var ves = d.voice_estimates;
+      if(typeof ves === 'string'){ try{ ves = JSON.parse(ves); }catch(_){ ves = []; } }
+      (ves||[]).forEach(function(v){
+        var r = String(v.role||'').trim();
+        if(r && !roleDemand[r]) roleDemand[r] = String(d.task_name||'').trim() || ('需求 '+(d.id||''));
+      });
+    });
+    return scheds.map(function(s){
+      var isEn = !!String(s.role_en||'').trim();
+      var role = String(isEn ? s.role_en : s.role_cn || '').trim();
+      return {
+        date: s.date||'',
+        slot: s.slot||'',
+        start_time: s.start_time||'',
+        end_time: s.end_time||'',
+        lang: s.lang || (isEn?'en':'cn'),
+        role: isEn ? (role+'（英）') : role,
+        demandId: '',
+        plan: cur,
+        title: roleDemand[role] || '需求语音'
+      };
+    }).filter(function(r){ return !!parseYMD(r.date); });
+  }
+  function withMidPanelFallback(rows){
+    var list = Array.isArray(rows) ? rows.slice() : [];
+    var hasDated = list.some(function(r){ return !!parseYMD(r.date); });
+    // 用户要求：中间栏也要有临时测试数据。只要缺少有效排期，就回退到可视化样例。
+    return (list.length && hasDated) ? list : buildMidPanelMockRows();
+  }
   function renderMidPanel(rows){
-    renderMidProgress(rows||[]);
-    renderMidCalendar(rows||[]);
-    renderMidUpcoming(rows||[]);
+    var safeRows = withMidPanelFallback(rows||[]);
+    renderMidProgress(safeRows);
+    renderMidCalendar(safeRows);
+    renderMidUpcoming(safeRows);
   }
   function renderMidProgress(rows){
     var box=document.getElementById('mpProgress'); if(!box) return;
@@ -884,15 +2316,20 @@ function bookActor(role, lang){
     });
     var allT=cnT+enT, allD=cnD+enD;
     if(!allT){ box.innerHTML='<div class="mp-empty">暂无可展示的录制数据</div>'; return; }
-    function row(label, done, total, cls){
+    function row(label, done, total, cls, extra, pill){
       var pct=total?Math.max(0,Math.min(100,Math.round(done*100/total))):0;
-      return '<div class="mp-pr-row">'
-        +'<div class="mp-pr-label">'+label+'</div>'
+      var curLang = (window.ACTOR_STATE && window.ACTOR_STATE.lang) || 'all';
+      var onCls = (pill === curLang) ? ' on' : '';
+      return '<div class="mp-pr-row'+(extra?' '+extra:'')+'">'
+        +'<button class="mp-pr-label'+onCls+'" data-lang-pill="'+pill+'" onclick="setActorLangFromPanel(\''+pill+'\',this)" type="button">'+label+'</button>'
         +'<div class="mp-pr-bar"><div class="mp-pr-fill '+cls+'" style="width:'+pct+'%"></div></div>'
-        +'<div class="mp-pr-val">'+done+'/'+total+'</div>'
+        +'<div class="mp-pr-val">'+done+' / '+total+'</div>'
       +'</div>';
     }
-    box.innerHTML = row('中配',cnD,cnT,'cn') + row('英配',enD,enT,'en') + row('总计',allD,allT,'all');
+    box.innerHTML = row('中配',cnD,cnT,'cn','','cn')
+                  + row('英配',enD,enT,'en','','en')
+                  + row('总计',allD,allT,'all','total','all')
+                  + '<div class="mp-pr-legend">已预约场次 / 预估录制次数</div>';
   }
   function renderMidCalendar(rows){
     var title=document.getElementById('mpCalTitle'), grid=document.getElementById('mpCalendarGrid');
@@ -920,39 +2357,218 @@ function bookActor(role, lang){
       if(mk.cn&&mk.en) cls+=' both';
       else if(mk.cn) cls+=' cn';
       else if(mk.en) cls+=' en';
+      var holi = holidayInfo(base.getFullYear(), base.getMonth(), d);
+      if(holi) cls += ' holiday';
       var tt=(mk.cn||mk.en)?(' title="中配 '+mk.cn+' / 英配 '+mk.en+'"'):'';
-      html+='<div class="'+cls+'"'+tt+'>'+d+'</div>';
+      if(holi) tt += (tt?' · ':' title="') + holi.label;
+      var inner = '<span class="d-num">'+d+'</span>' + (holi?('<span class="d-tag">'+holi.tag+'</span>'):'');
+      var hasBooking = (mk.cn||mk.en);
+      var ymd = base.getFullYear()+'-'+String(base.getMonth()+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      var attr = hasBooking ? (' data-ymd="'+ymd+'"') : '';
+      html+='<div class="'+cls+'"'+tt+attr+'>'+inner+'</div>';
     }
     grid.innerHTML=html;
+    applyMidFocus();
   }
+  // ★ 即将录制：展示列表跟随日历当前月份，最多 5 条
+  function currentMonthNum(){
+    var a = MID_STATE.monthAnchor || monthStart(new Date());
+    return { y:a.getFullYear(), m:a.getMonth() };
+  }
+  function upcomingDisplayList(){
+    var all = window.__MID_UPCOMING_ROWS || [];
+    var cm = currentMonthNum();
+    // 只保留当前日历月内的条目（跨月不串台）
+    var inMonth = all.filter(function(it){
+      return it.date.getFullYear()===cm.y && it.date.getMonth()===cm.m;
+    });
+    return inMonth.slice(0,5);
+  }
+  function upcomingEmptyText(){
+    var cm = currentMonthNum();
+    return (cm.m+1)+'月暂无待录制安排';
+  }
+  function updateUpcomingTitle(){
+    var el = document.getElementById('mpUpcomingTitle');
+    if(!el) return;
+    var cm = currentMonthNum();
+    el.textContent = (cm.m+1)+'月 · 即将录制';
+  }
+
   function renderMidUpcoming(rows){
     var box=document.getElementById('mpUpcoming'); if(!box) return;
     var list=(rows||[]).map(function(r){
       var d=parseYMD(r.date); if(!d) return null;
       var lg=(r.lang==='en'?'en':'cn');
+      // 优先用 HH:MM-HH:MM 精确时间；缺失时才回退到"上午/下午/晚"这种时段模糊值
+      var st=String(r.start_time||'').trim();
+      var et=String(r.end_time||'').trim();
+      var timeTxt=(st && et) ? (st+'-'+et) : (st || String(r.slot||'待定时段'));
       return {
         date:d,
-        time:String(r.slot||'待定时段'),
+        time:timeTxt,
         lang:lg,
         role:String(r.role||'未关联角色'),
         demand:String(r.title||demandNameFromId(r.demandId)||r.plan||'未关联需求')
       };
-    }).filter(Boolean).sort(function(a,b){ return a.date-b.date; }).slice(0,8);
+    }).filter(Boolean);
+    // "即将录制"语义：只保留今天及以后。过去档期已归档，不占即将列表
+    var _t0 = new Date(); _t0.setHours(0,0,0,0);
+    var _fullList = list.filter(function(it){ return it.date >= _t0; })
+                         .sort(function(a,b){ return a.date-b.date; });
+    // ★ 存全量（跨月、不截断），供日历点击后按日期筛选
+    window.__MID_UPCOMING_ROWS = _fullList;
+    // 展示列表：跟随日历当前月份，最多 5 条
+    list = upcomingDisplayList();
 
-    if(!list.length){ box.innerHTML='<div class="mp-empty">暂无已定日期的录制安排</div>'; return; }
+    if(!list.length){ box.innerHTML='<div class="mp-empty">'+upcomingEmptyText()+'</div>'; updateUpcomingTitle(); applyMidFocus(); return; }
+    renderUpcomingItems(box, list, null);
+    updateUpcomingTitle();
+    applyMidFocus();
+  }
+
+  // ★ 即将录制条目渲染（供初始渲染 + 日历日期过滤重绘共用）
+  // focusYmd = null → 全量显示；= 'YYYY-MM-DD' → 该日条目全部高亮 .focused
+  function renderUpcomingItems(box, items, focusYmd){
+    var _todayUp = new Date(); _todayUp.setHours(0,0,0,0);
     var html='';
-    list.forEach(function(it){
-      var m=it.date.getMonth()+1, d=it.date.getDate();
-      var meta=m+'/'+d+' '+WEEK_CN[it.date.getDay()]+' · '+it.time;
+    items.forEach(function(it){
+      var y=it.date.getFullYear(), m=it.date.getMonth()+1, dd=it.date.getDate();
+      var ymd=y+'-'+String(m).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+      var isPast = it.date < _todayUp;
+      var pastCls = isPast ? ' past' : '';
+      // 日历过滤模式下，所有条目都是目标日期 → 统一加 focused
+      var focusCls = (focusYmd && ymd === focusYmd) ? ' focused' : '';
+      var dotColor = isPast ? '#5D6E78' : (it.lang==='en' ? 'var(--c-primary)' : '#8CA8C1');
+      var dotShadow = isPast ? 'none' : (it.lang==='en' ? '0 0 4px rgba(15,247,150,.6)' : '0 0 4px rgba(140,168,189,.6)');
+      var dateColor = isPast ? 'var(--c-text-mute)' : '#fff';
+      var timeColor = isPast ? 'var(--c-text-dim)' : 'rgba(255,255,255,.7)';
       var langTxt=it.lang==='en'?'英配':'中配';
-      html+='<div class="mp-up-item">'
-        +'<div class="mp-up-meta">'+meta+'</div>'
+      html+='<div class="mp-up-item'+pastCls+focusCls+'" data-ymd="'+ymd+'">'
+        +'<div class="mp-up-pill'+pastCls+'" style="--up-dot:'+dotColor+';--up-shadow:'+dotShadow+';--up-date:'+dateColor+';--up-time:'+timeColor+'">'
+          +'<span class="mp-up-pill-dot"></span>'
+          +'<span class="mp-up-pill-date">'+m+'/'+dd+'</span>'
+          +'<span class="mp-up-pill-time">'+it.time+'</span>'
+        +'</div>'
         +'<div class="mp-up-role">'+esc(it.role)+'</div>'
         +'<div class="mp-up-demand">'+esc(it.demand)+' <span class="lang-badge '+it.lang+'">'+langTxt+'</span></div>'
       +'</div>';
     });
     box.innerHTML=html;
   }
+
+  // 中间侧栏 focus 联动：点日历某日 / 点即将录制条目 → 双向高亮，点页面空白清除
+  var MID_FOCUS_YMD = null;
+  function focusMidDay(ymd, evt){
+    if(evt){ evt.stopPropagation(); }
+    if(MID_FOCUS_YMD === ymd){ MID_FOCUS_YMD = null; }
+    else {
+      MID_FOCUS_YMD = ymd;
+      // 智能翻月：若目标日期不在当前日历月，自动把日历翻到那个月，保证高亮可见
+      var d = parseYMD(ymd);
+      if(d){
+        var anchor = MID_STATE.monthAnchor || monthStart(new Date());
+        if(d.getFullYear()!==anchor.getFullYear() || d.getMonth()!==anchor.getMonth()){
+          MID_STATE.monthAnchor = monthStart(d);
+          renderMidPanel();
+          return; // renderMidPanel 内部会调用 applyMidFocus
+        }
+      }
+    }
+    applyMidFocus();
+  }
+  function clearMidFocus(){
+    if(!MID_FOCUS_YMD) return;
+    MID_FOCUS_YMD = null;
+    applyMidFocus();
+  }
+  function applyMidFocus(){
+    var target = MID_FOCUS_YMD;
+    // 日历日
+    document.querySelectorAll('#mpCalendarGrid .mp-cal-day').forEach(function(el){
+      el.classList.remove('focused','dimmed');
+      if(!target || el.classList.contains('empty')) return;
+      var y = el.getAttribute('data-ymd');
+      if(y === target) el.classList.add('focused');
+      else el.classList.add('dimmed');
+    });
+    // 即将录制：按日期过滤重绘（而非仅 CSS 高亮）
+    var upBox = document.getElementById('mpUpcoming');
+    var upTitle = document.getElementById('mpUpcomingTitle');
+    if(upBox && window.__MID_UPCOMING_ROWS){
+      if(target){
+        // ★ 过滤：只显示目标日期的条目
+        var dayItems = window.__MID_UPCOMING_ROWS.filter(function(it){
+          var y=it.date.getFullYear(), m=it.date.getMonth()+1, dd=it.date.getDate();
+          return (y+'-'+String(m).padStart(2,'0')+'-'+String(dd).padStart(2,'0')) === target;
+        });
+        if(dayItems.length){
+          // 标题改为具体日期
+          var td = parseYMD(target);
+          if(td) upTitle.textContent = (td.getMonth()+1)+'/'+td.getDate()+' · 录制安排';
+          renderUpcomingItems(upBox, dayItems, target);
+        } else {
+          upTitle.textContent = (target.replace(/-/g,'/'))+' · 无录制';
+          upBox.innerHTML = '<div class="mp-empty">该日暂无录制安排</div>';
+        }
+      } else {
+        // ★ 恢复：跟随当前日历月份，最多 5 条
+        var back = upcomingDisplayList();
+        updateUpcomingTitle();
+        if(!back.length){ upBox.innerHTML='<div class="mp-empty">'+upcomingEmptyText()+'</div>'; }
+        else renderUpcomingItems(upBox, back, null);
+      }
+    }
+    // 主表联动：高亮该日期对应的档期卡 / 多档 pill，并把第一个滚进视野
+    var mainHits = document.querySelectorAll('.actor-table-role .sched-card[data-ymd], .actor-table-role .sc-pill[data-ymd]');
+    var firstHit = null;
+    mainHits.forEach(function(el){
+      el.classList.remove('mid-focus','mid-dim');
+      if(!target) return;
+      if(el.getAttribute('data-ymd') === target){
+        el.classList.add('mid-focus');
+        if(!firstHit) firstHit = el;
+      } else {
+        el.classList.add('mid-dim');
+      }
+    });
+    if(firstHit && firstHit.scrollIntoView){
+      try{
+        var wrap = document.getElementById('actorRoleView');
+        if(wrap && wrap.contains(firstHit)){
+          var wr = wrap.getBoundingClientRect(), hr = firstHit.getBoundingClientRect();
+          if(hr.top < wr.top || hr.bottom > wr.bottom){
+            wrap.scrollTop += (hr.top - wr.top) - (wr.height/2 - hr.height/2);
+          }
+        }
+      }catch(_){}
+    }
+  }
+  // 点空白清 focus + 事件委托（一次性挂）
+  if(!window.__MID_FOCUS_BOUND){
+    window.__MID_FOCUS_BOUND = true;
+    document.addEventListener('click', function(e){
+      // 优先命中日历方格
+      var dayEl = e.target.closest && e.target.closest('#mpCalendarGrid .mp-cal-day[data-ymd]');
+      if(dayEl){
+        e.stopPropagation();
+        focusMidDay(dayEl.getAttribute('data-ymd'));
+        return;
+      }
+      // 再命中即将录制条目
+      var upEl = e.target.closest && e.target.closest('#mpUpcoming .mp-up-item[data-ymd]');
+      if(upEl){
+        e.stopPropagation();
+        focusMidDay(upEl.getAttribute('data-ymd'));
+        return;
+      }
+      // 都没命中 → 清 focus
+      if(MID_FOCUS_YMD) clearMidFocus();
+    });
+  }
+  window.focusMidDay = focusMidDay;
+  window.clearMidFocus = clearMidFocus;
+  window.applyMidFocus = applyMidFocus;
 
   function aggregate(){
     var c=loadClarify(); var plans={}; var order=[];
@@ -966,21 +2582,49 @@ function bookActor(role, lang){
   }
 
   function renderSched(){
+    // 档期草稿区块已从主页面移除；本函数保留仅用于兼容旧调用，直接返回不再渲染
+    var body=document.getElementById('schedBody');
+    if(!body) return;
     var rows=loadSched();
     var lang=SCHED_STATE.lang||'all';
+    if(window.FORCE_SCHED_MOCK){
+      // 强制预览：永远使用虚拟草稿，并绕过 release 过滤，保证必有可见样例。
+      rows = buildMockDraftRows();
+      lang = 'all';
+    }
     if(!SCHED_STATE.currentRelease){
       SCHED_STATE.currentRelease = detectCurrentReleaseFromDemands() || detectCurrentReleaseFromRows(rows) || detectCurrentReleaseFromRows(PUBLISHED_ROWS) || '';
     }
-    var byReleaseDraft = rows.filter(function(r){ return schedReleaseMatch(r.plan||r.release_plan||''); });
-    var byReleasePub = PUBLISHED_ROWS.filter(function(r){ return schedReleaseMatch(r.release_plan||r.plan||''); });
+    var byReleaseDraft = window.FORCE_SCHED_MOCK
+      ? rows.slice()
+      : rows.filter(function(r){ return schedReleaseMatch(r.plan||r.release_plan||''); });
+    var autoMockFallback = false;
+    if(!byReleaseDraft.length){
+      // 兜底：当草稿被 release/history 过滤后为空时，自动回退到虚拟样例，避免页面完全空白。
+      var mockRows = buildMockDraftRows();
+      var mockByRelease = mockRows.filter(function(r){ return schedReleaseMatch(r.plan||r.release_plan||''); });
+      byReleaseDraft = mockByRelease.length ? mockByRelease : mockRows;
+      autoMockFallback = byReleaseDraft.length > 0;
+    }
+    var byReleasePub = window.FORCE_SCHED_MOCK
+      ? []
+      : PUBLISHED_ROWS.filter(function(r){ return schedReleaseMatch(r.release_plan||r.plan||''); });
     var viewRows = lang==='all' ? byReleaseDraft : byReleaseDraft.filter(function(r){ return normLang(r.vaType)===lang; });
     var pubRows = lang==='all' ? byReleasePub : byReleasePub.filter(function(r){ return normLang(r.language||r.lang||r.vaType||r.va_type||r.voice_type)===lang; });
+
+    var st = SCHED_STATE.status || 'all';
+    if(st!=='all'){
+      viewRows = viewRows.filter(function(r){ return schedStatusBucket(r.status)===st; });
+      pubRows = pubRows.filter(function(r){ return schedStatusBucket(r.status||r.publish_status||r.state)===st; });
+    }
+
     var panelRows = buildPanelRows(viewRows,pubRows);
-    var segLabel = SCHED_STATE.releaseToken==='__archive__' ? '历史归档' : (SCHED_STATE.releaseToken ? ('当前版本-'+SCHED_STATE.releaseToken) : '全部版本');
-    document.getElementById('schedCount').textContent=segLabel+' · '+viewRows.length+' 草稿 · '+pubRows.length+' 已发布';
+    var segLabel = SCHED_STATE.releaseToken==='__archive__' ? '历史归档' : (SCHED_STATE.releaseToken ? SCHED_STATE.releaseToken : '全部版本');
+    var mockTag = isMockRows(rows) ? (window.FORCE_SCHED_MOCK ? ' · 强制虚拟预览' : ' · 虚拟预览') : (autoMockFallback ? ' · 自动兜底样例' : '');
+    var countNode = document.getElementById('schedCount');
+    if(countNode) countNode.textContent=segLabel+mockTag+' · '+viewRows.length+' 草稿 · '+pubRows.length+' 已发布';
     var pb=document.getElementById('publishDraftsBtn'); if(pb){pb.disabled=!rows.length;pb.querySelector('span').textContent=rows.length?'发布草稿 · '+rows.length:'发布草稿';}
-    var body=document.getElementById('schedBody');
-    if(!rows.length){
+    if(!rows.length && !autoMockFallback){
       body.innerHTML='<div class="empty-hint">暂无档期草稿 · 点右上「<b>从澄清看板生成草稿</b>」一键从需求汇总的澄清看板生成</div>';
       renderAgg(); updateKPI(viewRows); renderMidPanel(panelRows); return;
     }
@@ -1132,8 +2776,22 @@ function bookActor(role, lang){
   };
   function mkSess(plan,vaType,lines,estHours,studio){ return {id:uid(),plan:plan,demandId:'',vaType:vaType,lines:lines,estHours:estHours,studio:studio,date:'',slot:'',status:'draft'}; }
   function toast(m,isConflict){ var t=document.createElement('div'); t.textContent=m; t.style.cssText='position:fixed;bottom:16px;right:20px;max-width:460px;font-family:JetBrains Mono,monospace;font-size:11.5px;letter-spacing:.5px;background:var(--c-surface);border:1px solid '+(isConflict?'rgba(214,153,190,.55)':'var(--c-hairline)')+';padding:7px 12px;border-radius:4px;color:'+(isConflict?'#D699BE':'var(--c-primary)')+';z-index:500;transition:opacity .3s;opacity:1'; document.body.appendChild(t); setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},300);},isConflict?8000:2400); }
+  // 从 Vo 版本汇总表手动同步：实际行为是重新拉取 recording_schedules（由后端 automation-1787028270062 每日 10:30 自动从版本汇总表「声优锁-总表」写入）。
+  // 前端按钮只做"按需刷新"，不会真正触发腾讯文档拉取。
+  window.syncFromVersionSummary=function(){
+    var btn=document.getElementById('syncFromSummaryBtn');
+    if(btn){ btn.disabled=true; btn.dataset.label=btn.dataset.label||btn.innerHTML; btn.innerHTML='<span class="sync-spinner"></span>同步中…'; }
+    toast('正在从 Vo 版本汇总表同步…');
+    return loadPublishedSchedules().then(function(rows){
+      toast('已同步：'+(Array.isArray(rows)?rows.length:0)+' 条录制定档');
+      return rows;
+    }).catch(function(e){ toast('同步失败：'+(e&&e.message||e), true); return []; }).finally(function(){
+      if(btn){ btn.disabled=false; if(btn.dataset.label) btn.innerHTML=btn.dataset.label; }
+    });
+  };
   window.openDraftWizard=SCHED.open; window.closeDraftWizard=SCHED.close; window.confirmDraftWizard=SCHED.confirm;
   window.addEmptySched=SCHED.addEmpty; window.exportSchedule=SCHED.export; window.publishScheduleDrafts=SCHED.publishAll;
+  window.renderSched=renderSched;
   document.getElementById('wizMask').addEventListener('click',function(e){ if(e.target===this) SCHED.close(); });
   renderSched();
   loadDemandOptions();
@@ -1171,6 +2829,57 @@ function bookActor(role, lang){
     btn.style.cursor="pointer";
     btn.addEventListener("click", function(t){ return function(){ window.location.href = t; }; }(target));
   }
+})();
+</script>
+
+<script>
+/* file:// 终极兜底：若前序逻辑异常导致 schedBody 仍为空，直接注入可见样例，避免白屏 */
+(function(){
+  if(window.location.protocol!=='file:') return;
+  setTimeout(function(){
+    try{
+      var body=document.getElementById('schedBody');
+      if(!body) return;
+      if(body.querySelector('table tbody tr')) return;
+
+      var fallbackRows=[
+        {plan:'Yang1', demand:'需求 99001', lang:'中配', hours:'1.9', lines:'148', studio:'待定', date:'2026-09-02', slot:'上午', status:'草稿'},
+        {plan:'Yang1', demand:'需求 99002', lang:'英配', hours:'1.7', lines:'132', studio:'待定', date:'2026-09-03', slot:'下午', status:'草稿'},
+        {plan:'Ma4',   demand:'需求 99003', lang:'中配', hours:'1.2', lines:'96',  studio:'待定', date:'2026-08-26', slot:'晚间', status:'已确认'},
+        {plan:'Ma4',   demand:'需求 99004', lang:'英配', hours:'1.1', lines:'84',  studio:'待定', date:'2026-08-27', slot:'上午', status:'已完成'}
+      ];
+
+      var html='<table class="sched-table"><thead><tr>'+
+        '<th>发布计划</th><th>关联需求</th><th>声优类型</th><th>预估时长</th><th>粗估句数</th>'+
+        '<th>录音棚</th><th>日期</th><th>时段</th><th>发布后状态</th><th>操作</th></tr></thead><tbody>';
+      fallbackRows.forEach(function(r){
+        var langCls=r.lang==='英配'?'en':'cn';
+        html+='<tr>'+
+          '<td>'+r.plan+'</td>'+
+          '<td>'+r.demand+'</td>'+
+          '<td><span class="tag '+langCls+'">'+r.lang+'</span></td>'+
+          '<td><span style="font-family:JetBrains Mono,monospace">'+r.hours+' h</span></td>'+
+          '<td style="font-family:JetBrains Mono,monospace">'+r.lines+'</td>'+
+          '<td>'+r.studio+'</td>'+
+          '<td>'+r.date+'</td>'+
+          '<td>'+r.slot+'</td>'+
+          '<td>'+r.status+'</td>'+
+          '<td><span style="opacity:.7">file预览兜底</span></td>'+
+          '</tr>';
+      });
+      html+='</tbody></table>';
+      body.innerHTML=html;
+
+      var count=document.getElementById('schedCount');
+      if(count) count.textContent='file预览兜底样例 · 4 草稿 · 0 已发布';
+
+      var stats=document.querySelectorAll('.stat-strip .stat .stat-value');
+      if(stats[0]) stats[0].innerHTML='4<span class="unit">/ 场</span>';
+      if(stats[1]) stats[1].innerHTML='5.9<span class="unit">h</span>';
+      if(stats[2]) stats[2].innerHTML='0<span class="unit">家</span>';
+      if(stats[3]) stats[3].innerHTML='0<span class="unit">个</span>';
+    }catch(_){/* ignore */}
+  }, 180);
 })();
 </script>
 

@@ -45,14 +45,20 @@ body{display:flex;flex-direction:column;overflow:hidden}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px;text-shadow:0 0 16px rgba(15,247,150,.18)}
 .page-title .code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
-.subtitle{font-size:12.5px;color:var(--c-text-mute);line-height:1.5;max-width:640px}
+/* 录制档期截止药丸：替代原 "// 2026 · JUL" 灰色占位，按当前 release 显示到期日；过期/未到期主色差异 */
+.page-title .deadline-meta{display:inline-block;font-family:'Inter','Microsoft YaHei UI',sans-serif;font-size:12.5px;font-weight:400;color:var(--c-text-2);letter-spacing:.2px;line-height:1;vertical-align:middle;margin-left:4px;white-space:nowrap}
+.page-title .deadline-meta .deadline-rel{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--c-text-2);letter-spacing:.4px;font-variant-numeric:tabular-nums}
+.page-title .deadline-meta .deadline-dates{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--c-text-2);letter-spacing:.4px;font-variant-numeric:tabular-nums}
+.page-title .deadline-meta .deadline-sep{margin:0 6px;opacity:.5}
+.page-title .deadline-meta .deadline-slash{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--c-text-mute);letter-spacing:1px;margin-right:6px;opacity:.7}
+.page-title .deadline-meta .deadline-calm{color:var(--c-primary);opacity:.7;font-weight:500;margin-left:4px}
 .actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
 .actions .btn{width:auto}
 .sync-hint{font-size:11px;color:var(--c-text-mute);font-family:'JetBrains Mono',monospace;letter-spacing:.3px;display:inline-flex;align-items:baseline;gap:7px;line-height:1.4;max-width:320px;text-align:right}
 .sync-hint .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55);flex-shrink:0;align-self:center;animation:pulse 2.2s infinite}
 .sync-spinner{display:inline-block;width:12px;height:12px;border:1.5px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:4px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.btn{border:none;font-family:inherit;cursor:pointer;font-size:12.5px;font-weight:600;border-radius:5px;padding:8px 14px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.3px}
+.btn{border:none;font-family:inherit;cursor:pointer;font-size:12.5px;font-weight:600;border-radius:999px;padding:8px 16px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.3px}
 .btn-primary{background:var(--c-primary);color:#000}
 .btn-primary:hover{background:var(--c-primary-dark)}
 .btn-outline{background:transparent;color:var(--c-text-2);border:1px solid var(--c-border)}
@@ -84,7 +90,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .sched-filterbar [data-sched-lang].on[data-sched-lang="all"]{color:#fff;border-color:rgba(15,247,150,.9);background:linear-gradient(90deg, rgba(15,247,150,.12) 0%, rgba(255,210,76,.12) 100%)}
 .sched-filterbar [data-sched-status].on[data-sched-status="all"]{color:#fff;border-color:rgba(15,247,150,.9);background:rgba(15,247,150,.14)}
 .sched-filterbar [data-sched-status].on[data-sched-status="full"]{color:var(--c-primary);border-color:rgba(15,247,150,.7);background:rgba(15,247,150,.10)}
-.sched-filterbar [data-sched-status].on[data-sched-status="partial"]{color:var(--c-warning);border-color:rgba(255,210,76,.72);background:rgba(255,210,76,.12)}
+.sched-filterbar [data-sched-status].on[data-sched-status="partial"]{color:var(--c-warning);border-color:rgba(255,210,76,.30);background:rgba(255,210,76,.12)}
 .sched-filterbar [data-sched-status].on[data-sched-status="unbooked"]{color:#fff;border-color:#3B4B56;background:rgba(59,75,86,.22)}
 
 @media (max-width: 1600px){
@@ -148,8 +154,8 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .mp-cal{display:flex;flex-direction:column;gap:16px;padding:4px 0 2px}
 .mp-cal-head{display:flex;align-items:center;justify-content:space-between;color:var(--c-text);padding:3px 0 6px}
 .mp-cal-title{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.3px;font-weight:400}
-.mp-cal-nav{border:none;background:transparent;color:var(--c-text-mute);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:4px}
-.mp-cal-nav:hover{color:var(--c-primary);background:var(--c-surface)}
+.mp-cal-nav{border:none;background:var(--c-surface);color:var(--c-text-mute);width:24px;height:24px;line-height:1;border-radius:50%;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.mp-cal-nav:hover{color:var(--c-primary);background:var(--c-surface-2);border-color:var(--c-primary)}
 .mp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
 .mp-cal-dow{font-size:10px;color:var(--c-text-dim);text-align:center;font-family:'JetBrains Mono',monospace;padding:3px 0}
 .mp-cal-day{position:relative;height:42px;border-radius:9px;border:1px solid var(--c-hairline);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c-text-2);background:rgba(255,255,255,.015);overflow:hidden;cursor:default;transition:all .15s}
@@ -173,7 +179,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .mp-cal-day.both::before{background:#8CA8C1;box-shadow:0 0 6px rgba(140,168,189,.45)}
 .mp-cal-day.both::after{background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55)}
 /* 节假日：叠加预约时黄色优先（黄底/黄字/黄框），底部色条仍由 cn/en/both 提供 → 预约+节假日同时可见 */
-.mp-cal-day.holiday{background:rgba(255,210,76,.10);border-color:rgba(255,210,76,.55);color:#FFD24C;cursor:pointer}
+.mp-cal-day.holiday{background:rgba(255,210,76,.04);border-color:rgba(255,210,76,.28);color:#FFD24C;cursor:pointer}
 /* hover */
 .mp-cal-day:not(.empty):hover{border-color:rgba(255,255,255,.42);background:rgba(255,255,255,.05)}
 /* 聚焦态（点选后）：加粗描边 + 光晕 */
@@ -319,37 +325,46 @@ body.embed .main{width:100%}
 .actor-toolbar .tb-btn .s-icon.warn{color:#FFD24C}
 .actor-toolbar .tb-btn .s-icon.ok{color:var(--c-primary)}
 /* 状态按钮激活态：按图标语义色（未约=黄，已约=绿）覆盖默认绿激活态 */
-.actor-toolbar .tb-btn.on[data-status="pending"]{background:#FFD24C;border-color:#FFD24C;color:#0F171C;box-shadow:0 0 8px rgba(255,210,76,.40)}
+.actor-toolbar .tb-btn.on[data-status="pending"]{background:#FFD24C;border-color:#FFD24C;color:#0F171C;box-shadow:0 0 4px rgba(255,210,76,.12)}
 .actor-toolbar .tb-btn.on[data-status="pending"] .s-icon{color:#0F171C}
 .actor-toolbar .tb-btn.on[data-status="booked"]{background:var(--c-primary);border-color:var(--c-primary);color:#0F171C}
 .actor-toolbar .tb-btn.on[data-status="booked"] .s-icon{color:#0F171C}
 
 /* 风险公告（替换原 4 张统计卡） */
 /* 风险公告 v2 · 与主表 3 级字体音阶对齐 */
-.risk-banner{display:flex;align-items:center;gap:20px;padding:14px 18px;background:linear-gradient(90deg,rgba(255,210,76,.08) 0%,rgba(255,210,76,.02) 60%,transparent 100%);border:1px solid rgba(255,210,76,.28);border-radius:8px;margin-bottom:14px;position:relative;overflow:hidden}
+.risk-banner{display:flex;align-items:flex-start;gap:20px;padding:14px 18px;background:linear-gradient(90deg,rgba(255,210,76,.04) 0%,rgba(255,210,76,.012) 60%,transparent 100%);border:1px solid rgba(255,210,76,.28);border-radius:8px;margin-bottom:14px;position:relative;flex-shrink:0;min-height:0}
+.risk-icon{margin-top:1px}
 .risk-banner::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFD24C}
 .risk-banner.calm{background:linear-gradient(90deg,rgba(15,247,150,.08) 0%,rgba(15,247,150,.02) 60%,transparent 100%);border-color:rgba(15,247,150,.28)}
 .risk-banner.calm::before{background:var(--c-primary)}
 .risk-banner.calm .risk-icon{background:rgba(15,247,150,.12);border-color:rgba(15,247,150,.42);color:var(--c-primary)}
 .risk-banner.calm .risk-title{color:var(--c-primary)}
-.risk-icon{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:rgba(255,210,76,.12);border:1px solid rgba(255,210,76,.42);color:#FFD24C;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+.risk-icon{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:rgba(255,210,76,.06);border:1px solid rgba(255,210,76,.28);color:#FFD24C;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
 .risk-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 /* L1 标题：14/700，与主表 L1 完全对齐 */
-.risk-title{font-size:14px;font-weight:700;color:#FFD24C;letter-spacing:.3px;line-height:1.3}
+.risk-title{font-size:14px;font-weight:700;color:#FFD24C;letter-spacing:.3px;line-height:1.3;font-family:'Inter','Microsoft YaHei UI',sans-serif}
 /* L2 副标题：12/500 灰 */
-.risk-sub{font-size:12px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI',sans-serif;line-height:1.4;font-weight:400;letter-spacing:.2px}
+.risk-sub{font-size:12px;color:var(--c-text-mute);font-family:'Inter','Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif;line-height:1.4;font-weight:400;letter-spacing:.2px}
 .risk-stats{display:flex;align-items:center;gap:28px;flex-shrink:0}
 .risk-stats .risk-stat{display:flex;flex-direction:column;align-items:flex-end;gap:4px;line-height:1.1}
 /* L3 标签：10.5/500，跟大类分节对齐 */
 .risk-stats .risk-stat .k{font-size:10.5px;letter-spacing:1px;color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;text-transform:uppercase;font-weight:500}
 /* L1 数值：18/700，等宽数字 */
 .risk-stats .risk-stat .v{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#fff;line-height:1;letter-spacing:.3px;font-variant-numeric:tabular-nums;display:inline-flex;align-items:baseline;gap:3px}
-.risk-stats .risk-stat .v.warn{color:#FFD24C;opacity:.88}
+.risk-stats .risk-stat .v.warn{color:#FFD24C;opacity:.82}
 .risk-stats .risk-stat .v.ok{color:var(--c-primary)}
+
+/* AREA 圆框 pill 列表：标题下方一行，每个 AREA 一个圆角（圆框）pill + 尾后圆形数字徽章 */
+.risk-areas{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.risk-banner.calm .risk-areas{margin-top:2px}
+.risk-area-pill{display:inline-flex;align-items:center;gap:6px;padding:2px 4px 2px 11px;border-radius:9999px;background:rgba(255,210,76,.06);border:1px solid rgba(255,210,76,.30);color:#FFD24C;font-size:12px;font-weight:500;font-family:'Inter','Microsoft YaHei UI',sans-serif;letter-spacing:.2px;line-height:1.4;white-space:nowrap}
+.risk-area-pill .num{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;border-radius:9999px;background:#FFD24C;color:#0F171C;font-size:11px;font-weight:600;font-family:'JetBrains Mono','Inter',monospace;letter-spacing:0;font-variant-numeric:tabular-nums;line-height:1}
+.risk-banner.calm .risk-area-pill{background:rgba(15,247,150,.08);border-color:rgba(15,247,150,.32);color:var(--c-primary)}
+.risk-banner.calm .risk-area-pill .num{background:var(--c-primary);color:#0F171C}
 /* 单位内联，10.5 灰 */
 .risk-stats .risk-stat .v .unit{font-size:10.5px;color:var(--c-text-dim);font-weight:400;letter-spacing:.6px;font-family:'Microsoft YaHei UI',sans-serif}
 /* 按钮 L2 级 */
-.risk-action{flex-shrink:0;background:rgba(255,210,76,.10);border:1px solid rgba(255,210,76,.45);color:#FFD24C;padding:7px 16px;border-radius:999px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .12s;letter-spacing:.4px;white-space:nowrap}
+.risk-action{flex-shrink:0;background:rgba(255,210,76,.06);border:1px solid rgba(255,210,76,.28);color:#FFD24C;padding:7px 16px;border-radius:999px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .12s;letter-spacing:.4px;white-space:nowrap}
 .risk-action:hover{background:rgba(255,210,76,.22);color:#fff}
 .risk-action.active{background:#FFD24C;color:#0F171C;border-color:#FFD24C}
 
@@ -377,7 +392,7 @@ body.embed .main{width:100%}
 /* 视图切换器（按角色 / 按需求） · 页面级 tab */
 .view-tabs{display:flex;align-items:flex-end;gap:28px;padding:0 0 0 2px;margin:0 0 16px;border-bottom:1px solid var(--c-hairline);position:relative}
 .view-tabs::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,var(--c-primary) 0%,rgba(15,247,150,0) 22%,rgba(15,247,150,0) 78%,rgba(140,168,189,0) 100%);opacity:.18}
-.view-tabs .view-tab{display:inline-flex;align-items:center;gap:8px;background:transparent;border:none;color:var(--c-text-mute);padding:14px 8px 16px;font-size:17px;font-weight:700;font-family:'Inter','Microsoft YaHei UI',sans-serif;letter-spacing:1.5px;position:relative;cursor:pointer;transition:color .12s}
+.view-tabs .view-tab{display:inline-flex;align-items:center;gap:8px;background:transparent;border:none;color:var(--c-text-mute);padding:14px 8px 16px;font-size:16px;font-weight:500;font-family:'Inter','Microsoft YaHei UI',sans-serif;letter-spacing:0;position:relative;cursor:pointer;transition:color .12s}
 .view-tabs .view-tab svg{flex-shrink:0;opacity:.7;transition:opacity .15s,filter .15s}
 .view-tabs .view-tab:hover{color:var(--c-text)}
 .view-tabs .view-tab:hover svg{opacity:.95}
@@ -396,7 +411,7 @@ body.embed .main{width:100%}
 .sched-cell .sched-pill .time{color:var(--c-text-2);font-weight:500}
 .sched-cell .sched-note{margin-left:auto;font-size:11px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:0}
 .sched-cell.empty{justify-content:flex-start;width:100%}
-.sched-cell.empty .pending-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;background:rgba(255,210,76,.10);border:1px solid rgba(255,210,76,.40);color:#FFD24C;font-size:12px;font-weight:700;letter-spacing:.3px;width:100%;justify-content:center}
+.sched-cell.empty .pending-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;background:rgba(255,210,76,.05);border:1px solid rgba(255,210,76,.28);color:#FFD24C;font-size:12px;font-weight:700;letter-spacing:.3px;width:100%;justify-content:center}
 .sched-cell.empty .pending-tag::before{content:"⚠";font-size:13px}
 
 /* 角色行容器（按角色视图的左中配 / 右英配 cell） */
@@ -413,27 +428,48 @@ body.embed .main{width:100%}
 .actor-table-demand .lang-tag{display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:3px;font-size:10.5px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.3px}
 .actor-table-demand .lang-tag.cn{background:rgba(58,82,102,.45);color:#fff}
 .actor-table-demand .lang-tag.en{background:rgba(15,247,150,.16);color:var(--c-primary)}
-.actor-table-demand tr.row-pending td{background:rgba(255,210,76,.04)}
+.actor-table-demand tr.row-pending td{background:rgba(255,210,76,.02)}
 .actor-table-demand tr.row-pending td:first-child{box-shadow:inset 4px 0 0 0 #FFD24C}
 
+/* ============================================================
+ * ★ 全局黄色(#FFD24C)使用规则 · 2026-08-31 定稿 ★
+ * ──────────────────────────────────────────────
+ * 仅以下 3 处保留黄色，其余一律移除（改灰/透明）：
+ *
+ * 【保留】
+ *  1. 「未排档期」文字 + 虚线边框（.sched-card.pending / .sc-empty）
+ *  2. 「X位待预约」按钮（.dcard-pending / .area-head 待约计数）
+ *  3. 风险预警横幅（.risk-banner 系列）
+ *
+ * 【已移除】需求视图专属
+ *  · .dcard 左侧状态竖条（has-pending 黄色发光 → 灰色）
+ *  · .dcard 右上角黄色发光圆斑（::after → opacity:0）
+ *  · .role-chip 待预约黄色边框/背景 → 灰色
+ *  · .role-chip 角色名前 ⚠ 黄色圆点（.rc-warn → display:none）
+ *  · .role-chip 待预约时间黄色文字 → 灰色
+ *  · .area-section 左侧竖条/序号/进度条/待约数值 → 灰色
+ *
+ * 【声优视图不动】.actor-table-role 系列保持原样（黄色虚线边框等）
+ * ============================================================ */
+
 /* 需求视图 · 卡片网格 */
-.demand-cards-wrap{background:transparent}
+.demand-cards-wrap{background:transparent;flex:1;overflow-y:auto;min-height:0;padding-right:4px}
 /* 需求视图：单列通栏（与声优视图的表格形成区分），给足宽度让需求名/档期时间完整显示 */
-.demand-cards{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.demand-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px;align-items:stretch}
 .demand-cards .dcard{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0;position:relative}
 /* 每张卡片都留一条状态竖条：待预约=黄（发光）/ 已齐=绿（内敛），整列节奏统一 */
 .demand-cards .dcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:rgba(15,247,150,.40);border-radius:6px 0 0 6px}
-.demand-cards .dcard.has-pending{border-color:rgba(255,210,76,.42);background:linear-gradient(180deg,rgba(255,210,76,.05) 0%,var(--c-surface) 60%)}
-.demand-cards .dcard.has-pending::before{background:#FFD24C;box-shadow:0 0 6px rgba(255,210,76,.45)}
+.demand-cards .dcard.has-pending{border-color:rgba(255,210,76,.22);background:linear-gradient(180deg,rgba(255,210,76,.018) 0%,var(--c-surface) 60%)}
+.demand-cards .dcard.has-pending::before{background:#FFD24C;box-shadow:0 0 4px rgba(255,210,76,.14)}
 .demand-cards .dcard-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--c-hairline)}
 .demand-cards .dcard-id{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--c-text-mute);letter-spacing:.5px}
 .demand-cards .dcard-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px}
-.demand-cards .dcard-pending{font-size:10.5px;color:#FFD24C;background:rgba(255,210,76,.10);border:1px solid rgba(255,210,76,.40);padding:3px 8px;border-radius:999px;font-weight:700;font-family:'Microsoft YaHei UI',sans-serif;white-space:nowrap;flex-shrink:0}
+.demand-cards .dcard-pending{font-size:10.5px;color:#FFD24C;background:rgba(255,210,76,.05);border:1px solid rgba(255,210,76,.28);padding:3px 8px;border-radius:999px;font-weight:700;font-family:'Microsoft YaHei UI',sans-serif;white-space:nowrap;flex-shrink:0}
 .demand-cards .dcard-pending.ok{color:var(--c-primary);background:rgba(15,247,150,.10);border-color:rgba(15,247,150,.40)}
 /* 角色块：横向铺开，一块 = 一个游戏角色（含中/英配档期） */
 .demand-cards .dcard-roles{display:flex;flex-wrap:wrap;gap:10px}
 .demand-cards .role-chip{flex:1 1 210px;min-width:210px;background:rgba(255,255,255,.025);border:1px solid var(--c-hairline);border-radius:5px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
-.demand-cards .role-chip.is-pending{border-color:rgba(255,210,76,.34);background:rgba(255,210,76,.045)}
+.demand-cards .role-chip.is-pending{border-color:rgba(255,210,76,.24);background:rgba(255,210,76,.025)}
 /* 角色名是卡片主要信息 */
 .demand-cards .role-chip .rc-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px;line-height:1.25;word-break:break-all}
 .demand-cards .role-chip .rc-scheds{display:flex;flex-direction:column;gap:4px}
@@ -450,14 +486,14 @@ body.embed .main{width:100%}
 .area-section{display:flex;flex-direction:column;gap:12px;position:relative;padding-left:14px}
 /* 左侧状态竖条：待预约=黄 / 已出齐=绿 / 默认灰 —— 扫一眼即知哪些 AREA 有问题 */
 .area-section::before{content:'';position:absolute;left:0;top:1px;bottom:1px;width:2px;border-radius:1px;background:rgba(255,255,255,.10)}
-.area-section.has-pending::before{background:#FFD24C;box-shadow:0 0 8px rgba(255,210,76,.38)}
+.area-section.has-pending::before{background:rgba(107,122,133,.5);box-shadow:none}
 .area-section.is-done::before{background:var(--c-primary);opacity:.75}
 .area-head{display:flex;align-items:center;gap:12px;padding:0 0 9px;position:relative}
 /* 渐隐分割线：左实右虚，比通栏实线更克制 */
 .area-head::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.16) 0,rgba(255,255,255,.14) 42%,rgba(255,255,255,.02) 100%)}
 /* 军事编号 */
 .area-head .area-idx{flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--c-text-dim);padding:3px 6px;border:1px solid var(--c-hairline);border-radius:3px;line-height:1}
-.area-section.has-pending .area-head .area-idx{color:#FFD24C;border-color:rgba(255,210,76,.34);background:rgba(255,210,76,.07)}
+.area-section.has-pending .area-head .area-idx{color:var(--c-text-mute);border-color:rgba(107,122,133,.24);background:rgba(107,122,133,.04)}
 @media (max-width: 1600px){
   /* 窄屏下角色块收窄，保证一行仍能并排放下多块 */
   .demand-cards .role-chip{flex:1 1 180px;min-width:180px;padding:9px 11px}
@@ -500,7 +536,7 @@ body.embed .main{width:100%}
 /* ============ 字体系统 · 全站统一收敛（录制档期） ============ */
 /* 数字/时间/编号 → 等宽（JetBrains Mono）；中文正文 → Inter+YaHei，不混排 */
 :root{
-  --fz-hero:22px;       /* 页面主标题 */
+  --fz-hero:26px;       /* 页面主标题 */
   --fz-h2:16px;         /* 分节大标题（大类/AREA/角色名） */
   --fz-h3:14px;         /* 卡片主标题 */
   --fz-body:13px;       /* 正文/表格 */
@@ -508,158 +544,123 @@ body.embed .main{width:100%}
   --fz-tiny:11px;       /* 标签/单位 */
   --fz-micro:10.5px;    /* 表头 UPPERCASE / 图注 */
 }
-.page-title{font-size:var(--fz-hero);font-weight:700;letter-spacing:.4px}
-.page-title .code{font-size:12px;letter-spacing:.8px}
-.subtitle{font-size:12px}
+/* page-title 已由外部 project-fonts.css + 行内 46 行统一定义，此处不再覆盖 */
 
-/* ============ 声优表 v2 · 战术档案风格 ============ */
-/* 行间距收紧，单行更瘦，靠留白和分隔线分层 */
-.actor-table-role{border-collapse:separate;border-spacing:0 6px}
-.actor-table-role thead{position:sticky;top:0;z-index:2}
-.actor-table-role thead th{background:var(--c-surface);border-bottom:1px solid rgba(255,255,255,.06);font-size:var(--fz-micro);color:var(--c-text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:1.4px;padding:10px 18px;font-weight:600;text-transform:uppercase}
-.actor-table-role tbody tr{background:rgba(31,42,50,.28);border:1px solid transparent;transition:background .12s}
-.actor-table-role tbody tr:hover{background:rgba(31,42,50,.55)}
-.actor-table-role tbody tr.row-pending{background:rgba(31,42,50,.32)}
-.actor-table-role tbody tr.row-pending:hover{background:rgba(31,42,50,.55)}
-/* 关键：待预约行左侧 2px 黄边条，替代原来大黄色渐变（更克制） */
-.actor-table-role tbody tr.row-pending td:first-child{box-shadow:inset 2px 0 0 0 rgba(255,210,76,.75)}
-.actor-table-role tbody td{border:none;background:transparent;padding:14px 18px;vertical-align:middle}
-.actor-table-role tbody td:first-child{border-radius:4px 0 0 4px}
-.actor-table-role tbody td:last-child{border-radius:0 4px 4px 0}
-/* ========== 声优表 v3 · 3 级字体音阶 ==========
-   L1 主信息（14px 700 白）：角色名 / 档期时间
-   L2 副信息（12px 500 灰）：预约状态 / 需求名 / 大类英文
-   L3 辅助（10.5px 400 更灰）：编号 / 中文小字 / 分数
-*/
-/* 角色单元 v3：只留头像 + 角色名，story 已移到档期卡里 */
-.actor-table-role td.role-cell{display:flex;align-items:center;gap:12px;padding:14px 18px;height:56px}
-.actor-table-role td.role-cell .role-avatar{width:30px;height:30px;border-radius:50%;background:rgba(140,168,189,.10);border:1px solid rgba(140,168,189,.16);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--c-text-mute);font-family:inherit;flex-shrink:0;letter-spacing:.3px}
-.actor-table-role td.role-cell .role-avatar.en{background:rgba(140,168,189,.10);border-color:rgba(140,168,189,.16)}
-.actor-table-role td.role-cell .role-name{font-size:14px;font-weight:700;color:#fff;line-height:1.2;letter-spacing:.2px}
-/* story 相关旧规则失效 —— 已移到 sched-card 内 */
-.actor-table-role td.role-cell .role-stories{display:none}
-/* 档期卡 v3：左侧竖条 + L1 时间（14/700）+ L2 需求名（12/500 灰） */
-.actor-table-role .sched-card{background:transparent !important;border:none;border-left:3px solid rgba(140,168,189,.22);border-radius:0;padding:2px 0 2px 14px;display:flex;flex-direction:column;gap:4px;min-height:38px;justify-content:center;position:relative}
-.actor-table-role .sched-card.booked-cn{border-left-color:#8CA8C1}
-.actor-table-role .sched-card.booked-en{border-left-color:var(--c-primary)}
-.actor-table-role .sched-card.pending{border-left-color:rgba(255,210,76,.55);border-left-style:dashed}
-/* L1：时间（等宽数字，粗白，主视觉） */
-.actor-table-role .sched-card .sc-time{font-size:14px;color:#fff;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.4px;line-height:1.2;font-variant-numeric:tabular-nums}
-.actor-table-role .sched-card.booked-en .sc-time{color:#fff}
-/* L2：需求名（YaHei 中文，中灰） */
-.actor-table-role .sched-card .sc-story{font-size:12px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI',sans-serif;line-height:1.3;letter-spacing:.2px;font-weight:400}
-.actor-table-role .sched-card.pending .sc-story{color:var(--c-text-dim)}
-/* 待预约文案：跟"已完成"状态字体保持一致的等级 */
-.actor-table-role .sched-card .sc-empty{font-size:12px;color:#FFD24C;font-weight:600;font-family:'Microsoft YaHei UI',sans-serif;text-align:left;letter-spacing:.3px;line-height:1.2;opacity:.85}
-/* 旧字段 sc-actor 已下线 */
-.actor-table-role .sched-card .sc-actor{display:none}
-/* ====== 多档序列（方案 C · 横排压缩） ====== */
-.actor-table-role .sched-card.multi{gap:5px}
-.actor-table-role .sched-card .sc-pills{display:flex;align-items:center;flex-wrap:wrap;gap:32px;line-height:1.2}
-.actor-table-role .sched-card .sc-pill{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:14px;font-weight:700;color:#fff;letter-spacing:.4px;white-space:nowrap;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:4px;padding:3px 10px}
-.actor-table-role .sched-card .sc-pill-dot{width:5px;height:5px;border-radius:50%;background:currentColor;box-shadow:0 0 4px currentColor;opacity:.85}
-.actor-table-role .sched-card.booked-cn .sc-pill{color:#fff}
-.actor-table-role .sched-card.booked-cn .sc-pill-dot{background:#8CA8C1;box-shadow:0 0 4px rgba(140,168,189,.6)}
-.actor-table-role .sched-card.booked-en .sc-pill{color:#fff}
-.actor-table-role .sched-card.booked-en .sc-pill-dot{background:var(--c-primary);box-shadow:0 0 4px rgba(15,247,150,.6)}
-.actor-table-role .sched-card .sc-pill-date{opacity:.95;font-weight:700}
-.actor-table-role .sched-card .sc-pill-time{opacity:.7;font-size:14px;margin-left:2px}
-.actor-table-role .sched-card .sc-more{color:var(--c-text-dim);font-size:10.5px;letter-spacing:.6px;font-family:'JetBrains Mono',monospace}
-/* ====== 日历 / 即将录制 → 主表 反向联动高亮 ====== */
-.actor-table-role .sched-card.mid-focus{background:rgba(255,255,255,.07) !important;border-radius:4px;box-shadow:0 0 0 1px rgba(255,255,255,.42),0 0 12px rgba(255,255,255,.14)}
-.actor-table-role .sc-pill.mid-focus{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.36);box-shadow:0 0 0 1px rgba(255,255,255,.42),0 0 10px rgba(255,255,255,.12)}
-.actor-table-role .sched-card.mid-dim,
-.actor-table-role .sc-pill.mid-dim{opacity:.32}
-/* ====== "已过档期" 灰化态（单档 / 多档统一：灰点无光晕 + 字灰 + 70% 透明） ====== */
-/* 单档 · past：整卡淡化 + 竖条转灰 */
-.actor-table-role .sched-card.past{border-left-color:#5D6E78 !important;opacity:.7}
-.actor-table-role .sched-card.past .sc-time{color:var(--c-text-mute);font-weight:600}
-.actor-table-role .sched-card.past .sc-story{color:var(--c-text-mute)}
-/* 多档 · 混合态（卡片未整体 past）：仅过期的那颗 pill 走 70% 透明 + 灰点无光晕 + 字灰 */
-.actor-table-role .sched-card .sc-pill.past{background:transparent;border-color:transparent;opacity:.7}
-/* 灰点无光晕 + 字灰：无论混合/整体，一律生效 */
-.actor-table-role .sched-card .sc-pill.past .sc-pill-dot{background:#5D6E78 !important;box-shadow:none !important}
-.actor-table-role .sched-card .sc-pill.past .sc-pill-date{color:var(--c-text-mute);font-weight:600}
-.actor-table-role .sched-card .sc-pill.past .sc-pill-time{color:var(--c-text-dim)}
-/* 多档 · 全部已过 → 整卡统一 70%（pill 不再叠加，避免 0.49 过度淡化） */
-.actor-table-role .sched-card.multi.past{opacity:.7}
-.actor-table-role .sched-card.multi.past .sc-story{color:var(--c-text-mute)}
-/* 预约状态列：L2 级别（12/500）单色文字 + 状态色点 */
-.actor-table-role .role-status{display:inline-flex;align-items:center;gap:6px;padding:0;background:transparent !important;border:none !important;font-size:12px;font-weight:500;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.3px;white-space:nowrap;line-height:1.2}
-.actor-table-role .role-status.ok{color:var(--c-text-mute)}
-.actor-table-role .role-status.warn{
-  color:#FFD24C;
-  background:rgba(255,210,76,.10) !important;
-  border:1px solid rgba(255,210,76,.45) !important;
-  border-radius:999px;
-  padding:5px 12px;
-  font-weight:600;
-  letter-spacing:.4px;
-}
-.actor-table-role .role-status .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
-.actor-table-role .role-status.ok .dot{background:#5D6E78;box-shadow:none}
-.actor-table-role .role-status.warn .dot{background:#FFD24C;box-shadow:0 0 5px rgba(255,210,76,.5)}
-.actor-table-role .col-action{text-align:right;white-space:nowrap;padding-right:22px !important}
-/* 语种联动：只看 cn 隐藏 en 列（连表头一起隐藏） */
-.actor-table-role.lang-only-cn td.col-en,
-.actor-table-role.lang-only-cn thead th:nth-child(3){display:none}
-.actor-table-role.lang-only-en td.col-cn,
-.actor-table-role.lang-only-en thead th:nth-child(2){display:none}
+/* ============ 声优视图 · 卡片网格（A 风格） ============ */
+.actor-card-wrap{flex:1;overflow-y:auto;min-height:0}
+.actor-card-grid{display:flex;flex-direction:column;gap:16px}
 
-/* 大类分节 v2：横线 + 数字编号 + 完成度分数（军事文档感） */
-.actor-table-role tr.role-cat-head td{background:transparent;border:none;padding:24px 4px 4px}
-.role-cat-title{display:flex;align-items:baseline;gap:14px;font-family:'JetBrains Mono',monospace;border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:8px}
-.role-cat-title .cat-dot{display:none}
-.role-cat-title .cat-idx{font-size:10.5px;font-weight:500;color:var(--c-text-dim);letter-spacing:1.2px;font-variant-numeric:tabular-nums}
-.role-cat-title .cat-name{font-size:12.5px;font-weight:700;letter-spacing:2px;color:var(--c-text);text-transform:uppercase;font-family:'Inter',sans-serif}
-.role-cat-title .cat-name-cn{font-size:10.5px;font-weight:400;color:var(--c-text-dim);letter-spacing:1px;font-family:'Microsoft YaHei UI',sans-serif}
-.role-cat-title .cat-count{margin-left:auto;font-size:10.5px;color:var(--c-text-dim);letter-spacing:.6px;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace}
-.role-cat-title .cat-count .cur{color:var(--c-text-2);font-weight:600}
-.role-cat-title .cat-count .warn{color:#FFD24C;font-weight:600}
-/* 大类颜色仅作为侧边窄条应用于该组第一行角色的左侧 —— 保留识别性但不喧哗 */
-.actor-table-role tr[data-cat-color]{position:relative}
+/* 大类分节头 */
+.ac-cat-head{display:flex;align-items:center;gap:10px;padding:0 0 8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.ac-cat-idx{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--c-text-dim);letter-spacing:1px;font-variant-numeric:tabular-nums}
+.ac-cat-name{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--c-text);font-family:'Microsoft YaHei UI',sans-serif}
+.ac-cat-count{margin-left:auto;font-size:10.5px;color:var(--c-text-dim);letter-spacing:.5px;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace}
+.ac-cat-count .cur{color:var(--c-text-2);font-weight:600}
+.ac-cat-count .warn{color:var(--c-text-mute);font-weight:600}
+
+/* 角色卡片组（网格） */
+.acard-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px;align-items:start}
+
+/* 单卡 */
+.acard{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.acard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:8px 0 0 8px;background:rgba(15,247,150,.35)}
+.acard.has-pending{border-color:rgba(107,122,133,.20);background:linear-gradient(180deg,rgba(107,122,133,.03) 0%,var(--c-surface) 50%)}
+.acard.has-pending::before{background:rgba(107,122,133,.45)}
+
+/* 卡片头：头像 + 角色名 + 状态 */
+.acard-head{display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--c-hairline)}
+.acard-avatar{width:32px;height:32px;border-radius:50%;background:rgba(140,168,189,.10);border:1px solid rgba(140,168,189,.16);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--c-text-mute);font-family:inherit;flex-shrink:0;letter-spacing:.3px}
+.acard-avatar.en{background:rgba(140,168,189,.10);border-color:rgba(140,168,189,.16)}
+.acard-nameblock{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.acard-name{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px;line-height:1.2;word-break:break-all}
+.acard-cat{font-size:10px;color:var(--c-text-dim);letter-spacing:.8px;font-family:'Microsoft YaHei UI',sans-serif}
+.ac-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.3px;white-space:nowrap;flex-shrink:0}
+.ac-status.warn{color:#FFD24C;background:rgba(255,210,76,.05);border:1px solid rgba(255,210,76,.28);border-radius:999px;padding:4px 10px}
+.ac-status.warn .dot{width:5px;height:5px;border-radius:50%;background:#FFD24C;box-shadow:0 0 3px rgba(255,210,76,.15)}
+.ac-status.ok{color:var(--c-text-mute);padding:4px 0}
+.ac-status.ok .dot{width:5px;height:5px;border-radius:50%;background:#5D6E78}
+
+/* 卡片体：中/英双行 */
+.acard-body{display:flex;flex-direction:column;gap:6px}
+.acard-lang-row{display:flex;align-items:flex-start;gap:8px;min-height:28px}
+.acard-lang-row.ac-hidden{display:none}
+.acard-lang{flex-shrink:0;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;font-weight:800;font-family:'Microsoft YaHei UI',sans-serif;margin-top:1px}
+.acard-lang.cn{background:rgba(140,168,189,.20);color:#B8CBD8;border:1px solid rgba(140,168,189,.25)}
+.acard-lang.en{background:rgba(15,247,150,.16);color:var(--c-primary);border:1px solid rgba(15,247,150,.25)}
+.acard-sched{flex:1;min-width:0}
+
+/* 卡片内档期显示 */
+.acard .sched-card{background:transparent !important;border:none;border-left:3px solid rgba(140,168,189,.22);border-radius:0;padding:2px 0 2px 10px;display:flex;flex-direction:column;gap:3px;min-height:28px;justify-content:center}
+.acard .sched-card.booked-cn{border-left-color:#8CA8C1}
+.acard .sched-card.booked-en{border-left-color:var(--c-primary)}
+.acard .sched-card.pending{border-left-color:rgba(255,210,76,.40);border-left-style:dashed}
+.acard .sched-card .sc-time{font-size:13px;color:#fff;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.3px;line-height:1.2;font-variant-numeric:tabular-nums}
+.acard .sched-card .sc-story{font-size:11px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI',sans-serif;line-height:1.3;letter-spacing:.2px;font-weight:400}
+.acard .sched-card.pending .sc-story{color:var(--c-text-dim)}
+.acard .sched-card .sc-empty{font-size:11px;color:#FFD24C;font-weight:600;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.3px;line-height:1.2;opacity:.85}
+.acard .sched-card .sc-pills{display:flex;align-items:center;flex-wrap:wrap;gap:6px;line-height:1.2}
+.acard .sched-card .sc-pill{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:700;color:#fff;letter-spacing:.3px;white-space:nowrap;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:999px;padding:2px 9px}
+.acard .sched-card .sc-pill-dot{width:4px;height:4px;border-radius:50%;background:currentColor;box-shadow:0 0 3px currentColor;opacity:.85}
+.acard .sched-card.booked-cn .sc-pill-dot{background:#8CA8C1;box-shadow:0 0 3px rgba(140,168,189,.6)}
+.acard .sched-card.booked-en .sc-pill-dot{background:var(--c-primary);box-shadow:0 0 3px rgba(15,247,150,.6)}
+.acard .sched-card .sc-pill-date{opacity:.95;font-weight:700}
+.acard .sched-card .sc-pill-time{opacity:.65;font-size:12px;margin-left:1px}
+.acard .sched-card .sc-more{color:var(--c-text-dim);font-size:10px;letter-spacing:.5px;font-family:'JetBrains Mono',monospace}
+.acard .sched-card.past{border-left-color:#5D6E78 !important;opacity:.7}
+.acard .sched-card.past .sc-time{color:var(--c-text-mute);font-weight:600}
+.acard .sched-card.past .sc-story{color:var(--c-text-mute)}
+.acard .sched-card .sc-pill.past{background:transparent;border-color:transparent;opacity:.7}
+.acard .sched-card .sc-pill.past .sc-pill-dot{background:#5D6E78 !important;box-shadow:none !important}
+.acard .sched-card .sc-pill.past .sc-pill-date{color:var(--c-text-mute);font-weight:600}
+.acard .sched-card .sc-pill.past .sc-pill-time{color:var(--c-text-dim)}
+.acard .sched-card.mid-focus{background:rgba(255,255,255,.07) !important;border-radius:4px;box-shadow:0 0 0 1px rgba(255,255,255,.42),0 0 12px rgba(255,255,255,.14)}
+.acard .sc-pill.mid-focus{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.36);box-shadow:0 0 0 1px rgba(255,255,255,.42),0 0 10px rgba(255,255,255,.12)}
+.acard .sched-card.mid-dim,.acard .sc-pill.mid-dim{opacity:.32}
+
+@media (max-width:1400px){.acard-group{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}}
+@media (max-width:1100px){.acard-group{grid-template-columns:1fr}}
 
 /* ============ 需求视图 · v3 视觉升级 (Ardot design) ============ */
 /* 卡片基础：节奏更紧凑，无用 padding 全部压缩一档 */
-.demand-cards{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.demand-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:10px;align-items:stretch}
 .demand-cards .dcard{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:14px 16px 12px;display:flex;flex-direction:column;gap:12px;min-width:0;position:relative;overflow:hidden}
 /* 状态竖条统一：has-pending 时黄（发光），其它态用透明绿内敛条 */
 .demand-cards .dcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:rgba(15,247,150,.40)}
-.demand-cards .dcard.has-pending{border-color:rgba(255,210,76,.42);background:linear-gradient(180deg,rgba(255,210,76,.05) 0%,var(--c-surface) 70%)}
-.demand-cards .dcard.has-pending::before{background:#FFD24C;box-shadow:0 0 8px rgba(255,210,76,.5)}
+.demand-cards .dcard.has-pending{border-color:rgba(255,210,76,.22);background:linear-gradient(180deg,rgba(255,210,76,.025) 0%,var(--c-surface) 70%)}
+.demand-cards .dcard.has-pending::before{background:#FFD24C;box-shadow:0 0 5px rgba(255,210,76,.16)}
 /* v3 微型 marker：右上角发光圆斑（仅 has-pending 时显） */
 .demand-cards .dcard::after{content:'';position:absolute;top:0;right:0;width:48px;height:48px;background:radial-gradient(circle at top right, rgba(255,210,76,.22), transparent 70%);opacity:0;transition:opacity .15s;pointer-events:none}
 .demand-cards .dcard.has-pending::after{opacity:1}
 
 /* 卡片头：标题块 + 状态 pill 两端对齐 */
-.demand-cards .dcard-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--c-hairline)}
+.demand-cards .dcard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--c-hairline);min-height:44px}
 .demand-cards .dcard-headline{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
-.demand-cards .dcard-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:.4px;line-height:1.2;word-break:break-all}
+.demand-cards .dcard-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:.4px;line-height:1.2;word-break:break-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38px}
 .demand-cards .dcard-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-mute);letter-spacing:1.4px;text-transform:uppercase;font-weight:500}
 /* v3：状态 pill 加前置指示点 + 图标，更像"业务状态机" */
-.demand-cards .dcard-pending{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;font-family:'Microsoft YaHei UI',sans-serif;white-space:nowrap;flex-shrink:0;padding:5px 11px;border-radius:3px;letter-spacing:.4px;color:#FFD24C;background:rgba(255,210,76,.10);border:1px solid rgba(255,210,76,.40)}
-.demand-cards .dcard-pending::before{content:'';width:6px;height:6px;border-radius:50%;background:#FFD24C;box-shadow:0 0 5px rgba(255,210,76,.55)}
+.demand-cards .dcard-pending{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;font-family:'Microsoft YaHei UI',sans-serif;white-space:nowrap;flex-shrink:0;padding:5px 11px;border-radius:999px;letter-spacing:.4px;color:#FFD24C;background:rgba(255,210,76,.05);border:1px solid rgba(255,210,76,.28)}
+.demand-cards .dcard-pending::before{content:'';width:6px;height:6px;border-radius:50%;background:#FFD24C;box-shadow:0 0 3px rgba(255,210,76,.16)}
 .demand-cards .dcard-pending.ok{color:var(--c-primary);background:rgba(15,247,150,.10);border-color:rgba(15,247,150,.40)}
 .demand-cards .dcard-pending.ok::before{background:var(--c-primary);box-shadow:0 0 5px rgba(15,247,150,.55)}
 .demand-cards .dcard-pending .dp-icon{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0;font-weight:800;line-height:1}
 
 /* 角色块：横向铺开，外边距收紧 */
-.demand-cards .dcard-roles{display:flex;flex-wrap:wrap;gap:8px}
+.demand-cards .dcard-roles{display:flex;flex-wrap:wrap;gap:8px;flex:1;align-content:flex-start}
 .demand-cards .role-chip{flex:1 1 210px;min-width:210px;background:rgba(255,255,255,.025);border:1px solid var(--c-hairline);border-radius:5px;padding:10px 12px 9px;display:flex;flex-direction:column;gap:6px;min-width:0;position:relative;transition:border-color .12s,background .12s}
 /* v3：3 种状态语义化（视觉强化）: 已完成 / 部分待预约 / 全部待预约 */
-.demand-cards .role-chip.is-pending{border-color:rgba(255,210,76,.34);background:rgba(255,210,76,.045)}
-.demand-cards .role-chip.all-pending{border-color:rgba(255,210,76,.55);background:rgba(255,210,76,.09);box-shadow:inset 0 0 0 1px rgba(255,210,76,.18)}
+.demand-cards .role-chip.is-pending{border-color:rgba(255,210,76,.24);background:rgba(255,210,76,.025)}
+.demand-cards .role-chip.all-pending{border-color:rgba(255,210,76,.35);background:rgba(255,210,76,.05);box-shadow:inset 0 0 0 1px rgba(255,210,76,.10)}
 
 /* 角色名：主标题 L1，待约时前置 ⚠ 小圆 */
 .demand-cards .role-chip .rc-name{display:flex;align-items:center;gap:6px;font-size:14.5px;font-weight:700;color:#fff;letter-spacing:.3px;line-height:1.25;word-break:break-all}
-.demand-cards .role-chip .rc-name .rc-warn{flex-shrink:0;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,210,76,.18);color:#FFD24C;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:800;line-height:1}
+.demand-cards .role-chip .rc-name .rc-warn{display:none}
 
 /* 中/英配档期：行高度统一 */
 .demand-cards .role-chip .rc-scheds{display:flex;flex-direction:column;gap:5px}
 .demand-cards .role-chip .rc-line{display:flex;align-items:center;gap:8px;min-width:0;height:22px}
 /* v3：缺配显式虚线占位框，保持 chip 双槽位结构永远完整 */
 .demand-cards .role-chip .rc-line.empty .rc-time{flex:1;border:1px dashed rgba(255,255,255,.12);border-radius:3px;padding:3px 8px;font-size:10.5px;font-weight:500;color:var(--c-text-dim);font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.4px;text-align:center;background:transparent;white-space:nowrap;font-variant-numeric:normal}
-.demand-cards .role-chip .rc-line.pend .rc-time.empty{border-color:rgba(255,210,76,.42);color:#FFD24C;background:rgba(255,210,76,.045)}
+.demand-cards .role-chip .rc-line.pend .rc-time.empty{border-color:rgba(255,210,76,.22);color:#FFD24C;background:rgba(255,210,76,.025)}
 
 /* 语种徽章：方块化 */
 .demand-cards .role-chip .rc-lang{flex-shrink:0;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:3px;font-size:10.5px;font-weight:800;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:0}
@@ -682,7 +683,7 @@ body.embed .main{width:100%}
 .demand-area-stack{display:flex;flex-direction:column;gap:18px}
 .area-section{display:flex;flex-direction:column;gap:10px;position:relative;padding-left:18px}
 .area-section::before{content:'';position:absolute;left:0;top:1px;bottom:1px;width:2px;border-radius:1px;background:rgba(255,255,255,.10)}
-.area-section.has-pending::before{background:#FFD24C;box-shadow:0 0 8px rgba(255,210,76,.38)}
+.area-section.has-pending::before{background:rgba(107,122,133,.5);box-shadow:none}
 .area-section.is-done::before{background:var(--c-primary);opacity:.75}
 
 .area-head{display:flex;align-items:center;gap:14px;padding:0 0 11px;position:relative}
@@ -690,7 +691,7 @@ body.embed .main{width:100%}
 
 /* v3：AREA 序号从边框 box → 大块状态徽章 */
 .area-head .area-idx{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:800;letter-spacing:.5px;color:var(--c-text-dim);background:rgba(255,255,255,.04);border:1px solid var(--c-hairline);line-height:1;font-variant-numeric:tabular-nums}
-.area-section.has-pending .area-head .area-idx{color:#FFD24C;border-color:rgba(255,210,76,.5);background:rgba(255,210,76,.12);box-shadow:0 0 8px rgba(255,210,76,.22)}
+.area-section.has-pending .area-head .area-idx{color:var(--c-text-mute);border-color:rgba(107,122,133,.30);background:rgba(107,122,133,.06);box-shadow:none}
 .area-section.is-done .area-head .area-idx{color:var(--c-primary);border-color:rgba(15,247,150,.4);background:rgba(15,247,150,.085)}
 
 /* 名称块：左对齐收紧 */
@@ -698,13 +699,18 @@ body.embed .main{width:100%}
 .area-head .area-title{display:flex;align-items:baseline;gap:9px;min-width:0}
 .area-head .area-name{font-size:18px;font-weight:800;color:#fff;letter-spacing:1px;line-height:1;white-space:nowrap}
 .area-head .area-codename{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:2.2px;color:rgba(15,247,150,.55);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+/* AREA 名旁的"X 位待约"汇总 pill（圆框框） */
+.area-head .area-pend-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 7px;border-radius:9999px;background:rgba(255,210,76,.08);border:1px solid rgba(255,210,76,.32);color:#FFD24C;font-size:11.5px;font-weight:700;letter-spacing:.4px;font-family:'Microsoft YaHei UI',sans-serif;white-space:nowrap;line-height:1.5}
+.area-head .area-pend-badge .dot{flex-shrink:0;width:6px;height:6px;border-radius:50%;background:#FFD24C;box-shadow:0 0 6px rgba(255,210,76,.55)}
+.area-head .area-pend-badge.zero{background:rgba(15,247,150,.08);border-color:rgba(15,247,150,.32);color:var(--c-primary)}
+.area-head .area-pend-badge.zero .dot{background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55)}
 
 /* v3：统计 → 三段 metric label + value（与卡片底部同语言） */
 .area-head .area-stat{margin-left:auto;display:flex;align-items:stretch;gap:6px;flex-shrink:0}
 .area-head .area-metric{display:flex;flex-direction:column;gap:3px;padding:5px 9px;border-radius:4px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);min-width:64px;text-align:right;justify-content:center}
 .area-head .area-metric .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--c-text-mute);text-transform:uppercase;font-weight:600;line-height:1}
 .area-head .area-metric .val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:#fff;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1}
-.area-head .area-metric.pend .val{color:#FFD24C}
+.area-head .area-metric.pend .val{color:var(--c-text-mute)}
 .area-head .area-metric.done .val{color:var(--c-primary)}
 
 /* 进度条移到独立一行（v3：与 metric 解耦，右侧最大化对齐） */
@@ -714,7 +720,7 @@ body.embed .main{width:100%}
 .area-section .area-progress{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--c-text-mute);letter-spacing:.5px}
 .area-section .area-progress .bar{flex:1;height:2px;border-radius:1px;background:rgba(255,255,255,.08);overflow:hidden}
 .area-section .area-progress .bar i{display:block;height:100%;border-radius:1px;background:rgba(255,255,255,.3);transition:width .35s ease}
-.area-section.has-pending .area-progress .bar i{background:#FFD24C;box-shadow:0 0 6px rgba(255,210,76,.4)}
+.area-section.has-pending .area-progress .bar i{background:rgba(107,122,133,.5);box-shadow:none}
 .area-section.is-done .area-progress .bar i{background:var(--c-primary);opacity:.85}
 .area-section .area-progress .pct{font-weight:700;color:var(--c-text);min-width:36px;text-align:right;font-variant-numeric:tabular-nums}
 
@@ -725,114 +731,7 @@ body.embed .main{width:100%}
 }
 /* 风险公告字体已在上方 v2 完整定义（256-284）；此处不再重复覆盖 */
 /* 视图 tab */
-.view-tabs .view-tab{font-size:17px;letter-spacing:1px}
-/* ============ 需求视图 · v3 视觉升级 (Ardot design) ============ */
-/* 卡片基础：节奏更紧凑，无用 padding 全部压缩一档 */
-.demand-cards{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
-.demand-cards .dcard{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:14px 16px 12px;display:flex;flex-direction:column;gap:12px;min-width:0;position:relative;overflow:hidden}
-/* 状态竖条统一：has-pending 时黄（发光），其它态用透明绿内敛条 */
-.demand-cards .dcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:rgba(15,247,150,.40)}
-.demand-cards .dcard.has-pending{border-color:rgba(255,210,76,.42);background:linear-gradient(180deg,rgba(255,210,76,.05) 0%,var(--c-surface) 70%)}
-.demand-cards .dcard.has-pending::before{background:#FFD24C;box-shadow:0 0 8px rgba(255,210,76,.5)}
-/* v3 微型 marker：右上角发光圆斑（仅 has-pending 时显） */
-.demand-cards .dcard::after{content:'';position:absolute;top:0;right:0;width:48px;height:48px;background:radial-gradient(circle at top right, rgba(255,210,76,.22), transparent 70%);opacity:0;transition:opacity .15s;pointer-events:none}
-.demand-cards .dcard.has-pending::after{opacity:1}
-
-/* 卡片头：标题块 + 状态 pill 两端对齐 */
-.demand-cards .dcard-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--c-hairline)}
-.demand-cards .dcard-headline{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
-.demand-cards .dcard-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:.4px;line-height:1.2;word-break:break-all}
-.demand-cards .dcard-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-mute);letter-spacing:1.4px;text-transform:uppercase;font-weight:500}
-/* v3：状态 pill 加前置指示点 + 图标，更像"业务状态机" */
-.demand-cards .dcard-pending{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;font-family:'Microsoft YaHei UI',sans-serif;white-space:nowrap;flex-shrink:0;padding:5px 11px;border-radius:3px;letter-spacing:.4px;color:#FFD24C;background:rgba(255,210,76,.10);border:1px solid rgba(255,210,76,.40)}
-.demand-cards .dcard-pending::before{content:'';width:6px;height:6px;border-radius:50%;background:#FFD24C;box-shadow:0 0 5px rgba(255,210,76,.55)}
-.demand-cards .dcard-pending.ok{color:var(--c-primary);background:rgba(15,247,150,.10);border-color:rgba(15,247,150,.40)}
-.demand-cards .dcard-pending.ok::before{background:var(--c-primary);box-shadow:0 0 5px rgba(15,247,150,.55)}
-.demand-cards .dcard-pending .dp-icon{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0;font-weight:800;line-height:1}
-
-/* 角色块：横向铺开，外边距收紧 */
-.demand-cards .dcard-roles{display:flex;flex-wrap:wrap;gap:8px}
-.demand-cards .role-chip{flex:1 1 210px;min-width:210px;background:rgba(255,255,255,.025);border:1px solid var(--c-hairline);border-radius:5px;padding:10px 12px 9px;display:flex;flex-direction:column;gap:6px;min-width:0;position:relative;transition:border-color .12s,background .12s}
-/* v3：3 种状态语义化（视觉强化）: 已完成 / 部分待预约 / 全部待预约 */
-.demand-cards .role-chip.is-pending{border-color:rgba(255,210,76,.34);background:rgba(255,210,76,.045)}
-.demand-cards .role-chip.all-pending{border-color:rgba(255,210,76,.55);background:rgba(255,210,76,.09);box-shadow:inset 0 0 0 1px rgba(255,210,76,.18)}
-
-/* 角色名：主标题 L1，待约时前置 ⚠ 小圆 */
-.demand-cards .role-chip .rc-name{display:flex;align-items:center;gap:6px;font-size:14.5px;font-weight:700;color:#fff;letter-spacing:.3px;line-height:1.25;word-break:break-all}
-.demand-cards .role-chip .rc-name .rc-warn{flex-shrink:0;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,210,76,.18);color:#FFD24C;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:800;line-height:1}
-
-/* 中/英配档期：行高度统一 */
-.demand-cards .role-chip .rc-scheds{display:flex;flex-direction:column;gap:5px}
-.demand-cards .role-chip .rc-line{display:flex;align-items:center;gap:8px;min-width:0;height:22px}
-/* v3：缺配显式虚线占位框，保持 chip 双槽位结构永远完整 */
-.demand-cards .role-chip .rc-line.empty .rc-time{flex:1;border:1px dashed rgba(255,255,255,.12);border-radius:3px;padding:3px 8px;font-size:10.5px;font-weight:500;color:var(--c-text-dim);font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.4px;text-align:center;background:transparent;white-space:nowrap;font-variant-numeric:normal}
-.demand-cards .role-chip .rc-line.pend .rc-time.empty{border-color:rgba(255,210,76,.42);color:#FFD24C;background:rgba(255,210,76,.045)}
-
-/* 语种徽章：方块化 */
-.demand-cards .role-chip .rc-lang{flex-shrink:0;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:3px;font-size:10.5px;font-weight:800;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:0}
-.demand-cards .role-chip .rc-lang.cn{background:rgba(140,168,189,.22);color:#B8CBD8;border:1px solid rgba(140,168,189,.3)}
-.demand-cards .role-chip .rc-lang.en{background:rgba(15,247,150,.18);color:var(--c-primary);border:1px solid rgba(15,247,150,.3)}
-/* 已约时间：mono 加粗白 */
-.demand-cards .role-chip .rc-time.real{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:#fff;letter-spacing:.3px;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
-/* 待约：mono 让位给中文 */
-.demand-cards .role-chip .rc-line.pend .rc-time.real{color:#FFD24C;font-family:'Microsoft YaHei UI',sans-serif;font-weight:600;opacity:.9}
-
-/* v3：元数据底部 → 4 个 metric mini（角色·句数·中配·英配） */
-.demand-cards .dcard-foot{display:flex;align-items:stretch;padding-top:10px;border-top:1px solid var(--c-hairline);gap:8px}
-.demand-cards .dcard-foot .metric{flex:1;display:flex;flex-direction:column;gap:3px;padding:7px 9px;border-radius:4px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);min-width:0}
-.demand-cards .dcard-foot .metric .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--c-text-mute);text-transform:uppercase;font-weight:600;line-height:1}
-.demand-cards .dcard-foot .metric .val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:#fff;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1}
-.demand-cards .dcard-foot .metric.cn .val,.demand-cards .dcard-foot .metric.en .val{color:var(--c-text-2)}
-.demand-cards .dcard-foot .metric.warn .val{color:#FFD24C}
-
-/* 需求视图 · AREA 分组（v3：状态徽章化 + 三段 metric）*/
-.demand-area-stack{display:flex;flex-direction:column;gap:18px}
-.area-section{display:flex;flex-direction:column;gap:10px;position:relative;padding-left:18px}
-.area-section::before{content:'';position:absolute;left:0;top:1px;bottom:1px;width:2px;border-radius:1px;background:rgba(255,255,255,.10)}
-.area-section.has-pending::before{background:#FFD24C;box-shadow:0 0 8px rgba(255,210,76,.38)}
-.area-section.is-done::before{background:var(--c-primary);opacity:.75}
-
-.area-head{display:flex;align-items:center;gap:14px;padding:0 0 11px;position:relative}
-.area-head::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.16) 0,rgba(255,255,255,.14) 42%,rgba(255,255,255,.02) 100%)}
-
-/* v3：AREA 序号从边框 box → 大块状态徽章 */
-.area-head .area-idx{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:800;letter-spacing:.5px;color:var(--c-text-dim);background:rgba(255,255,255,.04);border:1px solid var(--c-hairline);line-height:1;font-variant-numeric:tabular-nums}
-.area-section.has-pending .area-head .area-idx{color:#FFD24C;border-color:rgba(255,210,76,.5);background:rgba(255,210,76,.12);box-shadow:0 0 8px rgba(255,210,76,.22)}
-.area-section.is-done .area-head .area-idx{color:var(--c-primary);border-color:rgba(15,247,150,.4);background:rgba(15,247,150,.085)}
-
-/* 名称块：左对齐收紧 */
-.area-head .area-idblock{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
-.area-head .area-title{display:flex;align-items:baseline;gap:9px;min-width:0}
-.area-head .area-name{font-size:18px;font-weight:800;color:#fff;letter-spacing:1px;line-height:1;white-space:nowrap}
-.area-head .area-codename{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:2.2px;color:rgba(15,247,150,.55);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-
-/* v3：统计 → 三段 metric label + value（与卡片底部同语言） */
-.area-head .area-stat{margin-left:auto;display:flex;align-items:stretch;gap:6px;flex-shrink:0}
-.area-head .area-metric{display:flex;flex-direction:column;gap:3px;padding:5px 9px;border-radius:4px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);min-width:64px;text-align:right;justify-content:center}
-.area-head .area-metric .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--c-text-mute);text-transform:uppercase;font-weight:600;line-height:1}
-.area-head .area-metric .val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:#fff;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1}
-.area-head .area-metric.pend .val{color:#FFD24C}
-.area-head .area-metric.done .val{color:var(--c-primary)}
-
-/* 进度条移到独立一行（v3：与 metric 解耦，右侧最大化对齐） */
-.area-head .area-bar{display:none}
-
-/* 区段级"完成度"独立底部行 */
-.area-section .area-progress{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--c-text-mute);letter-spacing:.5px}
-.area-section .area-progress .bar{flex:1;height:2px;border-radius:1px;background:rgba(255,255,255,.08);overflow:hidden}
-.area-section .area-progress .bar i{display:block;height:100%;border-radius:1px;background:rgba(255,255,255,.3);transition:width .35s ease}
-.area-section.has-pending .area-progress .bar i{background:#FFD24C;box-shadow:0 0 6px rgba(255,210,76,.4)}
-.area-section.is-done .area-progress .bar i{background:var(--c-primary);opacity:.85}
-.area-section .area-progress .pct{font-weight:700;color:var(--c-text);min-width:36px;text-align:right;font-variant-numeric:tabular-nums}
-
-@media (max-width: 1600px){
-  /* 窄屏下角色块收窄 */
-  .demand-cards .role-chip{flex:1 1 180px;min-width:180px;padding:9px 10px 8px}
-  .area-head .area-metric{min-width:54px;padding:5px 7px}
-}
-/* 风险公告字体已在上方 v2 完整定义（256-284）；此处不再重复覆盖 */
-/* 视图 tab */
-.view-tabs .view-tab{font-size:17px;letter-spacing:1px}
+.view-tabs .view-tab{font-size:17px;letter-spacing:1.5px}
 
 /* 通用底图玻璃层 */
 .toolbar,.stat,.cal-card,.side-card,.sched-section{background:rgba(31,42,50,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -841,13 +740,228 @@ body.embed .main{width:100%}
 /* 响应式断点（2026-08-18） */
 @media (max-width: 1500px){
   .main{padding:14px 16px 16px;gap:12px}
-  .page-title{font-size:20px}
+  /* page-title 响应式已统一，不再缩小 */
 }
 @media (min-width: 2401px){
   .main{padding:26px 32px 32px;gap:20px}
-  .page-title{font-size:26px}
+  /* page-title 已统一 26px */
   .day{font-size:13px}
 }
+
+/* ============================================================
+ * ★ 需求视图黄色移除 · 最终覆盖层（2026-08-31）★
+ * 上面有 3 份重复的 .demand-cards CSS（v2 + 2份v3），靠优先级
+ * 最后定义胜出。此块放在 style 闭合标签前确保覆盖所有重复定义。
+ * ──────────────────────────────────────────────
+ * 移除范围（仅需求视图 .demand-cards 内）：
+ *  · 卡片左侧竖条 has-pending 黄色 → 灰
+ *  · 卡片边框/背景黄色渐变 → 透明
+ *  · 卡片右上角黄色发光圆斑 → 隐藏
+ *  · 角色块 is-pending/all-pending 黄色边框/背景 → 灰
+ *  · 角色名前 ⚠ 黄色圆点 → 隐藏
+ *  · 待预约时间黄色文字 → 灰
+ * 保留：.dcard-pending（X位待预约按钮）黄色不变
+ * 声优视图 .actor-table-role 完全不动
+ * ============================================================ */
+.demand-cards .dcard.has-pending{border-color:var(--c-hairline) !important;background:var(--c-surface) !important}
+.demand-cards .dcard.has-pending::before{background:rgba(107,122,133,.5) !important;box-shadow:none !important}
+.demand-cards .dcard.has-pending::after{opacity:0 !important}
+.demand-cards .role-chip.is-pending{border-color:var(--c-hairline) !important;background:rgba(255,255,255,.025) !important}
+.demand-cards .role-chip.all-pending{border-color:var(--c-hairline) !important;background:rgba(255,255,255,.04) !important;box-shadow:none !important}
+.demand-cards .role-chip .rc-name .rc-warn{display:none !important}
+.demand-cards .role-chip .rc-line.pend .rc-time,
+.demand-cards .role-chip .rc-line.pend .rc-time.real{color:var(--c-text-mute) !important;border-color:rgba(255,255,255,.12) !important;background:transparent !important}
+/* 2026-08-31：未排档期文字恢复黄色（用户截图指明这个文字要主色感召），仅作用于 .empty 占位文本 */
+.demand-cards .role-chip .rc-line.pend .rc-time.empty{color:#FFD24C !important;border-color:rgba(255,210,76,.32) !important;background:rgba(255,210,76,.04) !important}
+
+/* 2026-08-31: 需求视图 · 卡片内角色列表 —— 最多显示 3 个 chip, 溢出内部滑动
+ * chip 单元高 ≈ 94px (name 18 + gap 6 + scheds 49 + padding 19 + border 2)
+ * 3 chip + 2 gap(8) = 298px 上限。滚动条按项目深色玻璃调窄+主色 hover */
+.demand-cards .dcard-roles{
+  max-height:298px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(15,247,150,.28) transparent;
+  padding-right:2px;
+}
+.demand-cards .dcard-roles::-webkit-scrollbar{width:6px}
+.demand-cards .dcard-roles::-webkit-scrollbar-track{background:transparent}
+.demand-cards .dcard-roles::-webkit-scrollbar-thumb{background:rgba(15,247,150,.22);border-radius:3px}
+.demand-cards .dcard-roles::-webkit-scrollbar-thumb:hover{background:rgba(15,247,150,.42)}
+/* chip 强制单列铺满 dcard-roles 宽度,避免 flex-basis:210 造成末排拉伸;
+ * 若外层卡宽度够放多列可移除此段 */
+.demand-cards .role-chip{flex:1 1 100% !important;max-width:100% !important}
+
+/* 2026-08-31: 需求视图 · 中/英配联动 —— 选 cn 隐藏英配 rc-line, 选 en 隐藏中配 rc-line */
+.demand-cards.lang-only-cn .rc-line[data-lang="en"]{display:none !important}
+.demand-cards.lang-only-en .rc-line[data-lang="cn"]{display:none !important}
+.demand-cards.lang-only-cn .role-chip .rc-scheds,
+.demand-cards.lang-only-en .role-chip .rc-scheds{gap:0}
+
+/* 2026-08-31: 声优视图 · 卡片统一大小 + 档期溢出内滑动
+ * 参照需求视图 dcard-roles(max-height:298 + overflow) 的思路
+ * acard 头部约 40 高(头像 32 + padding-bottom 8) + gap 10, body 上限 = 220-40-10 = 170
+ * 卡片总高统一到 220px, 多档期竖向堆积超出后 body 内部滚动 */
+.acard{height:220px !important;overflow:hidden !important}
+.acard-body{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(15,247,150,.28) transparent;
+  padding-right:2px;
+}
+.acard-body::-webkit-scrollbar{width:6px}
+.acard-body::-webkit-scrollbar-track{background:transparent}
+.acard-body::-webkit-scrollbar-thumb{background:rgba(15,247,150,.22);border-radius:3px}
+.acard-body::-webkit-scrollbar-thumb:hover{background:rgba(15,247,150,.42)}
+
+/* 2026-08-31: 需求视图 · 已完成状态徽章跟声优视图 .ac-status.ok 对齐（灰点+灰字，无边框无背景） */
+.demand-cards .dcard-pending.ok{
+  color:var(--c-text-mute) !important;
+  background:transparent !important;
+  border:none !important;
+  padding:4px 0 !important;
+  font-weight:600 !important;
+}
+.demand-cards .dcard-pending.ok::before{
+  background:#5D6E78 !important;
+  box-shadow:none !important;
+  width:5px !important;
+  height:5px !important;
+}
+.demand-cards .dcard-pending.ok .dp-icon{display:none !important}
+
+/* 2026-08-31: 声优视图 · 隐藏 sc-pill-dot（用户 A 方案）
+ * 原多档 pill 前有绿/灰小圆点、单档 sched-card 前无点 → 视觉不一致。
+ * 统一去掉圆点，语种色靠左侧 border-left 3px 承担；pill 左内边距回收避免留白。 */
+.acard .sched-card .sc-pill-dot{display:none !important}
+.acard .sched-card .sc-pill{padding-left:6px !important}
+
+/* 2026-08-31: 风险预警右侧 stats（受影响需求 / 距 VO 资源交付） · 放大填满框
+ * 值 18→28px，标签 10.5→12.5px，单位 10.5→13px，行距 4→6，两组间隔 28→36
+ * banner 主轴 align-items 从 flex-start → center，让 stats 组在整个 banner 高度里垂直居中 */
+.risk-banner{align-items:center !important}
+.risk-stats{gap:36px !important;align-self:center !important}
+.risk-stats .risk-stat{gap:6px !important}
+.risk-stats .risk-stat .k{font-size:12.5px !important;letter-spacing:1.2px !important;font-weight:600 !important}
+.risk-stats .risk-stat .v{font-size:28px !important;letter-spacing:.5px !important;gap:5px !important}
+/* 2026-08-31: 数字统一灰色（用户觉得黄+白太花哨），warn/ok 状态色都收敛到 text-2 */
+.risk-stats .risk-stat .v,
+.risk-stats .risk-stat .v.warn,
+.risk-stats .risk-stat .v.ok{color:var(--c-text-2) !important;opacity:1 !important}
+.risk-stats .risk-stat .v .unit{font-size:13px !important;letter-spacing:.8px !important}
+
+/* ============================================================
+ * ★ 字体系统 · 最终统一覆盖层（2026-08-31 v2 · 截图调档）★
+ * ① 页面主标题 Hero 加大  ② 视图切换 tab（需求/声优）加大
+ * ③ 数字/时间/编号统一等宽  ④ 声优大类对齐 AREA 名  ⑤ metric 微标
+ * 字号层级：Hero 32 > Tab 22 > 分节 18 > 卡标题 16 > 角色名 15
+ *           > 正文 13 > 辅助 12 > 标签 11 > 微标 10
+ * ============================================================ */
+
+/* page-title 响应式覆盖已移除，统一 26px */
+
+/* ② 视图切换 tab —— 需求视图 / 声优视图 —— 按截图升一档
+ * 注：project-fonts.css line 188 .view-tab 用 !important 锁死 13px/500，
+ * 本块同步加 !important。 */
+.view-tabs .view-tab{font-size:17px !important;font-weight:700 !important;letter-spacing:1.5px !important;gap:8px !important}
+.view-tabs .view-tab svg{width:16px !important;height:16px !important}
+
+/* ② 数字 / 时间 / 编号 / 句数 / 计数 —— 全站雅黑 + 表格式数字对齐
+ * 与「版本节点页」字体系统同源（该页面 stat-value/yc-days-num/ms-ver 全用雅黑 + tabular-nums，
+ * 不用 JetBrains Mono）。之前 JetBrains Mono 混入 Segoe UI/Inter 导致同页面 3+ 种字体互撕。 */
+.actor-stat .val,
+.stat-value,
+.risk-stats .risk-stat .v,
+.risk-stats .risk-stat .v .unit,
+.risk-stats .risk-stat .k,
+.demand-cards .dcard-foot .metric .val,
+.demand-cards .dcard-foot .metric .lbl,
+.area-head .area-metric .val,
+.area-head .area-metric .lbl,
+.demand-cards .dcard-id,
+.demand-cards .role-chip .rc-time,
+.demand-cards .role-chip .rc-time.real,
+.demand-cards .role-chip .rc-time.empty,
+.demand-cards .role-chip .rc-name,
+.demand-cards .role-chip .rc-lang,
+.demand-cards .role-chip .rc-lang.cn,
+.demand-cards .role-chip .rc-lang.en,
+.demand-cards .dcard-name,
+.demand-cards .dcard-pending,
+.demand-cards .dcard-pending .dp-icon,
+.acard .sched-card .sc-time,
+.acard .sched-card .sc-pill,
+.acard .sched-card .sc-pill-date,
+.acard .sched-card .sc-pill-time,
+.acard .sched-card .sc-story,
+.acard .sched-card .sc-empty,
+.acard .sched-card .sc-more,
+.acard-lang,
+.acard-lang.cn,
+.acard-lang.en,
+.acard-name,
+.acard-cat,
+.acard-avatar,
+.sched-cell,
+.mp-pr-val,
+.mp-up-pill,
+.mp-cal-title,
+.actor-lines-total,
+.ac-cat-count,
+.ac-cat-name,
+.area-name,
+.area-num,
+.area-section .area-progress .pct,
+.risk-area-pill,
+.risk-area-pill .dot,
+.area-pend-badge,
+.area-pend-badge .dot,
+.deadline-meta,
+.deadline-meta .deadline-dates,
+.deadline-meta .deadline-rel,
+.deadline-meta .deadline-slash,
+.deadline-meta .deadline-calm{
+  font-family:'Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif !important;
+  font-variant-numeric:tabular-nums !important;
+}
+
+/* ③ 声优视图大类名对齐需求视图 AREA 名（原 12px 过小，层级失衡） */
+.ac-cat-name{font-size:15px;font-weight:700;letter-spacing:1px}
+
+/* ④ metric 标签微标 9px → 10px（提升可读性） */
+.demand-cards .dcard-foot .metric .lbl,
+.area-head .area-metric .lbl{font-size:10px;letter-spacing:1.2px}
+
+/* 2026-08-31: AREA/大类 编号「01/02...」统一样式 · 消除两视图差异
+ * Before：需求视图 .area-idx 32×32 方框 + JetBrains Mono 13.5/800，
+ *         声优视图 .ac-cat-idx 纯文字 + JetBrains Mono 10/600 → 视觉互撕
+ * After：都改为纯文字编号（无方框），雅黑 12px/600 + tabular-nums，跟全站数字系统一致 */
+.area-head .area-idx,
+.ac-cat-head .ac-cat-idx{
+  width:auto !important;
+  height:auto !important;
+  min-width:auto !important;
+  padding:0 !important;
+  border:none !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  font-family:'Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif !important;
+  font-size:12px !important;
+  font-weight:600 !important;
+  letter-spacing:.8px !important;
+  color:var(--c-text-dim) !important;
+  font-variant-numeric:tabular-nums !important;
+  line-height:1 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+}
+.area-section.has-pending .area-head .area-idx{color:var(--c-text-mute) !important}
+.area-section.is-done .area-head .area-idx{color:var(--c-primary) !important}
 </style>
 </head>
 <body>
@@ -960,9 +1074,8 @@ body.embed .main{width:100%}
   <main class="main">
     <div class="tactical-header">
       <div class="title-block">
-        <div class="eyebrow"><span class="sig"></span>Recording Ops · Sched 07</div>
-        <h1 class="page-title">录制档期 <span class="code">// 2026 · JUL</span></h1>
-        <div class="subtitle">草稿仅保存在本机 · 录制档期以数据库正式数据为准。</div>
+        <div class="eyebrow"><span class="sig"></span>Recording Schedule</div>
+        <h1 class="page-title">录制档期 <span class="deadline-meta" id="schedDeadlinePill" hidden><span class="deadline-slash">//</span><span class="deadline-dates" id="schedDeadlineRange">--.-- → --.--</span><span class="deadline-sep">·</span><span class="deadline-rel" id="schedDeadlineRel">--</span> 录制定档期<span class="deadline-calm" id="schedDeadlineCalm" hidden>· 已完成</span></span></h1>
       </div>
       <div class="actions">
         <button id="syncFromSummaryBtn" class="btn btn-primary" onclick="syncFromVersionSummary()"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>从 Vo 版本汇总表同步</button>
@@ -972,14 +1085,26 @@ body.embed .main{width:100%}
 
     <!-- 视图切换已并入演员汇总的 toolbar（"按角色 / 按需求"） -->
 
+    <!-- 页面级风险预警横幅（跨「需求视图 / 声优视图」共享，置于两 tab 上方） -->
+    <div class="risk-banner" id="riskBanner">
+      <div class="risk-icon">⚠</div>
+      <div class="risk-body">
+        <div class="risk-title" id="riskTitle">计算中…</div>
+        <!-- AREA 圆框 pill 列表：默认隐藏，banner 计算后填充（calm 态也显示但用主色）；位于 title 与 sub 之间 -->
+        <div class="risk-areas" id="riskAreas" hidden></div>
+        <div class="risk-sub" id="riskSub">正在汇总当前版本的中英配预约状态。</div>
+      </div>
+      <div class="risk-stats" id="riskStats"></div>
+    </div>
+
     <!-- 视图 A：演员预约明细（主视图 · 双视角：按角色 / 按需求） -->
     <div id="viewActors" class="view-pane active">
       <div class="view-tabs">
-        <button class="view-tab" data-vmode="demand" onclick="setActorView('demand',this)">
+        <button class="view-tab" data-vmode="demand" onclick="setActorView('demand',this,event)">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="9" y1="3" x2="9" y2="7"/><line x1="15" y1="3" x2="15" y2="7"/><line x1="9" y1="14" x2="9" y2="14"/><line x1="13" y1="14" x2="13" y2="14"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
           需求视图
         </button>
-        <button class="view-tab on" data-vmode="role" onclick="setActorView('role',this)">
+        <button class="view-tab on" data-vmode="role" onclick="setActorView('role',this,event)">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 20c0-2.4 1.6-4.4 4-5"/></svg>
           声优视图
         </button>
@@ -995,32 +1120,13 @@ body.embed .main{width:100%}
           <button class="tb-btn" data-status="booked" onclick="setActorStatus('booked',this)"><span class="s-icon ok">✓</span> 已约</button>
         </div>
         <div class="tb-group" style="margin-left:auto">
-          <input id="actorSearch" placeholder="搜索游戏角色 / story" oninput="renderActorRollup()" style="background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:6px 10px;border-radius:4px;font-size:12px;min-width:200px"/>
+          <input id="actorSearch" placeholder="搜索游戏角色 / story" oninput="actorSearchDebounce()" style="background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:6px 10px;border-radius:4px;font-size:12px;min-width:200px"/>
         </div>
       </div>
 
-      <div class="risk-banner" id="riskBanner">
-        <div class="risk-icon">⚠</div>
-        <div class="risk-body">
-          <div class="risk-title" id="riskTitle">计算中…</div>
-          <div class="risk-sub" id="riskSub">正在汇总当前版本的中英配预约状态。</div>
-        </div>
-        <div class="risk-stats" id="riskStats"></div>
-      </div>
-
-      <!-- 视图 A · 按角色：左中配 / 右英配 双轨制 -->
-      <div class="actor-table-wrap" id="actorRoleView">
-        <table class="actor-table actor-table-role">
-          <thead>
-            <tr>
-              <th style="width:170px;min-width:140px">游戏角色</th>
-              <th style="width:38%">中配档期</th>
-              <th style="width:38%">英配档期</th>
-              <th style="width:130px;text-align:right">预约状态</th>
-            </tr>
-          </thead>
-          <tbody id="actorRoleTbody"></tbody>
-        </table>
+      <!-- 视图 A · 按角色：卡片网格 -->
+      <div class="actor-card-wrap" id="actorRoleView">
+        <div class="actor-card-grid" id="actorRoleTbody"></div>
         <div id="actorRoleEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无角色数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
       </div>
 
@@ -1030,6 +1136,18 @@ body.embed .main{width:100%}
         <div id="actorDemandEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无需求档期数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
       </div>
     </div><!-- /#viewActors -->
+  <script>
+  /* 首屏即按持久化视图态显示，避免 iframe 重载/刷新时先闪「声优视图」再切「需求视图」 */
+  (function(){
+    var v = 'role';
+    try{ var s = localStorage.getItem('vo_actor_vmode'); if(s==='demand'||s==='role') v = s; }catch(_){}
+    if(v === 'demand'){
+      document.querySelectorAll('.view-tabs [data-vmode]').forEach(function(b){ b.classList.toggle('on', b.dataset.vmode === 'demand'); });
+      var r = document.getElementById('actorRoleView');   if(r) r.style.display = 'none';
+      var d = document.getElementById('actorDemandView'); if(d) d.style.display = '';
+    }
+  })();
+  </script>
   </main>
 </div>
 
@@ -1102,7 +1220,6 @@ function actorEsc(s){ return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&
 // 大类顺序与配色复用声优库页 CAT_COLORS，保证跨页一致。
 const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'AI系统音':6};
 const CAT_COLORS = {'指挥官':'#60A5FA','干员':'#F59E0B','Boss':'#EF4444','AI兵':'#0FF796','NPC':'#D4DDE3','AI系统音':'#3D4C57'};
-const CAT_EN_MAP = {'指挥官':'COMMANDER','干员':'OPERATOR','Boss':'BOSS','AI兵':'AI SOLDIER','NPC':'NPC','AI系统音':'SYSTEM VOICE'};
 const ROLE_CATEGORY_MAP = new Map(); // role_cn -> category
 function setRoleCategoryMap(rows){
   ROLE_CATEGORY_MAP.clear();
@@ -1331,6 +1448,45 @@ function setActorArea(area, btn){
   renderActorRollup();
 }
 
+// 判断点击是否落在「空白处」：非控件、非内容、非日期/条目 → 可恢复默认总计
+function isBlankTarget(el){
+  if(!el) return false;
+  if(el === document.body || el === document.documentElement) return true;
+  if(el.nodeType !== 1) return false;
+  var t = el.tagName;
+  // 命中任何控件/图标（含其内部 svg/path/line/rect 等子元素）→ 一律不算空白
+  if(t === 'BUTTON' || t === 'A' || t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return false;
+  if(t === 'SVG' || t === 'PATH' || t === 'LINE' || t === 'RECT' || t === 'CIRCLE' || t === 'POLYLINE' || t === 'POLYGON' || t === 'G') return false;
+  // 命中任何交互元素（按钮、可点击 data 属性、卡片、pill、chip、tab、legend 等）→ 不算空白
+  if(el.closest && el.closest('[data-vmode],[data-area],[data-cat],[data-status],[data-gender],[data-lang-pill],[data-ymd],[onclick],button,a,input,select,textarea,.dcard,.acard,.role-chip,.sched-card,.sc-pill,.view-tab,.tb-btn,.filter-pill,.actor-toolbar,.demand-toolbar,.mp-cal-day,.mp-up-item,.risk-banner,.risk-stat,.risk-area-pill,.area-pend-badge,.deadline-meta,.page-title,.eyebrow,.brand-bar,.nav-item,.actor-lines-total,.actor-stat,.area-head,.area-name,.ac-cat-name,.dcard-name,.dcard-pending,.dcard-foot')) return false;
+  return true;
+}
+
+// 搜索防抖：150ms 内连续输入只触发最后一次渲染（中文 IME 每键 rerender 全列表会卡）
+var __actorSearchTimer = null;
+function actorSearchDebounce(){
+  clearTimeout(__actorSearchTimer);
+  __actorSearchTimer = setTimeout(function(){ renderActorRollup(); }, 150);
+}
+
+// 点页面空白 → 恢复默认总计：清空所有筛选 + 日期 focus + 搜索
+function clearAllFilters(){
+  ACTOR_STATE.lang = 'all';
+  ACTOR_STATE.status = 'all';
+  ACTOR_STATE.cat = 'all';
+  ACTOR_STATE.gender = 'all';
+  ACTOR_STATE.area = 'all';
+  window.MID_FOCUS_YMD = null;
+  var s = document.getElementById('actorSearch');
+  if(s) s.value = '';
+  // 状态按钮 / 侧栏预约进度胶囊同步回「全部 / 总计」
+  document.querySelectorAll('.actor-toolbar [data-status]').forEach(function(b){ b.classList.toggle('on', b.dataset.status === 'all'); });
+  document.querySelectorAll('[data-lang-pill]').forEach(function(b){ b.classList.toggle('on', b.dataset.langPill === 'all'); });
+  // 维度栏（大类 / AREA / gender）由 renderFilterBar 按 ACTOR_STATE 重绘
+  renderFilterBar();
+  renderActorRollup();
+}
+
 async function loadActorData(){
   let arr = [];
   let talents = [];
@@ -1364,7 +1520,9 @@ function buildMockDemands(){
     { id:'99001', release_plan:base, area:'SOL', task_name:'据点攻防', voice_estimates:[
       {role:'牧羊人', category:'干员', gender:'M', est_lines:148, cn_va:'李想', en_va:'Joe'},
       {role:'红狼',   category:'干员', gender:'M', est_lines:96,  cn_va:'洪晓', en_va:'Starry'},
-      {role:'蜂医',   category:'干员', gender:'F', est_lines:112, cn_va:'陈晓', en_va:'Mary'}
+      {role:'蜂医',   category:'干员', gender:'F', est_lines:112, cn_va:'陈晓', en_va:'Mary'},
+      {role:'疾风',   category:'干员', gender:'M', est_lines:88,  cn_va:'关学院', en_va:'Wind'},
+      {role:'幽兰',   category:'干员', gender:'F', est_lines:74,  cn_va:'罗婧文', en_va:'Orchid'}
     ]},
     { id:'99002', release_plan:base, area:'大战场', task_name:'突击推进', voice_estimates:[
       {role:'牧羊人', category:'干员',   gender:'M', est_lines:132, cn_va:'李想',   en_va:'Joe'},
@@ -1687,6 +1845,21 @@ function renderActorRollup(){
     list.forEach(a => { if(a.status==='pending') names.add(a.role); });
     return Array.from(names);
   })();
+  // 声优视图风险预警：按 game 角色大类（category）聚合待约角色数（角色去重）
+  // · 同一角色在中+英两语种都 pending 也只算 1 位
+  // · 与需求视图 AREA 口径镜像：pill 显示"角色名" + 圆形数字徽章
+  const catPendingStats = (function(){
+    const m = new Map(); // category -> Set<role>
+    list.forEach(a => {
+      if(a.status !== 'pending') return;
+      const c = (a.category||'').trim() || '未分类';
+      if(!m.has(c)) m.set(c, new Set());
+      m.get(c).add(a.role);
+    });
+    const cnt = {};
+    m.forEach((set, c) => { cnt[c] = set.size; });
+    return { cnt };
+  })();
   // 按语种拆分未约数
   const cnPendingN = list.filter(a=>a.lang==='cn' && a.status==='pending').length;
   const enPendingN = list.filter(a=>a.lang==='en' && a.status==='pending').length;
@@ -1739,6 +1912,7 @@ function renderActorRollup(){
   const title = document.getElementById('riskTitle');
   const sub = document.getElementById('riskSub');
   const stats = document.getElementById('riskStats');
+  const areasEl = document.getElementById('riskAreas');
   const action = document.getElementById('riskAction'); // 已下线：筛选器里已有"未约"选项
   if(banner && title && sub && stats){
     if(ACTOR_STATE.vmode === 'demand'){
@@ -1748,11 +1922,20 @@ function renderActorRollup(){
         banner.classList.remove('calm');
         // 预设顺序优先，数据里出现但不在预设内的 AREA 追加在后面（避免漏统计）
         const extraAreas = Object.keys(ap.cnt).filter(a => AREA_ORDER.indexOf(a) < 0);
-        const areaTxt = AREA_ORDER.concat(extraAreas)
-          .filter(a => (ap.cnt[a]||0) > 0)
-          .map(a => `${a} ${ap.cnt[a]} 个`)
-          .join('，');
-        title.textContent = `风险预警 · ${ap.total} 个需求尚未出完整录制档期（${areaTxt}）`;
+        const order = AREA_ORDER.concat(extraAreas).filter(a => (ap.cnt[a]||0) > 0);
+        // AREA 圆框 pill（圆角矩形 = 圆框框）—— AREA 名在前，圆形数字徽章加尾后强化"标出来"
+        if(areasEl){
+          if(order.length){
+            areasEl.innerHTML = order.map(a =>
+              `<span class="risk-area-pill">${escHtmlSafe(a)}<span class="num">${ap.cnt[a]}</span></span>`
+            ).join('');
+            areasEl.hidden = false;
+          } else {
+            areasEl.innerHTML = '';
+            areasEl.hidden = true;
+          }
+        }
+        title.textContent = `风险预警 · ${ap.total} 个需求尚未出完整录制档期`;
         const nameTxt = ap.topNames.length
           ? ap.topNames.map(n => escHtmlSafe(n)).join('、')
           : '—';
@@ -1760,18 +1943,36 @@ function renderActorRollup(){
         if(action){ action.classList.remove('active'); action.textContent = '仅看未预约'; }
       } else {
         banner.classList.add('calm');
+        if(areasEl){ areasEl.innerHTML = ''; areasEl.hidden = true; }
         title.textContent = '全部需求档期已出齐';
         sub.innerHTML = '当前版本所有需求的录制档期均已排期完成。';
         if(action){ action.classList.add('active'); action.textContent = '✓ 全部完成'; }
       }
     } else if(pendingN > 0){
-      // ===== 声优视图：按语种口径 =====
+      // ===== 声优视图：按 game 角色大类（category）口径，镜像需求视图 AREA =====
       banner.classList.remove('calm');
-      title.textContent = `${unalignedRoles} 位声优尚未预约档期（中配 ${cnPendingN} ，英配 ${enPendingN} ）`;
+      const cp = catPendingStats;
+      if(areasEl){
+        // 预设大类顺序（与侧栏 tab 顺序一致），非预设项追加在末
+        const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
+        const extras = Object.keys(cp.cnt).filter(c => CAT_ORDER.indexOf(c) < 0);
+        const order = CAT_ORDER.concat(extras).filter(c => (cp.cnt[c]||0) > 0);
+        if(order.length){
+          areasEl.innerHTML = order.map(c =>
+            `<span class="risk-area-pill">${escHtmlSafe(c)}<span class="num">${cp.cnt[c]}</span></span>`
+          ).join('');
+          areasEl.hidden = false;
+        } else {
+          areasEl.innerHTML = '';
+          areasEl.hidden = true;
+        }
+      }
+      title.textContent = `风险预警 · ${unalignedRoles} 位声优尚未预约档期（中配 ${cnPendingN} ，英配 ${enPendingN} ）`;
       sub.innerHTML = '录制时间需要音频同学尽快确认';
       if(action){ action.classList.remove('active'); action.textContent = '仅看未预约'; }
     } else {
       banner.classList.add('calm');
+      if(areasEl){ areasEl.innerHTML = ''; areasEl.hidden = true; }
       title.textContent = '全部声优档期已确认';
       sub.innerHTML = `当前版本共 ${cnTotal+enTotal} 位应约的中英配档期均已排期完成。`;
       if(action){ action.classList.add('active'); action.textContent = '✓ 全部完成'; }
@@ -1795,6 +1996,8 @@ function renderActorRollup(){
 
   const actorTabHintEl = document.getElementById('actorTabHint');
   if(actorTabHintEl) actorTabHintEl.textContent = pendingN ? `${pendingN} 未约` : '';
+  // 同步刷新顶栏「录制档期截止」药丸（release 状态变更后）
+  try{ renderScheduleDeadline(); }catch(_){}
 }
 
 // 格式化档期时间：从 schedule 渲染 "9/08 14:00-18:00" 或 fallback "9/08 上午"
@@ -1814,12 +2017,28 @@ function formatScheduleLabel(s){
   return { date: md, time: '' };
 }
 
+// 判断某档期条目在指定日期是否有录制（日期 focus 真过滤用）
+function itemHasSlotOn(item, ymd){
+  if(!ymd) return true;
+  if(!item) return false;
+  var arr = (item.schedules && Array.isArray(item.schedules) && item.schedules.length)
+    ? item.schedules
+    : (item.schedule ? [item.schedule] : []);
+  if(!arr.length) return false;
+  return arr.some(function(s){ return s && s.date && String(s.date).slice(0,10) === ymd; });
+}
+
 function renderActorRoleTable(filteredFlat){
   // filteredFlat 是已应用 lang/status/search 后的 (lang, role) flat 列表
   // 转化为按 role 合并
   const all = aggregateByRole(ACTOR_STATE.demands, ACTOR_STATE.release);
   const hitRoles = new Set((filteredFlat||[]).map(a => a.role));
-  const list = all.filter(g => hitRoles.has(g.role));
+  const focusYmd = window.MID_FOCUS_YMD || null;
+  let list = all.filter(g => hitRoles.has(g.role));
+  // 日期 focus → 只保留该日有录制档的角色组（中/英任一命中即可）
+  if(focusYmd){
+    list = list.filter(g => itemHasSlotOn(g.cn, focusYmd) || itemHasSlotOn(g.en, focusYmd));
+  }
 
   // lang 联动：只看某一语种时，隐藏对侧的列
   const wrap = document.querySelector('#viewActors .actor-table-wrap-role') || document.getElementById('actorRoleTbody');
@@ -1859,54 +2078,66 @@ function renderActorRoleTable(filteredFlat){
     const roles = byCat.get(cat);
     const pendingCnt = roles.filter(g => g.hasPending).length;
     const bookedCnt = roles.length - pendingCnt;
-    const catEn = CAT_EN_MAP[cat] || cat;
     const idxStr = String(idx+1).padStart(2, '0');
     const countHtml = pendingCnt > 0
-      ? `<span class="cat-count"><span class="cur">${bookedCnt}</span> / ${roles.length} 完成 · <span class="warn">${pendingCnt}</span> 待预约</span>`
-      : `<span class="cat-count"><span class="cur">${roles.length}</span> / ${roles.length} 已完成</span>`;
+      ? `<span class="ac-cat-count"><span class="cur">${bookedCnt}</span> / ${roles.length} 完成 · <span class="warn">${pendingCnt}</span> 待预约</span>`
+      : `<span class="ac-cat-count"><span class="cur">${roles.length}</span> / ${roles.length} 已完成</span>`;
     const head = `
-      <tr class="role-cat-head">
-        <td colspan="4">
-          <div class="role-cat-title">
-            <span class="cat-idx">${idxStr}</span>
-            <span class="cat-name">${escHtmlSafe(catEn)}</span>
-            <span class="cat-name-cn">${escHtmlSafe(cat)}</span>
-            ${countHtml}
-          </div>
-        </td>
-      </tr>`;
-    const rows = roles.map(g => {
+      <div class="ac-cat-head">
+        <span class="ac-cat-idx">${idxStr}</span>
+        <span class="ac-cat-name">${escHtmlSafe(cat)}</span>
+        ${countHtml}
+      </div>`;
+    const cards = roles.map(g => {
       const initial = (g.role || '?').charAt(0);
       const langClass = (g.cn ? 'cn' : (g.en ? 'en' : 'cn'));
-      const cnCard = renderRoleSchedCard(g.cn, 'cn');
-      const enCard = renderRoleSchedCard(g.en, 'en');
+      const cnCard = renderRoleSchedCard(g.cn, 'cn', focusYmd);
+      const enCard = renderRoleSchedCard(g.en, 'en', focusYmd);
+      const langHideCn = ACTOR_STATE.lang === 'en' ? ' ac-hidden' : '';
+      const langHideEn = ACTOR_STATE.lang === 'cn' ? ' ac-hidden' : '';
       const statusBadge = g.hasPending
-        ? `<span class="role-status warn"><span class="dot"></span>待 ${g.cn && g.cn.status==='pending' && g.en && g.en.status==='pending' ? '中+英' : (g.cn && g.cn.status==='pending' ? '中' : '英')} 配</span>`
-        : `<span class="role-status ok"><span class="dot"></span>已完成</span>`;
+        ? `<span class="ac-status warn"><span class="dot"></span>待 ${g.cn && g.cn.status==='pending' && g.en && g.en.status==='pending' ? '中+英' : (g.cn && g.cn.status==='pending' ? '中' : '英')} 配</span>`
+        : `<span class="ac-status ok"><span class="dot"></span>已完成</span>`;
       return `
-        <tr class="row-${g.hasPending?'pending':'booked'}">
-          <td class="role-cell">
-            <div class="role-avatar ${langClass}">${escHtmlSafe(initial)}</div>
-            <div class="role-name">${escHtmlSafe(g.role)}</div>
-          </td>
-          <td class="col-cn">${cnCard}</td>
-          <td class="col-en">${enCard}</td>
-          <td class="col-action">
+        <div class="acard ${g.hasPending?'has-pending':'is-done'}">
+          <div class="acard-head">
+            <div class="acard-avatar ${langClass}">${escHtmlSafe(initial)}</div>
+            <div class="acard-nameblock">
+              <div class="acard-name">${escHtmlSafe(g.role)}</div>
+              <div class="acard-cat">${escHtmlSafe(cat)}</div>
+            </div>
             ${statusBadge}
-          </td>
-        </tr>`;
+          </div>
+          <div class="acard-body">
+            <div class="acard-lang-row${langHideCn}">
+              <span class="acard-lang cn">中</span>
+              <div class="acard-sched">${cnCard}</div>
+            </div>
+            <div class="acard-lang-row${langHideEn}">
+              <span class="acard-lang en">英</span>
+              <div class="acard-sched">${enCard}</div>
+            </div>
+          </div>
+        </div>`;
     }).join('');
-    return head + rows;
+    return head + `<div class="acard-group">${cards}</div>`;
   }).join('');
 }
 
 // 档期卡 v4 · 方案 C 横排压缩：
 //   单档 → 大字完整时间「9/11 10:00-14:00」
 //   多档 → 序列条「● 9/11 10-14   ● 9/22 14-17」+ 底部一行「据点攻防（+2 场）」
-function renderRoleSchedCard(item, lang){
-  const schedules = (item && Array.isArray(item.schedules) && item.schedules.length) ? item.schedules : (item && item.schedule ? [item.schedule] : []);
+function renderRoleSchedCard(item, lang, focusYmd){
+  let schedules = (item && Array.isArray(item.schedules) && item.schedules.length) ? item.schedules : (item && item.schedule ? [item.schedule] : []);
   const covers = item && Array.isArray(item.covers) ? item.covers : [];
   const storyNames = [...new Set(covers.map(c => (c.story||'').trim()).filter(Boolean))].slice(0,2).join(' · ');
+  // 日期 focus → 仅保留该日的档期；该日无档则显示占位
+  if(focusYmd){
+    schedules = schedules.filter(function(s){ return s && s.date && String(s.date).slice(0,10) === focusYmd; });
+    if(!schedules.length){
+      return `<div class="sched-card pending muted"><span class="sc-empty">该日无录制</span></div>`;
+    }
+  }
   // "已过"判定：日期 < 今天（不含今天）
   const _today = new Date(); _today.setHours(0,0,0,0);
   function _isPast(s){
@@ -1962,24 +2193,16 @@ function renderSchedCell(item, lang){
   return `<div class="sched-cell empty"><span class="pending-tag">待预约</span></div>`;
 }
 
-/* AREA → 英文军事代号（Tactical Dossier 分节头的第二行小字） */
-const AREA_CODENAME = {
-  'SOL':    'SOLO OPS',
-  '大战场':  'WARFARE',
-  '系统':    'SYSTEM CORE',
-  '商业化':  'COMMERCE',
-  '干员':    'OPERATOR',
-  '未分类':  'UNCLASSIFIED'
-};
-
 function renderActorDemandTable(){
   const all = aggregateByDemand(ACTOR_STATE.demands, ACTOR_STATE.release);
   // 筛选：搜索框作用于 story/role/actor；需求视图额外按 AREA 筛
   const q = (document.getElementById('actorSearch').value || '').trim().toLowerCase();
+  const focusYmd = window.MID_FOCUS_YMD || null;
   const list = all.filter(r => {
     if(ACTOR_STATE.lang !== 'all' && r.lang !== ACTOR_STATE.lang) return false;
     if(ACTOR_STATE.status !== 'all' && r.status !== ACTOR_STATE.status) return false;
     if(ACTOR_STATE.area && ACTOR_STATE.area !== 'all' && (r.area||'未分类') !== ACTOR_STATE.area) return false;
+    if(focusYmd && !itemHasSlotOn(r, focusYmd)) return false;
     if(q){
       const hay = (r.story + ' ' + r.role + ' ' + r.actor).toLowerCase();
       if(hay.indexOf(q) < 0) return false;
@@ -2030,15 +2253,8 @@ function renderActorDemandTable(){
     return (lab.date||'') + (lab.time ? ' ' + lab.time : '');
   };
 
-  // v3：metric "中/英配" 是否有待约（用于 val 黄显色）
-  const cnPendingCount = g => g.rows.filter(r => r.lang === 'cn' && r.status === 'pending').length;
-  const enPendingCount = g => g.rows.filter(r => r.lang === 'en' && r.status === 'pending').length;
-
   const renderCard = g => {
     const hasPending = g.pendingCount > 0;
-    const estTotal = g.rows.reduce((s,r)=>s+r.est,0);
-    const cnCnt = g.rows.filter(r=>r.lang==='cn').length;
-    const enCnt = g.rows.filter(r=>r.lang==='en').length;
     // ★ 按角色聚合：一个角色一块，块内并列中配 / 英配档期（待预约的角色排前）
     const roleMap = new Map();
     g.rows.forEach(r => {
@@ -2049,15 +2265,49 @@ function renderActorDemandTable(){
       if(r.status === 'pending') e.pend++;
       e.slots++;
     });
-    const roles = [...roleMap.values()].sort((a,b) => b.pend - a.pend);
+    const roles = [...roleMap.values()];
+    // ★ 角色行排序（用户 2026-08-31 拍板四档优先级）：
+    //   档 1（最上）: 中英两条都未排档期（pend=2）
+    //   档 2      : 英文即将录制（en booked 且日期在今天/未来）
+    //   档 3      : 中文即将录制（cn booked 且日期在今天/未来，且不满足档 2）
+    //   档 4（最下）: 已录完（中英全 booked 且日期都已过）
+    //   组内：档 2/3 按各自日期升序（近的更靠上），档 4 按最近日期倒序（最新完成的靠上）
+    const today0 = (function(){var d=new Date();d.setHours(0,0,0,0);return d.getTime();})();
+    const dateOfSched = r => {
+      if(!r || r.status !== 'booked' || !r.schedule) return null;
+      try{
+        var s = r.schedule;
+        var d = s.date ? new Date(s.date) : (s.start ? new Date(s.start) : null);
+        if(!d || isNaN(d.getTime())) return null;
+        d.setHours(0,0,0,0);
+        return d.getTime();
+      }catch(_){ return null; }
+    };
+    const bucketOf = e => {
+      const cnBooked = !!(e.cn && e.cn.status === 'booked');
+      const enBooked = !!(e.en && e.en.status === 'booked');
+      const cnDate = dateOfSched(e.cn);
+      const enDate = dateOfSched(e.en);
+      const cnUpcoming = cnBooked && cnDate !== null && cnDate >= today0;
+      const enUpcoming = enBooked && enDate !== null && enDate >= today0;
+      // 档 1: 中英都没排（不区分 pending/null，只要没 booked 即"未排"）
+      if(!cnBooked && !enBooked) return { b:1, key:0 };
+      // 档 2: 英即将录制
+      if(enUpcoming) return { b:2, key:enDate };
+      // 档 3: 中即将录制
+      if(cnUpcoming) return { b:3, key:cnDate };
+      // 档 4: 已录完
+      return { b:4, key:-(Math.max(cnDate||0, enDate||0)) };
+    };
+    roles.forEach(e => { e._sort = bucketOf(e); });
+    roles.sort((a,b) => (a._sort.b - b._sort.b) || (a._sort.key - b._sort.key));
     return `
       <div class="dcard ${hasPending?'has-pending':''}">
         <div class="dcard-head">
           <div class="dcard-headline">
             <div class="dcard-name">${escHtmlSafe(g.story||'—')}</div>
-            <div class="dcard-id">DEMAND #${escHtmlSafe(g.demandId||'—')}</div>
           </div>
-          <div class="dcard-pending ${hasPending?'':'ok'}">${hasPending ? `<span class="dp-icon">⏱</span>${g.pendingCount} 位待预约` : `<span class="dp-icon">✓</span>已排齐`}</div>
+          <div class="dcard-pending ${hasPending?'':'ok'}">${hasPending ? `<span class="dp-icon">⏱</span>${g.pendingCount} 位待预约` : `<span class="dp-icon"></span>已完成`}</div>
         </div>
         <div class="dcard-roles">
           ${roles.map(e => {
@@ -2079,23 +2329,17 @@ function renderActorDemandTable(){
                   <span title="${escHtmlSafe(e.role)}">${escHtmlSafe(e.role)}</span>
                 </div>
                 <div class="rc-scheds">
-                  <div class="rc-line ${cnPend?'pend':''} ${cnTxt?'':'empty'}">
+                  <div class="rc-line ${cnPend?'pend':''} ${cnTxt?'':'empty'}" data-lang="cn">
                     <span class="rc-lang cn">中</span>
                     <span class="rc-time ${cnTxt?'real':'empty'}">${cnTxt ? escHtmlSafe(cnTxt) : (e.cn ? '未排档期' : '无安排')}</span>
                   </div>
-                  <div class="rc-line ${enPend?'pend':''} ${enTxt?'':'empty'}">
+                  <div class="rc-line ${enPend?'pend':''} ${enTxt?'':'empty'}" data-lang="en">
                     <span class="rc-lang en">英</span>
                     <span class="rc-time ${enTxt?'real':'empty'}">${enTxt ? escHtmlSafe(enTxt) : (e.en ? '未排档期' : '无安排')}</span>
                   </div>
                 </div>
               </div>`;
           }).join('')}
-        </div>
-        <div class="dcard-foot">
-          <div class="metric"><span class="lbl">角色</span><span class="val">${roles.length}</span></div>
-          <div class="metric"><span class="lbl">句数</span><span class="val">${estTotal}</span></div>
-          <div class="metric ${cnPendingCount(g) ? 'warn':''}"><span class="lbl">中配</span><span class="val">${cnCnt}</span></div>
-          <div class="metric ${enPendingCount(g) ? 'warn':''}"><span class="lbl">英配</span><span class="val">${enCnt}</span></div>
         </div>
       </div>`;
   };
@@ -2113,7 +2357,6 @@ function renderActorDemandTable(){
     const doneSlots = demands.reduce((s,g)=>s+g.rows.filter(r=>r.status==='booked').length, 0);
     const pct  = allSlots ? Math.round(doneSlots / allSlots * 100) : 0;
     const cls  = areaPending > 0 ? 'has-pending' : 'is-done';
-    const code = AREA_CODENAME[area] || 'UNCLASSIFIED';
     return `
       <div class="area-section ${cls}">
         <div class="area-head">
@@ -2121,7 +2364,9 @@ function renderActorDemandTable(){
           <div class="area-idblock">
             <div class="area-title">
               <span class="area-name">${escHtmlSafe(area)}</span>
-              <span class="area-codename">${code}</span>
+              ${areaPending > 0
+                ? `<span class="area-pend-badge" title="该 AREA 下待预约的档期合计"><span class="dot"></span>${areaPending} 位待约</span>`
+                : `<span class="area-pend-badge zero" title="该 AREA 档期已全部确认"><span class="dot"></span>已排齐</span>`}
             </div>
           </div>
           <div class="area-stat">
@@ -2134,12 +2379,13 @@ function renderActorDemandTable(){
           <span class="bar"><i style="width:${pct}%"></i></span>
           <span class="pct">${pct}%</span>
         </div>
-        <div class="demand-cards">${demands.map(renderCard).join('')}</div>
+        <div class="demand-cards lang-only-${ACTOR_STATE.lang==='en'?'en':ACTOR_STATE.lang==='cn'?'cn':'all'}">${demands.map(renderCard).join('')}</div>
       </div>`;
   }).join('');
 }
 
-function setActorView(mode, btn){
+function setActorView(mode, btn, evt){
+  if(evt && evt.stopPropagation) evt.stopPropagation();
   ACTOR_STATE.vmode = (mode==='demand') ? 'demand' : 'role';
   try{ localStorage.setItem('vo_actor_vmode', ACTOR_STATE.vmode); }catch(_){}
   document.querySelectorAll('.view-tabs [data-vmode]').forEach(b => b.classList.toggle('on', b.dataset.vmode === ACTOR_STATE.vmode));
@@ -2169,6 +2415,68 @@ function deliveryDayOf(release){
   };
   return map[String(release||'').trim()] || null;
 }
+// 录制档期输出截止日（台词锁后 5 工作日；口径：声优锁 + 2 有效周 Thursday + 5 工作日）。
+// 当前按主版本硬编码；后续切换到 /api/version-nodes.tape_lock_day + 5 wd。
+function recordingScheduleDeadlineOf(release){
+  const map = {
+    'Ma4':   new Date('2026-09-03'), // 声优锁 08-13 + 22d
+    'Ma5':   new Date('2026-08-20'), // 声优锁 07-30 + 21d
+    'Yang1': new Date('2026-11-19'), // 声优锁 10-28 + 22d（用户校准值）
+    'Yang2': new Date('2026-12-31'), // 声优锁 12-17 + 14d（圣诞周跳过）
+    'Yang3': new Date('2027-03-12')  // 声优锁 02-25 + 15d（春节周跳过）
+  };
+  return map[String(release||'').trim()] || null;
+}
+// 录制定档期区间 [start, end]：起日 = 声优锁后 1 个有效天，截止 = recordingScheduleDeadlineOf。
+function recordingScheduleRangeOf(release){
+  const map = {
+    'Ma4':   [new Date('2026-08-14'), new Date('2026-09-03')],
+    'Ma5':   [new Date('2026-07-31'), new Date('2026-08-20')],
+    'Yang1': [new Date('2026-10-29'), new Date('2026-11-19')], // 用户校准起日
+    'Yang2': [new Date('2026-12-18'), new Date('2026-12-31')],
+    'Yang3': [new Date('2027-02-26'), new Date('2027-03-12')]
+  };
+  return map[String(release||'').trim()] || null;
+}
+// 渲染本页顶栏「录制定档期」药丸：按 release 取 [start→end] 区间 + 版本名，过期切绿色 calm 态，第 2 行追加「· 已完成」。
+function renderScheduleDeadline(){
+  var rel = '';
+  try{
+    rel = String(
+      (window.SCHED_STATE && SCHED_STATE.currentRelease)
+      || (window.ACTOR_STATE && ACTOR_STATE.release)
+      || (typeof detectCurrentReleaseFromDemands === 'function' ? detectCurrentReleaseFromDemands() : '')
+      || (window.SHELL_RELEASE || '')
+      || ''
+    ).trim();
+  }catch(_){ rel=''; }
+  var meta = document.getElementById('schedDeadlinePill');
+  if(!meta) return;
+  var rangeEl = document.getElementById('schedDeadlineRange');
+  var relEl = document.getElementById('schedDeadlineRel');
+  var calmEl = document.getElementById('schedDeadlineCalm');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var range = recordingScheduleRangeOf(rel);
+  function fmt(d){ return (d.getMonth()+1) + '.' + (d.getDate()<10?'0':'') + d.getDate(); }
+  if(!range || !rel){
+    meta.hidden = true;
+    return;
+  }
+  var startD = range[0], endD = range[1];
+  var passed = endD.getTime() < today.getTime();
+  if(rangeEl) rangeEl.textContent = fmt(startD) + ' → ' + fmt(endD);
+  if(relEl) relEl.textContent = rel;
+  if(calmEl) calmEl.hidden = !passed;
+  var sy = startD.getFullYear(), sm = startD.getMonth()+1, sd = startD.getDate();
+  var ey = endD.getFullYear(), em = endD.getMonth()+1, ed = endD.getDate();
+  meta.title = rel + ' 录制定档期：' + sy + '-' + (sm<10?'0':'') + sm + '-' + (sd<10?'0':'') + sd + ' → ' + ey + '-' + (em<10?'0':'') + em + '-' + (ed<10?'0':'') + ed;
+  meta.hidden = false;
+}
+// DOMContentLoaded 后再尝试一次，确保 release 取到后再渲染
+document.addEventListener('DOMContentLoaded', function(){
+  try{ renderScheduleDeadline(); }catch(_){}
+  setTimeout(function(){ try{ renderScheduleDeadline(); }catch(_){} }, 500);
+});
 // 工作日计算：跳过周末 + 国内法定节假日 + 海外圣诞周（12.25 - 次年 1.3）
 // ★ 自包含 HOLIDAY_RANGES（不依赖 IIFE 内的 HOLIDAYS）：每项 [startYMD, endYMD]
 var HOLIDAY_RANGES_WD = [
@@ -2449,7 +2757,10 @@ function bookActor(role, lang){
     var n=Number(delta||0); if(!n) return;
     MID_STATE.monthAnchor=addMonth(MID_STATE.monthAnchor||monthStart(new Date()), n);
     // 翻月后 focus 的日期很可能不在视野内 → 清除高亮，避免主表被"看不见的日期"锁住
-    MID_FOCUS_YMD = null;
+    if(window.MID_FOCUS_YMD){
+      window.MID_FOCUS_YMD = null;
+      if(typeof renderActorRollup === 'function') renderActorRollup();
+    }
     renderMidPanel();
   };
   function buildMidPanelMockRows(){
@@ -2646,32 +2957,31 @@ function bookActor(role, lang){
   }
 
   // 中间侧栏 focus 联动：点日历某日 / 点即将录制条目 → 双向高亮，点页面空白清除
-  var MID_FOCUS_YMD = null;
+  window.MID_FOCUS_YMD = window.MID_FOCUS_YMD || null;
   function focusMidDay(ymd, evt){
     if(evt){ evt.stopPropagation(); }
-    if(MID_FOCUS_YMD === ymd){ MID_FOCUS_YMD = null; }
-    else {
-      MID_FOCUS_YMD = ymd;
-      // 智能翻月：若目标日期不在当前日历月，自动把日历翻到那个月，保证高亮可见
+    window.MID_FOCUS_YMD = (window.MID_FOCUS_YMD === ymd) ? null : ymd;
+    // 智能翻月：若目标日期不在当前日历月，自动把日历翻到那个月，保证高亮可见
+    if(window.MID_FOCUS_YMD){
       var d = parseYMD(ymd);
       if(d){
         var anchor = MID_STATE.monthAnchor || monthStart(new Date());
         if(d.getFullYear()!==anchor.getFullYear() || d.getMonth()!==anchor.getMonth()){
           MID_STATE.monthAnchor = monthStart(d);
-          renderMidPanel();
-          return; // renderMidPanel 内部会调用 applyMidFocus
+          renderMidPanel(); // 内部会调用 applyMidFocus
         }
       }
     }
-    applyMidFocus();
+    // 日期 focus → 重绘主表真过滤（只显示该日录制信息）
+    if(typeof renderActorRollup === 'function') renderActorRollup();
   }
   function clearMidFocus(){
-    if(!MID_FOCUS_YMD) return;
-    MID_FOCUS_YMD = null;
-    applyMidFocus();
+    if(!window.MID_FOCUS_YMD) return;
+    window.MID_FOCUS_YMD = null;
+    if(typeof renderActorRollup === 'function') renderActorRollup();
   }
   function applyMidFocus(){
-    var target = MID_FOCUS_YMD;
+    var target = window.MID_FOCUS_YMD;
     // 日历日
     document.querySelectorAll('#mpCalendarGrid .mp-cal-day').forEach(function(el){
       el.classList.remove('focused','dimmed');
@@ -2707,30 +3017,7 @@ function bookActor(role, lang){
         else renderUpcomingItems(upBox, back, null);
       }
     }
-    // 主表联动：高亮该日期对应的档期卡 / 多档 pill，并把第一个滚进视野
-    var mainHits = document.querySelectorAll('.actor-table-role .sched-card[data-ymd], .actor-table-role .sc-pill[data-ymd]');
-    var firstHit = null;
-    mainHits.forEach(function(el){
-      el.classList.remove('mid-focus','mid-dim');
-      if(!target) return;
-      if(el.getAttribute('data-ymd') === target){
-        el.classList.add('mid-focus');
-        if(!firstHit) firstHit = el;
-      } else {
-        el.classList.add('mid-dim');
-      }
-    });
-    if(firstHit && firstHit.scrollIntoView){
-      try{
-        var wrap = document.getElementById('actorRoleView');
-        if(wrap && wrap.contains(firstHit)){
-          var wr = wrap.getBoundingClientRect(), hr = firstHit.getBoundingClientRect();
-          if(hr.top < wr.top || hr.bottom > wr.bottom){
-            wrap.scrollTop += (hr.top - wr.top) - (wr.height/2 - hr.height/2);
-          }
-        }
-      }catch(_){}
-    }
+    // 主表真过滤已由 renderActorRollup 按 window.MID_FOCUS_YMD 完成，此处不再做 DOM 高亮
   }
   // 点空白清 focus + 事件委托（一次性挂）
   if(!window.__MID_FOCUS_BOUND){
@@ -2750,8 +3037,9 @@ function bookActor(role, lang){
         focusMidDay(upEl.getAttribute('data-ymd'));
         return;
       }
-      // 都没命中 → 清 focus
-      if(MID_FOCUS_YMD) clearMidFocus();
+      // 都没命中 → 若点在空白处则恢复默认总计
+      if(!isBlankTarget(e.target)) return;
+      clearAllFilters();
     });
   }
   window.focusMidDay = focusMidDay;
@@ -3073,3 +3361,4 @@ function bookActor(role, lang){
 
 </body>
 </html>
+

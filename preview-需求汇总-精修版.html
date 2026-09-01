@@ -483,7 +483,7 @@ body.embed .mid{width:100%}
    wide-4k: ≥2401px（4K）——Story 列拉宽吸收富余屏宽，UI 字号 +1 档
    ================================================================ */
 @media (max-width: 1500px){
-  /* 1470 compact: no horizontal scroll */
+  /* 1470 compact: no horizontal scroll — 字号 4 档：Hero=18 / Body=12 / Small=11 / Micro=9.5 */
   html,body{overflow-x:hidden}
   .main{padding:10px 12px 12px;gap:8px;min-width:0}
   .page-title{font-size:18px}
@@ -491,19 +491,19 @@ body.embed .mid{width:100%}
   .kpi-row{gap:8px}
   .kpi{padding:10px 12px}
   .kpi-ddl{min-width:210px}
-  .kpi-value{font-size:21px}
-  .kpi-label{font-size:9px}
-  .kpi-meta{font-size:9.5px}
-  .ddl-value>span:first-child{font-size:15px}
-  .ddl-date{font-size:9.5px}
+  .kpi-value{font-size:20px}
+  .kpi-label{font-size:9.5px}
+  .kpi-meta{font-size:11px}
+  .ddl-value>span:first-child{font-size:14px}
+  .ddl-date{font-size:11px}
   .filter-row{gap:5px;padding:7px 9px}
-  .filter-row .flabel{min-width:50px;font-size:8.5px}
-  .chip-filter{padding:3px 6px;font-size:10px}
-  .chip-status{padding:2px 5px;font-size:10px}
+  .filter-row .flabel{min-width:50px;font-size:9.5px}
+  .chip-filter{padding:3px 6px;font-size:11px}
+  .chip-status{padding:2px 5px;font-size:11px}
   .btn{font-size:11px;padding:5px 8px}
   .card{min-width:0}
   .table-wrap{overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable}
-  table.demand-table{width:100%;min-width:0!important;table-layout:fixed;font-size:10.5px}
+  table.demand-table{width:100%;min-width:0!important;table-layout:fixed;font-size:11px}
   table.demand-table col:nth-child(1){width:5.2%!important}
   table.demand-table col:nth-child(2){width:4.5%!important}
   table.demand-table col:nth-child(3){width:20.8%!important}
@@ -517,7 +517,7 @@ body.embed .mid{width:100%}
   table.demand-table td,table.demand-table th{padding:4px 3px!important;min-width:0;overflow:hidden;text-overflow:ellipsis}
   table.demand-table th{font-size:9.5px!important;line-height:1.2!important;white-space:normal}
   table.demand-table th.sortable{padding-left:3px!important;padding-right:3px!important}
-  table.demand-table td{font-size:10.5px!important;height:42px}
+  table.demand-table td{font-size:11px!important;height:42px}
   .col-release{width:5.2%;min-width:0!important;max-width:none}
   .col-area{width:4.5%;min-width:0!important;max-width:none}
   .col-story{width:20.8%;min-width:0!important;max-width:none}
@@ -531,9 +531,9 @@ body.embed .mid{width:100%}
   .ve-cell{padding:4px 2px!important}
   .th-ve-group{min-width:0!important}
   .th-max-date,.col-max-date{width:7.4%;min-width:0!important;max-width:none}
-  .col-status .va-status{width:100%!important;min-width:0;padding:4px 3px!important;font-size:9.5px}
+  .col-status .va-status{width:100%!important;min-width:0;padding:4px 3px!important;font-size:11px}
   .story-title,.story-link,.creator-cell,.person,.max-date-cell,.release-summary-text{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ve-chip{max-width:100%;padding:2px 4px;font-size:9.5px}
+  .ve-chip{max-width:100%;padding:2px 4px;font-size:11px}
   .ve-role{min-width:0;overflow:hidden;text-overflow:ellipsis}
 }
 @media (max-width: 1100px){
@@ -541,24 +541,29 @@ body.embed .mid{width:100%}
   table.demand-table td,table.demand-table th{padding:3px 2px!important}
   .kpi-ddl{min-width:180px}
 }
-/* vertical-compact: 笔记本浏览器可视高 ≤850px（例如 1470×956 里去除任务栏/书签栏后），只压竖向密度 */
+/* vertical-compact: 笔记本浏览器可视高 ≤850px（例如 1470×956 里去除任务栏/书签栏后），只压竖向密度
+   字号统一收敛为 4 档：Hero=16 / Body=12 / Small=11 / Micro=9.5，避免同屏 8 档字号 */
 @media (max-height: 850px){
   .main{padding:6px 10px 8px!important;gap:5px!important}
   .page-title{font-size:16px;margin:0}
-  .subtitle{font-size:10.5px;margin-top:2px}
+  .subtitle{font-size:11px;margin-top:2px}
   .kpi-row{gap:6px}
   .kpi{padding:6px 10px}
-  .kpi-value{font-size:17px;line-height:1.15}
-  .kpi-label{font-size:9px}
-  .kpi-meta{font-size:9px;margin-top:1px}
-  .ddl-value>span:first-child{font-size:13px}
-  .ddl-date{font-size:9px}
+  .kpi-value{font-size:16px;line-height:1.15}
+  .kpi-label{font-size:9.5px}
+  .kpi-meta{font-size:11px;margin-top:1px}
+  .ddl-value>span:first-child{font-size:12px}
+  .ddl-date{font-size:11px}
   .filter-row{padding:4px 8px;gap:5px}
-  .filter-row .flabel{font-size:8.5px;min-width:44px}
-  .chip-filter,.chip-status{padding:2px 5px;font-size:9.5px}
+  .filter-row .flabel{font-size:9.5px;min-width:44px}
+  .chip-filter,.chip-status{padding:2px 5px;font-size:11px}
+  .btn{font-size:11px;padding:4px 8px}
   .card{gap:0}
-  table.demand-table td{height:34px!important;padding:3px 3px!important}
-  table.demand-table th{padding:3px 3px!important;font-size:9px!important}
+  table.demand-table td{height:34px!important;padding:3px 3px!important;font-size:11px!important}
+  table.demand-table th{padding:3px 3px!important;font-size:9.5px!important}
+  .col-status .va-status{font-size:11px!important}
+  .ve-chip{font-size:11px}
+  .release-summary-text{font-size:11px}
 }
 @media (min-width: 2401px){
   .main{padding:26px 32px 32px;gap:20px}

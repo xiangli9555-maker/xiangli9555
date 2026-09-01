@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vomi 一页纸运行说明 · 四角色总览</title>
+<style>
+:root{
+  --bg:#091015;--bg2:#0f171c;--panel:#121d23;--panel2:#17242b;
+  --line:rgba(148,173,184,.18);--line-strong:rgba(15,247,150,.38);
+  --text:#eef3f1;--muted:#9aa8a7;--weak:#687675;
+  --green:#0ff796;--yellow:#ffd24c;--pink:#d699be;--blue:#7fb7d8;
+  --green-soft:rgba(15,247,150,.09);--yellow-soft:rgba(255,210,76,.08);
+  --pink-soft:rgba(214,153,190,.08);--blue-soft:rgba(127,183,216,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+body{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-variant-numeric:tabular-nums;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px),radial-gradient(circle at 50% -10%,rgba(15,247,150,.07),transparent 38%);background-size:32px 32px,32px 32px,auto}
+button{font:inherit}
+.sheet{width:min(calc(100% - 32px),3200px);min-height:100vh;margin:0 auto;padding:clamp(18px,1.6vw,36px);display:grid;grid-template-rows:auto auto auto auto;align-content:center;gap:clamp(12px,1vw,20px)}
+.header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;border-bottom:1px solid var(--line);padding-bottom:16px}
+.eyebrow{color:var(--green);font-size:12px;letter-spacing:2px;font-weight:700;text-transform:uppercase}
+h1{font-size:clamp(24px,2vw,40px);line-height:1.12;margin:7px 0 6px;font-weight:760;letter-spacing:-.5px}
+.subtitle{color:var(--muted);font-size:clamp(12px,.85vw,16px)}
+.quick{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:center;max-width:540px;padding:13px 16px;border:1px solid var(--line-strong);border-radius:14px;background:rgba(15,247,150,.055);box-shadow:0 0 24px rgba(15,247,150,.06)}
+.quick b{color:var(--green);font-size:12px;letter-spacing:1px;white-space:nowrap}
+.quick span{color:#dbe5e2;font-size:13px;line-height:1.55}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px}
+.section-head h2{margin:0;font-size:14px;letter-spacing:.5px;font-weight:700}
+.section-head p{margin:0;color:var(--weak);font-size:11px}
+.flow-wrap{padding:15px;border:1px solid var(--line);background:rgba(15,23,28,.78);border-radius:16px}
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;position:relative}
+.stage{min-width:0;padding:15px 15px 13px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.008));position:relative;transition:.2s ease}
+.stage:not(:last-child)::after{content:"";position:absolute;right:-11px;top:31px;width:11px;height:1px;background:var(--green);opacity:.6}
+.stage:not(:last-child)::before{content:"";position:absolute;right:-11px;top:28px;border-left:4px solid var(--green);border-top:3px solid transparent;border-bottom:3px solid transparent;opacity:.7;z-index:2}
+.stage .no{display:inline-flex;width:25px;height:25px;align-items:center;justify-content:center;border-radius:8px;background:var(--green-soft);border:1px solid rgba(15,247,150,.24);color:var(--green);font-size:11px;font-weight:800}
+.stage h3{font-size:14px;margin:10px 0 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage p{font-size:11.5px;line-height:1.55;color:var(--muted);margin:0}
+.stage .where{display:block;color:var(--green);margin-top:8px;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.roles-area{display:grid;gap:10px}
+.role-tabs{display:flex;gap:7px;flex-wrap:wrap}
+.role-tab{padding:6px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:rgba(255,255,255,.018);cursor:pointer;transition:.18s ease;white-space:nowrap;font-size:11px}
+.role-tab:hover,.role-tab.on{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+.roles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.role{min-width:0;border:1px solid var(--line);border-radius:15px;background:rgba(18,29,35,.92);padding:15px;display:grid;grid-template-rows:auto 1fr auto;gap:12px;transition:.22s ease}
+.role[data-role="request"]{--accent:var(--blue);--accent-soft:var(--blue-soft)}
+.role[data-role="script"]{--accent:var(--pink);--accent-soft:var(--pink-soft)}
+.role[data-role="audio"]{--accent:var(--yellow);--accent-soft:var(--yellow-soft)}
+.role[data-role="viewer"]{--accent:var(--green);--accent-soft:var(--green-soft)}
+.role.focus{border-color:color-mix(in srgb,var(--accent) 62%,transparent);box-shadow:0 0 28px color-mix(in srgb,var(--accent) 10%,transparent);transform:translateY(-2px)}
+.role.dim{opacity:.38}
+.role-head{display:grid;grid-template-columns:38px minmax(0,1fr);gap:11px;align-items:center}
+.role-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 28%,transparent);color:var(--accent);font-weight:800;font-size:12px}
+.role h3{font-size:15px;margin:0 0 3px;color:var(--accent)}
+.role .mission{color:var(--muted);font-size:11px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.checklist{display:grid;gap:8px}
+.item{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;align-items:start}
+.label{color:var(--weak);font-size:10px;letter-spacing:.7px;padding-top:1px}
+.item div:last-child{font-size:11.5px;line-height:1.5;color:#dce5e2}
+.item strong{color:var(--accent);font-weight:700}
+.done{border-top:1px solid var(--line);padding-top:10px;color:var(--muted);font-size:10.8px;line-height:1.5}
+.done b{color:var(--accent)}
+.bottom{display:grid;grid-template-columns:1.35fr 1fr;gap:10px}
+.truth,.legend{border:1px solid var(--line);border-radius:13px;background:rgba(15,23,28,.78);padding:12px 14px;min-width:0}
+.truth{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.truth b{color:var(--green);font-size:11px;letter-spacing:1px;white-space:nowrap}
+.truth .chain{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px;min-width:0;white-space:nowrap;overflow:hidden}
+.truth .chain span{padding:4px 8px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.018);overflow:hidden;text-overflow:ellipsis}
+.truth .chain i{color:var(--green);font-style:normal}
+.legend{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:10.5px}
+.legend b{color:var(--text);font-weight:700;margin-right:auto}
+.key{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.dot{width:7px;height:7px;border-radius:50%}
+.note{color:var(--weak);font-size:10px;text-align:right;margin-top:-4px}
+@media(min-width:2500px){
+  .sheet{gap:24px;padding:42px}
+  .header{gap:40px;padding-bottom:22px}.eyebrow{font-size:15px}.subtitle{font-size:18px}.quick{max-width:720px;padding:17px 20px}.quick b{font-size:14px}.quick span{font-size:16px}
+  .section-head{margin-bottom:14px}.section-head h2{font-size:18px}.section-head p{font-size:14px}
+  .flow-wrap{padding:20px}.flow{gap:14px}.stage{padding:20px}.stage .no{width:32px;height:32px;font-size:13px}.stage h3{font-size:19px}.stage p{font-size:15px}.stage .where{font-size:13px}
+  .roles{gap:14px}.role{padding:20px;gap:15px}.role-head{grid-template-columns:48px minmax(0,1fr);gap:14px}.role-icon{width:48px;height:48px;font-size:14px}.role h3{font-size:19px}.role .mission{font-size:14px}.checklist{gap:11px}.item{grid-template-columns:66px minmax(0,1fr);gap:10px}.label{font-size:12px}.item div:last-child{font-size:15px}.done{font-size:14px}
+  .truth,.legend{padding:16px 18px}.truth b{font-size:14px}.truth .chain{font-size:14px}.legend{font-size:13px}.note{font-size:12px}
+}
+@media(max-width:1700px){
+  .sheet{padding:18px;gap:12px}
+  .header{padding-bottom:12px}.quick{max-width:450px;padding:10px 13px}.quick span{font-size:11.5px}
+  .flow-wrap{padding:11px}.stage{padding:11px}.stage h3{font-size:12.5px;margin:7px 0 5px}.stage p{font-size:10.5px}.stage .where{font-size:9.5px;margin-top:6px}
+  .role{padding:12px;gap:9px}.role-head{grid-template-columns:32px minmax(0,1fr);gap:9px}.role-icon{width:32px;height:32px;border-radius:9px}.role h3{font-size:13px}.role .mission{font-size:10px}
+  .checklist{gap:6px}.item{grid-template-columns:44px minmax(0,1fr);gap:6px}.label{font-size:9px}.item div:last-child{font-size:10.5px}.done{font-size:9.8px;padding-top:8px}
+}
+@media(max-width:1150px){.header{grid-template-columns:1fr}.quick{max-width:none}.flow{overflow-x:auto;grid-template-columns:repeat(5,210px);padding-bottom:5px}.roles{grid-template-columns:repeat(2,minmax(0,1fr))}.bottom{grid-template-columns:1fr}.legend{justify-content:flex-start}.sheet{height:auto}.note{text-align:left}}
+@media(max-height:800px) and (min-width:1151px){.sheet{padding-block:12px;gap:8px}.header{padding-bottom:8px}.subtitle{display:none}.flow-wrap{padding:9px}.stage{padding-block:9px}.roles-area{gap:6px}.role{padding-block:10px}.checklist{gap:4px}.done{padding-top:6px}.bottom>*{padding-block:8px}.note{display:none}}
+@media print{
+  @page{size:A4 landscape;margin:7mm}
+  html,body{background:#091015!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sheet{width:100%;min-height:auto;padding:0;gap:8px}.role-tabs,.note{display:none}.header{padding-bottom:8px}.quick{padding:8px 10px}.flow-wrap{padding:8px}.stage,.role{padding:9px}.stage h3,.role h3{font-size:11px}.stage p,.item div:last-child{font-size:8.5px}.stage .where,.role .mission,.done,.label,.truth,.legend{font-size:8px}.role-head{grid-template-columns:28px 1fr}.role-icon{width:28px;height:28px}.roles{gap:7px}.flow{gap:7px}
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+  <header class="header">
+    <div>
+      <div class="eyebrow">VOMI · VO MANAGER · ONE PAGE GUIDE</div>
+      <h1>一张图看懂 Vomi 怎么运转</h1>
+      <div class="subtitle">四种角色，共用一条链路：需求进入系统，台词与角色逐步明确，档期完成后进入录制与交付。</div>
+    </div>
+    <div class="quick"><b>一句话</b><span>Vomi 不替代 TAPD 和腾讯在线台词表；它把版本节点、需求状态、声优信息与录制档期串成一个可追踪的工作台。</span></div>
+  </header>
+
+  <section class="flow-wrap">
+    <div class="section-head"><h2>主流程 · 从需求到交付</h2><p>先看横向流程，再看下方自己的角色卡</p></div>
+    <div class="flow">
+      <article class="stage" data-stage="request"><span class="no">01</span><h3>需求进入</h3><p>玩法策划在 TAPD 提交 VO 需求；系统导入后，需求汇总页按版本和 AREA 集中展示。</p><span class="where">入口：需求汇总</span></article>
+      <article class="stage" data-stage="request script"><span class="no">02</span><h3>澄清与预估</h3><p>玩法与文案澄清角色、触发和音画同步；形成声优范围与预估句数。</p><span class="where">协作：需求汇总 + 澄清</span></article>
+      <article class="stage" data-stage="script"><span class="no">03</span><h3>台词协作</h3><p>每个需求生成一份在线台词表；文案填写角色、台词与必要标记，系统统计实际句数。</p><span class="where">载体：腾讯在线台词表</span></article>
+      <article class="stage" data-stage="audio"><span class="no">04</span><h3>选角与排期</h3><p>音频维护声优信息，按中配／英配安排录制日期、地点和状态，风险预警同步更新。</p><span class="where">入口：声优库 + 录制档期</span></article>
+      <article class="stage" data-stage="audio viewer"><span class="no">05</span><h3>录制与交付</h3><p>按档期完成录制，更新完成状态；所有人通过版本节点和汇总数据查看当前进展。</p><span class="where">查看：录制档期 + 版本节点</span></article>
+    </div>
+  </section>
+
+  <section class="roles-area">
+    <div class="section-head">
+      <h2>我的角色 · 我该做什么</h2>
+      <div class="role-tabs" aria-label="按角色聚焦">
+        <button class="role-tab on" data-filter="all">全部角色</button>
+        <button class="role-tab" data-filter="request">玩法策划</button>
+        <button class="role-tab" data-filter="script">文案策划</button>
+        <button class="role-tab" data-filter="audio">音频团队</button>
+        <button class="role-tab" data-filter="viewer">浏览者</button>
+      </div>
+    </div>
+    <div class="roles">
+      <article class="role" data-role="request">
+        <div class="role-head"><div class="role-icon">玩法</div><div><h3>我是提需求的玩法策划</h3><p class="mission">把需求讲清楚，让后续人员能直接执行</p></div></div>
+        <div class="checklist">
+          <div class="item"><div class="label">从哪进入</div><div><strong>TAPD 创建需求</strong>，再到“需求汇总”确认是否已进入当前版本。</div></div>
+          <div class="item"><div class="label">我要做</div><div>确认标题、AREA、创建人和音画同步；参加澄清，说明角色、场景、触发和期望。</div></div>
+          <div class="item"><div class="label">系统会做</div><div>按版本聚合需求，显示状态与 DDL，并把后续台词表、声优预估和档期串起来。</div></div>
+        </div>
+        <div class="done"><b>完成标志：</b>需求已澄清，角色与台词范围明确；后续可在汇总页追踪，不需要重复口头问进度。</div>
+      </article>
+
+      <article class="role" data-role="script">
+        <div class="role-head"><div class="role-icon">文案</div><div><h3>我是文案策划</h3><p class="mission">完成预估与台词，让数量、角色和版本可追踪</p></div></div>
+        <div class="checklist">
+          <div class="item"><div class="label">从哪进入</div><div>在“需求汇总”筛选自己的需求，从台词表图标打开<strong>该需求在线表格</strong>。</div></div>
+          <div class="item"><div class="label">我要做</div><div>填写声优类型、预估句数、游戏角色、中文台词和音画同步；按 DDL 完成交接。</div></div>
+          <div class="item"><div class="label">系统会做</div><div>自动统计实际句数与偏差，校验角色；台词锁后把版本总表作为唯一修改口径。</div></div>
+        </div>
+        <div class="done"><b>完成标志：</b>台词表角色校验通过，预估与实际差异已处理，锁表后不再直接修改需求分表。</div>
+      </article>
+
+      <article class="role" data-role="audio">
+        <div class="role-head"><div class="role-icon">音频</div><div><h3>我是音频团队</h3><p class="mission">把角色、声优、档期和录制结果真正落地</p></div></div>
+        <div class="checklist">
+          <div class="item"><div class="label">从哪进入</div><div>先看“版本节点”和“需求汇总”，再进入<strong>声优库／录制档期</strong>处理执行信息。</div></div>
+          <div class="item"><div class="label">我要做</div><div>确认声优与选角信息；按中配／英配排日期、地点和状态；发现缺口及时处理风险预警。</div></div>
+          <div class="item"><div class="label">系统会做</div><div>按需求和角色聚合档期，提示待约与冲突，并把已完成状态回流到全局进度。</div></div>
+        </div>
+        <div class="done"><b>完成标志：</b>风险预警归零，所需角色均有明确档期，录制完成后状态和交付信息已更新。</div>
+      </article>
+
+      <article class="role" data-role="viewer">
+        <div class="role-head"><div class="role-icon">查看</div><div><h3>我是浏览网站的人</h3><p class="mission">快速判断当前版本、关键节点和风险</p></div></div>
+        <div class="checklist">
+          <div class="item"><div class="label">从哪进入</div><div>从左侧栏选择发布计划；“需求汇总”看全貌，“版本节点”看时间，“录制档期”看执行。</div></div>
+          <div class="item"><div class="label">我要做</div><div>使用版本、AREA、状态和语言筛选；点击需求或文档链接查看原始信息。</div></div>
+          <div class="item"><div class="label">系统会做</div><div>展示真实 API 数据；若使用快照，会明确显示快照时间，不用页面加载时间冒充更新时间。</div></div>
+        </div>
+        <div class="done"><b>完成标志：</b>能回答三件事：当前版本做到哪、下一节点是什么、哪里仍有待处理风险。</div>
+      </article>
+    </div>
+  </section>
+
+  <footer>
+    <div class="bottom">
+      <div class="truth"><b>数据怎么流</b><div class="chain"><span>TAPD / 发布计划</span><i>→</i><span>Vomi API 与数据库</span><i>→</i><span>需求汇总</span><i>→</i><span>在线台词表 / 声优库 / 档期</span><i>→</i><span>进度与交付</span></div></div>
+      <div class="legend"><b>状态速读</b><span class="key"><i class="dot" style="background:var(--green)"></i>已完成／可执行</span><span class="key"><i class="dot" style="background:var(--yellow)"></i>待处理／临近 DDL</span><span class="key"><i class="dot" style="background:var(--pink)"></i>风险／需要关注</span><span class="key"><i class="dot" style="background:#71807e"></i>只读／未开始</span></div>
+    </div>
+    <div class="note">阅读建议：先看主流程，再只读自己的角色卡；不确定数据是否最新时，优先查看页面上的数据源与快照时间提示。</div>
+  </footer>
+</main>
+<script>
+const tabs=[...document.querySelectorAll('.role-tab')];
+const roles=[...document.querySelectorAll('.role')];
+const stages=[...document.querySelectorAll('.stage')];
+tabs.forEach(tab=>tab.addEventListener('click',()=>{
+  const filter=tab.dataset.filter;
+  tabs.forEach(x=>x.classList.toggle('on',x===tab));
+  roles.forEach(card=>{
+    const hit=filter==='all'||card.dataset.role===filter;
+    card.classList.toggle('focus',filter!=='all'&&hit);
+    card.classList.toggle('dim',filter!=='all'&&!hit);
+  });
+  stages.forEach(stage=>{
+    const hit=filter==='all'||stage.dataset.stage.split(' ').includes(filter);
+    stage.style.opacity=filter==='all'||hit?'1':'.34';
+    stage.style.borderColor=filter!=='all'&&hit?'rgba(15,247,150,.48)':'';
+    stage.style.background=filter!=='all'&&hit?'rgba(15,247,150,.07)':'';
+  });
+}));
+</script>
+</body>
+</html>

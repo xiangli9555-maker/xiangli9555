@@ -1422,6 +1422,11 @@ function veTotalLines(d){ return veResolved(d).reduce((s,r)=>s+(Number(r.est_lin
 function veCategoryCount(d,cat){ return new Set(veResolved(d).filter(r=>r.category===cat).map(r=>r.role).filter(Boolean)).size; }
 function veCategoryLines(d,cat){ return veResolved(d).filter(r=>r.category===cat).reduce((s,r)=>s+(Number(r.est_lines)||0),0); }
 function veCell(d,cat){
+  // 长期规则（2026-09-01）：未关联台词表的需求不允许展示任何声优预估——
+  // 即使 db.voice_estimates 里有历史脏数据也必须屏蔽，让预估必须由文案上传台词表后再同步。
+  if(!d || !d.script_doc_url){
+    return '<span class="ve-unsynced" title="未关联台词表，无法展示声优预估">未关联</span>';
+  }
   const raw=veList(d);
   if(!raw.length) return '<span class="ve-unsynced">未同步</span>';
   const rows=veResolved(d).filter(r=>r.category===cat);

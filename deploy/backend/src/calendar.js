@@ -1,6 +1,9 @@
 // calendar.js — 统一日期引擎（法定节假日 + 调休补班 + 工作日计算）
-// 前后端共同读取 deploy/frontend/assets/holiday-calendar.js，避免多份日期表独立漂移。
-const holidayCalendar = require('../../frontend/assets/holiday-calendar.js');
+// 本地测试读取 deploy/frontend；容器通过只读挂载注入同一份前端权威文件。
+const path = require('node:path');
+const holidayCalendarPath = process.env.HOLIDAY_CALENDAR_PATH
+  || path.resolve(__dirname, '../../frontend/assets/holiday-calendar.js');
+const holidayCalendar = require(holidayCalendarPath);
 const HOLIDAYS = holidayCalendar.HOLIDAYS;
 const BRIDGE_DAYS = holidayCalendar.BRIDGE_DAYS;
 

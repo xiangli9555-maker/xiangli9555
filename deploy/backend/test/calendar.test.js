@@ -56,6 +56,16 @@ test('weekIsHoliday 任一法定放假日或圣诞日命中即整周无效', () 
   assert.ok(cal.weekIsHoliday(D('2026-12-21'))); // 仅 12/25 命中也必须整周无效
 });
 
+test('后端容器通过只读挂载消费共享节假日模块', () => {
+  const projectRoot = path.resolve(__dirname, '../../..');
+  const compose = fs.readFileSync(path.join(projectRoot, 'deploy/docker-compose.yml'), 'utf8');
+  const source = fs.readFileSync(path.join(projectRoot, 'deploy/backend/src/calendar.js'), 'utf8');
+
+  assert.match(compose, /HOLIDAY_CALENDAR_PATH:\s*\/app\/holiday-calendar\.js/);
+  assert.match(compose, /\.\/frontend\/assets\/holiday-calendar\.js:\/app\/holiday-calendar\.js:ro/);
+  assert.match(source, /process\.env\.HOLIDAY_CALENDAR_PATH/);
+});
+
 test('前后端统一使用同一份全量节假日模块', () => {
   const projectRoot = path.resolve(__dirname, '../../..');
   const rootAsset = path.join(projectRoot, 'assets/holiday-calendar.js');

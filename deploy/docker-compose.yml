@@ -41,6 +41,7 @@ services:
       DEMAND_JOBS_FILE: /app/demand_jobs.json
       TENCENT_DOCS_MCP_TOKEN_FILE: /app/tencent_docs_token
       TENCENT_DOCS_OA_MCP_TOKEN_FILE: /app/tencent_docs_oa_token
+      HOLIDAY_CALENDAR_PATH: /app/holiday-calendar.js
       WECOM_CORPID: ${WECOM_CORPID:-}
       WECOM_CORPSECRET: ${WECOM_CORPSECRET:-}
       TZ: Asia/Shanghai
@@ -48,6 +49,7 @@ services:
       - audio_data:/data/audio
       # 让 refresh 直接读前端实时快照（与 vo-nginx 同源），避免每次重建 backend 后需手动 docker cp /app/tapd-snapshot.js
       - ./frontend/assets/tapd-snapshot.js:/app/tapd-snapshot.js:ro
+      - ./frontend/assets/holiday-calendar.js:/app/holiday-calendar.js:ro
       - ./frontend/data/release-plans.json:/app/data/release-plans.json:ro
       # 任务状态与腾讯文档凭证由宿主机持久化；容器重建不丢，secrets 永不入 Git/镜像。
       - ./backend/runtime/demand_jobs.json:/app/demand_jobs.json

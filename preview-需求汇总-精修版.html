@@ -218,7 +218,12 @@ body{display:flex;flex-direction:column;overflow:hidden}
 table.demand-table{width:100%;min-width:2284px;table-layout:fixed;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
 table.demand-table th{font-size:12px!important;font-weight:600!important;letter-spacing:.35px!important;padding:9px 8px!important;text-shadow:none!important;text-align:center!important}
 table.demand-table td{font-size:13px!important;height:48px;padding-left:8px;padding-right:8px}
-thead{position:sticky;top:0;background:var(--c-bg-0);z-index:5}
+thead{position:sticky;top:0;background:#0F171C;z-index:5}
+/* 双行表头 sticky 兜底：每个 th 都必须有实心背景，否则滚动内容会从透明处透上来 */
+table.demand-table thead th,
+table.demand-table thead .th-ve-group,
+table.demand-table thead .th-ve-cat,
+table.demand-table thead .th-max-date{background:#0F171C!important}
 th{padding:12px 12px;text-align:left;font-size:12.5px;color:var(--c-primary);font-weight:900;border-bottom:1px solid var(--c-hairline);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;font-family:'Inter','JetBrains Mono',sans-serif;text-shadow:0 0 8px rgba(15,247,150,.15)}
 th.sortable{position:relative;cursor:pointer;user-select:none;transition:color .2s;padding-left:20px!important;padding-right:20px!important}
 th.sortable:hover{color:#0FF796;text-shadow:0 0 12px rgba(15,247,150,.3)}
@@ -471,8 +476,8 @@ body.embed .mid{width:100%}
   /* 表格卡 + 头部/结果栏：半透明毛玻璃 */
   .card{background:rgba(31,42,50,.42);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
   .card-head,.result-bar{background:rgba(15,23,28,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  /* 表头轻底，保证列名可读；隔行极淡纹 */
-  thead th{background:rgba(15,23,28,.35)}
+  /* 表头 sticky 必须完全不透明，不然滚动内容会透上来（半透会有透视缺口） */
+  thead th{background:#0F171C}
   tbody tr:nth-child(even) td{background:rgba(255,255,255,.025)}
   /* 澄清面板/状态卡也透一点 */
   .clarify-section,.cva-card{background:rgba(31,42,50,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}

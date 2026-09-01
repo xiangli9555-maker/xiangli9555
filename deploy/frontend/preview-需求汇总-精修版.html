@@ -48,7 +48,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 
 .tactical-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--c-hairline)}
 .title-block{display:flex;flex-direction:column;gap:6px}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;color:var(--c-primary);letter-spacing:2.5px;font-weight:600;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:inline-flex;align-items:baseline;gap:14px;margin:0}
@@ -2138,8 +2138,8 @@ async function loadDemands(){
   pushAssignments();     // 推送策划分配映射到后端（供 /sync 一键生成 + 常驻自动补齐）
 }
 
-// 「导入最新快照」：只把服务器现有 tapd-snapshot.js 的 TAPD 权威字段导入 demands。
-// 人工字段（文案策划/音画同步/备注/台词表/声优预估等）由独立存储维护，不受快照导入覆盖。
+// 「导入最新快照」：以服务器现有 tapd-snapshot.js 对账 demands，新增/更新当前项并停用同版本缺失项。
+// 人工字段（文案策划/音画同步/备注/台词表/声优预估等）保留，不因停用或再次恢复而丢失。
 async function importLatestSnapshot(){
   const btn = document.getElementById('btnRefresh');
   const label = btn && btn.querySelector('.refresh-label');
@@ -2157,7 +2157,8 @@ async function importLatestSnapshot(){
     await loadDemands();
     const added = Number(j.inserted ?? Math.max(0, allDemands.length-before));
     const updated = Number(j.updated ?? Math.max(0, (j.rows||0)-added));
-    flashOk(`快照已导入：新增 ${added} 条，更新 TAPD 字段 ${updated} 条，共 ${allDemands.length} 条`);
+    const deactivated = Number(j.deactivated ?? 0);
+    flashOk(`快照已导入：新增 ${added} 条，更新 TAPD 字段 ${updated} 条，自动移除 ${deactivated} 条，共 ${allDemands.length} 条`);
   }catch(e){
     flashErr(`快照导入失败：${e.message || '未知错误'}`);
   }finally{

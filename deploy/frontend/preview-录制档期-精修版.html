@@ -40,7 +40,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
 .tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
 .title-block{display:flex;flex-direction:column;gap:6px}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;color:var(--c-primary);letter-spacing:2.5px;font-weight:600;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px;text-shadow:0 0 16px rgba(15,247,150,.18)}
@@ -1028,7 +1028,7 @@ body.embed .main{width:100%}
   <main class="main">
     <div class="tactical-header">
       <div class="title-block">
-        <div class="eyebrow"><span class="sig"></span>Recording Schedule</div>
+        <div class="eyebrow"><span class="sig"></span>RECORDING SCHEDULE</div>
         <h1 class="page-title">录制档期 <span class="deadline-meta" id="schedDeadlinePill" hidden><span class="deadline-slash">//</span><span class="deadline-dates" id="schedDeadlineRange">--.-- → --.--</span><span class="deadline-sep">·</span><span class="deadline-rel" id="schedDeadlineRel">--</span> 录制定档期<span class="deadline-calm" id="schedDeadlineCalm" hidden>· 已完成</span></span></h1>
       </div>
       <div class="actions">

@@ -7,6 +7,7 @@ const { deletePrecondition, updatePrecondition } = require('./soft_delete');
 const { ensureAuditTable, writeAudit } = require('./audit');
 const calendar = require('./calendar');
 const releasePlan = require('./releasePlan');
+const { reconcileMissingTapdDemands } = require('./tapd_snapshot_sync');
 const {
   apiAuth,
   corsGuard,
@@ -676,6 +677,10 @@ app.post('/api/refresh', requireRole('admin'), async (req, res) => {
       }
     }
 
+    // 快照是当前发布计划的权威集合：同版本中本次未出现的 TAPD 需求自动停用。
+    // 仅改 TAPD status，不硬删行，保留人工字段、台词表链接和历史追溯；后续重新出现会被上方更新逻辑恢复。
+    const reconciliation = await reconcileMissingTapdDemands(pool, data);
+
     res.json({
       ok:true,
       source:'tapd_snapshot',
@@ -685,7 +690,9 @@ app.post('/api/refresh', requireRole('admin'), async (req, res) => {
       preserved_fields:MANUAL_DEMAND_FIELDS,
       rows:data.length,
       inserted,
-      updated
+      updated,
+      deactivated:reconciliation.deactivated,
+      reconciled_releases:reconciliation.releases
     });
   } catch(e) {
     res.status(500).json({ ok:false, source:'tapd_snapshot', error: publicError(e), rows:0 });

@@ -11,6 +11,47 @@ const {
   normalizeDfaiEntries,
   getReleasePlans,
 } = require('../src/releasePlan');
+let reconcileMissingTapdDemands;
+try {
+  ({ reconcileMissingTapdDemands } = require('../src/tapd_snapshot_sync'));
+} catch (_) {}
+
+test('TAPD 快照对账会停用同版本中已不存在的需求且保留历史数据', async () => {
+  assert.equal(typeof reconcileMissingTapdDemands, 'function', '缺少 TAPD 快照缺失项对账实现');
+  const calls = [];
+  const conn = {
+    query: async (sql, params) => {
+      calls.push({ sql, params });
+      return [{ affectedRows: 1 }];
+    },
+  };
+  const result = await reconcileMissingTapdDemands(conn, [
+    { id: '1020421949136927679', release_plan: 'Yang1.0' },
+    { id: '1020421949137235450', release_plan: 'Yang1.0' },
+  ], new Date('2026-09-01T06:30:00.000Z'));
+
+  assert.deepEqual(result, { deactivated: 1, releases: ['Yang1.0'] });
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].sql, /^UPDATE demands SET status='suspended', last_synced_at=\?/);
+  assert.match(calls[0].sql, /sync_source='tapd_snapshot'/);
+  assert.match(calls[0].sql, /story_type='音频'/);
+  assert.match(calls[0].sql, /release_plan=\?/);
+  assert.match(calls[0].sql, /external_id NOT IN \(\?,\?\)/);
+  assert.doesNotMatch(calls[0].sql, /DELETE FROM demands/);
+  assert.deepEqual(calls[0].params.slice(1), [
+    'Yang1.0',
+    '1020421949136927679',
+    '1020421949137235450',
+  ]);
+});
+
+test('TAPD 快照为空时拒绝执行对账，避免误停整个版本', async () => {
+  assert.equal(typeof reconcileMissingTapdDemands, 'function', '缺少 TAPD 快照缺失项对账实现');
+  await assert.rejects(
+    reconcileMissingTapdDemands({ query: async () => [{ affectedRows: 0 }] }, []),
+    /tapd_snapshot_empty/,
+  );
+});
 
 test('slugify 去除括号与空格', () => {
   assert.equal(slugify('Ma_4.0'), 'ma-4-0');
@@ -113,8 +154,32 @@ const schedulePages = [
   'preview-录制档期-精修版.html',
   'deploy/frontend/preview-录制档期-精修版.html',
 ].map(readProjectFile);
+const eyebrowPageSpecs = [
+  ['需求汇总', 'preview-需求汇总-精修版.html', 'MISSION OPERATIONS'],
+  ['需求汇总部署镜像', 'deploy/frontend/preview-需求汇总-精修版.html', 'MISSION OPERATIONS'],
+  ['版本节点', 'preview-版本节点-精修版.html', 'RELEASE CALENDAR'],
+  ['版本节点部署镜像', 'deploy/frontend/preview-版本节点-精修版.html', 'RELEASE CALENDAR'],
+  ['录制档期', 'preview-录制档期-精修版.html', 'RECORDING SCHEDULE'],
+  ['录制档期部署镜像', 'deploy/frontend/preview-录制档期-精修版.html', 'RECORDING SCHEDULE'],
+  ['声优库', 'preview-声优库-精修版.html', 'TALENT OPERATIONS'],
+  ['声优库部署镜像', 'deploy/frontend/preview-声优库-精修版.html', 'TALENT OPERATIONS'],
+];
+const canonicalEyebrowRule = '.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}';
+
+for (const [name, relativePath, label] of eyebrowPageSpecs) {
+  test(`${name} 顶部英文提示统一为全大写与同一字体规格`, () => {
+    const page = readProjectFile(relativePath);
+    assert.equal(page.includes(canonicalEyebrowRule), true, 'eyebrow 字体规格未统一');
+    assert.match(page, new RegExp(`<div class="eyebrow"><span class="sig"></span>${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:<|\\s)`));
+  });
+}
 
 for (const [index, page] of demandPages.entries()) {
+  test(`需求汇总页 ${index + 1} 在快照导入后反馈自动停用数量`, () => {
+    assert.equal(/const deactivated = Number\(j\.deactivated \?\? 0\)/.test(page), true, '未读取后端对账停用数量');
+    assert.equal(/自动移除 \$\{deactivated\} 条/.test(page), true, '成功提示未反馈自动移除数量');
+  });
+
   test(`需求汇总页 ${index + 1} 使用真实数据时间并展示快照时间`, () => {
     assert.equal(/id="snapshotTimeNote"/.test(page), true, '缺少可见快照时间节点');
     assert.equal(/window\.TAPD_SNAPSHOT_AT/.test(page), true, '未读取静态快照时间元数据');
@@ -127,6 +192,17 @@ test('快照生成器和现有前端快照都携带生成时间元数据', () =>
   assert.equal(/window\.TAPD_SNAPSHOT_AT/.test(readProjectFile('scripts/build_snapshot.py')), true);
   assert.equal(/window\.TAPD_SNAPSHOT_AT/.test(readProjectFile('assets/tapd-snapshot.js')), true);
   assert.equal(/window\.TAPD_SNAPSHOT_AT/.test(readProjectFile('deploy/frontend/assets/tapd-snapshot.js')), true);
+});
+
+test('最新 Yang1 快照已移除 TAPD 不存在的旧需求并保留合并后的需求', () => {
+  [
+    readProjectFile('assets/tapd-snapshot.js'),
+    readProjectFile('deploy/frontend/assets/tapd-snapshot.js'),
+  ].forEach((snapshot) => {
+    assert.equal(/1020421949137075775/.test(snapshot), false, '已从 TAPD 删除的旧需求仍残留在快照');
+    assert.equal(/1020421949136927679/.test(snapshot), true, '合并后的 TAPD 需求缺失');
+    assert.equal(/新春红包活动-\(恭喜发财\+新年快乐）/.test(snapshot), true, '合并后的需求标题未更新');
+  });
 });
 
 test('MySQL 需求接口返回真实数据来源与更新时间响应头', () => {

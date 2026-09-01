@@ -1,6 +1,6 @@
-// ============ 真实 TAPD 快照（DF 20421949 · yang1 · 由 build_snapshot.py 生成 · 共 39 条） ============
-// 标题已按固定规则剥离【】。refresh 读此文件 upsert demands 表。
-window.TAPD_SNAPSHOT_AT = "2026-08-18T12:34:04+08:00";
+// ============ 真实 TAPD 快照（DF 20421949 · yang1 · 由 build_snapshot.py 生成 · 共 37 条） ============
+// 标题已按固定规则剥离【】。refresh 读此文件对账 demands：新增、更新，并停用同版本缺失项。
+window.TAPD_SNAPSHOT_AT = "2026-09-01T14:44:25+08:00";
 window.TAPD_SNAPSHOT = [
   {
     "id": "1020421949137235450",
@@ -105,23 +105,6 @@ window.TAPD_SNAPSHOT = [
     "tapd_url": "https://tapd.woa.com/tapd_fe/20421949/story/detail/1020421949137183242"
   },
   {
-    "id": "1020421949137163177",
-    "parent_id": "1020421949137161401",
-    "parent_url": "https://tapd.woa.com/tapd_fe/20421949/story/detail/1020421949137161401",
-    "release_plan": "Yang1.0",
-    "area": "商业化",
-    "task_name": "重生老太系统：德穆兰，重装兵，通信兵双人猜拳语音补录",
-    "description": "",
-    "creator": "zephyrzzzhu",
-    "developer": "",
-    "handler": "",
-    "cn_lines_handler": "",
-    "video_sync": "无需视频",
-    "clarification": "",
-    "remark": "",
-    "tapd_url": "https://tapd.woa.com/tapd_fe/20421949/story/detail/1020421949137163177"
-  },
-  {
     "id": "1020421949137116489",
     "parent_id": "1020421949137116457",
     "parent_url": "https://tapd.woa.com/tapd_fe/20421949/story/detail/1020421949137116457",
@@ -156,29 +139,12 @@ window.TAPD_SNAPSHOT = [
     "tapd_url": "https://tapd.woa.com/tapd_fe/20421949/story/detail/1020421949137099375"
   },
   {
-    "id": "1020421949137075775",
-    "parent_id": "1020421949136931837",
-    "parent_url": "https://tapd.woa.com/tapd_fe/20421949/story/detail/1020421949136931837",
-    "release_plan": "Yang1.0",
-    "area": "干员",
-    "task_name": "新春红包活动-新年快乐VO",
-    "description": "",
-    "creator": "elorayan",
-    "developer": "",
-    "handler": "",
-    "cn_lines_handler": "",
-    "video_sync": "无需视频",
-    "clarification": "",
-    "remark": "",
-    "tapd_url": "https://tapd.woa.com/tapd_fe/20421949/story/detail/1020421949137075775"
-  },
-  {
     "id": "1020421949136927679",
     "parent_id": "1020421949136922784",
     "parent_url": "https://tapd.woa.com/tapd_fe/20421949/story/detail/1020421949136922784",
     "release_plan": "Yang1.0",
     "area": "干员",
-    "task_name": "新春红包活动-恭喜发财VO",
+    "task_name": "新春红包活动-(恭喜发财+新年快乐）",
     "description": "",
     "creator": "elorayan",
     "developer": "",

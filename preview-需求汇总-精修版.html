@@ -219,11 +219,14 @@ table.demand-table{width:100%;min-width:2284px;table-layout:fixed;border-collaps
 table.demand-table th{font-size:12px!important;font-weight:600!important;letter-spacing:.35px!important;padding:9px 8px!important;text-shadow:none!important;text-align:center!important}
 table.demand-table td{font-size:13px!important;height:48px;padding-left:8px;padding-right:8px}
 thead{position:sticky;top:0;background:#0F171C;z-index:5}
-/* 双行表头 sticky 兜底：每个 th 都必须有实心背景，否则滚动内容会从透明处透上来 */
+/* 双行表头 sticky 兜底：确保两行之间没有任何缝隙让滚动内容透上来 */
 table.demand-table thead th,
 table.demand-table thead .th-ve-group,
 table.demand-table thead .th-ve-cat,
-table.demand-table thead .th-max-date{background:#0F171C!important}
+table.demand-table thead .th-max-date{background:#0F171C!important;box-shadow:inset 0 0 0 1px #0F171C!important;border-color:#0F171C!important}
+/* 第一行 group th 底部小边框设为 bg 色，避免透视；再用 outline 补齐 border-collapse 造成的半像素 */
+table.demand-table thead .th-ve-group,
+table.demand-table thead .th-max-date{border-bottom:1px solid #0F171C!important;outline:1px solid #0F171C;outline-offset:-1px}
 th{padding:12px 12px;text-align:left;font-size:12.5px;color:var(--c-primary);font-weight:900;border-bottom:1px solid var(--c-hairline);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;font-family:'Inter','JetBrains Mono',sans-serif;text-shadow:0 0 8px rgba(15,247,150,.15)}
 th.sortable{position:relative;cursor:pointer;user-select:none;transition:color .2s;padding-left:20px!important;padding-right:20px!important}
 th.sortable:hover{color:#0FF796;text-shadow:0 0 12px rgba(15,247,150,.3)}

@@ -418,8 +418,8 @@ body.embed .mid{width:100%}
   .th-ve-group{text-align:center!important;min-width:900px;border-left:1px solid rgba(15,247,150,.28)}
   .th-ve-cat{width:150px;min-width:150px!important;max-width:150px;text-align:center!important;color:#6BD995!important;font-size:11px!important;line-height:1.15!important;letter-spacing:.1px!important;text-transform:none!important;border-left:1px solid var(--c-hairline);padding:7px 7px!important;white-space:nowrap!important}
   .th-ve-cat.sortable .sort-arrows{margin-left:3px;padding:1px 4px}
-  .ve-cell{width:150px;min-width:150px;max-width:150px;padding:7px 7px;vertical-align:top;border-left:1px solid rgba(46,59,69,.55)}
-  .ve-stack{display:flex;flex-direction:column;gap:4px;max-height:76px;overflow:auto;align-items:flex-start}
+  .ve-cell{width:150px;min-width:150px;max-width:150px;padding:7px 7px;vertical-align:top;border-left:1px solid rgba(46,59,69,.55);overflow:hidden}
+  .ve-stack{display:flex;flex-direction:column;gap:4px;max-height:76px;overflow:hidden;align-items:stretch}
   .ve-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;background:rgba(15,23,28,.58);border:1px solid var(--c-hairline);border-radius:6px;padding:3px 7px;font-size:12px;color:var(--c-text);white-space:nowrap}
   .ve-role{overflow:hidden;text-overflow:ellipsis}
   .ve-chip .ve-x{color:var(--c-brand-yellow,#FFD24C);font-weight:600;flex-shrink:0}
@@ -528,7 +528,10 @@ body.embed .mid{width:100%}
   .col-video{width:5%;min-width:0!important;max-width:none}
   .col-cw{width:8.5%;min-width:0!important;max-width:none}
   .col-ve,.th-ve-cat,.ve-cell{width:4%;min-width:0!important;max-width:none}
-  .ve-cell{padding:4px 2px!important}
+  .ve-cell{padding:4px 2px!important;overflow:hidden}
+  .ve-stack{max-height:64px;overflow:hidden;gap:2px!important}
+  .ve-chip{display:flex!important;width:100%!important;max-width:100%!important;box-sizing:border-box;padding:2px 4px;font-size:11px;overflow:hidden}
+  .ve-role{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .th-ve-group{min-width:0!important}
   .th-max-date,.col-max-date{width:7.4%;min-width:0!important;max-width:none}
   .col-status .va-status{width:100%!important;min-width:0;padding:4px 3px!important;font-size:11px}

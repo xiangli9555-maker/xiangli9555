@@ -541,6 +541,25 @@ body.embed .mid{width:100%}
   table.demand-table td,table.demand-table th{padding:3px 2px!important}
   .kpi-ddl{min-width:180px}
 }
+/* vertical-compact: 笔记本浏览器可视高 ≤850px（例如 1470×956 里去除任务栏/书签栏后），只压竖向密度 */
+@media (max-height: 850px){
+  .main{padding:6px 10px 8px!important;gap:5px!important}
+  .page-title{font-size:16px;margin:0}
+  .subtitle{font-size:10.5px;margin-top:2px}
+  .kpi-row{gap:6px}
+  .kpi{padding:6px 10px}
+  .kpi-value{font-size:17px;line-height:1.15}
+  .kpi-label{font-size:9px}
+  .kpi-meta{font-size:9px;margin-top:1px}
+  .ddl-value>span:first-child{font-size:13px}
+  .ddl-date{font-size:9px}
+  .filter-row{padding:4px 8px;gap:5px}
+  .filter-row .flabel{font-size:8.5px;min-width:44px}
+  .chip-filter,.chip-status{padding:2px 5px;font-size:9.5px}
+  .card{gap:0}
+  table.demand-table td{height:34px!important;padding:3px 3px!important}
+  table.demand-table th{padding:3px 3px!important;font-size:9px!important}
+}
 @media (min-width: 2401px){
   .main{padding:26px 32px 32px;gap:20px}
   .page-title{font-size:26px}

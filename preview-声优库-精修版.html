@@ -354,6 +354,19 @@ body.embed .mid{width:100%}
   table{font-size:14px}
   table td,table th{padding:10px 12px}
 }
+/* vertical-compact: 笔记本可视高 ≤850px */
+@media (max-height: 850px){
+  .main{padding:6px 10px 8px!important;gap:5px!important}
+  .page-title{font-size:16px}
+  .subtitle{font-size:10.5px}
+  .toolbar{padding:4px 8px!important;gap:5px!important}
+  .kpi-row{gap:6px}
+  .kpi{padding:6px 10px}
+  .kpi-value{font-size:17px;line-height:1.15}
+  .kpi-label{font-size:9px}
+  #rosterTable th{padding:4px 5px!important;font-size:10px!important;line-height:1.2!important}
+  #rosterTable td{padding:3px 5px!important;font-size:11px!important;height:30px}
+}
 </style>
 <!-- 声优库数据源（file:// 打开时的兜底：内联 window.ROSTER；http 打开则同时可 fetch assets/roster.json，二者一致） -->
 <script src="assets/roster.js?v=20260824talent"></script>

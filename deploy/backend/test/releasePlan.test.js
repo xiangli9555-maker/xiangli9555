@@ -344,6 +344,76 @@ test('虚拟版本汇总行创建者固定为 Vomi', () => {
   });
 });
 
+test('1470×956 外壳为子页面释放宽度且锁住根级水平溢出', () => {
+  [readProjectFile('vo-manager-refined.html'), readProjectFile('deploy/frontend/vo-manager-refined.html')].forEach((page, index) => {
+    assert.equal(page.includes('1470 compact: no horizontal scroll'), true, `外壳 ${index + 1} 缺少 1470 紧凑模式标记`);
+    assert.match(page, /@media \(max-width: 1500px\)[\s\S]{0,1200}\.sidebar\{width:176px/);
+    assert.match(page, /@media \(max-width: 1500px\)[\s\S]{0,1200}\.brand-search\{[^}]*max-width:280px/);
+    assert.match(page, /@media \(max-width: 1500px\)[\s\S]{0,1400}\.layout,\.main-view,\.viewport,\.iframe-wrap\{min-width:0;overflow-x:hidden\}/);
+  });
+});
+
+test('1470×956 需求汇总保留 16 列并禁止宽表横向滚动', () => {
+  demandPages.forEach((page, index) => {
+    assert.equal(page.includes('1470 compact: no horizontal scroll'), true, `需求汇总 ${index + 1} 缺少紧凑模式标记`);
+    assert.match(page, /\.table-wrap\{overflow-y:auto;overflow-x:hidden/);
+    assert.match(page, /table\.demand-table\{width:100%;min-width:0!important;table-layout:fixed/);
+    assert.match(page, /\.th-ve-group\{min-width:0!important/);
+    assert.match(page, /table\.demand-table col:nth-child\(1\)\{width:5\.2%!important\}/, '窄屏必须覆盖 colgroup 的内联像素宽度');
+    assert.match(page, /table\.demand-table col:nth-child\(n\+9\):nth-child\(-n\+14\)\{width:4%!important\}/, '六个声优预估 col 必须按百分比收缩');
+    assert.doesNotMatch(page, /table\.demand-table\{font-size:(?:11\.5|10\.5)px;min-width:(?:1050|900)px\}/);
+    assert.equal((page.match(/<th\b/g) || []).length >= 16, true, '需求汇总必须继续保留全部表头');
+  });
+});
+
+test('1470×956 版本节点三类时间表只纵向滚动并取消固定最小宽度', () => {
+  [
+    readProjectFile('preview-版本节点-精修版.html'),
+    readProjectFile('deploy/frontend/preview-版本节点-精修版.html'),
+  ].forEach((page, index) => {
+    assert.equal(page.includes('1470 compact: no horizontal scroll'), true, `版本节点 ${index + 1} 缺少紧凑模式标记`);
+    assert.match(page, /\.yc-scroll\{[^}]*overflow-y:auto;overflow-x:hidden/);
+    assert.match(page, /\.yc-table,\.wk-table,\.day-table\{min-width:0!important;width:100%;table-layout:fixed\}/);
+    assert.match(page, /\.yc-table col:nth-child\(n\+3\):not\(:last-child\)\{width:auto!important\}/, '窄屏必须覆盖年历脚本注入的固定周列宽');
+    assert.match(page, /\.right-panel\{width:176px/);
+  });
+});
+
+test('1470×956 录制档期压缩辅助栏与卡片轨道且根级无横向溢出', () => {
+  schedulePages.forEach((page, index) => {
+    assert.equal(page.includes('1470 compact: no horizontal scroll'), true, `录制档期 ${index + 1} 缺少紧凑模式标记`);
+    assert.match(page, /\.mid-panel\{width:220px/);
+    assert.match(page, /\.demand-cards\{grid-template-columns:repeat\(auto-fill,minmax\(280px,1fr\)\)/);
+    assert.match(page, /\.acard-group\{grid-template-columns:repeat\(auto-fill,minmax\(260px,1fr\)\)/);
+    assert.match(page, /html,body\{overflow-x:hidden\}/);
+  });
+});
+
+test('1470×956 声优库保留 10 列并覆盖内联最小宽度', () => {
+  [
+    readProjectFile('preview-声优库-精修版.html'),
+    readProjectFile('deploy/frontend/preview-声优库-精修版.html'),
+  ].forEach((page, index) => {
+    assert.equal(page.includes('1470 compact: no horizontal scroll'), true, `声优库 ${index + 1} 缺少紧凑模式标记`);
+    assert.match(page, /\.table-wrap\{overflow-y:auto;overflow-x:hidden/);
+    assert.match(page, /#rosterTable\{width:100%;table-layout:fixed;min-width:0\}/);
+    assert.match(page, /#rosterTable th\{min-width:0!important;width:auto!important/);
+    assert.equal((page.match(/<th style=/g) || []).length, 10, '声优库必须继续保留全部 10 列');
+  });
+});
+
+test('1470×956 AI 助手保留三栏并让对话区吸收剩余宽度', () => {
+  [
+    readProjectFile('preview-AI助手-精修版.html'),
+    readProjectFile('deploy/frontend/preview-AI助手-精修版.html'),
+  ].forEach((page, index) => {
+    assert.equal(page.includes('1470 compact: no horizontal scroll'), true, `AI 助手 ${index + 1} 缺少紧凑模式标记`);
+    assert.match(page, /\.mid\{grid-template-columns:170px minmax\(0,1fr\) 240px/);
+    assert.match(page, /\.cmd-col,\.chat-col,\.data-col\{min-width:0\}/);
+    assert.match(page, /html,body\{overflow-x:hidden\}/);
+  });
+});
+
 test('外壳收起态为 Logo、折叠按钮和后续品牌信息预留安全间距', () => {
   [readProjectFile('vo-manager-refined.html'), readProjectFile('deploy/frontend/vo-manager-refined.html')].forEach((page, index) => {
     assert.equal(

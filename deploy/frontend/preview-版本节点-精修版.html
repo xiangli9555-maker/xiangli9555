@@ -480,21 +480,42 @@ html.embed .layout{padding-left:0}
    normal:  1501-2400px——保持当前基准
    ================================================================ */
 @media (max-width: 1500px){
-  .right-panel{width:200px;padding:12px 10px;gap:14px}
-  .main{padding:12px 14px 14px;gap:10px}
-  .yc-table{font-size:10px;min-width:780px}
-  .yc-table thead th{font-size:10px!important;padding:6px 5px}
-  .rp-tl-label{font-size:10.5px}
-  .rp-tl-date{font-size:9.5px}
-  .stat-num{font-size:20px!important}
-  .stat-label{font-size:10px!important}
+  /* 1470 compact: no horizontal scroll */
+  html,body{overflow-x:hidden}
+  .layout,.main,.timeline-wrap,.yc-scroll{min-width:0}
+  .right-panel{width:176px;padding:10px 8px;gap:12px}
+  .main{padding:10px 12px 12px;gap:8px}
+  .timeline-wrap{padding:0 8px 8px;gap:8px}
+  .yc-scroll{overflow-y:auto;overflow-x:hidden}
+  .yc-table,.wk-table,.day-table{min-width:0!important;width:100%;table-layout:fixed}
+  .yc-table col:first-child{width:4.4%!important}
+  .yc-table col:nth-child(2){width:7.2%!important}
+  .yc-table col:nth-child(n+3):not(:last-child){width:auto!important}
+  .yc-table col:last-child{width:5.9%!important}
+  .yc-table{font-size:9px}
+  .yc-table thead th{font-size:9px!important;padding:5px 3px}
+  .yc-table thead th.yc-th-group{font-size:10px!important;padding:7px 3px}
+  .yc-table thead th.yc-th-week{font-size:8.5px!important;padding:4px 2px}
+  .yc-table tbody td{font-size:9px;height:116px}
+  .yc-table tbody td.yc-cell > .yc-cell-body{padding:6px 4px}
+  .yc-cell .yc-range{font-size:9px;padding:2px}
+  .yc-cell .yc-evt{font-size:8.5px;padding-left:4px;padding-right:3px}
+  .wk-table thead th.th-week,.wk-table thead th.th-left,.wk-table thead th.th-left-wide,.wk-table thead th.th-days{min-width:0;padding:5px 3px;font-size:9px}
+  .wk-table td{padding:4px 2px;font-size:9px}
+  .day-table thead th.th-day,.day-table thead th.th-year,.day-table thead th.th-phase,.day-table thead th.th-role{min-width:0;padding:5px 3px!important;font-size:9px}
+  .day-table td{padding:4px 3px!important;font-size:9px}
+  .rp-tl-label{font-size:10px}
+  .rp-tl-date{font-size:9px}
+  .stat-num{font-size:19px!important}
+  .stat-label{font-size:9.5px!important}
   .page-title{font-size:18px}
 }
 @media (max-width: 1100px){
-  .yc-table{font-size:9px;min-width:680px}
-  .yc-table thead th{font-size:9px!important;padding:4px 4px}
-  .right-panel{width:170px;padding:10px 8px;gap:10px}
-  .main{padding:10px 12px 12px;gap:8px}
+  .yc-table,.wk-table,.day-table{min-width:0!important}
+  .yc-table{font-size:8.5px}
+  .yc-table thead th{font-size:8.5px!important;padding:4px 2px}
+  .right-panel{width:160px;padding:8px 6px;gap:8px}
+  .main{padding:8px 10px 10px;gap:7px}
 }
 @media (min-width: 2401px){
   .right-panel{width:340px;padding:24px 20px;gap:28px}

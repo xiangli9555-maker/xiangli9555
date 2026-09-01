@@ -478,57 +478,68 @@ body.embed .mid{width:100%}
   .clarify-section,.cva-card{background:rgba(31,42,50,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 
 /* ================================================================
-   响应式断点（2026-08-18）
-   compact: ≤1500px（笔记本）——主内容内边距收敛，表格靠 .table-wrap overflow:auto 自然横滚
+   响应式断点（2026-08-31）
+   compact: ≤1500px（1470×956）——保留全部 16 列，按比例压缩且禁止横向滚动
    wide-4k: ≥2401px（4K）——Story 列拉宽吸收富余屏宽，UI 字号 +1 档
    ================================================================ */
 @media (max-width: 1500px){
-  .main{padding:12px 14px 14px;gap:10px}
+  /* 1470 compact: no horizontal scroll */
+  html,body{overflow-x:hidden}
+  .main{padding:10px 12px 12px;gap:8px;min-width:0}
   .page-title{font-size:18px}
-  .subtitle{font-size:11.5px}
-  .kpi-ddl{min-width:240px}
-  .kpi-value{font-size:22px}
-  .kpi-label{font-size:9.5px}
-  .kpi-meta{font-size:10px}
-  .ddl-value>span:first-child{font-size:16px}
-  .ddl-date{font-size:10px}
-  .filter-row{gap:6px}
-  .filter-row .flabel{min-width:56px;font-size:9px}
-  .chip-filter{padding:3px 7px;font-size:10.5px}
-  .chip-status{padding:2px 6px;font-size:10.5px}
-  .btn{font-size:11.5px;padding:5px 10px}
-  table.demand-table{font-size:11.5px;min-width:1050px}
-  table.demand-table td,table.demand-table th{padding:5px 5px}
-  /* 笔记本下列宽压缩 */
-  .col-release{width:56px;min-width:56px!important;max-width:56px}
-  .col-area{width:50px;min-width:50px!important;max-width:50px}
-  .col-story{width:auto;min-width:160px!important;max-width:none}
-  .col-creator{width:64px;min-width:64px!important;max-width:64px}
-  .col-status{width:90px;min-width:90px!important;max-width:90px}
-  .col-doc{width:60px;min-width:60px!important;max-width:60px}
-  .col-video{width:64px;min-width:64px!important;max-width:64px}
-  .col-cw{width:120px;min-width:120px!important;max-width:120px}
-  .col-ve{width:56px;min-width:56px!important;max-width:56px}
-  .th-ve-cat{width:56px;min-width:56px!important;max-width:56px}
-  .ve-cell{width:56px;min-width:56px;max-width:56px;padding:4px 3px}
-  .th-ve-group{min-width:336px}
-  .th-max-date,.col-max-date{width:80px;min-width:80px!important;max-width:80px}
+  .subtitle{font-size:11px}
+  .kpi-row{gap:8px}
+  .kpi{padding:10px 12px}
+  .kpi-ddl{min-width:210px}
+  .kpi-value{font-size:21px}
+  .kpi-label{font-size:9px}
+  .kpi-meta{font-size:9.5px}
+  .ddl-value>span:first-child{font-size:15px}
+  .ddl-date{font-size:9.5px}
+  .filter-row{gap:5px;padding:7px 9px}
+  .filter-row .flabel{min-width:50px;font-size:8.5px}
+  .chip-filter{padding:3px 6px;font-size:10px}
+  .chip-status{padding:2px 5px;font-size:10px}
+  .btn{font-size:11px;padding:5px 8px}
+  .card{min-width:0}
+  .table-wrap{overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable}
+  table.demand-table{width:100%;min-width:0!important;table-layout:fixed;font-size:10.5px}
+  table.demand-table col:nth-child(1){width:5.2%!important}
+  table.demand-table col:nth-child(2){width:4.5%!important}
+  table.demand-table col:nth-child(3){width:20.8%!important}
+  table.demand-table col:nth-child(4){width:5.5%!important}
+  table.demand-table col:nth-child(5){width:7%!important}
+  table.demand-table col:nth-child(6){width:4.5%!important}
+  table.demand-table col:nth-child(7){width:5%!important}
+  table.demand-table col:nth-child(8){width:8.5%!important}
+  table.demand-table col:nth-child(n+9):nth-child(-n+14){width:4%!important}
+  table.demand-table col:nth-child(n+15){width:7.4%!important}
+  table.demand-table td,table.demand-table th{padding:4px 3px!important;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  table.demand-table th{font-size:9.5px!important;line-height:1.2!important;white-space:normal}
+  table.demand-table th.sortable{padding-left:3px!important;padding-right:3px!important}
+  table.demand-table td{font-size:10.5px!important;height:42px}
+  .col-release{width:5.2%;min-width:0!important;max-width:none}
+  .col-area{width:4.5%;min-width:0!important;max-width:none}
+  .col-story{width:20.8%;min-width:0!important;max-width:none}
+  col.col-story-flex{width:20.8%}
+  .col-creator{width:5.5%;min-width:0!important;max-width:none}
+  .col-status{width:7%;min-width:0!important;max-width:none}
+  .col-doc{width:4.5%;min-width:0!important;max-width:none}
+  .col-video{width:5%;min-width:0!important;max-width:none}
+  .col-cw{width:8.5%;min-width:0!important;max-width:none}
+  .col-ve,.th-ve-cat,.ve-cell{width:4%;min-width:0!important;max-width:none}
+  .ve-cell{padding:4px 2px!important}
+  .th-ve-group{min-width:0!important}
+  .th-max-date,.col-max-date{width:7.4%;min-width:0!important;max-width:none}
+  .col-status .va-status{width:100%!important;min-width:0;padding:4px 3px!important;font-size:9.5px}
+  .story-title,.story-link,.creator-cell,.person,.max-date-cell,.release-summary-text{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ve-chip{max-width:100%;padding:2px 4px;font-size:9.5px}
+  .ve-role{min-width:0;overflow:hidden;text-overflow:ellipsis}
 }
 @media (max-width: 1100px){
-  /* 超窄笔记本：进一步压缩，隐藏次要列 */
-  table.demand-table{font-size:10.5px;min-width:900px}
-  table.demand-table td,table.demand-table th{padding:4px 3px}
-  .col-creator{width:48px;min-width:48px!important;max-width:48px}
-  .col-doc{width:44px;min-width:44px!important;max-width:44px}
-  .col-video{width:48px;min-width:48px!important;max-width:48px}
-  .col-cw{width:90px;min-width:90px!important;max-width:90px}
-  .col-ve{width:44px;min-width:44px!important;max-width:44px}
-  .th-ve-cat{width:44px;min-width:44px!important;max-width:44px}
-  .ve-cell{width:44px;min-width:44px;max-width:44px;padding:3px 2px}
-  .th-ve-group{min-width:264px}
-  .th-max-date,.col-max-date{width:64px;min-width:64px!important;max-width:64px}
-  .col-story{min-width:120px!important}
-  .kpi-ddl{min-width:200px}
+  table.demand-table{width:100%;min-width:0!important;font-size:9.5px}
+  table.demand-table td,table.demand-table th{padding:3px 2px!important}
+  .kpi-ddl{min-width:180px}
 }
 @media (min-width: 2401px){
   .main{padding:26px 32px 32px;gap:20px}

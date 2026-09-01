@@ -739,8 +739,24 @@ body.embed .main{width:100%}
 
 /* 响应式断点（2026-08-18） */
 @media (max-width: 1500px){
-  .main{padding:14px 16px 16px;gap:12px}
-  /* page-title 响应式已统一，不再缩小 */
+  /* 1470 compact: no horizontal scroll */
+  html,body{overflow-x:hidden}
+  .layout,.main,.demand-cards-wrap,.actor-table-wrap{min-width:0}
+  .mid-panel{width:220px;padding:12px 10px;gap:14px}
+  .main{padding:10px 12px 12px;gap:9px}
+  .toolbar{padding:8px 10px;gap:7px}
+  .risk-banner{padding:9px 11px}
+  .view-tabs .view-tab{font-size:15px!important;letter-spacing:1px!important}
+  .demand-cards{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+  .demand-cards .dcard{padding:11px 12px 10px;gap:9px}
+  .demand-cards .dcard-head{gap:8px;padding-bottom:8px;min-height:38px}
+  .demand-cards .dcard-name{font-size:14px;min-height:34px}
+  .demand-cards .dcard-pending{padding:4px 8px;font-size:10px}
+  .demand-cards .role-chip{padding:8px 9px 7px!important}
+  .demand-cards .dcard-foot{gap:5px;padding-top:8px}
+  .demand-cards .dcard-foot .metric{padding:6px 7px}
+  .acard-group{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+  .acard{padding:11px 12px;gap:8px}
 }
 @media (min-width: 2401px){
   .main{padding:26px 32px 32px;gap:20px}

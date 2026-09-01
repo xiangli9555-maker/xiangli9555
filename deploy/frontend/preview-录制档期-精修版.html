@@ -1163,6 +1163,11 @@ body.embed .main{width:100%}
 // 【显示规则 2026-08-14】除声优库外，全站以"游戏角色名"为主体，演员名仅作 tooltip 溯源。
 // 归组键 = (lang, role)：同一角色的中/英配分开算一行；covers = 出现在哪些 story；actor = 演员名（tooltip 显示）。
 function readStoredActorVmode(){ try{ const v = localStorage.getItem('vo_actor_vmode'); return (v==='demand'||v==='role') ? v : 'role'; }catch(_){ return 'role'; } }
+const RELEASE_SCOPE_START = 'Yang1.0';
+function releaseInScope(row){
+  const release = typeof row === 'string' ? row : (row && (row.release_plan || row.plan));
+  return !!(window.VOMI_RELEASE_CALENDAR && window.VOMI_RELEASE_CALENDAR.isAtOrAfterCached(release, RELEASE_SCOPE_START));
+}
 let ACTOR_STATE = { lang: 'all', status: 'all', cat: 'all', gender: 'all', area: 'all', release: '', demands: [], loaded: false, vmode: readStoredActorVmode() };
 let SCHED_STATE = {
   lang: (window.SHELL_LANG==='cn'||window.SHELL_LANG==='en') ? window.SHELL_LANG : 'all',
@@ -1172,7 +1177,8 @@ let SCHED_STATE = {
 };
 const RELEASE_CALENDAR_READY = window.VOMI_RELEASE_CALENDAR
   ? window.VOMI_RELEASE_CALENDAR.load().then(function(){
-      const current = window.VOMI_RELEASE_CALENDAR.currentCached();
+      const current = window.VOMI_RELEASE_CALENDAR.clampFromCached(window.VOMI_RELEASE_CALENDAR.currentCached(), RELEASE_SCOPE_START);
+      if(SCHED_STATE.releaseToken && SCHED_STATE.releaseToken!=='__archive__' && !releaseInScope(SCHED_STATE.releaseToken)) SCHED_STATE.releaseToken=RELEASE_SCOPE_START;
       if(current && !window.FORCE_SCHED_MOCK){
         SCHED_STATE.currentRelease = current;
         ACTOR_STATE.release = current;
@@ -1253,13 +1259,14 @@ function setSchedStatus(st, btn){
 }
 function detectCurrentReleaseFromDemands(){
   return window.VOMI_RELEASE_CALENDAR
-    ? window.VOMI_RELEASE_CALENDAR.currentCached()
-    : '';
+    ? window.VOMI_RELEASE_CALENDAR.clampFromCached(window.VOMI_RELEASE_CALENDAR.currentCached(), RELEASE_SCOPE_START)
+    : RELEASE_SCOPE_START;
 }
 function detectCurrentReleaseFromRows(){
   return detectCurrentReleaseFromDemands();
 }
 function schedReleaseMatch(plan){
+  if(!releaseInScope(plan)) return false;
   const token = String(SCHED_STATE.releaseToken||'').trim();
   if(!token) return true;
   if(token==='__archive__'){
@@ -1462,7 +1469,7 @@ async function loadActorData(){
   // 虚拟数据兜底：仅 file:// 本地预览注入；线上保持真实数据（空则空态）2026-08-31
   if(window.FORCE_SCHED_MOCK && (!arr || !arr.length)) arr = buildMockDemands();
   setRoleCategoryMap(talents);
-  ACTOR_STATE.demands = arr;
+  ACTOR_STATE.demands = arr.filter(releaseInScope);
   ACTOR_STATE.loaded = true;
   renderFilterBar();
   renderActorRollup();
@@ -2547,7 +2554,7 @@ function bookActor(role, lang){
         var arr = Array.isArray(rows)?rows:[];
         // 虚拟数据兜底：仅 file:// 本地预览；线上保持真实数据（空则空态）2026-08-31
         if(window.FORCE_SCHED_MOCK && !arr.length) arr = buildMockSchedules();
-        PUBLISHED_ROWS=arr;window.PUBLISHED_SCHEDULES=PUBLISHED_ROWS;
+        PUBLISHED_ROWS=arr.filter(releaseInScope);window.PUBLISHED_SCHEDULES=PUBLISHED_ROWS;
         renderSched();if(typeof renderActorRollup==='function')renderActorRollup();
         return PUBLISHED_ROWS;
       })
@@ -2561,7 +2568,7 @@ function bookActor(role, lang){
   function loadClarify(){ try{return JSON.parse(localStorage.getItem(CLARIFY))||{}}catch(e){return{}} }
   var DEMAND_OPTIONS=[];
   function loadDemandOptions(){ return fetch('/api/demands',{cache:'no-store'}).then(function(r){return r.ok?r.json():[]}).then(function(a){
-    DEMAND_OPTIONS=Array.isArray(a)?a:[];
+    DEMAND_OPTIONS=(Array.isArray(a)?a:[]).filter(releaseInScope);
     var cur = detectCurrentReleaseFromDemands();
     if(cur) SCHED_STATE.currentRelease = cur;
     renderSched();

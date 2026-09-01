@@ -483,14 +483,52 @@ body.embed .mid{width:100%}
    wide-4k: ≥2401px（4K）——Story 列拉宽吸收富余屏宽，UI 字号 +1 档
    ================================================================ */
 @media (max-width: 1500px){
-  .main{padding:14px 16px 16px;gap:12px}
-  .page-title{font-size:20px}
-  .subtitle{font-size:12px}
-  .kpi-ddl{min-width:300px}
-  .filter-row{gap:8px}
-  .filter-row .flabel{min-width:64px;font-size:10px}
-  table.demand-table{font-size:12.5px}
-  table.demand-table td,table.demand-table th{padding:6px 8px}
+  .main{padding:12px 14px 14px;gap:10px}
+  .page-title{font-size:18px}
+  .subtitle{font-size:11.5px}
+  .kpi-ddl{min-width:240px}
+  .kpi-value{font-size:22px}
+  .kpi-label{font-size:9.5px}
+  .kpi-meta{font-size:10px}
+  .ddl-value>span:first-child{font-size:16px}
+  .ddl-date{font-size:10px}
+  .filter-row{gap:6px}
+  .filter-row .flabel{min-width:56px;font-size:9px}
+  .chip-filter{padding:3px 7px;font-size:10.5px}
+  .chip-status{padding:2px 6px;font-size:10.5px}
+  .btn{font-size:11.5px;padding:5px 10px}
+  table.demand-table{font-size:11.5px;min-width:1050px}
+  table.demand-table td,table.demand-table th{padding:5px 5px}
+  /* 笔记本下列宽压缩 */
+  .col-release{width:56px;min-width:56px!important;max-width:56px}
+  .col-area{width:50px;min-width:50px!important;max-width:50px}
+  .col-story{width:auto;min-width:160px!important;max-width:none}
+  .col-creator{width:64px;min-width:64px!important;max-width:64px}
+  .col-status{width:90px;min-width:90px!important;max-width:90px}
+  .col-doc{width:60px;min-width:60px!important;max-width:60px}
+  .col-video{width:64px;min-width:64px!important;max-width:64px}
+  .col-cw{width:120px;min-width:120px!important;max-width:120px}
+  .col-ve{width:56px;min-width:56px!important;max-width:56px}
+  .th-ve-cat{width:56px;min-width:56px!important;max-width:56px}
+  .ve-cell{width:56px;min-width:56px;max-width:56px;padding:4px 3px}
+  .th-ve-group{min-width:336px}
+  .th-max-date,.col-max-date{width:80px;min-width:80px!important;max-width:80px}
+}
+@media (max-width: 1100px){
+  /* 超窄笔记本：进一步压缩，隐藏次要列 */
+  table.demand-table{font-size:10.5px;min-width:900px}
+  table.demand-table td,table.demand-table th{padding:4px 3px}
+  .col-creator{width:48px;min-width:48px!important;max-width:48px}
+  .col-doc{width:44px;min-width:44px!important;max-width:44px}
+  .col-video{width:48px;min-width:48px!important;max-width:48px}
+  .col-cw{width:90px;min-width:90px!important;max-width:90px}
+  .col-ve{width:44px;min-width:44px!important;max-width:44px}
+  .th-ve-cat{width:44px;min-width:44px!important;max-width:44px}
+  .ve-cell{width:44px;min-width:44px;max-width:44px;padding:3px 2px}
+  .th-ve-group{min-width:264px}
+  .th-max-date,.col-max-date{width:64px;min-width:64px!important;max-width:64px}
+  .col-story{min-width:120px!important}
+  .kpi-ddl{min-width:200px}
 }
 @media (min-width: 2401px){
   .main{padding:26px 32px 32px;gap:20px}
@@ -722,6 +760,11 @@ function tapdStage(d){
 }
 
 let allDemands = [];
+const RELEASE_SCOPE_START = 'Yang1.0';
+function releaseInScope(demand){
+  const release = typeof demand === 'string' ? demand : (demand && demand.release_plan);
+  return !!(window.VOMI_RELEASE_CALENDAR && window.VOMI_RELEASE_CALENDAR.isAtOrAfterCached(release, RELEASE_SCOPE_START));
+}
 const RELEASE_LIBRARY_KEY = 'release_script_libraries_v1';
 let RELEASE_LIBRARY_DOCS = {};
 try{ RELEASE_LIBRARY_DOCS = JSON.parse(localStorage.getItem(RELEASE_LIBRARY_KEY)||'{}')||{}; }catch(_){ RELEASE_LIBRARY_DOCS = {}; }
@@ -823,6 +866,8 @@ async function loadReleasePlans(){
     const r=await fetch('data/release-plans.json',{cache:'no-store'}); const j=await r.json();
     RELEASE_PLANS=(j&&Array.isArray(j.data))?j.data:[];
     if(window.VOMI_RELEASE_CALENDAR) window.VOMI_RELEASE_CALENDAR.setPlans(RELEASE_PLANS);
+    if(window.__INIT_RELEASE__ && window.__INIT_RELEASE__!=='__archive__' && !releaseInScope(window.__INIT_RELEASE__)) window.__INIT_RELEASE__=RELEASE_SCOPE_START;
+    if(filterRelease && filterRelease!=='__archive__' && !releaseInScope(filterRelease)) filterRelease=RELEASE_SCOPE_START;
   }catch(e){ RELEASE_PLANS=[]; }
 }
 // 双 DDL 以版本节点页为权威口径（2026-08-20）：
@@ -1412,8 +1457,8 @@ function rowHTML(d){
 function normRelease(v){ if(!v) return ''; return v.replace(/\s+/g,'').replace(/\.0$/,''); }
 function currentReleasePlan(){
   return window.VOMI_RELEASE_CALENDAR
-    ? window.VOMI_RELEASE_CALENDAR.currentCached()
-    : '';
+    ? window.VOMI_RELEASE_CALENDAR.clampFromCached(window.VOMI_RELEASE_CALENDAR.currentCached(), RELEASE_SCOPE_START)
+    : RELEASE_SCOPE_START;
 }
 function demandScheduleKeys(d){
   return [d.id,d.external_id,d.task_name].filter(Boolean).map(v=>String(v).trim()).filter(Boolean);
@@ -1531,10 +1576,10 @@ function renderRows(){
   const bodyHTML = summaryRows.map(releaseSummaryRowHTML).join('') + rows.map(rowHTML).join('');
   tb.innerHTML = bodyHTML
     ? bodyHTML
-    : `<tr>      <td colspan="17" style="text-align:center;padding:36px;color:var(--c-text-mute)">
+    : `<tr>      <td colspan="16" style="text-align:center;padding:36px;color:var(--c-text-mute)">
         ${allDemands.length===0?'加载中...或后端暂无音频需求':'当前筛选下无数据'}
       </td></tr>`;
-  // colspan=17：发布计划/AREA/Story/创建人/状态/台词表/音画同步/文案策划 + 声优预估6分类 + Max中/英
+  // colspan=16：发布计划/AREA/Story/创建人/状态/台词表/音画同步/文案策划 + 声优预估6分类 + Max中/英
   updateResultBar(rows.length, allDemands.length);
   updateHeaderFilterState();
   // 兼容旧引用（隐藏元素，保持存在）
@@ -2119,7 +2164,7 @@ async function loadDemands(){
   try{
     const r = await fetch('/api/demands', {cache:'no-store'});
     if(!r.ok) throw new Error('http '+r.status);
-    allDemands = applyOfflineDrafts(await r.json());
+    allDemands = applyOfflineDrafts(await r.json()).filter(releaseInScope);
     await flushOfflineDrafts();
     setSyncStatus(r.headers.get('X-Data-Source'), r.headers.get('X-Data-At'));
   }catch(e){
@@ -2127,7 +2172,7 @@ async function loadDemands(){
       console.info('%c[Vo Manager] 后端未连接，使用最近一次 TAPD 快照','color:#0FF796;font-weight:bold');
       window.__snapshotFallbackLogged = true;
     }
-    allDemands = applyOfflineDrafts(TAPD_SNAPSHOT.slice());
+    allDemands = applyOfflineDrafts(TAPD_SNAPSHOT.slice()).filter(releaseInScope);
     setSyncStatus('offline-snapshot', TAPD_SNAPSHOT_AT);
   }
   await loadRecordingMax();

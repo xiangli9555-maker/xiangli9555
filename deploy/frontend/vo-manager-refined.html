@@ -61,6 +61,42 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-user.is-writer .role{color:var(--c-info)}
 .brand-user.is-writer .av{background:var(--c-surface-2)}
 
+/* 顶栏通知 · 身份感知悬浮信息卡 */
+.notification-wrap{position:relative;display:flex;align-items:center}
+#notifyBell[aria-expanded="true"]{border-color:rgba(15,247,150,.58);color:var(--c-primary);background:rgba(15,247,150,.10);box-shadow:0 0 18px rgba(15,247,150,.10)}
+#notifyBell .bell-dot{display:none;top:5px;right:6px;width:7px;height:7px;background:var(--c-primary);border-color:var(--c-bg-0);box-shadow:0 0 8px rgba(15,247,150,.72)}
+#notifyBell.has-alert .bell-dot{display:block}
+.notification-popover{position:absolute;z-index:6000;top:calc(100% + 13px);right:-10px;width:min(430px,calc(100vw - 24px));max-height:min(680px,calc(100vh - 88px));overflow:auto;padding:18px 20px 16px;border:1px solid rgba(15,247,150,.46);border-radius:16px;background:rgba(15,23,28,.96);box-shadow:0 0 24px rgba(15,247,150,.12),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);opacity:0;visibility:hidden;transform:translateY(-6px);transform-origin:top right;transition:opacity .16s ease,transform .16s ease,visibility .16s;pointer-events:none}
+.notification-popover::before{content:'';position:absolute;top:-6px;right:21px;width:10px;height:10px;transform:rotate(45deg);background:#0F171C;border-left:1px solid rgba(15,247,150,.46);border-top:1px solid rgba(15,247,150,.46)}
+.notification-popover.is-open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
+.notification-head{display:flex;align-items:center;gap:9px;min-height:26px;padding-bottom:12px;border-bottom:1px solid rgba(15,247,150,.16)}
+.notification-pulse{width:8px;height:8px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 0 3px rgba(15,247,150,.10),0 0 10px rgba(15,247,150,.55);flex:0 0 auto}
+.notification-title{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--c-primary)}
+.notification-close{margin-left:auto;width:26px;height:26px;border:0;background:transparent;color:var(--c-text-mute);font:400 22px/1 Arial,sans-serif;cursor:pointer;border-radius:5px}
+.notification-close:hover{color:var(--c-primary);background:rgba(15,247,150,.08)}
+.notification-identity{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0 9px;color:var(--c-text-2);font-size:13px}
+.notification-identity strong{color:var(--c-text);font-weight:700}
+.notification-release{flex:0 0 auto;padding:3px 8px;border:1px solid rgba(15,247,150,.26);border-radius:999px;background:rgba(15,247,150,.08);color:var(--c-primary);font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.notification-body{display:flex;flex-direction:column;gap:13px}
+.notification-section{padding-top:2px}
+.notification-section+.notification-section{padding-top:13px;border-top:1px solid rgba(15,247,150,.13)}
+.notification-section-title{margin-bottom:8px;color:var(--c-primary);font-size:12px;font-weight:700;letter-spacing:.3px}
+.notification-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.notification-list li{position:relative;padding-left:14px;color:var(--c-text-2);font-size:12px;line-height:1.58}
+.notification-list li::before{content:'●';position:absolute;left:0;top:0;color:var(--c-primary);font-size:8px;line-height:19px}
+.notification-list li.is-risk::before{color:var(--c-warning)}
+.notification-list li.is-calm::before{color:var(--c-primary)}
+.notification-node{display:flex;align-items:flex-start;gap:10px}
+.notification-node-date{width:45px;flex:0 0 45px;color:var(--c-primary);font-weight:700;font-variant-numeric:tabular-nums}
+.notification-node-copy{min-width:0;flex:1}
+.notification-node-copy b{color:var(--c-text);font-weight:600}
+.notification-node-copy span{display:block;color:var(--c-text-dim);font-size:11px;margin-top:1px}
+.notification-loading,.notification-empty{padding:22px 0;text-align:center;color:var(--c-text-mute);font-size:12px}
+.notification-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:13px;margin-top:13px;border-top:1px solid rgba(15,247,150,.16)}
+.notification-action{height:30px;padding:0 11px;border-radius:6px;border:1px solid rgba(15,247,150,.28);background:rgba(15,247,150,.06);color:var(--c-text-2);font-family:inherit;font-size:12px;cursor:pointer}
+.notification-action:hover{border-color:rgba(15,247,150,.55);color:var(--c-primary);background:rgba(15,247,150,.10)}
+@media (max-width:720px){.notification-popover{position:fixed;top:62px;right:12px;left:12px;width:auto;max-height:calc(100vh - 76px)}}
+
 /* Layout */
 .layout{flex:1;display:flex;overflow:hidden}
 .sidebar{width:211px;background:var(--c-sidebar);border-right:1px solid var(--c-hairline);padding:16px 10px;flex-shrink:0;overflow-y:auto;transition:width .2s}
@@ -196,9 +232,28 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
   </div>
   <span class="brand-spacer"></span>
 
-  <button class="brand-icon-btn is-disabled" id="notifyBell" title="通知" tabindex="-1" aria-disabled="true">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-  </button>
+  <div class="notification-wrap" id="notificationWrap">
+    <button class="brand-icon-btn" id="notifyBell" title="通知中心" aria-label="通知中心" aria-haspopup="dialog" aria-controls="notificationPopover" aria-expanded="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="bell-dot" aria-hidden="true"></span>
+    </button>
+    <section class="notification-popover" id="notificationPopover" role="dialog" aria-modal="false" aria-labelledby="notificationTitle" hidden>
+      <div class="notification-head">
+        <span class="notification-pulse" aria-hidden="true"></span>
+        <div class="notification-title" id="notificationTitle">REFINED · 通知中心</div>
+        <button class="notification-close" type="button" aria-label="关闭通知" onclick="closeNotification(true)">×</button>
+      </div>
+      <div class="notification-identity">
+        <span id="notificationIdentity"><strong>当前身份</strong></span>
+        <span class="notification-release" id="notificationRelease">Yang1</span>
+      </div>
+      <div class="notification-body" id="notificationBody"><div class="notification-loading">正在汇总当前事项…</div></div>
+      <div class="notification-actions">
+        <button class="notification-action" type="button" onclick="openNotificationView('demands')">查看需求汇总</button>
+        <button class="notification-action" type="button" onclick="openNotificationView('milestones')">查看版本节点</button>
+      </div>
+    </section>
+  </div>
   <button class="brand-icon-btn" title="分享" onclick="sharePage()">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
   </button>
@@ -268,9 +323,10 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
   </div>
 </div>
 
-<script src="assets/release-calendar.js?v=20260901a"></script>
+<script src="assets/holiday-calendar.js?v=20260901a"></script>
+<script src="assets/release-calendar.js?v=20260901b"></script>
 <script>
-const __BUILD__ = '202609011456';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202609011603';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -441,12 +497,17 @@ async function loadRosterCounts(){
 }
 /* 侧栏发布计划子页签：当前版本 + 历史归档 */
 const CAL_RELEASE_COUNT_CACHE_KEY = 'vo_calendar_release_counts_cache_v1';
+const RELEASE_SCOPE_START = 'Yang1.0';
 function normReleaseShell(v){ if(!v) return ''; return String(v).replace(/\s+/g,'').replace(/\.0$/,''); }
+function releaseInScopeShell(row){
+  const release = typeof row === 'string' ? row : (row && (row.release_plan || row.plan));
+  return !!(window.VOMI_RELEASE_CALENDAR && window.VOMI_RELEASE_CALENDAR.isAtOrAfterCached(release, RELEASE_SCOPE_START));
+}
 function releaseDisplayName(v){ return String(v==null?'':v).trim(); }
 function pickCurrentRelease(){
   return window.VOMI_RELEASE_CALENDAR
-    ? normReleaseShell(window.VOMI_RELEASE_CALENDAR.currentCached())
-    : '';
+    ? normReleaseShell(window.VOMI_RELEASE_CALENDAR.clampFromCached(window.VOMI_RELEASE_CALENDAR.currentCached(), RELEASE_SCOPE_START))
+    : normReleaseShell(RELEASE_SCOPE_START);
 }
 function renderReleaseSubs(currentName, currentCount, archiveCount){
   const demandBox = document.getElementById('demandReleaseSubs');
@@ -492,7 +553,8 @@ async function loadCalendarReleaseCounts(){
     const r = await fetch('/api/schedules', {cache:'no-store'});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const list = await r.json();
-    const rows = Array.isArray(list) ? list : [];
+    let rows = Array.isArray(list) ? list : [];
+    rows = rows.filter(releaseInScopeShell);
     const curKey = normReleaseShell(SHELL_RELEASE_STATE.current);
     let currentCount = 0;
     rows.forEach(it=>{ if(normReleaseShell(it.release_plan||it.plan)===curKey) currentCount++; });
@@ -508,6 +570,7 @@ async function loadReleases(){
   try{
     if(window.VOMI_RELEASE_CALENDAR) await window.VOMI_RELEASE_CALENDAR.load();
   }catch(_){}
+  rows = rows.filter(releaseInScopeShell);
 
   const map = {};
   rows.forEach(d=>{
@@ -520,7 +583,7 @@ async function loadReleases(){
   const currentKey = pickCurrentRelease();
   const currentName = currentKey && map[currentKey]
     ? map[currentKey].name
-    : (window.VOMI_RELEASE_CALENDAR ? window.VOMI_RELEASE_CALENDAR.currentCached() : '');
+    : (currentKey || normReleaseShell(RELEASE_SCOPE_START));
   const currentCount = currentKey && map[currentKey] ? map[currentKey].count : 0;
   const total = rows.length;
   const archiveCount = Math.max(0, total - currentCount);
@@ -529,7 +592,8 @@ async function loadReleases(){
   applyReleaseCounts(currentCount, archiveCount, total, true);
 
   const activeRelease = (_curView==='demands' || _curView==='calendar') ? (_curRelease || '') : '';
-  if((_curView==='demands' || _curView==='calendar') && (!activeRelease || activeRelease==='all' || activeRelease==='cn' || activeRelease==='en')){
+  const activeOutOfScope = activeRelease && activeRelease!=='__archive__' && !releaseInScopeShell(activeRelease);
+  if((_curView==='demands' || _curView==='calendar') && (!activeRelease || activeRelease==='all' || activeRelease==='cn' || activeRelease==='en' || activeOutOfScope)){
     saveView(_curView, currentName);
     applyView(_curView, currentName, document.querySelector('.nav-item[data-view="'+_curView+'"]'));
   }else{
@@ -617,8 +681,13 @@ console.log('◉ Vo Manager · iframe shell · v1');
    无后端时由 ?user= 决定，预览可 ?user=writer 或 ?user=<文案id>；
    接入真实 SSO/登录后，只需把 CURRENT_USER 换成登录接口返回值即可。 */
 const USER_PROFILES = {
-  pm:     { id:'pm',     name:'lycheelli', role:'PM',     cw:null },
-  writer: { id:'writer', name:'关学院',    role:'Writer', cw:'bojackgguan' }
+  pm:        { id:'pm',        name:'lycheelli', role:'PM',      cw:null },
+  writer:    { id:'writer',    name:'关学院',    role:'Writer',  cw:'bojackgguan' },
+  lixiang:   { id:'lixiang',   name:'李想',      role:'Project', cw:null },
+  zhaojieru: { id:'zhaojieru', name:'赵杰儒',    role:'Project', cw:null },
+  copy_pm:   { id:'copy_pm',   name:'汪亚茜',    role:'Copy PM', cw:null },
+  audio:     { id:'audio',     name:'音频团队',  role:'Audio',   cw:null },
+  viewer:    { id:'viewer',    name:'浏览者',    role:'Viewer',  cw:null }
 };
 function resolveUser(){
   const q = new URLSearchParams(location.search).get('user');
@@ -626,25 +695,174 @@ function resolveUser(){
   if(q) return { id:q, name:q, role:'Writer', cw:q }; // 任意文案 id → 视为 Writer（用其 Q 版头像）
   return USER_PROFILES.pm;
 }
-function getRoleHint(user){
+const NOTIFICATION_STATE = { pinned:false, context:null, loadedAt:0, loading:null, closeTimer:0 };
+let CURRENT_USER = null;
+function getNotificationRole(user){
   const raw = String(user?.id || user?.name || '').trim();
   const key = raw.toLowerCase();
-  if(['pm','vomi','lycheelli'].includes(key)) return 'Vomi：通知、预约会议、聚合校验、锁表、管理修改权限';
-  if(['lixiang','李想'].includes(raw) || ['lixiang'].includes(key)) return '李想：推动版本 VO 流程，参与关键会议，处理紧急修改';
-  if(['zhaojieru','赵杰儒'].includes(raw) || ['zhaojieru'].includes(key)) return '赵杰儒：同步项目公告与提单截止时间';
-  if(['wangyaqian','汪亚茜','文案pm','copy_pm'].includes(raw) || ['wangyaqian','copy_pm'].includes(key)) return '汪亚茜（文案 PM）：组织需求分配台词，完成声优确认';
-  if(['audio','音频团队','audio_team'].includes(raw) || ['audio','audio_team'].includes(key)) return '音频团队：预约声优、补齐档期、推进录制与交付';
-  if(['writer','copywriter','文案策划','bojackgguan','关学院'].includes(raw) || ['writer','copywriter','bojackgguan'].includes(key)) return '文案策划：填写分表台词、角色、句数、选角资料';
-  return user?.role === 'PM'
-    ? 'Vomi：通知、预约会议、聚合校验、锁表、管理修改权限'
-    : '当前身份：请查看与你职责相关的节点提醒';
+  if(['pm','vomi','lycheelli'].includes(key) || user?.role === 'PM') return 'pm';
+  if(['lixiang','李想','zhaojieru','赵杰儒'].includes(raw) || ['lixiang','zhaojieru'].includes(key)) return 'project';
+  if(['wangyaqian','汪亚茜','文案pm','copy_pm'].includes(raw) || ['wangyaqian','copy_pm'].includes(key)) return 'copy_pm';
+  if(['audio','音频团队','audio_team'].includes(raw) || ['audio','audio_team'].includes(key) || user?.role === 'Audio') return 'audio';
+  if(['writer','copywriter','文案策划','bojackgguan','关学院'].includes(raw) || ['writer','copywriter','bojackgguan'].includes(key) || user?.role === 'Writer') return 'writer';
+  return 'viewer';
+}
+function getRoleHint(user){
+  const role = getNotificationRole(user);
+  return ({
+    pm:'通知、聚合校验、锁表与异常协调',
+    project:'推动版本 VO 流程、关键会议与提单截止',
+    copy_pm:'组织台词分配、声优确认与文案进度',
+    writer:'填写台词、角色、句数与选角资料',
+    audio:'预约声优、补齐档期并推进录制交付',
+    viewer:'查看版本节点、需求和录制进度'
+  })[role];
 }
 function applyNotificationHint(user){
   const bell = document.getElementById('notifyBell');
   if(!bell) return;
-  const hint = getRoleHint(user);
-  bell.title = '通知 · ' + hint;
-  bell.setAttribute('aria-label', bell.title);
+  bell.setAttribute('aria-label', '通知中心 · ' + getRoleHint(user));
+  if(!document.getElementById('notificationPopover')?.hidden) refreshNotificationContent();
+}
+function notificationEscape(value){
+  return String(value == null ? '' : value).replace(/[&<>"']/g, char=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[char]);
+}
+function notifyDate(value){
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return match ? `${match[2]}.${match[3]}` : '待定';
+}
+function notifyDaysUntil(value){
+  const target = new Date(String(value || '') + 'T12:00:00+08:00');
+  const todayKey = window.VOMI_HOLIDAY_CALENDAR?.toKey(new Date()) || '';
+  const today = new Date(todayKey + 'T12:00:00+08:00');
+  if(!Number.isFinite(target.getTime()) || !Number.isFinite(today.getTime())) return '';
+  const days = Math.round((target - today) / 86400000);
+  if(days === 0) return '今天';
+  return days > 0 ? `${days} 天后` : `已过 ${Math.abs(days)} 天`;
+}
+async function fetchNotificationJson(url){
+  const response = await fetch(url, {cache:'no-store'});
+  if(!response.ok) throw new Error('HTTP ' + response.status);
+  return response.json();
+}
+async function loadNotificationContext(force=false){
+  if(!force && NOTIFICATION_STATE.context && Date.now() - NOTIFICATION_STATE.loadedAt < 60000) return NOTIFICATION_STATE.context;
+  if(NOTIFICATION_STATE.loading) return NOTIFICATION_STATE.loading;
+  NOTIFICATION_STATE.loading = (async()=>{
+    let plans = [];
+    try{ plans = window.VOMI_RELEASE_CALENDAR ? await window.VOMI_RELEASE_CALENDAR.load() : []; }catch(_){ plans = []; }
+    const results = await Promise.allSettled([
+      fetchNotificationJson('/api/demands'),
+      fetchNotificationJson('/api/schedules'),
+      fetchNotificationJson('/api/voice-roles')
+    ]);
+    const valueAt = index => results[index].status === 'fulfilled' && Array.isArray(results[index].value) ? results[index].value : [];
+    const context = { plans, demands:valueAt(0), schedules:valueAt(1), talents:valueAt(2), unavailable:results.filter(item=>item.status==='rejected').length };
+    NOTIFICATION_STATE.context = context;
+    NOTIFICATION_STATE.loadedAt = Date.now();
+    return context;
+  })().finally(()=>{ NOTIFICATION_STATE.loading = null; });
+  return NOTIFICATION_STATE.loading;
+}
+function buildNotificationModel(user, context){
+  const role = getNotificationRole(user);
+  const currentRelease = SHELL_RELEASE_STATE.current || pickCurrentRelease() || normReleaseShell(RELEASE_SCOPE_START);
+  const currentKey = normReleaseShell(currentRelease);
+  const releaseMatch = row => normReleaseShell(row && (row.release_plan || row.plan)) === currentKey;
+  const demands = (context.demands || []).filter(releaseInScopeShell).filter(releaseMatch);
+  const schedules = (context.schedules || []).filter(releaseInScopeShell).filter(releaseMatch);
+  const roster = countRosterRows(context.talents || []);
+  const missingDocs = demands.filter(row=>!String(row.script_doc_url || '').trim()).length;
+  const unfinished = demands.filter(row=>!['done','closed','已完成','已关闭'].includes(String(row.status || row.v_status || '').trim().toLowerCase())).length;
+  const tasksByRole = {
+    pm:[`核对 ${currentRelease} 的 ${demands.length} 条需求与负责人`,`跟进 ${missingDocs} 条未关联台词表的需求`,`协调 ${roster.pending} 位待选角角色与 ${schedules.length} 条已发布档期`],
+    project:[`推动 ${currentRelease} VO 流程与关键会议`,`同步提单截止、版本变更和阻塞事项`,`协助处理跨团队紧急修改`],
+    copy_pm:[`组织 ${currentRelease} 台词需求分配`,`跟进文案进度与声优确认`,`台词锁前完成分表完整性校验`],
+    writer:[`完成负责需求的台词、角色与句数填写`,`台词锁前完成分表自检`,`锁后修改统一进入版本汇总表`],
+    audio:[`确认声优、录音棚与录制时间`,`跟进 ${roster.pending} 位待选角角色`,`推进 ${schedules.length} 条已发布档期与 VO 交付`],
+    viewer:[`查看 ${currentRelease} 需求与关键节点`,`关注录制进度和风险变化`]
+  };
+  const plan = (context.plans || []).find(item=>normReleaseShell(window.VOMI_RELEASE_CALENDAR?.releaseName(item.label || item.name || item.release_plan)) === currentKey);
+  const nodeRole = role === 'audio' ? 'audio' : role === 'viewer' ? 'viewer' : role === 'pm' || role === 'project' ? 'pm' : 'writer';
+  const todayKey = window.VOMI_HOLIDAY_CALENDAR?.toKey(new Date()) || '';
+  const allNodes = plan && window.VOMI_RELEASE_CALENDAR?.vomiMilestones
+    ? window.VOMI_RELEASE_CALENDAR.vomiMilestones(plan, window.VOMI_HOLIDAY_CALENDAR)
+    : [];
+  let nodes = allNodes.filter(node=>node.date >= todayKey && (nodeRole === 'viewer' || node.roles.includes(nodeRole))).slice(0,3);
+  if(!nodes.length) nodes = allNodes.slice(-2);
+  const risks = [];
+  if(context.unavailable) risks.push({text:`${context.unavailable} 项业务数据暂不可用，请稍后刷新`, level:'risk'});
+  if(demands.length && missingDocs) risks.push({text:`${missingDocs} 条需求尚未关联台词表`, level:'risk'});
+  if(roster.pending) risks.push({text:`${roster.pending} 位角色的中/英配信息未齐`, level:'risk'});
+  if(demands.length && !schedules.length) risks.push({text:`${currentRelease} 暂无已发布录制档期`, level:'risk'});
+  if(!risks.length) risks.push({text:'当前未发现需要立即处理的风险', level:'calm'});
+  return { role, currentRelease, tasks:tasksByRole[role] || tasksByRole.viewer, nodes, risks:risks.slice(0,3), unfinished };
+}
+function renderNotificationModel(model){
+  const body = document.getElementById('notificationBody');
+  const identity = document.getElementById('notificationIdentity');
+  const release = document.getElementById('notificationRelease');
+  const bell = document.getElementById('notifyBell');
+  if(!body || !identity || !release || !bell) return;
+  identity.innerHTML = `<strong>${notificationEscape(CURRENT_USER?.name || '当前用户')}</strong> · ${notificationEscape(getRoleHint(CURRENT_USER))}`;
+  release.textContent = model.currentRelease || RELEASE_SCOPE_START;
+  const taskItems = model.tasks.map(item=>`<li>${notificationEscape(item)}</li>`).join('');
+  const nodeItems = model.nodes.length ? model.nodes.map(node=>`<li class="notification-node"><span class="notification-node-date">${notifyDate(node.date)}</span><span class="notification-node-copy"><b>${notificationEscape(node.label)}${node.time ? ' · ' + notificationEscape(node.time) : ''}</b><span>${notificationEscape(notifyDaysUntil(node.date))}</span></span></li>`).join('') : '<li class="is-calm">当前版本暂无可展示的关键节点</li>';
+  const riskItems = model.risks.map(item=>`<li class="is-${item.level}">${notificationEscape(item.text)}</li>`).join('');
+  body.innerHTML = `<section class="notification-section"><div class="notification-section-title">你当前需要做</div><ul class="notification-list">${taskItems}</ul></section><section class="notification-section"><div class="notification-section-title">近期节点</div><ul class="notification-list">${nodeItems}</ul></section><section class="notification-section"><div class="notification-section-title">风险提示</div><ul class="notification-list">${riskItems}</ul></section>`;
+  bell.classList.toggle('has-alert', model.risks.some(item=>item.level === 'risk'));
+}
+async function refreshNotificationContent(force=false){
+  const body = document.getElementById('notificationBody');
+  if(body && !NOTIFICATION_STATE.context) body.innerHTML = '<div class="notification-loading">正在汇总当前事项…</div>';
+  try{ renderNotificationModel(buildNotificationModel(CURRENT_USER || resolveUser(), await loadNotificationContext(force))); }
+  catch(_){ if(body) body.innerHTML = '<div class="notification-empty">通知暂时无法加载，请稍后重试</div>'; }
+}
+function openNotification(pin=false){
+  const popover = document.getElementById('notificationPopover');
+  const bell = document.getElementById('notifyBell');
+  if(!popover || !bell) return;
+  clearTimeout(NOTIFICATION_STATE.closeTimer);
+  NOTIFICATION_STATE.pinned = !!pin || NOTIFICATION_STATE.pinned;
+  popover.hidden = false;
+  requestAnimationFrame(()=>popover.classList.add('is-open'));
+  bell.setAttribute('aria-expanded','true');
+  refreshNotificationContent();
+}
+function closeNotification(force=false){
+  if(NOTIFICATION_STATE.pinned && !force) return;
+  NOTIFICATION_STATE.pinned = false;
+  const popover = document.getElementById('notificationPopover');
+  const bell = document.getElementById('notifyBell');
+  if(!popover || !bell) return;
+  popover.classList.remove('is-open');
+  bell.setAttribute('aria-expanded','false');
+  clearTimeout(NOTIFICATION_STATE.closeTimer);
+  NOTIFICATION_STATE.closeTimer = setTimeout(()=>{ if(!popover.classList.contains('is-open')) popover.hidden = true; }, 170);
+}
+function toggleNotification(event){
+  event?.stopPropagation();
+  const open = document.getElementById('notifyBell')?.getAttribute('aria-expanded') === 'true';
+  if(open && NOTIFICATION_STATE.pinned) closeNotification(true);
+  else openNotification(true);
+}
+function openNotificationView(view){
+  closeNotification(true);
+  const release = view === 'demands' ? (SHELL_RELEASE_STATE.current || '') : '';
+  saveView(view, release);
+  applyView(view, release, document.querySelector(`.nav-item[data-view="${view}"]`));
+}
+function initNotificationCenter(){
+  const wrap = document.getElementById('notificationWrap');
+  const bell = document.getElementById('notifyBell');
+  const popover = document.getElementById('notificationPopover');
+  if(!wrap || !bell || !popover) return;
+  bell.addEventListener('click', toggleNotification);
+  wrap.addEventListener('mouseenter', ()=>openNotification(false));
+  wrap.addEventListener('mouseleave', ()=>{ clearTimeout(NOTIFICATION_STATE.closeTimer); NOTIFICATION_STATE.closeTimer=setTimeout(()=>closeNotification(false),140); });
+  document.addEventListener('click', event=>{ if(!wrap.contains(event.target)) closeNotification(true); });
+  document.addEventListener('keydown', event=>{ if(event.key === 'Escape') closeNotification(true); });
+  window.addEventListener('blur', ()=>{ if(document.activeElement?.tagName === 'IFRAME') closeNotification(true); });
 }
 function renderUserChip(){
   const u = CURRENT_USER = resolveUser();
@@ -671,7 +889,9 @@ function cycleUser(){
   renderUserChip();
   toast('预览身份：' + u.name + ' · ' + u.role);
 }
+initNotificationCenter();
 renderUserChip();
+setTimeout(()=>refreshNotificationContent(false), 600);
 restoreView();   // 刷新后还原上次所在页面（版本节点/录制档期/…）
 </script>
 

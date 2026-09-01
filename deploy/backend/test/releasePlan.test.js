@@ -186,6 +186,11 @@ for (const [index, page] of demandPages.entries()) {
     assert.equal(/【快照时间：/.test(page), true, '缺少快照时间文案');
     assert.equal(/const now = new Date\(\);[\s\S]{0,180}updatedTime/.test(page), false, '仍使用页面加载时间冒充数据时间');
   });
+
+  test(`需求汇总页 ${index + 1} 空数据行只跨越真实 16 列，让 Story 吸收剩余宽度`, () => {
+    assert.equal(/<td colspan="16"[^>]*>[\s\S]{0,160}当前筛选下无数据/.test(page), true, '空数据行未使用真实 16 列');
+    assert.equal(/colspan="17"/.test(page), false, '多余的第 17 列会在表头右侧制造空隙');
+  });
 }
 
 test('快照生成器和现有前端快照都携带生成时间元数据', () => {
@@ -237,6 +242,77 @@ test('当前版本按上一版本转测开始到本版本开发结束判定，�
   assert.equal(calendar.currentRelease(plans, '2026-09-28T00:00:00+08:00'), 'Yang1.0');
   assert.equal(calendar.currentRelease(plans, '2026-12-20T23:59:59+08:00'), 'Yang1.0');
   assert.equal(calendar.currentRelease(plans, '2026-12-21T00:00:00+08:00'), 'Yang2.0');
+});
+
+test('共享版本日历支持从 Yang1 起步并保留后续版本', () => {
+  delete require.cache[require.resolve(releaseCalendarAsset)];
+  const calendar = require(releaseCalendarAsset);
+  const plans = JSON.parse(readProjectFile('data/release-plans.json'));
+  calendar.setPlans(plans);
+
+  assert.equal(calendar.isAtOrAfter(plans, 'Ma5.0', 'Yang1.0'), false);
+  assert.equal(calendar.isAtOrAfter(plans, 'Yang1.0', 'Yang1.0'), true);
+  assert.equal(calendar.isAtOrAfter(plans, 'Yang2.0', 'Yang1.0'), true);
+  assert.equal(calendar.clampFrom(plans, 'Ma5.0', 'Yang1.0'), 'Yang1.0');
+  assert.equal(calendar.clampFrom(plans, 'Yang2.0', 'Yang1.0'), 'Yang2.0');
+  assert.equal(calendar.isAtOrAfterCached('Ma4.0', 'Yang1.0'), false);
+  assert.equal(calendar.isAtOrAfterCached('Yang3.0', 'Yang1.0'), true);
+});
+
+test('需求汇总、录制档期与外壳均从 Yang1 发布计划开始取数', () => {
+  const shellPages = [
+    readProjectFile('vo-manager-refined.html'),
+    readProjectFile('deploy/frontend/vo-manager-refined.html'),
+  ];
+  [...demandPages, ...schedulePages, ...shellPages].forEach((page, index) => {
+    assert.equal(/RELEASE_SCOPE_START\s*=\s*['"]Yang1\.0['"]/.test(page), true, `页面 ${index + 1} 未声明 Yang1 起始版本`);
+  });
+  demandPages.forEach((page) => {
+    assert.equal(/allDemands\s*=\s*applyOfflineDrafts\([\s\S]{0,160}\.filter\(releaseInScope\)/.test(page), true, '需求汇总未过滤 Yang1 之前的数据');
+    assert.equal(/currentReleasePlan\(\)[\s\S]{0,220}clampFromCached/.test(page), true, '需求汇总当前版本未钳制到 Yang1 起步');
+  });
+  schedulePages.forEach((page) => {
+    assert.equal(/function schedReleaseMatch\(plan\)\{[\s\S]{0,180}!releaseInScope\(plan\)/.test(page), true, '录制档期筛选仍允许 Yang1 之前的数据');
+    assert.equal(/ACTOR_STATE\.demands\s*=\s*arr\.filter\(releaseInScope\)/.test(page), true, '录制档期声优汇总未过滤 Yang1 之前的需求');
+    assert.equal(/PUBLISHED_ROWS\s*=\s*arr\.filter\(releaseInScope\)/.test(page), true, '录制档期已发布排期未过滤 Yang1 之前的数据');
+  });
+  shellPages.forEach((page) => {
+    assert.equal(/function pickCurrentRelease\(\)[\s\S]{0,220}clampFromCached/.test(page), true, '外壳当前版本未从 Yang1 起步');
+    assert.equal(/rows\s*=\s*rows\.filter\(releaseInScopeShell\)/.test(page), true, '外壳计数仍包含 Yang1 之前的数据');
+  });
+});
+
+test('共享版本日历按权威有效周规则生成 VO 四个关键节点', () => {
+  delete require.cache[require.resolve(releaseCalendarAsset)];
+  const calendar = require(releaseCalendarAsset);
+  const holidays = require(path.join(projectRoot, 'assets/holiday-calendar.js'));
+  const plans = JSON.parse(readProjectFile('data/release-plans.json'));
+  const yang1 = calendar.listOf(plans).find((plan) => calendar.releaseName(plan.label) === 'Yang1.0');
+  const nodes = calendar.vomiMilestones(yang1, holidays);
+
+  assert.deepEqual(nodes.map((node) => [node.key, node.date]), [
+    ['demand-lock', '2026-09-14'],
+    ['talent-lock', '2026-10-29'],
+    ['script-lock', '2026-11-12'],
+    ['vo-delivery', '2026-12-11'],
+  ]);
+});
+
+test('外壳通知铃铛启用身份感知悬浮信息卡并只读取真实业务接口', () => {
+  const shellPages = [
+    readProjectFile('vo-manager-refined.html'),
+    readProjectFile('deploy/frontend/vo-manager-refined.html'),
+  ];
+  shellPages.forEach((page, index) => {
+    assert.equal(/id="notifyBell"(?![^>]*is-disabled)[^>]*aria-haspopup="dialog"/.test(page), true, `外壳 ${index + 1} 的铃铛仍未启用`);
+    assert.equal(/id="notificationPopover"[^>]*role="dialog"/.test(page), true, `外壳 ${index + 1} 缺少通知悬浮卡`);
+    assert.equal(/function getNotificationRole\(/.test(page), true, `外壳 ${index + 1} 未按身份分类通知`);
+    assert.equal(/function buildNotificationModel\(/.test(page), true, `外壳 ${index + 1} 缺少通知内容模型`);
+    assert.equal(/Promise\.allSettled\([\s\S]{0,500}\/api\/demands[\s\S]{0,500}\/api\/schedules[\s\S]{0,500}\/api\/voice-roles/.test(page), true, `外壳 ${index + 1} 未从真实业务接口汇总风险`);
+    assert.equal(/vomiMilestones\(/.test(page), true, `外壳 ${index + 1} 未展示权威 VO 节点`);
+    assert.equal(/Escape[\s\S]{0,180}closeNotification/.test(page), true, `外壳 ${index + 1} 缺少 ESC 关闭交互`);
+    assert.equal(/notification-popover/.test(page), true, `外壳 ${index + 1} 缺少统一浅绿色悬浮信息卡样式`);
+  });
 });
 
 test('需求、档期和外壳统一加载共享版本日历，禁止按需求数或草稿数猜当前版本', () => {

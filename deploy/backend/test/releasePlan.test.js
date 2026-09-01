@@ -191,3 +191,48 @@ test('虚拟版本汇总行创建者固定为 Vomi', () => {
     assert.equal(/creator:'lycheelli'|title="汇总负责人">lycheelli<\/td>/.test(page), false, '仍残留个人名作为汇总创建者');
   });
 });
+
+test('外壳收起态为 Logo、折叠按钮和后续品牌信息预留安全间距', () => {
+  [readProjectFile('vo-manager-refined.html'), readProjectFile('deploy/frontend/vo-manager-refined.html')].forEach((page, index) => {
+    assert.equal(
+      /body\.sidebar-collapsed \.brand-toggle\{[^}]*left:calc\(var\(--sb-col-w\) \+ 34px\)/.test(page),
+      true,
+      `外壳 ${index + 1} 的折叠按钮未右移到安全间距`,
+    );
+    assert.equal(
+      /body\.sidebar-collapsed \.brand-logo\{[^}]*margin-right:calc\(var\(--sb-col-w\) \+ 16px\)/.test(page),
+      true,
+      `外壳 ${index + 1} 未给后续品牌信息预留防叠加空间`,
+    );
+    assert.equal(
+      /--collapsed-line-x:calc\(var\(--sb-col-w\) \+ 24px\)/.test(page),
+      true,
+      `外壳 ${index + 1} 的竖线未定位到折叠按钮左侧`,
+    );
+    assert.equal(
+      /body\.sidebar-collapsed \.brand-divider\{[^}]*left:var\(--collapsed-line-x\)/.test(page),
+      true,
+      `外壳 ${index + 1} 的顶栏分隔线未跟随统一定位`,
+    );
+    assert.equal(
+      /--collapsed-content-offset-x:6px/.test(page),
+      true,
+      `外壳 ${index + 1} 未定义收起态 Logo 对齐偏移`,
+    );
+    assert.equal(
+      /body\.sidebar-collapsed \.sidebar\{[^}]*width:var\(--collapsed-line-x\)[^}]*border-right-color:var\(--c-hairline\)[^}]*background-color:var\(--c-sidebar\)/.test(page),
+      true,
+      `外壳 ${index + 1} 的收起态侧栏未延展至统一分隔线`,
+    );
+    assert.equal(
+      /body\.sidebar-collapsed \.sidebar \.nav-item\{[^}]*margin:2px auto[^}]*transform:translateX\(var\(--collapsed-content-offset-x\)\)/.test(page),
+      true,
+      `外壳 ${index + 1} 的收起态导航项未向 Logo 中轴对齐`,
+    );
+    assert.equal(
+      /body\.sidebar-collapsed \.sidebar \.sec-label::before\{[^}]*transform:translateX\(var\(--collapsed-content-offset-x\)\)/.test(page),
+      true,
+      `外壳 ${index + 1} 的收起态分组线未与导航项同轴`,
+    );
+  });
+});

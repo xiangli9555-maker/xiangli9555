@@ -17,11 +17,13 @@
   --c-border:#2E3B45; --c-border-strong:#3D4C57; --c-hairline:#243039;
   --c-text:#FFFFFF; --c-text-2:#D4DDE3; --c-text-mute:#A1B1BC; --c-text-dim:#6B7A85;
   --c-info:#60A5FA; --c-warning:#F59E0B; --c-danger:#E87DA0;
-  /* 2026-09-01: 侧栏收起宽度改为纯 CSS 静态变量（随各断点媒体查询覆盖），
-   * 不再用 JS 实时测量写入（旧方案在动画/布局时机上会有竞态，导致对齐时对时错）。
-   * .sidebar 收起宽度与 .brand-logo 收起宽度共用同一份数值，保证顶栏 divider
-   * 天然落在侧栏右边缘，无需绝对定位/JS 校准。 */
+  /* 2026-09-01: 收起态几何统一由纯 CSS 静态变量控制（随断点覆盖），
+   * 不再用 JS 实时测量，避免动画/布局时机竞态。--sb-col-w 作为基础轨道宽度，
+   * --collapsed-line-x 同时决定侧栏右边缘与顶栏 divider 位置。 */
   --sb-col-w:68px;
+  /* 收起态上下两段竖线统一落在折叠按钮左侧 10px；导航轴向右微调，与 Logo 视觉中轴对齐 */
+  --collapsed-line-x:calc(var(--sb-col-w) + 24px);
+  --collapsed-content-offset-x:6px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);-webkit-font-smoothing:antialiased}
@@ -62,8 +64,8 @@ body{display:flex;flex-direction:column;overflow:hidden}
 /* Layout */
 .layout{flex:1;display:flex;overflow:hidden}
 .sidebar{width:211px;background:var(--c-sidebar);border-right:1px solid var(--c-hairline);padding:16px 10px;flex-shrink:0;overflow-y:auto;transition:width .2s}
-/* 收起态：仅保留居中的导航图标，宽度统一读 --sb-col-w（各断点在 :root 里覆盖该变量） */
-body.sidebar-collapsed .sidebar{width:var(--sb-col-w);padding:16px 8px}
+/* 收起态：侧栏真实宽度延展至统一竖线，内容有足够空间向 Logo 视觉中轴对齐 */
+body.sidebar-collapsed .sidebar{width:var(--collapsed-line-x);padding:16px 8px;border-right-color:var(--c-hairline);background-color:var(--c-sidebar)}
 body.sidebar-collapsed .sidebar .label-text,
 body.sidebar-collapsed .sidebar .nav-label,
 body.sidebar-collapsed .sidebar .nav-sub{display:none!important}
@@ -71,10 +73,10 @@ body.sidebar-collapsed .sidebar .nav-sub{display:none!important}
 body.sidebar-collapsed .sidebar .sec-label{height:17px;padding:8px 0;margin:2px 0;box-sizing:border-box;font-size:0;line-height:0;text-align:center}
 body.sidebar-collapsed .sidebar .sec-label .section-sig,
 body.sidebar-collapsed .sidebar .sec-label .sec-txt{display:none!important}
-body.sidebar-collapsed .sidebar .sec-label::before{content:'';display:block;width:24px;height:1px;margin:0 auto;background:var(--c-hairline);border-radius:1px}
+body.sidebar-collapsed .sidebar .sec-label::before{content:'';display:block;width:24px;height:1px;margin:0 auto;background:var(--c-hairline);border-radius:1px;transform:translateX(var(--collapsed-content-offset-x))}
 body.sidebar-collapsed .sidebar .sec-label.active::before{background:rgba(15,248,155,.42)}
 /* 收起态：图标居中，文字/badge/伪元素清空；title 提供浏览器原生 tooltip */
-body.sidebar-collapsed .sidebar .nav-item{width:40px;min-width:40px;height:40px;justify-content:center;padding:0;margin:2px 0;position:relative}
+body.sidebar-collapsed .sidebar .nav-item{width:40px;min-width:40px;height:40px;justify-content:center;padding:0;margin:2px auto;position:relative;transform:translateX(var(--collapsed-content-offset-x))}
 body.sidebar-collapsed .sidebar .nav-item .label-text,
 body.sidebar-collapsed .sidebar .nav-item .nav-label,
 body.sidebar-collapsed .sidebar .nav-item .badge{display:none!important}
@@ -85,13 +87,11 @@ body.sidebar-collapsed .sidebar .nav-item.active svg{color:var(--c-primary)}
 
 /* 收起时隐藏 brand bar 的 DELTA FORCE 文字，只留三角 logo */
 body.sidebar-collapsed .brand-logo .logo-txt{display:none}
-/* 2026-09-01: 改为纯 CSS 静态方案（--sb-col-w 只在各 @media 里被 :root 覆盖一次，
- * 不再由 JS 在 resize/toggle 时机上实时测量写入），彻底消除"有时对有时不对"的竞态问题：
- * divider 用 position:absolute 钉在侧栏右边缘（与 .sidebar 收起宽度共用同一变量，
- * 天生同步，不存在先后顺序问题）；toggle 按钮钉在 divider 右侧固定间距处，避免重叠。 */
-body.sidebar-collapsed .brand-divider{position:absolute;left:calc(var(--sb-col-w) - 1px);top:50%;margin-top:-13px}
-body.sidebar-collapsed .brand-toggle{position:absolute;left:calc(var(--sb-col-w) + 8px);top:50%;margin-top:-16px}
-body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) - 13px)}
+/* 2026-09-01: 顶栏 divider 与侧栏右边框统一读取 --collapsed-line-x，固定落在折叠按钮左侧 10px；
+ * toggle 与 Vomi 品牌区继续作为一组向右留出安全距离。 */
+body.sidebar-collapsed .brand-divider{position:absolute;left:var(--collapsed-line-x);top:50%;margin-top:-13px}
+body.sidebar-collapsed .brand-toggle{position:absolute;left:calc(var(--sb-col-w) + 34px);top:50%;margin-top:-16px}
+body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
 
 .sec-label{font-size:10px;letter-spacing:1.5px;color:var(--c-text-dim);text-transform:uppercase;padding:14px 10px 6px;font-weight:600;font-family:'JetBrains Mono',monospace}
 .nav-item{width:100%;display:flex;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:6px;font-size:13px;text-align:left;font-family:inherit;transition:all .15s;position:relative}
@@ -164,9 +164,7 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) - 13px)}
   :root{ --sb-col-w:52px; }
   .brand-bar{height:76px;min-height:76px;padding:12px 24px;gap:14px}
   .sidebar{width:221px;padding:20px 16px}
-  /* 2026-09-01: 折叠态宽度不再各断点各写死一份，统一读 --sb-col-w（在本断点内已被
-   * 上面的 :root 覆盖为 52px），与顶部 brand-divider/toggle 使用同一份变量，
-   * 天然保持对齐，不存在跟丢的可能 */
+  /* 4K 仅覆盖基础轨道宽度；侧栏右边缘、divider 与 toggle 位置继续由全局变量链同步推导。 */
   body.sidebar-collapsed .sidebar{padding:20px 6px}
   .brand-search{flex:1 1 520px;max-width:520px;margin:0 12px 0 24px}
   .nav-item{font-size:14.5px}
@@ -588,9 +586,8 @@ window.addEventListener('pageshow',e=>{ if(e.persisted){ loadReleases(); loadRos
 window.addEventListener('online',()=>{ loadReleases(); loadRosterCounts(); loadCalendarReleaseCounts(); });
 
 /* 还原原版 brand-bar 交互 */
-// 2026-09-01: 侧栏收起宽度对齐改为纯 CSS 静态变量方案（见 :root 与各 @media 中的
-// --sb-col-w），不再用 JS 实时测量 DOM 后写回 CSS 变量 —— 旧方案在 toggle 瞬间
-// /resize 期间存在测量时机竞态（有时读到旧布局值），是"有时对齐有时错位"的根因。
+// 2026-09-01: 收起态几何改为纯 CSS 静态变量链，不再用 JS 实时测量 DOM；
+// 避免 toggle 动画或 resize 期间读到旧布局值，导致对齐时好时坏。
 function toggleSidebar(){
   document.body.classList.toggle('sidebar-collapsed');
 }

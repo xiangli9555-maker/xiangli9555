@@ -32,6 +32,7 @@ const LINE = Object.freeze({
     { key: 'text_en', title: '台词-英 Lines', subtitle: '', width: 300 },
     { key: 'emotion', title: '情绪', subtitle: '', width: 80 },
     { key: 'trigger', title: '触发条件', subtitle: '', width: 150 },
+    { key: 'audio_file', title: 'GP Audio Event/音频文件名', subtitle: '', width: 200 },
     { key: 'remark', title: '备注信息', subtitle: '', width: 200 },
     { key: 'av_sync', title: '音画同步', subtitle: '', width: 110 },
     { key: 'sentence_count', title: '句数统计', subtitle: '系统自动统计｜读取C列·每20字一句', width: 110 },
@@ -39,12 +40,32 @@ const LINE = Object.freeze({
   ]),
   dataStartRow: 3,
   dataRows: DATA_ROWS,
+  totalRows: 2 + DATA_ROWS,
 });
 
+function lineColumnIndex(key) {
+  const index = LINE.columns.findIndex((column) => column.key === key);
+  if (index < 0) throw new Error(`Unknown LINE column: ${key}`);
+  return index;
+}
+function columnLetter(zeroBasedIndex) {
+  if (!Number.isSafeInteger(zeroBasedIndex) || zeroBasedIndex < 0) {
+    throw new Error(`Invalid column index: ${zeroBasedIndex}`);
+  }
+  let value = zeroBasedIndex + 1;
+  let result = '';
+  while (value > 0) {
+    value -= 1;
+    result = String.fromCharCode(65 + (value % 26)) + result;
+    value = Math.floor(value / 26);
+  }
+  return result;
+}
+
 const INDEX = Object.freeze({
-  avSync: 7,
-  sentence: 8,
-  validation: 9,
+  avSync: lineColumnIndex('av_sync'),
+  sentence: lineColumnIndex('sentence_count'),
+  validation: lineColumnIndex('role_validation'),
 });
 
 function escapeSheetName(name) {
@@ -72,6 +93,8 @@ module.exports = {
   STAT,
   LINE,
   INDEX,
+  lineColumnIndex,
+  columnLetter,
   escapeSheetName,
   quoteSheetName,
   lineSentenceFormula,

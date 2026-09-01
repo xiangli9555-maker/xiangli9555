@@ -17,6 +17,11 @@
   --c-border:#2E3B45; --c-border-strong:#3D4C57; --c-hairline:#243039;
   --c-text:#FFFFFF; --c-text-2:#D4DDE3; --c-text-mute:#A1B1BC; --c-text-dim:#6B7A85;
   --c-info:#60A5FA; --c-warning:#F59E0B; --c-danger:#E87DA0;
+  /* 2026-09-01: 侧栏收起宽度改为纯 CSS 静态变量（随各断点媒体查询覆盖），
+   * 不再用 JS 实时测量写入（旧方案在动画/布局时机上会有竞态，导致对齐时对时错）。
+   * .sidebar 收起宽度与 .brand-logo 收起宽度共用同一份数值，保证顶栏 divider
+   * 天然落在侧栏右边缘，无需绝对定位/JS 校准。 */
+  --sb-col-w:68px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);-webkit-font-smoothing:antialiased}
@@ -57,8 +62,8 @@ body{display:flex;flex-direction:column;overflow:hidden}
 /* Layout */
 .layout{flex:1;display:flex;overflow:hidden}
 .sidebar{width:211px;background:var(--c-sidebar);border-right:1px solid var(--c-hairline);padding:16px 10px;flex-shrink:0;overflow-y:auto;transition:width .2s}
-/* 收起态：固定52px，仅保留居中的导航图标 */
-body.sidebar-collapsed .sidebar{width:52px;padding:16px 6px}
+/* 收起态：仅保留居中的导航图标，宽度统一读 --sb-col-w（各断点在 :root 里覆盖该变量） */
+body.sidebar-collapsed .sidebar{width:var(--sb-col-w);padding:16px 8px}
 body.sidebar-collapsed .sidebar .label-text,
 body.sidebar-collapsed .sidebar .nav-label,
 body.sidebar-collapsed .sidebar .nav-sub{display:none!important}
@@ -80,6 +85,13 @@ body.sidebar-collapsed .sidebar .nav-item.active svg{color:var(--c-primary)}
 
 /* 收起时隐藏 brand bar 的 DELTA FORCE 文字，只留三角 logo */
 body.sidebar-collapsed .brand-logo .logo-txt{display:none}
+/* 2026-09-01: 改为纯 CSS 静态方案（--sb-col-w 只在各 @media 里被 :root 覆盖一次，
+ * 不再由 JS 在 resize/toggle 时机上实时测量写入），彻底消除"有时对有时不对"的竞态问题：
+ * divider 用 position:absolute 钉在侧栏右边缘（与 .sidebar 收起宽度共用同一变量，
+ * 天生同步，不存在先后顺序问题）；toggle 按钮钉在 divider 右侧固定间距处，避免重叠。 */
+body.sidebar-collapsed .brand-divider{position:absolute;left:calc(var(--sb-col-w) - 1px);top:50%;margin-top:-13px}
+body.sidebar-collapsed .brand-toggle{position:absolute;left:calc(var(--sb-col-w) + 8px);top:50%;margin-top:-16px}
+body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) - 13px)}
 
 .sec-label{font-size:10px;letter-spacing:1.5px;color:var(--c-text-dim);text-transform:uppercase;padding:14px 10px 6px;font-weight:600;font-family:'JetBrains Mono',monospace}
 .nav-item{width:100%;display:flex;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:6px;font-size:13px;text-align:left;font-family:inherit;transition:all .15s;position:relative}
@@ -140,17 +152,22 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
    normal:  1501-2400px——保持当前视觉基准，不动
    ================================================================ */
 @media (max-width: 1500px){
+  :root{ --sb-col-w:62px; }
   .brand-bar{height:56px;min-height:56px;padding:8px 14px;gap:8px}
   .sidebar{width:205px;padding:14px 8px}
-  body.sidebar-collapsed .sidebar{width:52px;padding:14px 6px}
+  body.sidebar-collapsed .sidebar{padding:14px 8px}
   .brand-search{flex:1 1 340px;max-width:340px;margin:0 6px 0 14px}
   .nav-item{font-size:12.5px}
   .sec-label{font-size:10px}
 }
 @media (min-width: 2401px){
+  :root{ --sb-col-w:52px; }
   .brand-bar{height:76px;min-height:76px;padding:12px 24px;gap:14px}
   .sidebar{width:221px;padding:20px 16px}
-  body.sidebar-collapsed .sidebar{width:52px;padding:20px 6px}
+  /* 2026-09-01: 折叠态宽度不再各断点各写死一份，统一读 --sb-col-w（在本断点内已被
+   * 上面的 :root 覆盖为 52px），与顶部 brand-divider/toggle 使用同一份变量，
+   * 天然保持对齐，不存在跟丢的可能 */
+  body.sidebar-collapsed .sidebar{padding:20px 6px}
   .brand-search{flex:1 1 520px;max-width:520px;margin:0 12px 0 24px}
   .nav-item{font-size:14.5px}
   .sec-label{font-size:12px}
@@ -253,8 +270,9 @@ body.sidebar-collapsed .brand-logo .logo-txt{display:none}
   </div>
 </div>
 
+<script src="assets/release-calendar.js?v=20260901a"></script>
 <script>
-const __BUILD__ = '202608311951';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202609011249';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -427,13 +445,10 @@ async function loadRosterCounts(){
 const CAL_RELEASE_COUNT_CACHE_KEY = 'vo_calendar_release_counts_cache_v1';
 function normReleaseShell(v){ if(!v) return ''; return String(v).replace(/\s+/g,'').replace(/\.0$/,''); }
 function releaseDisplayName(v){ return String(v==null?'':v).trim(); }
-function pickCurrentRelease(map){
-  const restored = (_restored && (_restored.view==='demands' || _restored.view==='calendar')) ? String(_restored.release||'') : '';
-  const keyFromRestored = normReleaseShell(restored);
-  if(keyFromRestored && map[keyFromRestored]) return keyFromRestored;
-  let best=''; let bestCount=-1;
-  Object.keys(map).forEach(k=>{ const c=Number(map[k].count||0); if(c>bestCount){ best=k; bestCount=c; } });
-  return best;
+function pickCurrentRelease(){
+  return window.VOMI_RELEASE_CALENDAR
+    ? normReleaseShell(window.VOMI_RELEASE_CALENDAR.currentCached())
+    : '';
 }
 function renderReleaseSubs(currentName, currentCount, archiveCount){
   const demandBox = document.getElementById('demandReleaseSubs');
@@ -486,40 +501,48 @@ async function loadCalendarReleaseCounts(){
     applyReleaseCounts(currentCount, Math.max(0, rows.length-currentCount), rows.length, true);
   }catch(_){ /* 保留缓存值 */ }
 }
-function loadReleases(){
-  fetch('/api/demands', {cache:'no-store'}).then(r=>r.json()).then(list=>{
-    const rows = Array.isArray(list) ? list : [];
-    const map = {};
-    rows.forEach(d=>{
-      const raw = releaseDisplayName(d.release_plan);
-      const key = normReleaseShell(raw);
-      if(!key) return;
-      if(!map[key]) map[key] = { name: raw, count: 0 };
-      map[key].count += 1;
-    });
-    const currentKey = pickCurrentRelease(map);
-    const currentName = currentKey && map[currentKey] ? map[currentKey].name : '';
-    const currentCount = currentKey && map[currentKey] ? map[currentKey].count : 0;
-    const total = rows.length;
-    const archiveCount = Math.max(0, total - currentCount);
-    SHELL_RELEASE_STATE.current = currentName;
-    renderReleaseSubs(currentName, currentCount, archiveCount);
-    applyReleaseCounts(currentCount, archiveCount, total, true);
+async function loadReleases(){
+  let rows = [];
+  try{
+    const r = await fetch('/api/demands', {cache:'no-store'});
+    if(r.ok){ const list = await r.json(); rows = Array.isArray(list) ? list : []; }
+  }catch(_){}
+  try{
+    if(window.VOMI_RELEASE_CALENDAR) await window.VOMI_RELEASE_CALENDAR.load();
+  }catch(_){}
 
-    const activeRelease = (_curView==='demands' || _curView==='calendar') ? (_curRelease || '') : '';
-    if((_curView==='demands' || _curView==='calendar') && (!activeRelease || activeRelease==='all' || activeRelease==='cn' || activeRelease==='en')){
-      saveView(_curView, currentName);
-      applyView(_curView, currentName, document.querySelector('.nav-item[data-view="'+_curView+'"]'));
-    }else{
-      if(_curView==='demands'){
-        document.querySelectorAll('#demandReleaseSubs .nav-sub-item').forEach(b=>b.classList.toggle('active', b.dataset.release === (_curRelease || currentName || '')));
-      }
-      if(_curView==='calendar'){
-        document.querySelectorAll('#calendarReleaseSubs .nav-sub-item').forEach(b=>b.classList.toggle('active', b.dataset.release === (_curRelease || currentName || '')));
-      }
+  const map = {};
+  rows.forEach(d=>{
+    const raw = releaseDisplayName(d.release_plan);
+    const key = normReleaseShell(raw);
+    if(!key) return;
+    if(!map[key]) map[key] = { name: raw, count: 0 };
+    map[key].count += 1;
+  });
+  const currentKey = pickCurrentRelease();
+  const currentName = currentKey && map[currentKey]
+    ? map[currentKey].name
+    : (window.VOMI_RELEASE_CALENDAR ? window.VOMI_RELEASE_CALENDAR.currentCached() : '');
+  const currentCount = currentKey && map[currentKey] ? map[currentKey].count : 0;
+  const total = rows.length;
+  const archiveCount = Math.max(0, total - currentCount);
+  SHELL_RELEASE_STATE.current = currentName;
+  renderReleaseSubs(currentName, currentCount, archiveCount);
+  applyReleaseCounts(currentCount, archiveCount, total, true);
+
+  const activeRelease = (_curView==='demands' || _curView==='calendar') ? (_curRelease || '') : '';
+  if((_curView==='demands' || _curView==='calendar') && (!activeRelease || activeRelease==='all' || activeRelease==='cn' || activeRelease==='en')){
+    saveView(_curView, currentName);
+    applyView(_curView, currentName, document.querySelector('.nav-item[data-view="'+_curView+'"]'));
+  }else{
+    if(_curView==='demands'){
+      document.querySelectorAll('#demandReleaseSubs .nav-sub-item').forEach(b=>b.classList.toggle('active', b.dataset.release === (_curRelease || currentName || '')));
     }
-    loadCalendarReleaseCounts();
-  }).catch(()=>{});
+    if(_curView==='calendar'){
+      document.querySelectorAll('#calendarReleaseSubs .nav-sub-item').forEach(b=>b.classList.toggle('active', b.dataset.release === (_curRelease || currentName || '')));
+    }
+  }
+  loadCalendarReleaseCounts();
 }
 /* iframe 内 preview 页汇报计数 → 更新侧栏子项数字 */
 window.addEventListener('message', (e)=>{
@@ -565,6 +588,9 @@ window.addEventListener('pageshow',e=>{ if(e.persisted){ loadReleases(); loadRos
 window.addEventListener('online',()=>{ loadReleases(); loadRosterCounts(); loadCalendarReleaseCounts(); });
 
 /* 还原原版 brand-bar 交互 */
+// 2026-09-01: 侧栏收起宽度对齐改为纯 CSS 静态变量方案（见 :root 与各 @media 中的
+// --sb-col-w），不再用 JS 实时测量 DOM 后写回 CSS 变量 —— 旧方案在 toggle 瞬间
+// /resize 期间存在测量时机竞态（有时读到旧布局值），是"有时对齐有时错位"的根因。
 function toggleSidebar(){
   document.body.classList.toggle('sidebar-collapsed');
 }

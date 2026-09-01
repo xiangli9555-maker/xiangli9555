@@ -735,6 +735,18 @@ async function syncRosterToBackend(){
     const deleteQueue = loadRosterDeleteQueue();
     let patched=0, posted=0, recycled=0, skipped=0;
 
+    const normalizeRecTimes = (v)=>{
+      if(Array.isArray(v)) return v.map(x=>String(x).trim()).filter(Boolean);
+      if(v == null || v === '') return [];
+      if(typeof v === 'string'){
+        try{
+          const parsed = JSON.parse(v);
+          if(Array.isArray(parsed)) return parsed.map(x=>String(x).trim()).filter(Boolean);
+        }catch(_){}
+        return v.split(/[\n;；]+/).map(x=>x.trim()).filter(Boolean);
+      }
+      return [];
+    };
     const toPayload = (e)=>({
       module: e.category || '',
       role_cn: e.role_cn || '',
@@ -745,9 +757,16 @@ async function syncRosterToBackend(){
       cn_studio: e.cn_studio || '',
       en_va: e.en_va || '',
       en_loc: e.en_location || '',
-      en_studio: e.en_studio || ''
+      en_studio: e.en_studio || '',
+      casting_note: e.casting_note || '',
+      rec_time_cn: normalizeRecTimes(e.rec_time_cn),
+      rec_time_en: normalizeRecTimes(e.rec_time_en),
+      remark: e.remark || ''
     });
-    const FIELDS = ['module','role_cn','gender','role_en','cn_va','cn_loc','cn_studio','en_va','en_loc','en_studio'];
+    const FIELDS = ['module','role_cn','gender','role_en','cn_va','cn_loc','cn_studio','en_va','en_loc','en_studio','casting_note','rec_time_cn','rec_time_en','remark'];
+    const comparableField = (key, value)=> key === 'rec_time_cn' || key === 'rec_time_en'
+      ? JSON.stringify(normalizeRecTimes(value))
+      : String(value == null ? '' : value);
 
     // 2) upsert：优先按 db_id 命中（支持 role_cn 改名），其次按 role_cn 命中
     const seenCn = new Set();
@@ -763,13 +782,18 @@ async function syncRosterToBackend(){
       const hit = hitById || hitByCn;
 
       if(hit){
-        const same = FIELDS.every(k => (hit[k]||'') === (p[k]||''));
+        const same = FIELDS.every(k => comparableField(k, hit[k]) === comparableField(k, p[k]));
         if(!same){
-          const r = await fetch(base + '/api/talents/'+hit.id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p)});
-          if(!r.ok) throw new Error('更新角色失败: '+roleCn);
+          const patchPayload = Object.assign({}, p, {expected_revision:Number(hit.revision||1)});
+          const r = await fetch(base + '/api/talents/'+hit.id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(patchPayload)});
+          const result = await r.json().catch(()=>({}));
+          if(!r.ok) throw new Error('更新角色失败: '+roleCn+' ('+(result.error||r.status)+')');
           patched++;
           const oldCn = String(hit.role_cn||'').trim();
           Object.assign(hit, p);
+          hit.revision = Number(result.revision || (Number(hit.revision||1) + 1));
+          e.db_id = Number(hit.id);
+          e.revision = hit.revision;
           if(oldCn && oldCn !== roleCn) dbByCn.delete(oldCn);
           dbByCn.set(roleCn, hit);
           dbById.set(Number(hit.id), hit);

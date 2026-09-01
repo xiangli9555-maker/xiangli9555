@@ -999,22 +999,7 @@ body.embed .main{width:100%}
     <div class="mp-section">
       <div class="mp-sec-title">预约进度</div>
       <div class="mp-progress" id="mpProgress">
-        <div class="mp-pr-row">
-          <button class="mp-pr-label" data-lang-pill="cn" onclick="setActorLangFromPanel('cn',this)" type="button">中配</button>
-          <div class="mp-pr-bar"><div class="mp-pr-fill cn" style="width:50%"></div></div>
-          <div class="mp-pr-val">2 / 4</div>
-        </div>
-        <div class="mp-pr-row">
-          <button class="mp-pr-label" data-lang-pill="en" onclick="setActorLangFromPanel('en',this)" type="button">英配</button>
-          <div class="mp-pr-bar"><div class="mp-pr-fill en" style="width:50%"></div></div>
-          <div class="mp-pr-val">2 / 4</div>
-        </div>
-        <div class="mp-pr-row total">
-          <button class="mp-pr-label on" data-lang-pill="all" onclick="setActorLangFromPanel('all',this)" type="button">总计</button>
-          <div class="mp-pr-bar"><div class="mp-pr-fill all" style="width:50%"></div></div>
-          <div class="mp-pr-val">4 / 8</div>
-        </div>
-        <div class="mp-pr-legend">已预约场次 / 预估录制次数</div>
+        <div class="mp-empty">数据加载中…</div>
       </div>
     </div>
 
@@ -1023,50 +1008,19 @@ body.embed .main{width:100%}
       <div class="mp-cal">
         <div class="mp-cal-head">
           <button class="mp-cal-nav" onclick="shiftMidMonth(-1)">‹</button>
-          <div class="mp-cal-title" id="mpCalTitle">2026 · 9月</div>
+          <div class="mp-cal-title" id="mpCalTitle">—</div>
           <button class="mp-cal-nav" onclick="shiftMidMonth(1)">›</button>
         </div>
         <div class="mp-cal-grid" id="mpCalendarGrid">
-          <div class="mp-cal-dow">一</div><div class="mp-cal-dow">二</div><div class="mp-cal-dow">三</div><div class="mp-cal-dow">四</div><div class="mp-cal-dow">五</div><div class="mp-cal-dow">六</div><div class="mp-cal-dow">日</div>
-          <div class="mp-cal-day empty"></div><div class="mp-cal-day">1</div><div class="mp-cal-day both">2</div><div class="mp-cal-day en">3</div><div class="mp-cal-day">4</div><div class="mp-cal-day cn">5</div><div class="mp-cal-day">6</div>
-          <div class="mp-cal-day">7</div><div class="mp-cal-day">8</div><div class="mp-cal-day">9</div><div class="mp-cal-day en">10</div><div class="mp-cal-day">11</div><div class="mp-cal-day">12</div><div class="mp-cal-day">13</div>
-          <div class="mp-cal-day">14</div><div class="mp-cal-day">15</div><div class="mp-cal-day cn">16</div><div class="mp-cal-day">17</div><div class="mp-cal-day">18</div><div class="mp-cal-day">19</div><div class="mp-cal-day">20</div>
-          <div class="mp-cal-day">21</div><div class="mp-cal-day">22</div><div class="mp-cal-day">23</div><div class="mp-cal-day both">24</div><div class="mp-cal-day holiday cn"><span class="d-num">25</span><span class="d-tag">中秋</span></div><div class="mp-cal-day holiday"><span class="d-num">26</span><span class="d-tag">中秋</span></div><div class="mp-cal-day holiday"><span class="d-num">27</span><span class="d-tag">中秋</span></div>
-          <div class="mp-cal-day">28</div><div class="mp-cal-day en">29</div><div class="mp-cal-day">30</div><div class="mp-cal-day empty"></div><div class="mp-cal-day empty"></div><div class="mp-cal-day empty"></div><div class="mp-cal-day empty"></div>
+          <div class="mp-empty" style="grid-column:1/-1">数据加载中…</div>
         </div>
       </div>
     </div>
 
     <div class="mp-section">
-      <div class="mp-sec-title" id="mpUpcomingTitle">8月 · 即将录制</div>
+      <div class="mp-sec-title" id="mpUpcomingTitle">即将录制</div>
       <div class="mp-upcoming" id="mpUpcoming">
-        <div class="mp-up-item" data-ymd="2026-08-29">
-          <div class="mp-up-pill" style="--up-dot:#8CA8C1;--up-shadow:0 0 4px rgba(140,168,189,.6);--up-date:#fff;--up-time:rgba(255,255,255,.7)">
-            <span class="mp-up-pill-dot"></span>
-            <span class="mp-up-pill-date">8/29</span>
-            <span class="mp-up-pill-time">10:00-12:30</span>
-          </div>
-          <div class="mp-up-role">红狼</div>
-          <div class="mp-up-demand">据点攻防 · 角色语音 <span class="lang-badge cn">中配</span></div>
-        </div>
-        <div class="mp-up-item" data-ymd="2026-08-30">
-          <div class="mp-up-pill" style="--up-dot:var(--c-primary);--up-shadow:0 0 4px rgba(15,247,150,.6);--up-date:#fff;--up-time:rgba(255,255,255,.7)">
-            <span class="mp-up-pill-dot"></span>
-            <span class="mp-up-pill-date">8/30</span>
-            <span class="mp-up-pill-time">09:30-12:00</span>
-          </div>
-          <div class="mp-up-role">钟婉</div>
-          <div class="mp-up-demand">撤离任务 · 关尾语音 <span class="lang-badge en">英配</span></div>
-        </div>
-        <div class="mp-up-item" data-ymd="2026-08-31">
-          <div class="mp-up-pill" style="--up-dot:var(--c-primary);--up-shadow:0 0 4px rgba(15,247,150,.6);--up-date:#fff;--up-time:rgba(255,255,255,.7)">
-            <span class="mp-up-pill-dot"></span>
-            <span class="mp-up-pill-date">8/31</span>
-            <span class="mp-up-pill-time">14:00-17:00</span>
-          </div>
-          <div class="mp-up-role">红狼</div>
-          <div class="mp-up-demand">突击推进 · 战斗提示 <span class="lang-badge en">英配</span></div>
-        </div>
+        <div class="mp-empty">数据加载中…</div>
       </div>
     </div>
   </aside>
@@ -1136,6 +1090,8 @@ body.embed .main{width:100%}
         <div id="actorDemandEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无需求档期数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
       </div>
     </div><!-- /#viewActors -->
+  <script src="assets/holiday-calendar.js?v=20260901a"></script>
+  <script src="assets/release-calendar.js?v=20260901a"></script>
   <script>
   /* 首屏即按持久化视图态显示，避免 iframe 重载/刷新时先闪「声优视图」再切「需求视图」 */
   (function(){
@@ -1165,13 +1121,14 @@ body.embed .main{width:100%}
     var qRelease = (qs.get('release')||'').trim();
     window.SHELL_RELEASE = qRelease || '';
     var qMock = (qs.get('mock')||qs.get('preview_mock')||'').trim().toLowerCase();
-    if(qMock==='1' || qMock==='true' || qMock==='yes' || qMock==='on' || qMock==='force'){
-      window.FORCE_SCHED_MOCK = true;
+    var isFilePreview = window.location.protocol === 'file:';
+    if(!isFilePreview){
+      window.FORCE_SCHED_MOCK = false;
     }else if(qMock==='0' || qMock==='false' || qMock==='no' || qMock==='off'){
       window.FORCE_SCHED_MOCK = false;
     }else{
-      // 本地 file:// 直开时默认强制虚拟预览，避免被历史草稿/路由筛选误伤看不到样例。
-      window.FORCE_SCHED_MOCK = (window.location.protocol === 'file:');
+      // mock 只允许 file:// 本地验收；默认开启，也可用 ?mock=0 显式关闭。
+      window.FORCE_SCHED_MOCK = true;
     }
   }catch(e){ window.SHELL_LANG='all'; window.SHELL_RELEASE=''; window.FORCE_SCHED_MOCK=false; }
 })();
@@ -1213,6 +1170,23 @@ let SCHED_STATE = {
   releaseToken: window.SHELL_RELEASE || '',
   currentRelease: ''
 };
+const RELEASE_CALENDAR_READY = window.VOMI_RELEASE_CALENDAR
+  ? window.VOMI_RELEASE_CALENDAR.load().then(function(){
+      const current = window.VOMI_RELEASE_CALENDAR.currentCached();
+      if(current && !window.FORCE_SCHED_MOCK){
+        SCHED_STATE.currentRelease = current;
+        ACTOR_STATE.release = current;
+      }
+      return current;
+    }).catch(function(){ return ''; })
+  : Promise.resolve('');
+RELEASE_CALENDAR_READY.then(function(current){
+  if(!current || window.FORCE_SCHED_MOCK) return;
+  if(typeof renderFilterBar === 'function') renderFilterBar();
+  if(typeof renderActorRollup === 'function') renderActorRollup();
+  if(typeof window.renderSched === 'function') window.renderSched();
+  if(typeof renderScheduleDeadline === 'function') renderScheduleDeadline();
+});
 function actorEsc(s){ return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c])); }
 
 // ===== 大类 / AREA 聚合维度 =====
@@ -1278,32 +1252,12 @@ function setSchedStatus(st, btn){
   if(typeof window.renderSched === 'function') window.renderSched();
 }
 function detectCurrentReleaseFromDemands(){
-  // 以已加载到 ACTOR_STATE.demands 的需求为准（避免 3B 草稿下拉/全局 DEMAND_OPTIONS 干扰演员视图）
-  const pool = (ACTOR_STATE && ACTOR_STATE.demands) || [];
-  const counts = {};
-  pool.forEach(d=>{
-    const rel = String((d && d.release_plan) || '').trim();
-    const key = normReleaseToken(rel);
-    if(!key) return;
-    if(!counts[key]) counts[key] = { name: rel, n: 0 };
-    counts[key].n += 1;
-  });
-  let best = null;
-  Object.values(counts).forEach(it=>{ if(!best || it.n > best.n) best = it; });
-  return best ? best.name : '';
+  return window.VOMI_RELEASE_CALENDAR
+    ? window.VOMI_RELEASE_CALENDAR.currentCached()
+    : '';
 }
-function detectCurrentReleaseFromRows(rows){
-  const counts = {};
-  (rows||[]).forEach(r=>{
-    const rel = String(r.plan||r.release_plan||'').trim();
-    const key = normReleaseToken(rel);
-    if(!key) return;
-    if(!counts[key]) counts[key] = { name: rel, n: 0 };
-    counts[key].n += 1;
-  });
-  let best = null;
-  Object.values(counts).forEach(it=>{ if(!best || it.n > best.n) best = it; });
-  return best ? best.name : '';
+function detectCurrentReleaseFromRows(){
+  return detectCurrentReleaseFromDemands();
 }
 function schedReleaseMatch(plan){
   const token = String(SCHED_STATE.releaseToken||'').trim();
@@ -1345,14 +1299,16 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(actorBtn) setActorLang(initLang, actorBtn);
   }catch(e){ console.warn('[actor init skipped]', e); }
 
-  // ★ 兜底：立即同步注入 mock 演员数据 + 立即渲染。file:// 直开时，即便所有 async fetch 都失败也保证有内容。
+  // ★ 兜底：仅 file:// 本地预览注入 mock；线上空数据保持空态。
   try{
-    if(!ACTOR_STATE.demands || !ACTOR_STATE.demands.length){
-      ACTOR_STATE.demands = buildMockDemands();
-      ACTOR_STATE.release = 'Yang1';
-    }
-    if(typeof buildMockSchedules === 'function' && (!window.PUBLISHED_SCHEDULES || !window.PUBLISHED_SCHEDULES.length)){
-      window.PUBLISHED_SCHEDULES = buildMockSchedules();
+    if(window.FORCE_SCHED_MOCK){
+      if(!ACTOR_STATE.demands || !ACTOR_STATE.demands.length){
+        ACTOR_STATE.demands = buildMockDemands();
+        ACTOR_STATE.release = 'Yang1';
+      }
+      if(typeof buildMockSchedules === 'function' && (!window.PUBLISHED_SCHEDULES || !window.PUBLISHED_SCHEDULES.length)){
+        window.PUBLISHED_SCHEDULES = buildMockSchedules();
+      }
     }
     ACTOR_STATE.loaded = true;
     renderActorRollup();
@@ -1503,8 +1459,8 @@ async function loadActorData(){
     const t = await fetch('/api/talents', {cache:'no-store'});
     if(t.ok){ const j = await t.json(); talents = Array.isArray(j) ? j : (j.data || []); }
   }catch(e){ talents = []; }
-  // 虚拟数据兜底：file:// 直开或后端不可用时注入验收样例（用户验收后删除）
-  if(!arr || !arr.length) arr = buildMockDemands();
+  // 虚拟数据兜底：仅 file:// 本地预览注入；线上保持真实数据（空则空态）2026-08-31
+  if(window.FORCE_SCHED_MOCK && (!arr || !arr.length)) arr = buildMockDemands();
   setRoleCategoryMap(talents);
   ACTOR_STATE.demands = arr;
   ACTOR_STATE.loaded = true;
@@ -2477,35 +2433,12 @@ document.addEventListener('DOMContentLoaded', function(){
   try{ renderScheduleDeadline(); }catch(_){}
   setTimeout(function(){ try{ renderScheduleDeadline(); }catch(_){} }, 500);
 });
-// 工作日计算：跳过周末 + 国内法定节假日 + 海外圣诞周（12.25 - 次年 1.3）
-// ★ 自包含 HOLIDAY_RANGES（不依赖 IIFE 内的 HOLIDAYS）：每项 [startYMD, endYMD]
-var HOLIDAY_RANGES_WD = [
-  ['2026-01-01','2026-01-03'], // 元旦
-  ['2026-02-15','2026-02-23'], // 春节
-  ['2026-04-04','2026-04-06'], // 清明
-  ['2026-05-01','2026-05-05'], // 劳动节
-  ['2026-06-19','2026-06-21'], // 端午
-  ['2026-09-25','2026-09-27'], // 中秋
-  ['2026-10-01','2026-10-07'], // 国庆
-  ['2027-01-01','2027-01-03'], // 元旦
-  ['2027-02-05','2027-02-13']  // 春节
-];
+// 工作日统一按共享模块：周末补班计入，法定放假日与 12/25 排除。
+var SCHED_HOLIDAY_CALENDAR = window.VOMI_HOLIDAY_CALENDAR;
 function isHolidayOrWeekend(day){
+  if(SCHED_HOLIDAY_CALENDAR) return !SCHED_HOLIDAY_CALENDAR.isWorkday(day);
   const dow = day.getDay();
-  if(dow === 0 || dow === 6) return true; // 周末
-  const m = day.getMonth();
-  const d = day.getDate();
-  const y = day.getFullYear();
-  // 国内法定假区间命中
-  const ymd = y + '-' + (m+1<10?'0':'') + (m+1) + '-' + (d<10?'0':'') + d;
-  for(let i=0;i<HOLIDAY_RANGES_WD.length;i++){
-    const r = HOLIDAY_RANGES_WD[i];
-    if(ymd >= r[0] && ymd <= r[1]) return true;
-  }
-  // 海外圣诞周：当年 12.25-31 + 次年 1.1-3
-  if(m === 11 && d >= 25) return true;
-  if(m === 0 && d >= 1 && d <= 3) return true;
-  return false;
+  return dow === 0 || dow === 6;
 }
 // 从 today 到 targetDate 之间的工作日数（不含起点，含终点）
 function workingDaysUntil(targetDate){
@@ -2597,14 +2530,14 @@ function bookActor(role, lang){
       var current=localStorage.getItem(LS);
       if(current){
         var curRows = JSON.parse(current)||[];
-        // 预览模式：若本地草稿存在但为空数组，也回退到虚拟数据，便于看版式。
         if(Array.isArray(curRows) && curRows.length) return curRows;
-        return buildMockDraftRows();
+        // 线上草稿为空 → 空数组（不回退 mock）；file:// 由 FORCE_SCHED_MOCK 分支处理
+        return [];
       }
       var legacy=JSON.parse(localStorage.getItem(LEGACY_LS)||'[]')||[];
       if(legacy.length){ localStorage.setItem(LS,JSON.stringify(legacy)); localStorage.removeItem(LEGACY_LS); return legacy; }
-      return buildMockDraftRows();
-    }catch(e){return buildMockDraftRows();}
+      return [];
+    }catch(e){return [];}
   }
   // 草稿只存在本机，不再写KV；只有显式发布后才进入recording_schedules。
   function saveSched(a){ try{localStorage.setItem(LS,JSON.stringify(a));return true;}catch(e){toast('草稿保存失败：本地存储不可用',true);return false;} }
@@ -2612,14 +2545,15 @@ function bookActor(role, lang){
     return fetch('/api/schedules',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
       .then(function(rows){
         var arr = Array.isArray(rows)?rows:[];
-        // 虚拟数据兜底：file:// 直开或后端不可用时注入验收样例
-        if(!arr.length) arr = buildMockSchedules();
+        // 虚拟数据兜底：仅 file:// 本地预览；线上保持真实数据（空则空态）2026-08-31
+        if(window.FORCE_SCHED_MOCK && !arr.length) arr = buildMockSchedules();
         PUBLISHED_ROWS=arr;window.PUBLISHED_SCHEDULES=PUBLISHED_ROWS;
         renderSched();if(typeof renderActorRollup==='function')renderActorRollup();
         return PUBLISHED_ROWS;
       })
       .catch(function(e){
-        PUBLISHED_ROWS = buildMockSchedules();window.PUBLISHED_SCHEDULES=PUBLISHED_ROWS;
+        PUBLISHED_ROWS = window.FORCE_SCHED_MOCK ? buildMockSchedules() : [];
+        window.PUBLISHED_SCHEDULES=PUBLISHED_ROWS;
         if(typeof renderActorRollup==='function')renderActorRollup();
         return PUBLISHED_ROWS;
       });
@@ -2655,44 +2589,18 @@ function bookActor(role, lang){
   }
   function monthStart(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
   function addMonth(base,delta){ return new Date(base.getFullYear(), base.getMonth()+delta, 1); }
-  // 节假日真源：与「版本节点页」完全一致（国务院正式放假区间 + 海外圣诞 12/25）。
-  // 结构 { region, year, tag, label, start:'YYYY/M/D', end:'YYYY/M/D' }；按区间命中整段假期。
-  var HOLIDAYS = [
-    { region:'CN', year:2026, tag:'元旦', label:'元旦',   start:'2026/1/1',  end:'2026/1/3' },
-    { region:'CN', year:2026, tag:'春节', label:'春节',   start:'2026/2/15', end:'2026/2/23' },
-    { region:'CN', year:2026, tag:'清明', label:'清明节', start:'2026/4/4',  end:'2026/4/6' },
-    { region:'CN', year:2026, tag:'劳动', label:'劳动节', start:'2026/5/1',  end:'2026/5/5' },
-    { region:'CN', year:2026, tag:'端午', label:'端午节', start:'2026/6/19', end:'2026/6/21' },
-    { region:'CN', year:2026, tag:'中秋', label:'中秋节', start:'2026/9/25', end:'2026/9/27' },
-    { region:'CN', year:2026, tag:'国庆', label:'国庆节', start:'2026/10/1', end:'2026/10/7' },
-    { region:'CN', year:2027, tag:'元旦', label:'元旦',   start:'2027/1/1',  end:'2027/1/3' },
-    { region:'CN', year:2027, tag:'春节', label:'春节',   start:'2027/2/5',  end:'2027/2/13' },
-    { region:'CN', year:2027, tag:'清明', label:'清明节', start:'2027/4/5',  end:'2027/4/7' },
-    { region:'CN', year:2027, tag:'劳动', label:'劳动节', start:'2027/5/1',  end:'2027/5/5' },
-    { region:'CN', year:2027, tag:'端午', label:'端午节', start:'2027/5/28', end:'2027/5/30' },
-    { region:'CN', year:2027, tag:'中秋', label:'中秋节', start:'2027/9/20', end:'2027/9/22' },
-    { region:'CN', year:2027, tag:'国庆', label:'国庆节', start:'2027/10/1', end:'2027/10/7' },
-    { region:'CN', year:2028, tag:'元旦', label:'元旦',   start:'2028/1/1',  end:'2028/1/3' },
-    { region:'CN', year:2028, tag:'春节', label:'春节',   start:'2028/1/25', end:'2028/2/1' },
-    { region:'CN', year:2028, tag:'清明', label:'清明节', start:'2028/4/4',  end:'2028/4/6' },
-    { region:'CN', year:2028, tag:'劳动', label:'劳动节', start:'2028/5/1',  end:'2028/5/5' },
-    { region:'CN', year:2028, tag:'端午', label:'端午节', start:'2028/6/19', end:'2028/6/21' },
-    { region:'CN', year:2028, tag:'中秋', label:'中秋节', start:'2028/9/14', end:'2028/9/16' },
-    { region:'CN', year:2028, tag:'国庆', label:'国庆节', start:'2028/10/1', end:'2028/10/7' },
-    { region:'XMAS', year:2025, tag:'圣诞', label:'圣诞节', start:'2025/12/25', end:'2025/12/25' },
-    { region:'XMAS', year:2026, tag:'圣诞', label:'圣诞节', start:'2026/12/25', end:'2026/12/25' },
-    { region:'XMAS', year:2027, tag:'圣诞', label:'圣诞节', start:'2027/12/25', end:'2027/12/25' },
-    { region:'XMAS', year:2028, tag:'圣诞', label:'圣诞节', start:'2028/12/25', end:'2028/12/25' },
-    { region:'XMAS', year:2029, tag:'圣诞', label:'圣诞节', start:'2029/12/25', end:'2029/12/25' }
-  ];
-  function parseHDate(s){ var p=String(s).split('/'); return new Date(+p[0], (+p[1])-1, +p[2]); }
+  // 日历标识与工作日计算共用统一节假日模块，避免页内维护第二份日期表。
+  var HOLIDAYS = window.VOMI_HOLIDAY_CALENDAR
+    ? window.VOMI_HOLIDAY_CALENDAR.holidays()
+    : [];
   function holidayInfo(y, m, d){
-    var dt = new Date(y, m, d).getTime();
+    var key = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
     for(var i=0;i<HOLIDAYS.length;i++){
       var h = HOLIDAYS[i];
-      var s = parseHDate(h.start).getTime(), e = parseHDate(h.end).getTime();
-      if(dt >= s && dt <= e){
-        return { tag: h.tag, label: (h.region==='XMAS' ? '海外 · ' : '国内 · ') + h.label };
+      var start = String(h.start||'').replace(/\//g,'-');
+      var end = String(h.end||'').replace(/\//g,'-');
+      if(key >= start && key <= end){
+        return { tag: h.tag || h.short, label: (h.region==='XMAS' ? '海外 · ' : '国内 · ') + h.label };
       }
     }
     return null;
@@ -2796,8 +2704,9 @@ function bookActor(role, lang){
   function withMidPanelFallback(rows){
     var list = Array.isArray(rows) ? rows.slice() : [];
     var hasDated = list.some(function(r){ return !!parseYMD(r.date); });
-    // 用户要求：中间栏也要有临时测试数据。只要缺少有效排期，就回退到可视化样例。
-    return (list.length && hasDated) ? list : buildMidPanelMockRows();
+    // 中间栏样例兜底：仅 file:// 本地预览；线上保持真实数据（空则空态）2026-08-31
+    if(list.length && hasDated) return list;
+    return window.FORCE_SCHED_MOCK ? buildMidPanelMockRows() : [];
   }
   function renderMidPanel(rows){
     var safeRows = withMidPanelFallback(rows||[]);
@@ -3075,8 +2984,8 @@ function bookActor(role, lang){
       ? rows.slice()
       : rows.filter(function(r){ return schedReleaseMatch(r.plan||r.release_plan||''); });
     var autoMockFallback = false;
-    if(!byReleaseDraft.length){
-      // 兜底：当草稿被 release/history 过滤后为空时，自动回退到虚拟样例，避免页面完全空白。
+    if(window.FORCE_SCHED_MOCK && !byReleaseDraft.length){
+      // 仅 file:// 预览：release/history 过滤后仍可回退样例；线上空数据必须保持空态。
       var mockRows = buildMockDraftRows();
       var mockByRelease = mockRows.filter(function(r){ return schedReleaseMatch(r.plan||r.release_plan||''); });
       byReleaseDraft = mockByRelease.length ? mockByRelease : mockRows;

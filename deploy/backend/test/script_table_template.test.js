@@ -12,11 +12,36 @@ test('Tab1固定双区9列，角色校验读取B/G', () => {
   assert.match(f, /\$G\$3:\$G\$502/);
 });
 
-test('Tab2固定11列且没有录制时间-中', () => {
-  assert.equal(tpl.LINE.columns.length, 11);
-  assert.equal(tpl.LINE.columns[10].key, 'role_validation');
+test('Tab2固定11列并保留音频文件列，且没有录制时间-中', () => {
+  assert.deepEqual(
+    tpl.LINE.columns.map(x => x.key),
+    [
+      'no',
+      'role',
+      'text_cn',
+      'text_en',
+      'emotion',
+      'trigger',
+      'audio_file',
+      'remark',
+      'av_sync',
+      'sentence_count',
+      'role_validation',
+    ]
+  );
+  assert.equal(tpl.LINE.columns[6].title, 'GP Audio Event/音频文件名');
+  assert.equal(tpl.LINE.totalRows, 502);
+  assert.deepEqual(tpl.INDEX, { avSync: 8, sentence: 9, validation: 10 });
   assert.equal(tpl.LINE.columns.some(x => x.title === '录制时间-中'), false);
   assert.equal(tpl.DATA_ROWS, 500);
+});
+
+test('列索引和列字母由模板结构统一推导', () => {
+  assert.equal(tpl.lineColumnIndex('role'), 1);
+  assert.equal(tpl.lineColumnIndex('audio_file'), 6);
+  assert.equal(tpl.lineColumnIndex('remark'), 7);
+  assert.equal(tpl.columnLetter(tpl.INDEX.validation), 'K');
+  assert.throws(() => tpl.lineColumnIndex('missing'), /Unknown LINE column/);
 });
 
 test('公式安全转义单引号需求名', () => {

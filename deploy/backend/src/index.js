@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const pool = require('./db');
-const { deletePrecondition } = require('./soft_delete');
+const { deletePrecondition, updatePrecondition } = require('./soft_delete');
 const { ensureAuditTable, writeAudit } = require('./audit');
 const calendar = require('./calendar');
 const releasePlan = require('./releasePlan');
@@ -205,6 +205,10 @@ const VOICE_ROLES_READY = ensureColumns('voice_roles', [
   'deleted_at DATETIME NULL',
   'deleted_by VARCHAR(64) NULL',
   'revision BIGINT NOT NULL DEFAULT 1',
+  'remark TEXT NULL',
+  'casting_note MEDIUMTEXT NULL',
+  'rec_time_cn JSON NULL',
+  'rec_time_en JSON NULL',
 ]);
 app.get('/api/actors', async (req, res) => {
   await ACTORS_READY;
@@ -321,8 +325,22 @@ app.post('/api/actors/:id/restore', requireRole('admin'), async (req, res) => {
   }
 });
 
-// ---------- 声优库·角色映射（10 列 Excel 版） ----------
+// ---------- 声优库·角色映射（基础列 + 选角/录制富字段） ----------
 const VOICE_ROLE_FIELDS = ['module','role_cn','gender','role_en','cn_va','cn_loc','cn_studio','en_va','en_loc','en_studio','sort_order','remark','casting_note','rec_time_cn','rec_time_en'];
+const VOICE_ROLE_TIME_FIELDS = new Set(['rec_time_cn', 'rec_time_en']);
+function voiceRoleDbValue(field, value) {
+  if (!VOICE_ROLE_TIME_FIELDS.has(field)) return value;
+  if (Array.isArray(value)) return JSON.stringify(value.map(v => String(v).trim()).filter(Boolean));
+  if (value == null || value === '') return JSON.stringify([]);
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return JSON.stringify(parsed.map(v => String(v).trim()).filter(Boolean));
+    } catch (_) {}
+    return JSON.stringify(value.split(/[\n;；]+/).map(v => v.trim()).filter(Boolean));
+  }
+  return JSON.stringify([]);
+}
 // 统一 Router：/api/voice-roles（历史入口）与 /api/talents（新命名入口）共用同一套 handler 与 voice_roles 表
 const voiceRoleRouter = express.Router();
 voiceRoleRouter.get('/', async (req, res) => {
@@ -350,14 +368,14 @@ voiceRoleRouter.post('/', async (req, res) => {
     if (existing[0]) {
       const cols = VOICE_ROLE_FIELDS.filter(f => f in body && f !== 'module' && f !== 'role_cn');
       const sets = cols.map(f => `${f}=?`);
-      const vals = cols.map(f => body[f]);
+      const vals = cols.map(f => voiceRoleDbValue(f, body[f]));
       sets.push('is_deleted=0','deleted_at=NULL','deleted_by=NULL','revision=revision+1');
       vals.push(existing[0].id);
       await conn.query(`UPDATE voice_roles SET ${sets.join(',')} WHERE id=?`, vals);
       id = existing[0].id; created = false;
     } else {
       const cols = VOICE_ROLE_FIELDS.filter(f => f in body);
-      const vals = cols.map(f => body[f]);
+      const vals = cols.map(f => voiceRoleDbValue(f, body[f]));
       const placeholders = cols.map(() => '?').join(',');
       const [r] = await conn.query(`INSERT INTO voice_roles (${cols.join(',')}) VALUES (${placeholders})`, vals);
       id = r.insertId; created = true;
@@ -376,19 +394,41 @@ voiceRoleRouter.patch('/:id', async (req, res) => {
   await VOICE_ROLES_READY;
   const id = positiveInt(req.params.id);
   if (!id) return res.status(400).json({ok:false,error:'invalid_id'});
+  const failed = updatePrecondition(req.body);
+  if (failed) return res.status(failed.status).json({ok:false,...failed});
+  const expectedRevision = Number(req.body.expected_revision);
   const sets = [], vals = [];
-  VOICE_ROLE_FIELDS.forEach(f => { if (f in req.body) { sets.push(`${f}=?`); vals.push(req.body[f]); } });
-  if (!sets.length) return res.json({ ok: true });
+  VOICE_ROLE_FIELDS.forEach(f => {
+    if (f in req.body) {
+      sets.push(`${f}=?`);
+      vals.push(voiceRoleDbValue(f, req.body[f]));
+    }
+  });
+  if (!sets.length) return res.status(400).json({ok:false,error:'no_fields_to_update'});
   sets.push('revision=revision+1');
-  vals.push(id);
+  vals.push(id, expectedRevision);
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    const [result] = await conn.query(`UPDATE voice_roles SET ${sets.join(',')} WHERE id=? AND is_deleted=0`, vals);
-    if (!result.affectedRows) { await conn.rollback(); return res.status(404).json({ok:false,error:'voice_role_not_found'}); }
+    const [result] = await conn.query(
+      `UPDATE voice_roles SET ${sets.join(',')} WHERE id=? AND revision=? AND is_deleted=0`,
+      vals
+    );
+    if (!result.affectedRows) {
+      const [current] = await conn.query('SELECT revision,is_deleted FROM voice_roles WHERE id=? LIMIT 1', [id]);
+      await conn.rollback();
+      if (!current[0] || Number(current[0].is_deleted) === 1) {
+        return res.status(404).json({ok:false,error:'voice_role_not_found'});
+      }
+      return res.status(409).json({
+        ok:false,
+        error:'revision_conflict',
+        current_revision:Number(current[0].revision || 1)
+      });
+    }
     await writeAudit(conn, { actor: req.auth.subject, action: 'update', table_name: 'voice_roles', record_id: id, detail: { fields: VOICE_ROLE_FIELDS.filter(f => f in req.body) } });
     await conn.commit();
-    res.json({ ok: true });
+    res.json({ ok: true, revision: expectedRevision + 1 });
   } catch (e) {
     await conn.rollback();
     res.status(500).json({ error: publicError(e) });
@@ -466,7 +506,7 @@ voiceRoleRouter.post('/bulk', requireRole('admin'), async (req, res) => {
     for (const r of rows) {
       if (!r.module || !r.role_cn) continue;
       const cols = VOICE_ROLE_FIELDS.filter(f => f in r);
-      const vals = cols.map(f => r[f]);
+      const vals = cols.map(f => voiceRoleDbValue(f, r[f]));
       const placeholders = cols.map(() => '?').join(',');
       await conn.query(`INSERT INTO voice_roles (${cols.join(',')}) VALUES (${placeholders})`, vals);
       inserted++;
@@ -497,6 +537,12 @@ app.get('/api/demands', async (req, res) => {
   const [rows] = await pool.query(
     `SELECT * FROM demands WHERE ${where.join(' AND ')} ORDER BY id DESC`, params
   );
+  const dataAtMs = rows.reduce((latest, row) => {
+    const ms = new Date(row.last_synced_at || 0).getTime();
+    return Number.isFinite(ms) && ms > latest ? ms : latest;
+  }, 0);
+  res.setHeader('X-Data-Source', 'mysql');
+  if (dataAtMs) res.setHeader('X-Data-At', new Date(dataAtMs).toISOString());
   res.json(rows);
 });
 app.post('/api/demands', async (req, res) => {
@@ -1032,8 +1078,8 @@ app.post('/api/cw-doc/submit-v6', async (req,res) => {
 app.post('/api/cw-doc/refresh-stat', (req,res)=>res.status(410).json({ok:false,error:'Tab1为生成时快照，不提供刷新功能'}));
 
 // 演示专用：往指定需求 Tab2 台词表批量追加 [DEMO] 台词行。
-// 请求体：{ demand_id, lines: [{ role_cn, cn_text, en_text, situation?, trigger?, remark? }] }
-// 事后清理：从 Tab2 第 2 行起清 lines.length 行；配套 cleanup 脚本处理。
+// 请求体：{ demand_id, lines: [{ role_cn, cn_text, en_text, situation?, trigger?, audio_file?, remark? }] }
+// 事后清理：从 Tab2 第 3 行起清 lines.length 行；配套 cleanup 脚本处理。
 app.post('/api/cw-doc/append-demo-lines', requireRole('admin'), async (req, res) => {
   try {
     const demandId = req.body && req.body.demand_id;

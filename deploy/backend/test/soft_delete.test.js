@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const { deletePrecondition } = require('../src/soft_delete');
+const { deletePrecondition, updatePrecondition } = require('../src/soft_delete');
 
 const row = { role_cn: '测试角色', revision: 7 };
 
@@ -36,4 +36,10 @@ test('soft delete accepts exact confirmation and current revision', () => {
     deletePrecondition(row, { expected_revision: 7, confirm_name: '测试角色' }, 'role_cn'),
     null
   );
+});
+
+test('updates require a positive optimistic-lock revision', () => {
+  assert.deepEqual(updatePrecondition({}), { status: 428, error: 'revision_required' });
+  assert.deepEqual(updatePrecondition({ expected_revision: 0 }), { status: 428, error: 'revision_required' });
+  assert.equal(updatePrecondition({ expected_revision: 7 }), null);
 });

@@ -1,5 +1,13 @@
 'use strict';
 
+function updatePrecondition(body) {
+  const expectedRevision = Number(body && body.expected_revision);
+  if (!Number.isSafeInteger(expectedRevision) || expectedRevision < 1) {
+    return { status: 428, error: 'revision_required' };
+  }
+  return null;
+}
+
 function deletePrecondition(row, body, nameField) {
   const expectedRevision = Number(body && body.expected_revision);
   const confirmedName = String((body && body.confirm_name) || '').trim();
@@ -19,4 +27,4 @@ function deletePrecondition(row, body, nameField) {
   return null;
 }
 
-module.exports = { deletePrecondition };
+module.exports = { deletePrecondition, updatePrecondition };

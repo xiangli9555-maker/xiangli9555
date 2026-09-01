@@ -1,5 +1,6 @@
 // ============ 真实 TAPD 快照（DF 20421949 · yang1 · 由 build_snapshot.py 生成 · 共 39 条） ============
 // 标题已按固定规则剥离【】。refresh 读此文件 upsert demands 表。
+window.TAPD_SNAPSHOT_AT = "2026-08-18T12:34:04+08:00";
 window.TAPD_SNAPSHOT = [
   {
     "id": "1020421949137235450",

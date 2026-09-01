@@ -6,8 +6,8 @@
 //   ├─ Tab1【需求统计】   ← 9 列 v2：已有声优 A-D(大类|游戏角色中|预估句数|实际句数) | E间隔 | 新建声优 F-I(大类|新增游戏角色中|预估句数|实际句数)
 //   │                      第一行合并标签(已有声优/新建声优)，第二行表头，冻结至第二行；FGHI 品牌黄标记新建分区
 //   │                      预估句数 留空（文案手动填）；实际句数(D/I) 写 SUMPRODUCT+LEN 公式：按 Tab2 游戏角色名匹配，累加台词-中字符数，每 20 字一句
-//   └─ Tab2<需求名>       ← 台词表 v2（10 列，两行表头：主标题绿底 + 8pt 小字说明，冻结至第 2 行）
-//                          B=游戏角色名(小字须与需求统计页一致)，C=台词-中，J=句数统计(数字·读C列每20字一句)
+//   └─ Tab2<需求名>       ← 台词表 v2（11 列，两行表头：主标题绿底 + 8pt 小字说明，冻结至第 2 行）
+//                          B=游戏角色名(小字须与需求统计页一致)，C=台词-中，G=音频文件名
 //                          I=音画同步下拉，J=句数统计，K=角色校验（检查Tab1 B/G，覆盖500行）
 //
 // 流程：
@@ -62,9 +62,16 @@ const AV_CHOICE_COL = tableTemplate.INDEX.avSync;
 const LINE_V2_MAIN = tableTemplate.LINE.columns.map((c) => c.title);
 const LINE_V2_SUB = tableTemplate.LINE.columns.map((c) => c.subtitle || '');
 const LINE_V2_COL_WIDTHS = LINE_COL_WIDTHS;
-const COL_ROLE = 1, COL_TEXT_CN = 2;
+const COL_ROLE = tableTemplate.lineColumnIndex('role');
+const COL_TEXT_CN = tableTemplate.lineColumnIndex('text_cn');
+const COL_TEXT_EN = tableTemplate.lineColumnIndex('text_en');
+const COL_EMOTION = tableTemplate.lineColumnIndex('emotion');
+const COL_TRIGGER = tableTemplate.lineColumnIndex('trigger');
+const COL_AUDIO_FILE = tableTemplate.lineColumnIndex('audio_file');
+const COL_REMARK = tableTemplate.lineColumnIndex('remark');
 const COL_SENTENCE = tableTemplate.INDEX.sentence;
 const COL_VALID = tableTemplate.INDEX.validation;
+const VALID_COL_LETTER = tableTemplate.columnLetter(COL_VALID);
 const SUB_FONT_SIZE = 8;
 const VALID_ROWS = tableTemplate.DATA_ROWS;
 const SENTENCE_FORMULA = tableTemplate.lineSentenceFormula;
@@ -83,7 +90,7 @@ const BRAND_GREEN = 'FF0FF796';
 const SEP_FILL = 'FFF2F4F6';
 const LINES_PER_CHUNK = tableTemplate.LINES_PER_CHUNK;
 
-// 第二页「角色校验」列（J / index 9）逻辑见下方 generateForDemand 的 5b 段；
+// 第二页「角色校验」列（K / index 10）逻辑见下方 generateForDemand 的 5b 段；
 // 公式 VALID_FORMULA + 条件格式（contains_text '⚠' → 红底红字），常量已并入上方 v2 块。
 
 // 取本需求的角色行（大类 + 游戏角色（中）），按声优库顺序归组。
@@ -255,11 +262,11 @@ async function writeStatSheetV2(file_id, sheet_id, demand, roster, tab, cookie) 
   await mcp.setFreeze(file_id, sheet_id, 2, 0, cookie);
 }
 
-// 写 Tab2 台词表 v2（10 列）：两行表头（第 0 行主标题绿底 / 第 1 行 8pt 小字说明），冻结至第 2 行；
-// 列宽按 LINE_V2_COL_WIDTHS。I(句数统计)/J(角色校验) 的公式与条件格式在 generateForDemand 5b 写入。
+// 写 Tab2 台词表 v2（11 列）：两行表头（第 0 行主标题绿底 / 第 1 行 8pt 小字说明），冻结至第 2 行；
+// 列宽按 LINE_V2_COL_WIDTHS。J(句数统计)/K(角色校验) 的公式与条件格式在 generateForDemand 5b 写入。
 // 数据行从 0-based row=2（第 3 行）起，前两行为表头。
 async function writeLineSheetV2(file_id, sheet_id, cookie) {
-  const n = LINE_V2_MAIN.length; // 10
+  const n = LINE_V2_MAIN.length; // 11
   // —— 两行表头（主标题 + 小字说明）——
   const headVals = [];
   for (let c = 0; c < n; c++) {
@@ -342,7 +349,7 @@ async function writeLineSheetV2Lite(file_id, sheet_id, cookie) {
 
   // 扩行：新表默认约 200 行，公式需覆盖到 VALID_ROWS，先扩行（1 次 smcp 调用，失败不阻断）
   try {
-    const need = 1 + VALID_ROWS;
+    const need = tableTemplate.LINE.totalRows;
     const curRows = 200;
     if (curRows < need) {
       await mcp.smcpCall('insert_dimension', { file_id, sheet_id, dimension_type: 'row', index: curRows, count: need - curRows });
@@ -350,7 +357,7 @@ async function writeLineSheetV2Lite(file_id, sheet_id, cookie) {
   } catch (e) { console.warn('[cw] lite 扩行跳过:', e.message); }
 
   // 计算 / 统计公式（lite 模式下仍必须保留，否则台词表无统计能力）：
-  //   A 序号 =ROW()-2；I 句数统计 =ROUNDUP(台词-中长度/20)；J 角色校验 = 角色不在统计页则 ⚠
+  //   A 序号 =ROW()-2；J 句数统计 =ROUNDUP(台词-中长度/20)；K 角色校验 = 角色不在统计页则 ⚠
   // 三列合并为单次 setRangeValueSmcp（sheet-mcp 端点，公式必需），规避 WAF 突发限流；
   // 条件格式红字为纯视觉、非计算，lite 跳过，待 WAF 解除后补。
   try {
@@ -362,7 +369,7 @@ async function writeLineSheetV2Lite(file_id, sheet_id, cookie) {
       validVals.push({ row: ri, col: COL_VALID, value_type: 'FORMULA', formula: VALID_FORMULA(one) });
     }
     if (aNumVals.length) await mcp.setRangeValueSmcp(file_id, sheet_id, aNumVals.concat(sentVals, validVals));
-    console.log('[cw] lite Tab2 A/I/J 公式已写入（' + VALID_ROWS + ' 行）');
+    console.log('[cw] lite Tab2 A/J/K 公式已写入（' + VALID_ROWS + ' 行）');
   } catch (e) { console.warn('[cw] lite Tab2 公式跳过:', e.message); }
 }
 
@@ -373,7 +380,7 @@ async function generateForDemand(demand, opts = {}) {
   const roster = await loadRoster();
   const rec = recipe.buildRecipeV6({ WS: path.join(__dirname, '..'), demand, roster });
   const title = rec._summary.doc_title.slice(0, 36);
-  // 台词表(第二页) v2 表头来自模板唯一真源（10 列）
+  // 台词表(第二页) v2 表头来自模板唯一真源（11 列）
   const headers = LINE_V2_MAIN;
   const tab = rec._summary.tab_name;
 
@@ -417,10 +424,10 @@ async function generateForDemand(demand, opts = {}) {
     await (LITE ? writeStatSheetV2Lite(file_id, statSheetId, demand, roster, tab, cookie) : writeStatSheetV2(file_id, statSheetId, demand, roster, tab, cookie));
     coreWritten = true;
 
-    // 普通表默认约 200 行；新字段格式与角色校验覆盖到 1000 行，先统一扩行。（lite 模式跳过，数据已写入不受扩行影响）
+    // 普通表默认约 200 行；公式与角色校验覆盖到 VALID_ROWS（当前 500 行），先统一扩行。（lite 模式跳过，数据已写入不受扩行影响）
     if (!LITE) {
     try {
-      const need = 1 + VALID_ROWS;
+      const need = tableTemplate.LINE.totalRows;
       const sinfo = await mcp.smcpCall('get_sheet_info', { file_id });
       const srow = (sinfo.sheets || sinfo).find((s) => s.sheet_id === lineSheetId);
       const curRows = srow && srow.row_count ? srow.row_count : 200;
@@ -459,7 +466,7 @@ async function generateForDemand(demand, opts = {}) {
     }
     }
 
-    // 5b) 句数统计(I/index8) + 角色校验(J/index9)公式 + 条件格式（500行）
+    // 5b) 句数统计(J/index9) + 角色校验(K/index10)公式 + 条件格式（500行）
     //   句数统计：读取 C 列(台词-中)，每 20 字一句 ROUNDUP
     //   角色校验：B 列角色名不在「需求统计」页 B列(已有)/G列(新建) 时，该格显示 ⚠ 提示并整格标红
     //   注：条件格式仅能整格着色，无法整行标红（平台 CF 仅支持 CF_CELL_IS 值规则）
@@ -476,7 +483,7 @@ async function generateForDemand(demand, opts = {}) {
         aNumVals.push({ row: ri, col: 0, value_type: 'FORMULA', formula: '=ROW()-2' });
       }
       // 批量写公式（sheet-mcp 端点，openapi 的 set_range_value 不支持 FORMULA）
-      // A/I/J 三列合并为单次写入（3 请求 → 1）以规避腾讯 WAF 突发限流；
+      // A/J/K 三列合并为单次写入（3 请求 → 1）以规避腾讯 WAF 突发限流；
       // 若单包过大被平台拒绝（非 WAF 错误），降级为按列分 3 次写。
       try {
         await mcp.setRangeValueSmcp(file_id, lineSheetId, aNumVals.concat(sentVals, validVals));
@@ -488,8 +495,7 @@ async function generateForDemand(demand, opts = {}) {
         await mcp.setRangeValueSmcp(file_id, lineSheetId, validVals);
       }
       // 条件格式：角色校验列出现 ⚠ 前缀 → 红底红字加粗（仅该格；整行标红受平台限制无法实现）
-      const validColLetter = 'J'; // index 9 → 第 10 列 = J
-      await mcp.addConditionalFormat(file_id, lineSheetId, [`${validColLetter}3:${validColLetter}${2 + VALID_ROWS}`], {
+      await mcp.addConditionalFormat(file_id, lineSheetId, [`${VALID_COL_LETTER}3:${VALID_COL_LETTER}${2 + VALID_ROWS}`], {
         type: 'CF_CELL_IS',
         cell_is: { operator: 'contains_text', formulas: [VALID_HINT_PREFIX] },
         style: { bg_color: '#FFC7CE', font_color: '#9C0006', bold: true },
@@ -800,9 +806,9 @@ async function readVoiceEstimatesForDemand(demand) {
 }
 
 // 演示用：往指定需求的 Tab2 台词表批量写入 [DEMO] 台词行。
-// lines: [{ role_cn, cn_text, en_text, situation?, trigger?, remark? }]
-// 从第 2 行（row=1）起写；只写列 1(游戏角色名)/2(台词-中)/3(台词-英)/4(情绪)/5(触发条件)/7(备注)。
-// 不清空原有行——只是"追加/覆盖"从第2行起 lines.length 行。用于下午演示 demo，事后配套 cleanup 清除。
+// lines: [{ role_cn, cn_text, en_text, situation?, trigger?, audio_file?, remark? }]
+// 从第 3 行（0-based row=2）起写；列位统一由 script_table_template.js 推导。
+// 不清空原有行——只是"追加/覆盖"从第3行起 lines.length 行。用于下午演示 demo，事后配套 cleanup 清除。
 async function appendDemoLinesForDemand(demand, lines) {
   if (!demand || !demand.script_doc_url) return { ok: false, reason: 'no-doc' };
   if (!Array.isArray(lines) || !lines.length) return { ok: false, reason: 'empty-lines' };
@@ -824,12 +830,13 @@ async function appendDemoLinesForDemand(demand, lines) {
       if (val == null || val === '') return;
       values.push({ row, col, value_type: 'STRING', string_value: String(val) });
     };
-    put(1, ln.role_cn);
-    put(2, ln.cn_text);
-    put(3, ln.en_text);
-    put(4, ln.situation || '');
-    put(5, ln.trigger || '');
-    put(7, ln.remark || '');
+    put(COL_ROLE, ln.role_cn);
+    put(COL_TEXT_CN, ln.cn_text);
+    put(COL_TEXT_EN, ln.en_text);
+    put(COL_EMOTION, ln.situation || '');
+    put(COL_TRIGGER, ln.trigger || '');
+    put(COL_AUDIO_FILE, ln.audio_file || '');
+    put(COL_REMARK, ln.remark || '');
   });
   if (!values.length) return { ok: false, reason: 'no-values' };
   await mcp.setRangeValue(file_id, sheet_id, values, cookie);

@@ -1,4 +1,6 @@
 // ============ 真实 TAPD 快照（DF 20421949 · Yang1.0 · 含父需求映射 · 更新于 2026-08-15） ============
+// 历史文件没有分钟级生成记录；保留 null，页面显示“未知”，禁止用加载时间冒充。
+window.TAPD_SNAPSHOT_AT = null;
 window.TAPD_SNAPSHOT = [
   {
     "release_plan": "Yang1.0",

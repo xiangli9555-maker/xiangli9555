@@ -659,6 +659,7 @@ html.embed .layout{padding-left:0}
 <!-- Tooltip element -->
 <div class="tt" id="tooltip"></div>
 
+<script src="assets/holiday-calendar.js?v=20260901a"></script>
 <script>
 // ── embed 模式检测：嵌在外壳 iframe 内时隐藏自身顶栏+侧栏 ──
 (function(){
@@ -728,38 +729,10 @@ const VER_META = {
 // 仅允许展示发布计划池真实返回的版本；不再渲染按截图推断的未来占位版本。
 const VER_ORDER = ['Ma_4.0','Ma_5.0','Yang_1.0','Yang_2.0','Yang_3.0','Yang_4.0','Yang_5.0','Hou_1.0'];
 
-// 中国法定节假日：
-// 有效周停工日真源：
-//  · 国内：国务院正式放假区间（运行时按年份整批替换，禁止旧数据与核准数据并集）；
-//  · 海外：仅计算圣诞节 12/25 所在周，不计算美国/英国其他法定节假日。
-// 只要任一停工日与周一~周日相交，该周整周不计入 Vo 节点的“有效周”。
-let HOLIDAYS = [
-  // 2026 中国正式放假区间（离线兜底）
-  { region:'CN', year:2026, short:'元旦', label:'元旦',   start:'2026/1/1',  end:'2026/1/3' },
-  { region:'CN', year:2026, short:'春节', label:'春节',   start:'2026/2/15', end:'2026/2/23' },
-  { region:'CN', year:2026, short:'清明', label:'清明节', start:'2026/4/4',  end:'2026/4/6' },
-  { region:'CN', year:2026, short:'劳动', label:'劳动节', start:'2026/5/1',  end:'2026/5/5' },
-  { region:'CN', year:2026, short:'端午', label:'端午节', start:'2026/6/19', end:'2026/6/21' },
-  { region:'CN', year:2026, short:'中秋', label:'中秋节', start:'2026/9/25', end:'2026/9/27' },
-  { region:'CN', year:2026, short:'国庆', label:'国庆节', start:'2026/10/1', end:'2026/10/7' },
-  // 2027/2028 国内假期为规划兜底；在线数据可用时按年份整批替换
-  { region:'CN', year:2027, short:'元旦', label:'元旦',   start:'2027/1/1',  end:'2027/1/3' },
-  { region:'CN', year:2027, short:'春节', label:'春节',   start:'2027/2/5',  end:'2027/2/13' },
-  { region:'CN', year:2027, short:'清明', label:'清明节', start:'2027/4/5',  end:'2027/4/7' },
-  { region:'CN', year:2027, short:'劳动', label:'劳动节', start:'2027/5/1',  end:'2027/5/5' },
-  { region:'CN', year:2027, short:'端午', label:'端午节', start:'2027/5/28', end:'2027/5/30' },
-  { region:'CN', year:2027, short:'中秋', label:'中秋节', start:'2027/9/20', end:'2027/9/22' },
-  { region:'CN', year:2027, short:'国庆', label:'国庆节', start:'2027/10/1', end:'2027/10/7' },
-  { region:'CN', year:2028, short:'元旦', label:'元旦',   start:'2028/1/1',  end:'2028/1/3' },
-  { region:'CN', year:2028, short:'春节', label:'春节',   start:'2028/1/25', end:'2028/2/1' },
-  { region:'CN', year:2028, short:'清明', label:'清明节', start:'2028/4/4',  end:'2028/4/6' },
-  { region:'CN', year:2028, short:'劳动', label:'劳动节', start:'2028/5/1',  end:'2028/5/5' },
-  { region:'CN', year:2028, short:'端午', label:'端午节', start:'2028/6/19', end:'2028/6/21' },
-  { region:'CN', year:2028, short:'中秋', label:'中秋节', start:'2028/9/14', end:'2028/9/16' },
-  { region:'CN', year:2028, short:'国庆', label:'国庆节', start:'2028/10/1', end:'2028/10/7' },
-  // 海外仅圣诞节当天；weekIsHoliday 会使 12/25 所在整周无效
-  ...[2025,2026,2027,2028,2029].map(y=>({region:'XMAS',year:y,short:'圣诞',label:'圣诞节',start:`${y}/12/25`,end:`${y}/12/25`}))
-];
+// 节假日与调休统一从共享模块读取；在线核准仍按年份整体替换本页副本。
+const HOLIDAY_CALENDAR = window.VOMI_HOLIDAY_CALENDAR;
+let HOLIDAYS = HOLIDAY_CALENDAR ? HOLIDAY_CALENDAR.holidays() : [];
+const BRIDGE_DAYS = HOLIDAY_CALENDAR ? HOLIDAY_CALENDAR.bridgeDays() : [];
 
 // 运行时核准中国放假区间：成功后按年份整体替换 CN 数据，绝不与旧区间叠加。
 async function loadHolidaysAuto(){
@@ -827,15 +800,17 @@ function addWorkDaysN(startDate, n){
   const oneDay = 86400000;
   while(rem > 0){
     cur = new Date(cur.getTime() + oneDay);
-    const dow = cur.getDay();
-    if(dow === 0 || dow === 6) continue;
-    if(holidayOnDay(cur)) continue;
+    const isWorkday = HOLIDAY_CALENDAR
+      ? HOLIDAY_CALENDAR.isWorkday(cur, HOLIDAYS, BRIDGE_DAYS)
+      : (cur.getDay() !== 0 && cur.getDay() !== 6 && !holidayOnDay(cur));
+    if(!isWorkday) continue;
     rem--;
   }
   return cur;
 }
 // 判断某周（周一~周日）是否为无效周：国内放假区间任一日或圣诞节12/25命中，即整周不计。
 function weekIsHoliday(mon){
+  if(HOLIDAY_CALENDAR) return HOLIDAY_CALENDAR.weekIsHoliday(mon, HOLIDAYS);
   const wkMon = mondayOf(mon), wkSun = addDaysN(wkMon,6);
   return HOLIDAYS.some(h=>d(h.start)<=wkSun && d(h.end)>=wkMon);
 }
@@ -948,16 +923,16 @@ function holidayOnDay(day){
   }
   return null;
 }
-// 只计工作日（周一~周五）且去除法定节假日的天数
+// 只计中国调休口径工作日：周末补班计入，法定放假日排除。
 function workingDaysBetween(startDate, endDate){
   let n = 0;
   const oneDay = 86400000;
   for(let t = startDate.getTime(); t <= endDate.getTime(); t += oneDay){
     const day = new Date(t);
-    const dow = day.getDay();
-    if(dow === 0 || dow === 6) continue; // 周日/周六
-    if(holidayOnDay(day)) continue;      // 法定节假日
-    n++;
+    const isWorkday = HOLIDAY_CALENDAR
+      ? HOLIDAY_CALENDAR.isWorkday(day, HOLIDAYS, BRIDGE_DAYS)
+      : (day.getDay() !== 0 && day.getDay() !== 6 && !holidayOnDay(day));
+    if(isWorkday) n++;
   }
   return n;
 }

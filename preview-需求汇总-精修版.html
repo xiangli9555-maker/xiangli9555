@@ -570,6 +570,7 @@ body.embed .mid{width:100%}
         <div class="refresh-action">
           <button id="btnRefresh" class="btn btn-primary" onclick="importLatestSnapshot()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span class="refresh-label">从 TAPD 刷新导入</span></button>
           <span class="auto-sync-note" title="自动任务每周三 11:30 拉取并导入；网页按钮本身不直接请求TAPD">自动拉取 · 周三 11:30</span>
+          <span id="snapshotTimeNote" class="auto-sync-note snapshot-time-note" hidden>【快照时间：未知】</span>
         </div>
       </div>
     </div>
@@ -679,6 +680,8 @@ body.embed .mid{width:100%}
 
 <script src="assets/roster.js?v=20260815a"></script>
 <script src="assets/tapd-snapshot.js?v=20260730ck"></script>
+<script src="assets/holiday-calendar.js?v=20260901a"></script>
+<script src="assets/release-calendar.js?v=20260901a"></script>
 <script>
 (function(){
   try{
@@ -723,35 +726,10 @@ const RELEASE_LIBRARY_KEY = 'release_script_libraries_v1';
 let RELEASE_LIBRARY_DOCS = {};
 try{ RELEASE_LIBRARY_DOCS = JSON.parse(localStorage.getItem(RELEASE_LIBRARY_KEY)||'{}')||{}; }catch(_){ RELEASE_LIBRARY_DOCS = {}; }
 let RELEASE_PLANS = [];
-// 与版本节点页 HOLIDAYS 同源（2026-2028 完整法定节假日区间，内置兜底；仅收录放假区间）
-let DDL_HOLIDAYS = [
-  // ====== 2026 年 ======
-  {short:'元旦',label:'元旦',start:'2026/1/1',end:'2026/1/3'},
-  {short:'春节',label:'春节',start:'2026/2/15',end:'2026/2/23'},
-  {short:'清明',label:'清明节',start:'2026/4/4',end:'2026/4/6'},
-  {short:'劳动',label:'劳动节',start:'2026/5/1',end:'2026/5/5'},
-  {short:'端午',label:'端午节',start:'2026/6/19',end:'2026/6/21'},
-  {short:'中秋',label:'中秋节',start:'2026/9/25',end:'2026/9/27'},
-  {short:'国庆',label:'国庆节',start:'2026/10/1',end:'2026/10/7'},
-  // ====== 2027 年 ======
-  {short:'元旦',label:'元旦',start:'2027/1/1',end:'2027/1/3'},
-  {short:'春节',label:'春节',start:'2027/2/5',end:'2027/2/13'},
-  {short:'清明',label:'清明节',start:'2027/4/5',end:'2027/4/7'},
-  {short:'劳动',label:'劳动节',start:'2027/5/1',end:'2027/5/5'},
-  {short:'端午',label:'端午节',start:'2027/5/28',end:'2027/5/30'},
-  {short:'中秋',label:'中秋节',start:'2027/9/20',end:'2027/9/22'},
-  {short:'国庆',label:'国庆节',start:'2027/10/1',end:'2027/10/7'},
-  // ====== 2028 年 ======
-  {short:'元旦',label:'元旦',start:'2028/1/1',end:'2028/1/3'},
-  {short:'春节',label:'春节',start:'2028/1/25',end:'2028/2/1'},
-  {short:'清明',label:'清明节',start:'2028/4/4',end:'2028/4/6'},
-  {short:'劳动',label:'劳动节',start:'2028/5/1',end:'2028/5/5'},
-  {short:'端午',label:'端午节',start:'2028/6/19',end:'2028/6/21'},
-  {short:'中秋',label:'中秋节',start:'2028/9/14',end:'2028/9/16'},
-  {short:'国庆',label:'国庆节',start:'2028/10/1',end:'2028/10/7'},
-  // 海外仅圣诞节当天；ddlWeekIsHoliday 会使 12/25 所在整周无效
-  ...[2025,2026,2027,2028,2029].map(y=>({short:'圣诞',label:'圣诞节',start:`${y}/12/25`,end:`${y}/12/25`}))
-];
+// 双 DDL 与版本节点页共用同一份节假日及调休数据。
+const DDL_HOLIDAY_CALENDAR = window.VOMI_HOLIDAY_CALENDAR;
+let DDL_HOLIDAYS = DDL_HOLIDAY_CALENDAR ? DDL_HOLIDAY_CALENDAR.holidays() : [];
+const DDL_BRIDGE_DAYS = DDL_HOLIDAY_CALENDAR ? DDL_HOLIDAY_CALENDAR.bridgeDays() : [];
 // 判断某天是否法定节假日（与版本节点页 holidayOnDay 同源：遍历 HOLIDAYS 区间）
 function holidayOnDay(day){
   const dt = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime();
@@ -779,8 +757,8 @@ async function loadHolidaysAuto(){
         else { if(cur) ranges.push(cur); cur={start:e.date,end:e.date,names:[e.name]}; }
       }
       if(cur) ranges.push(cur);
-      const incoming=ranges.map(x=>({short:x.names[0].slice(0,2),label:x.names.join('/'),start:x.start,end:x.end}));
-      DDL_HOLIDAYS=DDL_HOLIDAYS.filter(h=>h.label==='圣诞节'||ddlDate(h.start).getFullYear()!==y).concat(incoming);
+      const incoming=ranges.map(x=>({region:'CN',year:y,short:x.names[0].slice(0,2),label:x.names.join('/'),start:x.start,end:x.end}));
+      DDL_HOLIDAYS=DDL_HOLIDAYS.filter(h=>!(h.region==='CN' && h.year===y)).concat(incoming);
       changed=true;
     }
   }catch(e){ console.warn('中国节假日核准失败，沿用内置快照：',e); }
@@ -792,6 +770,7 @@ function ddlThursday(date){ const r=ddlMonday(date); r.setDate(r.getDate()+3); r
 function ddlFriday(date){ const r=ddlMonday(date); r.setDate(r.getDate()+4); return r; }
 // 与版本节点页同源：国内放假区间任一日或圣诞节12/25命中，整周无效。
 function ddlWeekIsHoliday(mon){
+  if(DDL_HOLIDAY_CALENDAR) return DDL_HOLIDAY_CALENDAR.weekIsHoliday(mon, DDL_HOLIDAYS);
   const a=ddlMonday(mon), b=new Date(a); b.setDate(b.getDate()+6);
   return DDL_HOLIDAYS.some(h=>ddlDate(h.start)<=b&&ddlDate(h.end)>=a);
 }
@@ -810,14 +789,19 @@ function ddlDeliveryFriday(devEnd){
   return ddlFriday(week);
 }
 function ddlIsHoliday(day){ return DDL_HOLIDAYS.some(h=>ddlDate(h.start)<=day && day<=ddlDate(h.end)); }
+function ddlIsWorkday(day){
+  return DDL_HOLIDAY_CALENDAR
+    ? DDL_HOLIDAY_CALENDAR.isWorkday(day, DDL_HOLIDAYS, DDL_BRIDGE_DAYS)
+    : (day.getDay()!==0 && day.getDay()!==6 && !ddlIsHoliday(day));
+}
 // —— 以下与版本节点页节点引擎同源（2026-08-18 修订 v4）——
 function ddlAddDaysN(date,n){ const r=new Date(date); r.setDate(r.getDate()+n); return r; }
-// 累加 N 个工作日：从 startDate 起向后逐日走，遇周末/法定节假日跳过，直到消耗 N 个工作日
+// 累加 N 个工作日：周末补班计入，法定放假日排除。
 function ddlAddWorkDaysN(startDate,n){
   let cur=new Date(startDate.getTime());
   if(n<=0) return cur;
   let rem=n; const oneDay=86400000;
-  while(rem>0){ cur=new Date(cur.getTime()+oneDay); const dow=cur.getDay(); if(dow===0||dow===6) continue; if(holidayOnDay(cur)) continue; rem--; }
+  while(rem>0){ cur=new Date(cur.getTime()+oneDay); if(!ddlIsWorkday(cur)) continue; rem--; }
   return cur;
 }
 function ddlWorkdaysLeft(from,target){
@@ -827,7 +811,7 @@ function ddlWorkdaysLeft(from,target){
   const dir=a<b?1:-1; let n=0, cur=new Date(a);
   while(cur.getTime()!==b.getTime()){
     cur.setDate(cur.getDate()+dir);
-    const wd=cur.getDay(); if(wd!==0&&wd!==6&&!ddlIsHoliday(cur)) n+=dir;
+    if(ddlIsWorkday(cur)) n+=dir;
   }
   return n;
 }
@@ -838,6 +822,7 @@ async function loadReleasePlans(){
   try{
     const r=await fetch('data/release-plans.json',{cache:'no-store'}); const j=await r.json();
     RELEASE_PLANS=(j&&Array.isArray(j.data))?j.data:[];
+    if(window.VOMI_RELEASE_CALENDAR) window.VOMI_RELEASE_CALENDAR.setPlans(RELEASE_PLANS);
   }catch(e){ RELEASE_PLANS=[]; }
 }
 // 双 DDL 以版本节点页为权威口径（2026-08-20）：
@@ -1282,7 +1267,7 @@ async function pollCwJobs(){
 }
 // ② 同步声优预估：触发后端读取对应台词表文档的「声优预估」tab → 写回 demands.voice_estimates
 async function syncVoiceEstimates(){
-  const release = filterRelease || (allDemands[0] && allDemands[0].release_plan) || 'Yang1.0';
+  const release = filterRelease || currentReleasePlan() || 'Yang1.0';
   try{
     flashInfo('⏳ 已提交声优预估同步任务，正在读取台词表文档…（完成后刷新查看）');
     const r = await fetch('/api/cw-doc/sync-voice-estimates', {
@@ -1368,7 +1353,7 @@ function buildReleaseSummaryRows(){
     const avCount=rows.filter(d=>d.video_sync==='音画同步').length;
     return {
       id:`release-summary:${release}`, _releaseSummary:true, _releaseRows:rows,
-      release_plan:release, area:'ALL', task_name:`${release}所有需求汇总`, creator:'lycheelli',
+      release_plan:release, area:'ALL', task_name:`${release}所有需求汇总`, creator:'Vomi',
       progress_voice_cn:'未开始', video_sync:`${avCount}/${rows.length}`,
       cn_lines_handler:`${copywriters.size}位策划`, voice_estimates:aggregateReleaseVoiceEstimates(rows),
       _max_cn:releaseMaxDate(rows,'cn'), _max_en:releaseMaxDate(rows,'en')
@@ -1385,7 +1370,7 @@ function releaseSummaryRowHTML(d){
     <td class="col-release"><span class="rp-tag">${esc(d.release_plan)}</span></td>
     <td class="col-area"><span class="area">ALL</span></td>
     <td class="col-story"><div class="release-summary-story">${esc(d.task_name)} · ${rows.length} 条需求</div></td>
-    <td class="col-creator creator-cell" title="汇总负责人">lycheelli</td>
+    <td class="col-creator creator-cell" title="汇总负责人">Vomi</td>
     <td class="col-status" oncontextmenu="return clearManualStage('${esc(d.id)}',event)"><select class="va-status${manualCls} ${stCls}" style="${STATUS_STYLE[effectiveStage]||STATUS_STYLE['待澄清']}" onchange="saveClarify('${esc(d.id)}','status',this.value,this)" title="版本汇总状态：可手动选择">${STATUS_LIST.map(s=>`<option value="${s}" ${effectiveStage===s?'selected':''}>${s}</option>`).join('')}</select></td>
     <td class="col-doc" style="text-align:center!important">${releaseLibraryDocCell(d.release_plan)}</td>
     <td class="col-video"><span class="release-summary-text">${esc(d.video_sync)} 音画</span></td>
@@ -1426,17 +1411,9 @@ function rowHTML(d){
 // release_plan 归一化：消除空格/.0 差异（防止数据库值 "Ma 5" 与按钮 "Ma5.0" 不匹配导致表格永远为空）
 function normRelease(v){ if(!v) return ''; return v.replace(/\s+/g,'').replace(/\.0$/,''); }
 function currentReleasePlan(){
-  const counts = {};
-  allDemands.forEach(d=>{
-    const rel = (d.release_plan||'').trim();
-    if(!rel) return;
-    const key = normRelease(rel);
-    if(!counts[key]) counts[key] = { name: rel, n: 0 };
-    counts[key].n += 1;
-  });
-  let best = null;
-  Object.values(counts).forEach(it=>{ if(!best || it.n > best.n) best = it; });
-  return best ? best.name : '';
+  return window.VOMI_RELEASE_CALENDAR
+    ? window.VOMI_RELEASE_CALENDAR.currentCached()
+    : '';
 }
 function demandScheduleKeys(d){
   return [d.id,d.external_id,d.task_name].filter(Boolean).map(v=>String(v).trim()).filter(Boolean);
@@ -1814,9 +1791,7 @@ function updateKPI(){
   const warnCnt = cWrite + cVo;   // "进行中"合计（文案ING + Vo ING）
 
   document.getElementById('kpiStories').textContent = fmt(total);
-  // 副标题：更新时间 + eyebrow 版本
-  const now = new Date();
-  document.getElementById('updatedTime').textContent = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  // 副标题中的更新时间由数据源元数据统一写入，禁止使用页面加载时间冒充。
   const er = document.getElementById('eyebrowRelease');
   if(er) er.textContent = (window.__INIT_RELEASE__ || 'Yang1.0');
 
@@ -2033,6 +2008,35 @@ function flashInfo(m){ const t=document.getElementById('toastArea'); if(t){t.tex
 
 // ============ TAPD 快照抽到 assets/tapd-snapshot.js（需求汇总页使用） ============
 const TAPD_SNAPSHOT = window.TAPD_SNAPSHOT || [];
+const TAPD_SNAPSHOT_AT = window.TAPD_SNAPSHOT_AT || null;
+
+function parseDataMoment(atIso){
+  if(!atIso) return null;
+  const d = new Date(atIso);
+  return Number.isFinite(d.getTime()) ? d : null;
+}
+function dataClock(atIso){
+  const d = parseDataMoment(atIso);
+  return d ? String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : '—:—';
+}
+function snapshotMoment(atIso){
+  const d = parseDataMoment(atIso);
+  if(!d) return '【快照时间：未知】';
+  return '【快照时间：'+(d.getMonth()+1)+'/'+d.getDate()+' '+dataClock(atIso)+'】';
+}
+function setVisibleDataTime(source, atIso){
+  const d = parseDataMoment(atIso);
+  window.__DEMAND_DATA_SOURCE__ = source || '';
+  window.__DEMAND_DATA_AT__ = d ? d.toISOString() : null;
+  const updated = document.getElementById('updatedTime');
+  if(updated) updated.textContent = dataClock(atIso);
+  const note = document.getElementById('snapshotTimeNote');
+  if(note){
+    const isSnapshot = String(source||'').includes('snapshot');
+    note.hidden = !isSnapshot;
+    if(isSnapshot) note.textContent = snapshotMoment(atIso);
+  }
+}
 
 
 
@@ -2044,13 +2048,13 @@ const TAPD_SNAPSHOT = window.TAPD_SNAPSHOT || [];
 
 // ============ 拉后端 ============
 function setSyncStatus(source, atIso){
+  setVisibleDataTime(source, atIso);
   const el = document.getElementById('syncStatus');
   if(!el) return;
-  const map = {'dfai-live':'实时·TAPD','snapshot-fallback':'快照·live失败','snapshot-no-token':'快照·无token','offline':'后端未连接'};
-  const cls  = {'dfai-live':'live','snapshot-fallback':'idle','snapshot-no-token':'idle','offline':'offline'};
+  const map = {'dfai-live':'实时·TAPD','mysql':'数据库·已同步','snapshot-fallback':'快照·live失败','snapshot-no-token':'快照·无token','offline-snapshot':'快照·后端未连接','offline':'后端未连接'};
+  const cls  = {'dfai-live':'live','mysql':'live','snapshot-fallback':'idle','snapshot-no-token':'idle','offline-snapshot':'offline','offline':'offline'};
   const label = map[source] || source || '—';
-  let time = '';
-  if(atIso){ try{ time = ' · ' + new Date(atIso).toLocaleTimeString('zh-CN'); }catch(_){} }
+  const time = parseDataMoment(atIso) ? ' · ' + dataClock(atIso) : '';
   el.innerHTML = `<span class="dot-live ${cls[source]||'idle'}"></span>${label}${time}`;
 }
 
@@ -2124,7 +2128,7 @@ async function loadDemands(){
       window.__snapshotFallbackLogged = true;
     }
     allDemands = applyOfflineDrafts(TAPD_SNAPSHOT.slice());
-    setSyncStatus('offline', null);
+    setSyncStatus('offline-snapshot', TAPD_SNAPSHOT_AT);
   }
   await loadRecordingMax();
   normalizeCopywriters();
@@ -2155,7 +2159,6 @@ async function importLatestSnapshot(){
     const updated = Number(j.updated ?? Math.max(0, (j.rows||0)-added));
     flashOk(`快照已导入：新增 ${added} 条，更新 TAPD 字段 ${updated} 条，共 ${allDemands.length} 条`);
   }catch(e){
-    setSyncStatus('offline', null);
     flashErr(`快照导入失败：${e.message || '未知错误'}`);
   }finally{
     if(label) label.textContent = '从 TAPD 刷新导入';

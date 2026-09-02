@@ -89,15 +89,18 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .btn-outline:hover{color:var(--c-primary);border-color:var(--c-primary)}
 .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
 
-/* 编制分布 · 简化两行版 */
-/* 战术风编制分布 · 沉着冷静 · 灰阶为主，主色仅作 hover 微光 */
-.roster-meter{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+/* 编制分布 · 方案 A 样式（2026-09-02）：横向彩色条带 + eyebrow 文字注解 + 段间强化分隔 */
+.roster-meter{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:14px 18px;display:flex;flex-direction:column;gap:12px}
+.meter-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.meter-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;letter-spacing:.5px;color:var(--c-primary);font-family:'JetBrains Mono','Microsoft YaHei UI',monospace}
+.meter-eyebrow .meter-dot{width:6px;height:6px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
+.meter-hint{font-size:11px;color:var(--c-text-dim);font-family:'JetBrains Mono','Microsoft YaHei UI',monospace;letter-spacing:.3px}
 .meter-value{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:2px}
 .meter-value .unit{font-size:12px;color:var(--c-text-mute);margin-left:6px;font-weight:500}
-.meter-bar{width:100%;height:6px;background:var(--c-bg-0);border-radius:2px;display:flex;overflow:hidden;border:1px solid var(--c-hairline);position:relative}
-.meter-seg{height:100%;transition:background .18s;position:relative;cursor:default}
-.meter-seg:not(:last-child){border-right:1px solid rgba(15,247,150,.15)}
-.meter-seg:hover{filter:brightness(1.2) saturate(1.1)}
+.meter-bar{width:100%;height:18px;background:var(--c-bg-0);border-radius:4px;display:flex;overflow:hidden;border:1px solid var(--c-hairline);position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),inset 0 -1px 0 rgba(0,0,0,.4)}
+.meter-seg{height:100%;transition:background .18s,box-shadow .18s,filter .18s;position:relative;cursor:default;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.meter-seg:not(:last-child){border-right:2px solid var(--c-bg-0)}
+.meter-seg:hover{filter:brightness(1.25) saturate(1.15);box-shadow:0 0 14px var(--c-primary-glow),inset 0 0 0 1px rgba(0,0,0,.18);z-index:1}
 .meter-legend{display:flex;flex-wrap:wrap;gap:0;font-size:11.5px;color:var(--c-text-mute);align-items:center;font-family:'JetBrains Mono',monospace;letter-spacing:.3px}
 .meter-legend .li{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;padding:2px 14px;border-right:1px solid var(--c-hairline)}
 .meter-legend .li:last-child{border-right:none}
@@ -131,16 +134,13 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .tool-btn.primary{color:#000;background:var(--c-primary);border-color:var(--c-primary);font-weight:600}
 .tool-btn.primary:hover{background:var(--c-primary-dark)}
 .tool-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
-/* 编辑模式圆形按钮（放在筛选栏末尾） */
-.tool-btn.tb-edit{width:30px;height:30px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--c-text-mute)}
-.tool-btn.tb-edit svg{width:13px;height:13px;stroke-linecap:round;stroke-linejoin:round}
-.tool-btn.tb-edit:hover{color:var(--c-primary);border-color:var(--c-primary)}
-.tool-btn.tb-edit.active{color:#000;background:var(--c-primary);border-color:var(--c-primary);box-shadow:0 0 8px rgba(15,247,150,.45)}
-/* 编辑模式态：可编辑单元格高亮虚线框 */
-body.edit-mode #rosterTable td.ed{outline:1px dashed rgba(15,247,150,.4);outline-offset:-2px;cursor:text}
-body.edit-mode #rosterTable td.ed:hover{outline-color:var(--c-primary);background:rgba(15,247,150,.06)}
-body.edit-mode #rosterTable td.rec-cell{cursor:pointer}
-body.edit-mode #rosterTable td.gender-cell{outline:1px dashed rgba(15,247,150,.4);outline-offset:-2px;cursor:pointer}
+/* 方案 A「点击即编辑」· 2026-09-02：所有 td.ed 默认就是可编辑态，无需切换编辑模式
+   - 整行 hover → 微绿底色，td.ed 加 inset 1px 细边暗示可编辑
+   - 当前 cell focus → 实心 inset 2px 绿边 + 绿底色 + 提亮文本色
+   - 性别单元（gender-cell）强制 dashed outline 提示「点这里换性别」 */
+#rosterTable tbody tr:hover td.ed{box-shadow:inset 0 0 0 1px rgba(15,247,150,.28)}
+#rosterTable td.ed.rec-cell{cursor:pointer}
+#rosterTable td.ed.gender-cell{outline:1px dashed rgba(15,247,150,.4);outline-offset:-2px;cursor:pointer}
 
 .table-wrap{overflow:auto;flex:1}
 table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
@@ -268,7 +268,6 @@ body.embed .mid{width:100%}
 #rosterTable tbody tr.cat-section .cat-bar{width:3px;height:20px;border-radius:2px;display:inline-block}
 #rosterTable tbody tr.cat-section .cat-text{color:#fff;font-size:13px;font-weight:600}
 #rosterTable tbody tr.cat-section .cat-cnt{color:rgba(212,221,227,.48);font-size:12px;font-weight:500;font-family:'JetBrains Mono','Microsoft YaHei UI',monospace;font-variant-numeric:tabular-nums;margin-left:2px}
-#rosterTable tbody tr.cat-section .cat-hint{margin-left:auto;color:rgba(212,221,227,.38);font-size:11.5px;font-style:normal;font-weight:400}
 #rosterTable tbody tr.cat-section td.ed:hover{background:transparent!important}
 /* 待选角组与首个分组标题之间留更明显的留白 */
 #rosterTable tbody tr.cat-first-after-pending td{padding-top:18px!important}
@@ -409,7 +408,7 @@ body.embed .mid{width:100%}
   #rosterTable th:nth-child(10),#rosterTable td:nth-child(10){width:9%!important}
   #rosterTable{font-size:10.5px}
   #rosterTable td,#rosterTable th{padding:4px 5px}
-  body.edit-mode #rosterTable td.ed:focus{white-space:normal;overflow:visible;text-overflow:clip}
+  #rosterTable td.ed:focus{white-space:normal;overflow:visible;text-overflow:clip}
   .meter-value{font-size:20px}
   .meter-legend{font-size:10px}
   .btn{font-size:11px;padding:5px 8px}
@@ -483,7 +482,7 @@ body.embed .mid{width:100%}
     <!-- Header：标题 + 总量 + 新建声优 -->
     <div class="tactical-header">
       <div class="title-block">
-        <div class="eyebrow"><span class="sig"></span>TALENT OPERATIONS</div>
+        <div class="eyebrow"><span class="sig"></span>TALENT OPERATIONS<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <div class="title-row">
           <h1 class="page-title">声优库</h1>
           <div class="title-count" id="meterTotal">—<span class="unit">/ 声优 · 6 大类</span></div>
@@ -498,8 +497,12 @@ body.embed .mid{width:100%}
       </div>
     </div>
 
-    <!-- Roster meter · 大类分布（由 roster.json 动态渲染） -->
+    <!-- Roster meter · 方案 A 横向色条（按角色大类比例分配 · 圆角色块一行可见上限） -->
     <div class="roster-meter">
+      <div class="meter-head">
+        <span class="meter-eyebrow"><span class="meter-dot"></span>ROSTER · 横向编制分布（按角色大类比例）</span>
+        <span class="meter-hint">ANTEE · 涵义 · Hover 任一段查看详情</span>
+      </div>
       <div class="meter-bar" id="meterBar"></div>
       <div class="meter-legend" id="meterLegend"></div>
     </div>
@@ -519,9 +522,6 @@ body.embed .mid{width:100%}
         <button class="tool-btn tb-gender" data-gender="男" onclick="setRosterGender('男',this)" data-tip="只看男性"><span class="g-male">♂</span></button>
         <button class="tool-btn tb-gender" data-gender="女" onclick="setRosterGender('女',this)" data-tip="只看女性"><span class="g-female">♀</span></button>
         <span class="chip-divider"></span>
-        <button id="editModeBtn" class="tool-btn tb-edit" onclick="toggleEditMode(this)" data-tip="进入 / 退出编辑" aria-pressed="false">
-          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-        </button>
       </div>
     </div>
 
@@ -549,7 +549,7 @@ body.embed .mid{width:100%}
         </table>
       </div>
       <div class="card-foot">
-        <div>显示 <span id="rowCount">0</span> 行 · 点绿色单元格即可编辑 · 录制时间统一在「录制档期」页管理</div>
+        <div>显示 <span id="rowCount">0</span> 行 · 方案 A 点击即编辑 · 失焦自动入库 · 录制时间统一在「录制档期」页管理</div>
         <div class="keys">
           <span><kbd>Tab</kbd> 下一格</span>
           <span><kbd>Enter</kbd> 保存</span>
@@ -1137,17 +1137,7 @@ function setRosterGender(g, btn){
   renderRoster();
 }
 
-// 编辑模式：切 body.edit-mode，让 renderRoster 生成可编辑单元格；再点退出
-function toggleEditMode(btn){
-  const on = !document.body.classList.contains('edit-mode');
-  document.body.classList.toggle('edit-mode', on);
-  if(btn){
-    btn.classList.toggle('active', on);
-    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    btn.setAttribute('title', on ? '编辑模式已开启：点击退出' : '编辑模式：允许直接就地修改大类/角色名/声优/地点/棚等');
-  }
-  renderRoster();
-}
+// 方案 A「点击即编辑」· 2026-09-02：删 toggleEditMode（默认全 td.ed 即可编辑，无需切模式）
 
 // 侧栏子导航：All / 已选角 / 待选角
 function setRosterStatus(status, btn){
@@ -1230,7 +1220,7 @@ function renderRoster(){
     else if(isEmpty) color = 'color:var(--c-text-dim);';
     else if(opts.dim) color = 'color:var(--c-text-2);';
     const placeholder = isEmpty ? '—' : '';
-    return `<td class="ed" data-rid="${rid}" data-field="${field}" data-orig="${escHtml(raw)}" contenteditable="${document.body.classList.contains('edit-mode')?'true':'false'}" spellcheck="false" style="${color}${opts.extraStyle||''}" data-placeholder="${placeholder}">${display}</td>`;
+    return `<td class="ed" data-rid="${rid}" data-field="${field}" data-orig="${escHtml(raw)}" contenteditable="true" spellcheck="false" style="${color}${opts.extraStyle||''}" data-placeholder="${placeholder}">${display}</td>`;
   };
   // 「地点 / 录音棚」合并单元格（v3 · 2026-07-23）
   const locStudioCell = (loc, studio, rid, side, pending) => {
@@ -1251,7 +1241,7 @@ function renderRoster(){
     if(isAI) color = 'color:var(--c-info);';
     else if(isEmpty && !bothNA) color = 'color:var(--c-text-dim);';
     const placeholder = (isEmpty && !bothNA) ? '—' : '';
-    return `<td class="ed" data-rid="${rid}" data-field="loc_studio_${side}" data-loc="${escHtml(l)}" data-studio="${escHtml(s)}" data-orig="${escHtml(display)}" contenteditable="${document.body.classList.contains('edit-mode')?'true':'false'}" spellcheck="false" style="${color}" data-placeholder="${placeholder}">${display}</td>`;
+    return `<td class="ed" data-rid="${rid}" data-field="loc_studio_${side}" data-loc="${escHtml(l)}" data-studio="${escHtml(s)}" data-orig="${escHtml(display)}" contenteditable="true" spellcheck="false" style="${color}" data-placeholder="${placeholder}">${display}</td>`;
   };
   // 录制时间单元格：结构化多档期（日期 + 起 - 止）
   //   数据存于 localStorage 的 rec_time_cn / rec_time_en 字段（字符串数组）
@@ -1345,7 +1335,6 @@ function renderRoster(){
         <span class="cat-bar" style="background:${color}"></span>
         <span class="cat-text">${escHtml(label)}</span>
         <span class="cat-cnt">· ${cnt} 个角色</span>
-        ${isFirstAfterPending ? '<span class="cat-hint">配音已补全的角色按大类归档到下方</span>' : ''}
       </div>
     </td></tr>`;
       }
@@ -1359,15 +1348,9 @@ function renderRoster(){
     const pendingCast = inPending;
     html += `
     <tr data-rid="${r.id}" oncontextmenu="openRowMenu(event,${r.id})">
-      ${document.body.classList.contains('edit-mode')
-        ? edCell(r.category, r.id, 'category', {extraStyle:'font-weight:600;'})
-        : `<td>${catBadge(r.category)}</td>`}
-      ${document.body.classList.contains('edit-mode')
-        ? edCell(r.role_cn, r.id, 'role_cn')
-        : `<td>${escHtml(r.role_cn)}</td>`}
-      ${document.body.classList.contains('edit-mode')
-        ? edCell(r.role_en, r.id, 'role_en', {dim:true, extraStyle:"font-family:'JetBrains Mono',monospace;font-size:11px"})
-        : `<td style="color:var(--c-text-2);font-family:'JetBrains Mono',monospace;font-size:11px">${escHtml(r.role_en||'')}</td>`}
+      ${edCell(r.category, r.id, 'category', {extraStyle:'font-weight:600;'})}
+      ${edCell(r.role_cn, r.id, 'role_cn')}
+      ${edCell(r.role_en, r.id, 'role_en', {dim:true, extraStyle:"font-family:'JetBrains Mono',monospace;font-size:11px"})}
       <td class="gender-cell">${genderIcon(r.gender)}</td>
       ${edCell(r.cn_va,   r.id,'cn_va', {pending: pendingCn})}
       ${locStudioCell(r.cn_location, r.cn_studio, r.id, 'cn', pendingCn)}
@@ -2566,6 +2549,15 @@ loadRoster();
     btn.style.cursor="pointer";
     btn.addEventListener("click", function(t){ return function(){ window.location.href = t; }; }(target));
   }
+})();
+</script>
+
+<script>
+/* eyebrow release pill：与需求汇总页同一数据源，外层 iframe 经 window.__INIT_RELEASE__ 注入当前 release。
+   独立 IIFE 放在 body 末尾，DOM 已就绪且不与各页初始化时序耦合。 */
+(function(){
+  var el = document.querySelector('.eyebrow-release');
+  if(el) el.textContent = (window.__INIT_RELEASE__ || 'Yang1.0');
 })();
 </script>
 

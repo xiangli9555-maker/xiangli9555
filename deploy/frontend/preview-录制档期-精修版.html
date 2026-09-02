@@ -42,6 +42,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .title-block{display:flex;flex-direction:column;gap:6px}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
+.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 4px}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px;text-shadow:0 0 16px rgba(15,247,150,.18)}
 .page-title .code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
@@ -1044,7 +1045,7 @@ body.embed .main{width:100%}
   <main class="main">
     <div class="tactical-header">
       <div class="title-block">
-        <div class="eyebrow"><span class="sig"></span>RECORDING SCHEDULE</div>
+        <div class="eyebrow"><span class="sig"></span>RECORDING SCHEDULE<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <h1 class="page-title">录制档期 <span class="deadline-meta" id="schedDeadlinePill" hidden><span class="deadline-slash">//</span><span class="deadline-dates" id="schedDeadlineRange">--.-- → --.--</span><span class="deadline-sep">·</span><span class="deadline-rel" id="schedDeadlineRel">--</span> 录制定档期<span class="deadline-calm" id="schedDeadlineCalm" hidden>· 已完成</span></span></h1>
       </div>
       <div class="actions">
@@ -3300,6 +3301,15 @@ function bookActor(role, lang){
       if(stats[3]) stats[3].innerHTML='0<span class="unit">个</span>';
     }catch(_){/* ignore */}
   }, 180);
+})();
+</script>
+
+<script>
+/* eyebrow release pill：与需求汇总页同一数据源，外层 iframe 经 window.__INIT_RELEASE__ 注入当前 release。
+   独立 IIFE 放在 body 末尾，DOM 已就绪且不与各页初始化时序耦合。 */
+(function(){
+  var el = document.querySelector('.eyebrow-release');
+  if(el) el.textContent = (window.__INIT_RELEASE__ || 'Yang1.0');
 })();
 </script>
 

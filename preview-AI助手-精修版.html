@@ -41,6 +41,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .cmd-col{background:var(--c-bg-0);border-right:1px solid var(--c-hairline);display:flex;flex-direction:column;overflow:hidden}
 .cmd-head{padding:14px 14px 12px;border-bottom:1px solid var(--c-hairline)}
 .eyebrow{font-size:10px;letter-spacing:2px;color:var(--c-primary);font-family:'JetBrains Mono',monospace;font-weight:600;text-transform:uppercase}
+.chip-divider{display:inline-block;width:1px;height:12px;background:var(--c-hairline);align-self:center;margin:0 4px}
 .cmd-title{color:#fff;font-size:14px;font-weight:700;margin-top:4px}
 .cmd-body{flex:1;overflow-y:auto;padding:8px}
 .cmd-group{margin-bottom:12px}
@@ -205,7 +206,7 @@ body.embed .mid{width:100%}
     <!-- 左：快捷指令 -->
     <div class="cmd-col">
       <div class="cmd-head">
-        <div class="eyebrow">◉ HQ Console</div>
+        <div class="eyebrow">◉ HQ Console<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <div class="cmd-title">参谋部指令</div>
       </div>
       <div class="cmd-body">
@@ -416,6 +417,15 @@ body.embed .mid{width:100%}
     btn.style.cursor="pointer";
     btn.addEventListener("click", function(t){ return function(){ window.location.href = t; }; }(target));
   }
+})();
+</script>
+
+<script>
+/* eyebrow release pill：与需求汇总页同一数据源，外层 iframe 经 window.__INIT_RELEASE__ 注入当前 release。
+   独立 IIFE 放在 body 末尾，DOM 已就绪且不与各页初始化时序耦合。 */
+(function(){
+  var el = document.querySelector('.eyebrow-release');
+  if(el) el.textContent = (window.__INIT_RELEASE__ || 'Yang1.0');
 })();
 </script>
 

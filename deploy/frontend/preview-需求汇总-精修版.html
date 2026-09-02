@@ -622,7 +622,7 @@ body.embed .mid{width:100%}
     <!-- Header：标题 + KPI 徽章 + 新建 -->
     <div class="tactical-header">
       <div class="title-block">
-        <div class="eyebrow"><span class="sig"></span>MISSION OPERATIONS<span class="chip-divider"></span><span id="eyebrowRelease">Yang1.0</span></div>
+        <div class="eyebrow"><span class="sig"></span>MISSION OPERATIONS<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <div class="title-row">
           <h1 class="page-title">需求汇总</h1>
         </div>
@@ -1870,7 +1870,7 @@ function updateKPI(){
 
   document.getElementById('kpiStories').textContent = fmt(total);
   // 副标题中的更新时间由数据源元数据统一写入，禁止使用页面加载时间冒充。
-  const er = document.getElementById('eyebrowRelease');
+  const er = document.querySelector('.eyebrow-release');
   if(er) er.textContent = (window.__INIT_RELEASE__ || 'Yang1.0');
 
   // ── KPI 横幅 4 卡（可见）──

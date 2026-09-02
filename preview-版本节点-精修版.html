@@ -45,6 +45,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .title-block{display:flex;flex-direction:column;gap:6px}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
+.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 4px}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px}
 .page-title .code{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
@@ -578,7 +579,7 @@ html.embed .layout{padding-left:0}
     <!-- Header -->
     <div class="tactical-header">
       <div class="title-block">
-        <div class="eyebrow"><span class="sig"></span>RELEASE CALENDAR</div>
+        <div class="eyebrow"><span class="sig"></span>RELEASE CALENDAR<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <h1 class="page-title">版本节点</h1>
       </div>
       <div class="actions" style="display:none!important">
@@ -2069,6 +2070,15 @@ function renderDayView(){
     }
   }).catch(()=>{});
   console.log('◉ 版本节点 · v17 (右侧栏+角色关注+倒数周免节假日) · '+VERSIONS.length+' 版本');
+})();
+</script>
+
+<script>
+/* eyebrow release pill：与需求汇总页同一数据源，外层 iframe 经 window.__INIT_RELEASE__ 注入当前 release。
+   独立 IIFE 放在 body 末尾，DOM 已就绪且不与各页初始化时序耦合。 */
+(function(){
+  var el = document.querySelector('.eyebrow-release');
+  if(el) el.textContent = (window.__INIT_RELEASE__ || 'Yang1.0');
 })();
 </script>
 </body>

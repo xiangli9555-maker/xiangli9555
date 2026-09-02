@@ -711,7 +711,7 @@ body.embed .mid{width:100%}
 // ============ Roster 数据源加载 ============
 // 数据源顺序：后端 /api/talents（系统真源）→ window.ROSTER / assets/roster.json（离线兜底）
 // 后端按 role_cn 合并到静态列表，既保留稳定的本地 id，也补齐静态缓存里缺失的新角色。
-// 之后叠加 localStorage 'vo_talent_edits_v1' 里 PM 尚未保存的编辑。
+// 之后叠加 localStorage ROSTER_DRAFT_KEYS.edits 里 PM 尚未保存的编辑（v2，v1 已作废）。
 window.ROSTER = window.ROSTER || null;
 let ROSTER_CAT = '';
 let ROSTER_STATUS = ''; // '' = All / 'done' / 'pending'
@@ -720,6 +720,68 @@ let TALENT_LIST = [];   // 合并后的最终数据
 // /api/talents 最近一次快照：cell 直写时用它定位 db_id / revision，省去每次编辑都拉全表
 let ROSTER_DB_ROWS = [];
 const ROSTER_DELETE_QUEUE_KEY = 'vo_talent_delete_queue_v2';
+// 草稿 key 统一出口：升版只改这里，旧 key 在 loadRoster 启动时一次性作废。
+// v1 → v2：v1 里残留着「克劳斯·阿德勒 (Klaus」这类被 docx 解析括号截断的脏名（2026-09-02），
+// 叠加回列表后会与 DB 的干净名各渲染一条，故整批作废而不是逐条修补。
+const ROSTER_DRAFT_KEYS = { edits:'vo_talent_edits_v2', adds:'vo_talent_adds_v2', deletes:'vo_talent_deletes_v2' };
+const ROSTER_LEGACY_DRAFT_KEYS = ['vo_talent_edits_v1','vo_talent_adds_v1','vo_talent_deletes_v1'];
+function purgeLegacyDraftKeys(){
+  ROSTER_LEGACY_DRAFT_KEYS.forEach(k=>{ try{ localStorage.removeItem(k); }catch(_){} });
+}
+
+// ---- 名册清洗：拦掉括号不闭合的脏名，并折叠「同一角色的脏/净双胞胎」----
+// 背景：解析早期版本把「克劳斯·阿德勒 (Klaus Adler) 代号“钟表匠”」切成「克劳斯·阿德勒 (Klaus」，
+// 于是静态快照与 DB 各有一条、role_cn 键对不上，页面渲染成两条。后端已有写入校验（防线①），
+// 这里是前端兜底（防线②）：无论脏数据从哪个源进来，都不让它出现在列表里。
+function rosterNameBalanced(s){
+  const t = String(s || '');
+  const open  = (t.match(/[(（]/g) || []).length;
+  const close = (t.match(/[)）]/g) || []).length;
+  return open === close;
+}
+// 归一键：抹平「带括号别名 / 未闭合括号残渣 / 全半角 / 空白 / 大小写」差异，识别同一角色的不同写法。
+// 关键：解析截断产物「克劳斯·阿德勒 (Klaus」只有左括号，光删成对括号段抹不平，
+// 必须再截掉未闭合左括号及其后内容，否则脏名与干净名不同键、去重失效。
+function rosterDedupKey(cn){
+  return String(cn || '').trim()
+    .replace(/[（(][^()）]*[)）]/g, '')   // 成对括号段（多为英文别名）
+    .replace(/[（(][^()）]*$/, '')        // 未闭合左括号 + 其后残渣（解析截断产物）
+    .replace(/^[()）]+/, '')              // 开头孤立括号
+    .replace(/[)）]+$/, '')               // 结尾孤立括号
+    .replace(/\s+/g, '')
+    .toLowerCase();
+}
+// 可信度打分：已入库(db_id) > 括号闭合 > revision 更新
+function rosterTrustScore(r){
+  return (r && r.db_id ? 4 : 0)
+       + (rosterNameBalanced(r && r.role_cn) ? 2 : 0)
+       + Math.min(Number(r && r.revision) || 0, 9999) / 1e6;
+}
+function sanitizeRosterList(list){
+  if(!Array.isArray(list) || !list.length) return list;
+  // ① 剔除括号不闭合的脏行；若整表都脏（极端情况）则原样返回，绝不把列表清成空
+  const clean = list.filter(r => rosterNameBalanced(r.role_cn));
+  const work = clean.length ? clean : list;
+  // ② 同键多条时折叠：真重名（写法完全一致）保留全部，其余只留最可信的一条
+  const groups = new Map();
+  for(const r of work){
+    const key = rosterDedupKey(r.role_cn) || '__empty__';
+    if(!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(r);
+  }
+  const out = [];
+  for(const rows of groups.values()){
+    if(rows.length === 1){ out.push(rows[0]); continue; }
+    // 只有组内出现脏行（解析截断产物）才折叠，且只留最可信的一条；
+    // 全干净的同键行按真重名 / 别名不同处理，整组保留，杜绝误删。
+    if(rows.some(r => !rosterNameBalanced(r.role_cn))){
+      out.push(rows.slice().sort((a, b) => rosterTrustScore(b) - rosterTrustScore(a))[0]);
+    }else{
+      rows.forEach(r => out.push(r));
+    }
+  }
+  return out;
+}
 function loadRosterDeleteQueue(){
   try{
     const rows = JSON.parse(localStorage.getItem(ROSTER_DELETE_QUEUE_KEY)||'[]');
@@ -784,13 +846,13 @@ async function loadRoster(){
   }
   // 叠加编辑
   try{
-    const edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
+    const edits = JSON.parse(localStorage.getItem(ROSTER_DRAFT_KEYS.edits)||'{}')||{};
     list = list.map(r=>{ const e = edits[r.id]; return e ? Object.assign({}, r, e) : r; });
   }catch(_){}
-  // 叠加"本页新增"（vo_talent_adds_v1，仅本页录入的新声优，roster.json 不含）
+  // 叠加"本页新增"（ROSTER_DRAFT_KEYS.adds，仅本页录入的新声优，roster.json 不含）
   try{
-    const adds = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
-    const edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
+    const adds = JSON.parse(localStorage.getItem(ROSTER_DRAFT_KEYS.adds)||'[]')||[];
+    const edits = JSON.parse(localStorage.getItem(ROSTER_DRAFT_KEYS.edits)||'{}')||{};
     for(const a of adds){
       const e = edits[a.id]; list.push(e ? Object.assign({}, a, e) : a);
     }
@@ -799,8 +861,8 @@ async function loadRoster(){
   // 旧版仅存数字 id，存在 id 错位误删风险，故不再自动应用。
   const deleteNames = new Set(loadRosterDeleteQueue().map(x=>String(x.role_cn).trim()));
   if(deleteNames.size) list = list.filter(r => !deleteNames.has(String(r.role_cn||'').trim()));
-  try{ localStorage.removeItem('vo_talent_deletes_v1'); }catch(_){}
-  TALENT_LIST = list;
+  purgeLegacyDraftKeys();   // v1 草稿整批作废，避免脏名被重新叠加
+  TALENT_LIST = sanitizeRosterList(list);   // 防线②：脏名 / 双胞胎不可能穿过这里
   renderMeter();
   renderRoster();
   // 一次性：把「保存到系统」时代积压的 localStorage 草稿自动回写后端（无草稿时立即返回）
@@ -929,9 +991,9 @@ async function persistVoiceRole(row, uiPatch){
 // 离线兜底：写 localStorage 草稿，等联网后由 migrateRosterDrafts 自动回写
 function saveRosterDraft(id, uiPatch){
   try{
-    const edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
+    const edits = JSON.parse(localStorage.getItem(ROSTER_DRAFT_KEYS.edits)||'{}')||{};
     edits[id] = Object.assign({}, edits[id] || {}, uiPatch);
-    localStorage.setItem('vo_talent_edits_v1', JSON.stringify(edits));
+    localStorage.setItem(ROSTER_DRAFT_KEYS.edits, JSON.stringify(edits));
   }catch(_){}
 }
 
@@ -965,8 +1027,8 @@ async function migrateRosterDrafts(){
   migrateRosterDrafts._done = true;   // 先置位，避免 loadRoster 重入造成递归
   let edits = {}, adds = [], queue = [];
   try{
-    edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
-    adds  = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
+    edits = JSON.parse(localStorage.getItem(ROSTER_DRAFT_KEYS.edits)||'{}')||{};
+    adds  = JSON.parse(localStorage.getItem(ROSTER_DRAFT_KEYS.adds)||'[]')||[];
     queue = loadRosterDeleteQueue();
   }catch(_){}
   if(!Object.keys(edits).length && !adds.length && !queue.length) return;
@@ -1002,7 +1064,7 @@ async function migrateRosterDrafts(){
       recycled++;
       ROSTER_DB_ROWS = ROSTER_DB_ROWS.filter(x => Number(x.id) !== Number(hit.id));
     }
-    ['vo_talent_edits_v1','vo_talent_adds_v1','vo_talent_deletes_v1',ROSTER_DELETE_QUEUE_KEY].forEach(k=>{
+    [ROSTER_DRAFT_KEYS.edits, ROSTER_DRAFT_KEYS.adds, ROSTER_DRAFT_KEYS.deletes, ROSTER_DELETE_QUEUE_KEY].forEach(k=>{
       try{ localStorage.removeItem(k); }catch(_){}
     });
     if(patched || posted || recycled){
@@ -1627,11 +1689,11 @@ async function deleteRosterRow(rid){
   const idx = TALENT_LIST.findIndex(r=>Number(r.id)===Number(rid));
   if(idx>=0) TALENT_LIST.splice(idx,1);
   try{
-    const edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
-    if(edits[rid]){ delete edits[rid]; localStorage.setItem('vo_talent_edits_v1', JSON.stringify(edits)); }
-    const adds = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
+    const edits = JSON.parse(localStorage.getItem(ROSTER_DRAFT_KEYS.edits)||'{}')||{};
+    if(edits[rid]){ delete edits[rid]; localStorage.setItem(ROSTER_DRAFT_KEYS.edits, JSON.stringify(edits)); }
+    const adds = JSON.parse(localStorage.getItem(ROSTER_DRAFT_KEYS.adds)||'[]')||[];
     const next = adds.filter(a => Number(a.id) !== Number(rid));
-    if(next.length !== adds.length) localStorage.setItem('vo_talent_adds_v1', JSON.stringify(next));
+    if(next.length !== adds.length) localStorage.setItem(ROSTER_DRAFT_KEYS.adds, JSON.stringify(next));
   }catch(_){}
   renderMeter();
   renderRoster();
@@ -2000,7 +2062,7 @@ function updateVaBatchHint(){
 }
 
 // ==================== 落库：解析结果 → voice_roles（2026-09-02 修链路） ====================
-// 背景：此前「保存声优 / 导入所选」只写 localStorage 草稿 vo_talent_adds_v1，
+// 背景：此前「保存声优 / 导入所选」只写 localStorage 草稿 ROSTER_DRAFT_KEYS.adds，
 // 若未再点「保存到系统」就刷新页面，整份文档资料即丢失（M5-33 等 3 份选角文档即因此未入库）。
 // 该按钮已于 2026-09-02 退役：上传/新建改为直写 DB，单元格编辑同样直写（见 saveCellEdits）。
 // 现在：能连后端就直写 DB —— 新角色 POST /api/talents，已存在角色 PATCH 只覆盖文档承载的字段
@@ -2084,12 +2146,12 @@ async function vaReloadAndFocus(roleCn){
 
 // 后端不可用时的兜底：写本地草稿，页面下次加载时由 migrateRosterDrafts 自动回写（调用方负责重渲染）
 function vaDraftPush(rec){
-  const adds = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
+  const adds = JSON.parse(localStorage.getItem(ROSTER_DRAFT_KEYS.adds)||'[]')||[];
   const cn = String(rec.role_cn || '').trim();
   // 同名按「更新」处理，避免列表里出现两条同名行
   const ai = adds.findIndex(a => String(a.role_cn || '').trim() === cn);
   if(ai >= 0) adds[ai] = rec; else adds.push(rec);
-  localStorage.setItem('vo_talent_adds_v1', JSON.stringify(adds));
+  localStorage.setItem(ROSTER_DRAFT_KEYS.adds, JSON.stringify(adds));
   const ti = TALENT_LIST.findIndex(r => String(r.role_cn || '').trim() === cn);
   if(ti >= 0) TALENT_LIST[ti] = Object.assign({}, TALENT_LIST[ti], rec); else TALENT_LIST.push(rec);
 }

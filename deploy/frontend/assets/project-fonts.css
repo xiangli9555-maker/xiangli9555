@@ -12,9 +12,9 @@
   --type-panel: 15px;
   --type-section: 17px;
   --type-kpi: 20px;
-  --type-page: 22px;
+  --type-page: 26px;
 
-  --line-tight: 1.15;
+  --line-tight: 1.1;
   --line-ui: 1.35;
   --line-body: 1.5;
 
@@ -218,10 +218,12 @@ body [style*="font-family: 'Inter'"] {
 .page-title {
   font-family: var(--font-display) !important;
   font-size: var(--type-page) !important;
-  line-height: var(--line-tight) !important;
-  font-weight: 700 !important;
-  letter-spacing: .25px !important;
-  color: #EAEBEB !important;
+  line-height: 1.1 !important;
+  font-weight: 800 !important;
+  letter-spacing: -.5px !important;
+  color: #fff !important;
+  text-shadow: 0 0 16px rgba(15,247,150,.18) !important;
+  font-variant-numeric: tabular-nums !important;
 }
 .sheet-title,
 .chat-title,

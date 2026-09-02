@@ -216,13 +216,14 @@ body [style*="font-family: 'Inter'"] {
 
 /* ---------- Titles ---------- */
 .page-title {
-  font-family: 'Inter','JetBrains Mono',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif !important;
+  font-family: var(--font-display) !important;
   font-size: var(--type-page) !important;
   line-height: 1.1 !important;
   font-weight: 800 !important;
   letter-spacing: -.5px !important;
   color: #fff !important;
   text-shadow: 0 0 16px rgba(15,247,150,.18) !important;
+  font-variant-numeric: tabular-nums !important;
 }
 .sheet-title,
 .chat-title,

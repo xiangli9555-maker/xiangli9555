@@ -196,12 +196,20 @@ body.embed .mid{width:100%}
 #rosterTable td.casting-done-dim{cursor:default}
 #rosterTable td.casting-done-dim .check-icon{color:var(--c-text-dim);opacity:.5}
 #rosterTable td.casting-done-dim:hover .check-icon{transform:scale(1.1);opacity:.75;filter:none}
-/* 悬浮透明玻璃卡片 tooltip（两态通用） */
-#rosterTable td.casting-cell .doc-preview{position:fixed;right:auto;left:auto;padding:16px 18px;width:400px;background:rgba(25,34,41,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(15,247,150,.4);border-radius:6px;box-shadow:0 12px 44px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .18s;z-index:9999;text-align:left;font-size:11.5px;line-height:1.75;color:var(--c-text);white-space:pre-wrap;font-family:'Inter',sans-serif;overflow:visible;transform:none}
+/* 悬浮透明玻璃卡片 tooltip（两态通用） · 2026-09-02 规格化 */
+#rosterTable td.casting-cell .doc-preview{position:fixed;right:auto;left:auto;padding:8px 12px;width:280px;background:rgba(25,34,41,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(15,247,150,.42);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.55),0 0 0 1px rgba(15,247,150,.10);opacity:0;pointer-events:none;transition:opacity .18s;z-index:9999;text-align:left;font-size:12px;line-height:1.65;color:var(--c-text);white-space:pre-wrap;font-family:'Inter',sans-serif;overflow:visible;transform:none}
 #rosterTable td.casting-cell:hover .doc-preview{opacity:1}
 #rosterTable td.casting-cell .doc-preview::before{content:attr(data-note)}
-#rosterTable td.casting-cell .doc-preview.doc-preview-empty{color:var(--c-text-mute);font-style:italic}
-#rosterTable td.casting-cell .doc-preview.doc-preview-empty::before{content:''}
+#rosterTable td.casting-cell .doc-preview.doc-preview-empty{color:var(--c-text-mute);font-style:italic;width:max-content;max-width:280px}
+#rosterTable td.casting-cell .doc-preview.doc-preview-empty::before{content:'老演员数据，详细选角资料待后期更新'}
+
+/* 通用悬浮玻璃卡 · 所有 [data-tip] 元素统一规格（深色玻璃 + 绿细边微光 + 12px 圆角 + 短句版） */
+.vomi-tip-host-pop{position:fixed;z-index:9999;pointer-events:none;padding:6px 12px;max-width:280px;width:max-content;background:rgba(25,34,41,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(15,247,150,.42);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.55),0 0 0 1px rgba(15,247,150,.10);font-size:12px;line-height:1.6;color:rgba(230,237,242,.92);white-space:nowrap;letter-spacing:.2px;font-family:'Inter','PingFang SC','Microsoft YaHei UI',sans-serif;text-align:center;opacity:0;transform:translateY(-4px);transition:opacity .14s,transform .14s}
+.vomi-tip-host-pop.show{opacity:1;transform:translateY(0)}
+.vomi-tip-host-pop[data-pos="top"]::after,
+.vomi-tip-host-pop[data-pos="bottom"]::after{content:'';position:absolute;left:50%;width:8px;height:8px;background:rgba(25,34,41,.92);border-right:1px solid rgba(15,247,150,.42);border-bottom:1px solid rgba(15,247,150,.42);transform:translateX(-50%) rotate(45deg)}
+.vomi-tip-host-pop[data-pos="bottom"]::after{top:-5px}
+.vomi-tip-host-pop[data-pos="top"]::after{bottom:-5px;border-right:0;border-bottom:0;border-left:1px solid rgba(15,247,150,.42);border-top:1px solid rgba(15,247,150,.42)}
 
 /* 6 大类分组标题行（已确定区域按 category 切分） · 2026-09-02 用户定稿 */
 #rosterTable tbody tr.cat-section{background:rgba(15,23,28,.6)!important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
@@ -380,7 +388,7 @@ body.embed .mid{width:100%}
     <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt"/>
   </div>
   <div class="brand-divider"></div>
-  <button class="brand-toggle" title="收起/展开侧栏" onclick="document.body.classList.toggle('sidebar-collapsed')">
+  <button class="brand-toggle" data-tip="收起侧栏" onclick="document.body.classList.toggle('sidebar-collapsed')">
     <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
   </button>
   <div class="brand-subsys" aria-label="Vomi · VO Manager">
@@ -461,10 +469,10 @@ body.embed .mid{width:100%}
         <button class="tool-btn" data-cat="NPC" onclick="setRosterCat('NPC',this)">NPC</button>
         <button class="tool-btn" data-cat="AI系统音" onclick="setRosterCat('AI系统音',this)">AI系统音</button>
         <span class="chip-divider"></span>
-        <button class="tool-btn tb-gender" data-gender="男" onclick="setRosterGender('男',this)" title="筛选男性"><span class="g-male">♂</span></button>
-        <button class="tool-btn tb-gender" data-gender="女" onclick="setRosterGender('女',this)" title="筛选女性"><span class="g-female">♀</span></button>
+        <button class="tool-btn tb-gender" data-gender="男" onclick="setRosterGender('男',this)" data-tip="只看男性"><span class="g-male">♂</span></button>
+        <button class="tool-btn tb-gender" data-gender="女" onclick="setRosterGender('女',this)" data-tip="只看女性"><span class="g-female">♀</span></button>
         <span class="chip-divider"></span>
-        <button id="editModeBtn" class="tool-btn tb-edit" onclick="toggleEditMode(this)" title="编辑模式：允许直接就地修改大类/角色名/声优/地点/棚等" aria-pressed="false">
+        <button id="editModeBtn" class="tool-btn tb-edit" onclick="toggleEditMode(this)" data-tip="进入 / 退出编辑" aria-pressed="false">
           <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
         </button>
       </div>
@@ -912,7 +920,7 @@ function renderMeter(){
   const bar = visible.map(c=>{
     const w = (cnt[c]/total*100).toFixed(2);
     const bg = PALETTE[c] || '#6B7A85';
-    return `<div class="meter-seg" style="background:${bg};width:${w}%" title="${c}：${cnt[c]}"></div>`;
+    return `<div class="meter-seg" style="background:${bg};width:${w}%" data-tip="${c} · ${cnt[c]} 个角色"></div>`;
   }).join('');
   document.getElementById('meterBar').innerHTML = bar;
   // legend：小竖条用对应大类色 + 大类名 + 数量
@@ -966,9 +974,9 @@ function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&a
 // 性别 → Unicode 符号（♂ 浅蓝 / ♀ 浅粉 / 无性别·中性 灰色 ⚲）
 function genderIcon(g){
   const v = String(g||'').trim();
-  if(v==='男' || v.toLowerCase()==='m' || v.toLowerCase()==='male')   return '<span class="g-male"   title="男">♂</span>';
-  if(v==='女' || v.toLowerCase()==='f' || v.toLowerCase()==='female') return '<span class="g-female" title="女">♀</span>';
-  if(v.includes('中性') || v.includes('无性别'))                      return '<span class="g-neu"    title="无性别 / 中性">⚲</span>';
+  if(v==='男' || v.toLowerCase()==='m' || v.toLowerCase()==='male')   return '<span class="g-male"   data-tip="男性">♂</span>';
+  if(v==='女' || v.toLowerCase()==='f' || v.toLowerCase()==='female') return '<span class="g-female" data-tip="女性">♀</span>';
+  if(v.includes('中性') || v.includes('无性别'))                      return '<span class="g-neu"    data-tip="无性别 / 中性">⚲</span>';
   return v ? escHtml(v) : '<span style="color:var(--c-text-dim)">—</span>';
 }
 
@@ -1086,7 +1094,7 @@ function renderRoster(){
       ? `<span class="doc-preview" data-note="${escHtml(raw)}"></span>`
       : `<span class="doc-preview doc-preview-empty">老演员数据，详细选角资料待后期更新</span>`;
     if(pending){
-      return `<td class="casting-cell casting-pending" data-rid="${rid}" data-role="${escHtml(role_cn||'')}" ondblclick="downloadCastingNote(${rid})" title="双击下载选角资料 · 悬浮预览">
+      return `<td class="casting-cell casting-pending" data-rid="${rid}" data-role="${escHtml(role_cn||'')}" ondblclick="downloadCastingNote(${rid})">
         <span class="cast-txt">待选角</span>
         ${tooltipHtml}
       </td>`;
@@ -1094,8 +1102,7 @@ function renderRoster(){
     // 已选角完毕：对钩图标 —— 有详细资料=荧光绿，无资料=透明灰
     const doneClass = hasContent ? 'casting-done' : 'casting-done casting-done-dim';
     const dblAttr = hasContent ? `ondblclick="downloadCastingNote(${rid})"` : '';
-    const titleAttr = hasContent ? '悬浮预览资料 · 双击下载 Word' : '老演员数据 · 详细选角资料待后期更新';
-    return `<td class="casting-cell ${doneClass}" data-rid="${rid}" data-role="${escHtml(role_cn||'')}" ${dblAttr} title="${titleAttr}">
+    return `<td class="casting-cell ${doneClass}" data-rid="${rid}" data-role="${escHtml(role_cn||'')}" ${dblAttr}>
       <span class="check-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" opacity=".35"/><path d="M8.5 12.3l2.6 2.6L16 9.6" stroke-width="1.8"/></svg></span>
       ${tooltipHtml}
     </td>`;
@@ -1354,21 +1361,21 @@ function drawRecPop(){
     return `
     <div class="rec-row" data-i="${i}">
       <div class="rec-date-group">
-        <select class="rec-sel" onchange="recRowSetDate(${i},'y',this.value)" title="年">${yearOpts(dp.y)}</select>
-        <select class="rec-sel" onchange="recRowSetDate(${i},'m',this.value)" title="月">${_optRange(1,12,dp.m,true)}</select>
-        <select class="rec-sel" onchange="recRowSetDate(${i},'d',this.value)" title="日">${_optRange(1,31,dp.d,true)}</select>
+        <select class="rec-sel" onchange="recRowSetDate(${i},'y',this.value)" data-tip="年份">${yearOpts(dp.y)}</select>
+        <select class="rec-sel" onchange="recRowSetDate(${i},'m',this.value)" data-tip="月份">${_optRange(1,12,dp.m,true)}</select>
+        <select class="rec-sel" onchange="recRowSetDate(${i},'d',this.value)" data-tip="日期">${_optRange(1,31,dp.d,true)}</select>
       </div>
       <div class="rec-time-group">
-        <select class="rec-sel rec-hour" onchange="recRowSetTime(${i},'from','h',this.value)" ${dis} title="起·时">${_optRange(0,23,fp.h,true)}</select>
+        <select class="rec-sel rec-hour" onchange="recRowSetTime(${i},'from','h',this.value)" ${dis} data-tip="起 · 时">${_optRange(0,23,fp.h,true)}</select>
         <span class="rec-sep">:</span>
-        <select class="rec-sel rec-min"  onchange="recRowSetTime(${i},'from','mi',this.value)" ${dis} title="起·分">${minOpts(fp.mi)}</select>
+        <select class="rec-sel rec-min"  onchange="recRowSetTime(${i},'from','mi',this.value)" ${dis} data-tip="起 · 分">${minOpts(fp.mi)}</select>
         <span class="rec-sep" style="margin:0 4px">—</span>
-        <select class="rec-sel rec-hour" onchange="recRowSetTime(${i},'to','h',this.value)"   ${dis} title="止·时">${_optRange(0,23,tp.h,true)}</select>
+        <select class="rec-sel rec-hour" onchange="recRowSetTime(${i},'to','h',this.value)"   ${dis} data-tip="止 · 时">${_optRange(0,23,tp.h,true)}</select>
         <span class="rec-sep">:</span>
-        <select class="rec-sel rec-min"  onchange="recRowSetTime(${i},'to','mi',this.value)"   ${dis} title="止·分">${minOpts(tp.mi)}</select>
+        <select class="rec-sel rec-min"  onchange="recRowSetTime(${i},'to','mi',this.value)"   ${dis} data-tip="止 · 分">${minOpts(tp.mi)}</select>
       </div>
       <label class="rec-allday"><input type="checkbox" ${r.allDay?'checked':''} onchange="recRowChange(${i},'allDay',this.checked)"/>全天</label>
-      <button class="rec-del" onclick="recRowDel(${i})" title="删除">✕</button>
+      <button class="rec-del" onclick="recRowDel(${i})" data-tip="删除此行">✕</button>
     </div>`;
   }).join('');
 }
@@ -1895,6 +1902,119 @@ document.addEventListener('keydown', (e)=>{
 
 initCellEdit();
 loadRoster();
+
+/* 通用悬浮玻璃卡提示 · 2026-09-02 规格化（深色玻璃 + 绿细边微光 + 12px 圆角 + 短句版）
+   - 仅响应 [data-tip] 元素；HTML 静态元素 title 已转 data-tip
+   - 事件委托：dynamic re-render 后自动适配新生成的 button / select / icon
+   - 位置策略：默认贴底部居中；超出右/下边缘则切换 top/right
+   - 仅文本 "悬浮预览" 时复用 #rosterTable td.casting-cell .doc-preview（已对齐规格），其他场景独立浮层 */
+(function(){
+  if(window.__vomiTipInit) return;
+  window.__vomiTipInit = true;
+  let pop = null;
+  let activeHost = null;
+  let activeText = '';
+  let rafId = 0;
+
+  function ensurePop(){
+    if(pop && document.body.contains(pop)) return pop;
+    pop = document.createElement('div');
+    pop.className = 'vomi-tip-host-pop';
+    document.body.appendChild(pop);
+    return pop;
+  }
+
+  function hide(){
+    if(!pop) return;
+    pop.classList.remove('show');
+    activeHost = null;
+    activeText = '';
+  }
+
+  function place(target, text){
+    const p = ensurePop();
+    p.textContent = text;
+    // 强制先渲染获取尺寸
+    p.style.visibility = 'hidden';
+    p.classList.add('show');
+    const rect = target.getBoundingClientRect();
+    const tipW = p.offsetWidth;
+    const tipH = p.offsetHeight;
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    const margin = 8;
+
+    // 优先下方居中
+    let pos = 'bottom';
+    let top = rect.bottom + margin;
+    // 视口底部溢出 → 改上方
+    if(top + tipH > winH - 4){
+      top = rect.top - tipH - margin;
+      pos = 'top';
+    }
+    // 水平居中
+    let left = rect.left + rect.width/2 - tipW/2;
+    // 右溢出
+    if(left + tipW > winW - 6){
+      left = winW - tipW - 6;
+    }
+    // 左溢出
+    if(left < 6) left = 6;
+
+    p.setAttribute('data-pos', pos);
+    p.style.top = `${top}px`;
+    p.style.left = `${left}px`;
+    p.style.visibility = '';
+  }
+
+  function show(target, text){
+    if(activeHost === target && activeText === text){
+      if(rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(()=>{ place(target, text); });
+      return;
+    }
+    activeHost = target;
+    activeText = text;
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(()=>{ place(target, text); });
+  }
+
+  document.addEventListener('mouseover', (e) => {
+    const t = e.target.closest('[data-tip]');
+    if(!t) return;
+    // 同一格子的 casting-cell 有专属 .doc-preview，不抢它的活
+    if(t.classList && (t.classList.contains('casting-cell') || t.closest('.casting-cell'))) return;
+    const txt = t.getAttribute('data-tip');
+    if(!txt) return;
+    show(t, txt);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const t = e.target.closest('[data-tip]');
+    if(!t) return;
+    // 仅当真正离开目标（避免子元素闪烁）
+    const next = e.relatedTarget;
+    if(next && t.contains(next)) return;
+    hide();
+  });
+  window.addEventListener('scroll', ()=>{ hide(); }, { passive:true });
+  window.addEventListener('resize', ()=>{ hide(); });
+
+  // 抑制浏览器原生 tooltip：扫一遍去掉 title，同时监控 DOM 变更持续清理
+  function scrubTitles(root){
+    if(!root || !root.querySelectorAll) return;
+    root.querySelectorAll('[title]').forEach(el => el.removeAttribute('title'));
+  }
+  scrubTitles(document.body);
+  const mo = new MutationObserver((muts) => {
+    for(const m of muts){
+      m.addedNodes.forEach(n => { if(n.nodeType===1) scrubTitles(n); });
+      if(m.type==='attributes' && m.target.nodeType===1 && m.attributeName==='title'){
+        m.target.removeAttribute('title');
+      }
+    }
+  });
+  mo.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['title'] });
+})();
 </script>
 
 

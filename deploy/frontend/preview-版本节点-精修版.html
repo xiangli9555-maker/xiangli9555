@@ -468,10 +468,10 @@ html.embed{background:transparent !important}
 html.embed .brand-bar,
 html.embed aside.sidebar{display:none !important}
 html.embed .layout{padding-left:0}
-/* 通用底图玻璃层：保留阶段色，同时让年历底图可见 */
-.timeline-wrap,.right-panel{background:rgba(15,23,28,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+/* 不透明背景：修复透光 (2026-09-02) */
+.timeline-wrap,.right-panel{background:var(--c-surface)}
 .yc-table{background:transparent}
-.yc-table tbody td.yc-year,.yc-table tbody td.yc-ms,.yc-table tbody td.yc-days{background:rgba(15,23,28,.72)!important}
+.yc-table tbody td.yc-year,.yc-table tbody td.yc-ms,.yc-table tbody td.yc-days{background:var(--c-surface-2)!important}
 
 /* ================================================================
    响应式断点（2026-08-18）

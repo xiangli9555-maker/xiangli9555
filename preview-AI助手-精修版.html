@@ -137,8 +137,8 @@ body.embed .mid{width:100%}
   font-family:'Inter','JetBrains Mono',-apple-system,"PingFang SC",sans-serif;
 }
 
-/* 通用底图玻璃层：三栏不再完全遮挡背景 */
-.cmd-col,.chat-col,.data-col{background:rgba(15,23,28,.68);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+/* 不透明背景：修复透光 (2026-09-02) */
+.cmd-col,.chat-col,.data-col{background:var(--c-surface)}
 
 /* 响应式断点（2026-08-18） */
 @media (max-width: 1500px){

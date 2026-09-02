@@ -310,9 +310,9 @@ body.embed .mid{width:100%}
 .main th{font-size:13px;letter-spacing:.6px}
 .main td{font-size:13px}
 
-/* 通用底图玻璃层 */
-.roster-meter,.card{background:rgba(31,42,50,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.card-foot{background:rgba(15,23,28,.72)}
+/* 不透明背景：修复透光 (2026-09-02) */
+.roster-meter,.card{background:var(--c-surface)}
+.card-foot{background:var(--c-surface-2)}
 
 /* 响应式断点（2026-08-18） */
 @media (max-width: 1500px){

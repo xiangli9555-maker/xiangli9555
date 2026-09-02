@@ -467,23 +467,23 @@ body.embed .mid{width:100%}
   .col-status .va-status{width:108px!important;padding:5px 8px!important}
   th.col-doc,td.col-doc{padding-left:4px!important;padding-right:4px!important}
 
-  /* ===== 玻璃化：让背景底图透出 (2026-08-12) ===== */
+  /* ===== 不透明背景：修复透光 (2026-09-02) ===== */
   /* 侧栏 */
-  .sidebar{background:rgba(15,23,28,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-  /* 主区：轻透，底图隐约可见 */
-  .main{background:rgba(15,23,28,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  .sidebar{background:var(--c-sidebar)}
+  /* 主区 */
+  .main{background:var(--c-bg)}
   /* KPI 卡 */
-  .kpi{background:rgba(31,42,50,.52);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .kpi{background:var(--c-surface)}
   /* 筛选行 */
-  .filter-row{background:rgba(31,42,50,.50);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  /* 表格卡 + 头部/结果栏：半透明毛玻璃 */
-  .card{background:rgba(31,42,50,.42);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-  .card-head,.result-bar{background:rgba(15,23,28,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  /* 表头 sticky 必须完全不透明，不然滚动内容会透上来（半透会有透视缺口） */
+  .filter-row{background:var(--c-surface)}
+  /* 表格卡 + 头部/结果栏 */
+  .card{background:var(--c-surface)}
+  .card-head,.result-bar{background:var(--c-surface-2)}
+  /* 表头 sticky */
   thead th{background:#0F171C}
   tbody tr:nth-child(even) td{background:rgba(255,255,255,.025)}
-  /* 澄清面板/状态卡也透一点 */
-  .clarify-section,.cva-card{background:rgba(31,42,50,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  /* 澄清面板/状态卡 */
+  .clarify-section,.cva-card{background:var(--c-surface)}
 
 /* ================================================================
    响应式断点（2026-08-31）

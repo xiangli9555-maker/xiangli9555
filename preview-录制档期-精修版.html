@@ -28,7 +28,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-spacer{flex:1}
 .layout{flex:1;display:flex;overflow:hidden}
 .sidebar{order:0;width:216px;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:16px 12px;flex-shrink:0;overflow-y:auto}
-.mid-panel{order:1;width:300px;flex-shrink:0;background:rgba(15,23,28,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-right:1px solid var(--c-hairline);padding:18px 14px;overflow:hidden;display:flex;flex-direction:column;gap:22px}
+.mid-panel{order:1;width:300px;flex-shrink:0;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:18px 14px;overflow:hidden;display:flex;flex-direction:column;gap:22px}
 .sec-label{font-size:10px;letter-spacing:1.5px;color:var(--c-text-dim);text-transform:uppercase;padding:16px 12px 6px;font-weight:600}
 .nav-item{width:100%;display:flex;align-items:center;gap:10px;padding:9px 12px;border:none;background:transparent;color:var(--c-text-mute);cursor:pointer;border-radius:6px;font-size:13px;text-align:left;font-family:inherit;transition:all .15s}
 .nav-item:hover{background:var(--c-surface);color:var(--c-text-2)}
@@ -733,9 +733,9 @@ body.embed .main{width:100%}
 /* 视图 tab */
 .view-tabs .view-tab{font-size:17px;letter-spacing:1.5px}
 
-/* 通用底图玻璃层 */
-.toolbar,.stat,.cal-card,.side-card,.sched-section{background:rgba(31,42,50,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.day{background:rgba(15,23,28,.76)}
+/* 不透明背景：修复透光 (2026-09-02) */
+.toolbar,.stat,.cal-card,.side-card,.sched-section{background:var(--c-surface)}
+.day{background:var(--c-bg)}
 
 /* 响应式断点（2026-08-18） */
 @media (max-width: 1500px){
@@ -2373,6 +2373,13 @@ function setActorView(mode, btn, evt){
 }
 
 // 当前版本 → 声优锁日期（简版映射；后续可从 /api/version-nodes 取 estimateDay 替换）
+// Release key 归一化：外壳传入 "Yang1.0" / "Yang_1.0" / "【Yang_1.0】" 等格式，本页内部 map key 是 "Yang1"
+function normReleaseKey(release){
+  return String(release||'')
+    .trim()
+    .replace(/[【】\s_]/g,'')
+    .replace(/\.0+$/,''); // 去除末尾 .0/.00
+}
 function estimateDayOf(release){
   const map = {
     'Ma4':   new Date('2026-08-13'),
@@ -2381,7 +2388,7 @@ function estimateDayOf(release){
     'Yang2': new Date('2026-12-17'),
     'Yang3': new Date('2027-02-25')
   };
-  return map[String(release||'').trim()] || null;
+  return map[normReleaseKey(release)] || null;
 }
 // VO 资源交付日（开发倒数第 2 周周五；无效周前推）。当前硬编码各版本，后续可从 /api/version-nodes 取 delivery_day。
 function deliveryDayOf(release){
@@ -2392,7 +2399,7 @@ function deliveryDayOf(release){
     'Yang2': new Date('2026-12-19'),
     'Yang3': new Date('2027-02-27')
   };
-  return map[String(release||'').trim()] || null;
+  return map[normReleaseKey(release)] || null;
 }
 // 录制档期输出截止日（台词锁后 5 工作日；口径：声优锁 + 2 有效周 Thursday + 5 工作日）。
 // 当前按主版本硬编码；后续切换到 /api/version-nodes.tape_lock_day + 5 wd。
@@ -2404,7 +2411,7 @@ function recordingScheduleDeadlineOf(release){
     'Yang2': new Date('2026-12-31'), // 声优锁 12-17 + 14d（圣诞周跳过）
     'Yang3': new Date('2027-03-12')  // 声优锁 02-25 + 15d（春节周跳过）
   };
-  return map[String(release||'').trim()] || null;
+  return map[normReleaseKey(release)] || null;
 }
 // 录制定档期区间 [start, end]：起日 = 声优锁后 1 个有效天，截止 = recordingScheduleDeadlineOf。
 function recordingScheduleRangeOf(release){
@@ -2415,7 +2422,7 @@ function recordingScheduleRangeOf(release){
     'Yang2': [new Date('2026-12-18'), new Date('2026-12-31')],
     'Yang3': [new Date('2027-02-26'), new Date('2027-03-12')]
   };
-  return map[String(release||'').trim()] || null;
+  return map[normReleaseKey(release)] || null;
 }
 // 渲染本页顶栏「录制定档期」药丸：按 release 取 [start→end] 区间 + 版本名，过期切绿色 calm 态，第 2 行追加「· 已完成」。
 function renderScheduleDeadline(){
@@ -2454,7 +2461,12 @@ function renderScheduleDeadline(){
 // DOMContentLoaded 后再尝试一次，确保 release 取到后再渲染
 document.addEventListener('DOMContentLoaded', function(){
   try{ renderScheduleDeadline(); }catch(_){}
-  setTimeout(function(){ try{ renderScheduleDeadline(); }catch(_){} }, 500);
+  // 首屏保险：即便无档期数据，也把中间辅助栏日历先画出来（当月空月历）
+  try{ if(typeof renderMidPanel === 'function') renderMidPanel([]); }catch(_){}
+  setTimeout(function(){
+    try{ renderScheduleDeadline(); }catch(_){}
+    try{ if(typeof renderMidPanel === 'function') renderMidPanel([]); }catch(_){}
+  }, 500);
 });
 // 工作日统一按共享模块：周末补班计入，法定放假日与 12/25 排除。
 var SCHED_HOLIDAY_CALENDAR = window.VOMI_HOLIDAY_CALENDAR;

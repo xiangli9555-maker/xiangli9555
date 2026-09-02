@@ -211,14 +211,6 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
   /* 主内容区（iframe wrapper）在 4K 上不锁最大宽，让子页自由撑开 */
   .main-view,.viewport,.iframe-wrap{max-width:none!important}
 }
-/* vertical-compact: 笔记本可视高 ≤850px —— 顶栏减薄，为子页释放竖向空间 */
-@media (max-height: 850px){
-  .brand-bar{height:44px!important;min-height:44px!important;padding:4px 12px!important}
-  .sidebar{padding:8px 7px!important}
-  body.sidebar-collapsed .sidebar{padding:8px 7px!important}
-  .sec-label{margin-top:8px!important;margin-bottom:4px!important}
-  .nav-item{padding-top:6px!important;padding-bottom:6px!important}
-}
 </style>
 </head>
 <body>
@@ -337,7 +329,7 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
 <script src="assets/holiday-calendar.js?v=20260901a"></script>
 <script src="assets/release-calendar.js?v=20260901b"></script>
 <script>
-const __BUILD__ = '202609012036';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202609021011';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',

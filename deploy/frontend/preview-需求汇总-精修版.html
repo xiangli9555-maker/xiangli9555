@@ -552,48 +552,6 @@ body.embed .mid{width:100%}
   table.demand-table td,table.demand-table th{padding:3px 2px!important}
   .kpi-ddl{min-width:180px}
 }
-/* vertical-compact: 笔记本浏览器可视高 ≤850px（例如 1470×956 里去除任务栏/书签栏后），只压竖向密度
-   字号统一收敛为 4 档：Hero=16 / Body=12 / Small=11 / Micro=9.5，避免同屏 8 档字号
-   结构简化（2026-09-01）：KPI 4→2、3 行筛选默认折叠、声优 chip 只显示 ×N 数字 */
-@media (max-height: 850px){
-  .main{padding:6px 10px 8px!important;gap:5px!important}
-  .page-title{font-size:16px;margin:0}
-  .subtitle{font-size:11px;margin-top:2px}
-  /* KPI：紧凑模式只保留 STORIES 和 DEADLINE，隐藏 LINES/PROGRESS */
-  .dash{grid-template-columns:1fr 1.4fr!important;gap:6px!important}
-  .kpi.kpi-info,.kpi.kpi-warn{display:none!important}
-  .kpi{padding:6px 10px}
-  .kpi-value{font-size:16px;line-height:1.15}
-  .kpi-label{font-size:9.5px}
-  .kpi-meta{font-size:11px;margin-top:1px}
-  .ddl-value>span:first-child{font-size:12px}
-  .ddl-date{font-size:11px}
-  /* 3 行筛选默认折叠，通过顶部小按钮控制展开 */
-  body:not(.filters-open) .filter-groups{display:none!important}
-  .filter-groups{display:flex;flex-direction:column;gap:4px}
-  .filter-row{padding:4px 8px;gap:5px}
-  .filter-row .flabel{font-size:9.5px;min-width:44px}
-  .chip-filter,.chip-status{padding:2px 5px;font-size:11px}
-  .btn{font-size:11px;padding:4px 8px}
-  .filter-toggle-btn{display:inline-flex!important;align-items:center;gap:5px;padding:3px 9px;background:rgba(15,247,150,.08);border:1px solid rgba(15,247,150,.28);border-radius:14px;color:var(--c-primary);font-size:11px;cursor:pointer;line-height:1.4}
-  .filter-toggle-btn:hover{background:rgba(15,247,150,.14)}
-  body.filters-open .filter-toggle-btn{background:rgba(15,247,150,.16);color:#e8fff5}
-  .card{gap:0}
-  /* 表格 */
-  table.demand-table td{height:34px!important;padding:3px 3px!important;font-size:11px!important}
-  table.demand-table th{padding:3px 3px!important;font-size:9.5px!important}
-  .col-status .va-status{font-size:11px!important}
-  .release-summary-text{font-size:11px}
-  /* 声优预估 6 列：chip 里只显示 ×N 数字，隐藏角色名，压缩到 20px 一列 */
-  table.demand-table col:nth-child(n+9):nth-child(-n+14){width:2.6%!important}
-  .ve-cell{padding:3px 1px!important}
-  .ve-stack{gap:1px!important;max-height:none!important}
-  .ve-chip{display:inline-flex!important;width:auto!important;padding:1px 3px!important;font-size:10.5px;justify-content:center;background:rgba(15,23,28,.42)}
-  .ve-chip .ve-role{display:none!important}
-  .ve-chip .ve-x{font-size:10.5px}
-  /* 表头也压更窄的 label */
-  .th-ve-cat{font-size:9.5px!important;padding:4px 2px!important;letter-spacing:0!important}
-}
 @media (min-width: 2401px){
   .main{padding:26px 32px 32px;gap:20px}
   .page-title{font-size:26px}
@@ -713,10 +671,6 @@ body.embed .mid{width:100%}
     </div>
 
     <!-- 筛选区（三行分组：状态 / 分类 / 文案策划）· 2026-07-24 排版整理 -->
-    <button type="button" class="filter-toggle-btn" id="filterToggleBtn" style="display:none" onclick="document.body.classList.toggle('filters-open'); this.setAttribute('aria-expanded', document.body.classList.contains('filters-open')?'true':'false');" aria-expanded="false" title="展开/收起筛选">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-      <span>筛选</span>
-    </button>
     <div class="filter-groups">
       <!-- 状态：4 态色板对齐 -->
       <div class="filter-row status-row" id="statusRow">

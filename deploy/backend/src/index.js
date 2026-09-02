@@ -5,6 +5,7 @@ const multer = require('multer');
 const pool = require('./db');
 const { deletePrecondition, updatePrecondition } = require('./soft_delete');
 const { ensureAuditTable, writeAudit } = require('./audit');
+const { assertRoleNameBalanced } = require('./role_name');
 const calendar = require('./calendar');
 const releasePlan = require('./releasePlan');
 const { reconcileMissingTapdDemands } = require('./tapd_snapshot_sync');
@@ -360,6 +361,9 @@ voiceRoleRouter.post('/', async (req, res) => {
   await VOICE_ROLES_READY;
   const body = req.body || {};
   if (!body.module || !body.role_cn) return res.status(400).json({ error: 'module 与 role_cn 必填' });
+  const unbalancedPost = assertRoleNameBalanced(body.role_cn, 'role_cn')
+    || assertRoleNameBalanced(body.role_en, 'role_en');
+  if (unbalancedPost) return res.status(400).json(unbalancedPost);
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
@@ -397,6 +401,9 @@ voiceRoleRouter.patch('/:id', async (req, res) => {
   if (!id) return res.status(400).json({ok:false,error:'invalid_id'});
   const failed = updatePrecondition(req.body);
   if (failed) return res.status(failed.status).json({ok:false,...failed});
+  const unbalancedPatch = assertRoleNameBalanced(req.body.role_cn, 'role_cn')
+    || assertRoleNameBalanced(req.body.role_en, 'role_en');
+  if (unbalancedPatch) return res.status(400).json(unbalancedPatch);
   const expectedRevision = Number(req.body.expected_revision);
   const sets = [], vals = [];
   VOICE_ROLE_FIELDS.forEach(f => {
@@ -493,6 +500,17 @@ voiceRoleRouter.post('/bulk', requireRole('admin'), async (req, res) => {
   const clear = !!(req.body && req.body.clearFirst);
   if (clear && req.body.confirm_clear !== 'SOFT_DELETE_ALL') {
     return res.status(428).json({ok:false,error:'clear_confirmation_required'});
+  }
+  // 全量预检：在开启事务（尤其是 clear 会先软删全表）之前拦截脏名，避免清完库才发现写不进去。
+  // 只校验真正会被写入的行（module + role_cn 都有值），与下面写入循环的跳过口径一致。
+  const bulkBad = [];
+  rows.forEach((r, i) => {
+    if (!r || !r.module || !r.role_cn) return;
+    const bad = assertRoleNameBalanced(r.role_cn, 'role_cn') || assertRoleNameBalanced(r.role_en, 'role_en');
+    if (bad) bulkBad.push({ row_index: i, ...bad });
+  });
+  if (bulkBad.length) {
+    return res.status(400).json({ ok:false, error:'role_name_unbalanced_brackets', failed_count:bulkBad.length, failed:bulkBad });
   }
   const conn = await pool.getConnection();
   try {

@@ -211,19 +211,22 @@ body.embed .mid{width:100%}
 .vomi-tip-host-pop[data-pos="bottom"]::after{top:-5px}
 .vomi-tip-host-pop[data-pos="top"]::after{bottom:-5px;border-right:0;border-bottom:0;border-left:1px solid rgba(15,247,150,.42);border-top:1px solid rgba(15,247,150,.42)}
 
-/* 6 大类分组标题行（已确定区域按 category 切分） · 2026-09-02 用户定稿 */
-#rosterTable tbody tr.cat-section{background:rgba(15,23,28,.6)!important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-#rosterTable tbody tr.cat-section td{padding:8px 14px!important;border-top:1px solid var(--c-hairline);border-bottom:1px solid var(--c-hairline);background:transparent!important;cursor:default}
-#rosterTable tbody tr.cat-section .cat-label{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;font-family:'Inter',sans-serif}
-#rosterTable tbody tr.cat-section .cat-bar{width:3px;height:13px;border-radius:2px;display:inline-block}
-#rosterTable tbody tr.cat-section .cat-text{color:var(--c-text)}
-#rosterTable tbody tr.cat-section .cat-cnt{color:var(--c-text-mute);font-size:10.5px;font-weight:500;letter-spacing:.3px;font-family:'JetBrains Mono',monospace}
-#rosterTable tbody tr.cat-section .cat-hint{margin-left:auto;color:var(--c-text-dim);font-size:10.5px;font-style:italic}
+/* 6 大类分组标题行（已确定区域按 category 切分） · 2026-09-02 用户定稿 v2：
+   字体统一全站（Microsoft YaHei UI / PingFang SC），加厚视觉权重，底色用 cat-color 横向淡渐变让"大类聚合"一眼可见 */
+#rosterTable tbody tr.cat-section{position:relative;background:linear-gradient(to right, color-mix(in srgb, var(--cat-color, #0FF796) 18%, transparent) 0%, color-mix(in srgb, var(--cat-color, #0FF796) 6%, transparent) 50%, transparent 100%)!important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#rosterTable tbody tr.cat-section::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:color-mix(in srgb, var(--cat-color, #0FF796) 40%, transparent);pointer-events:none}
+#rosterTable tbody tr.cat-section::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:color-mix(in srgb, var(--cat-color, #0FF796) 28%, transparent);pointer-events:none}
+#rosterTable tbody tr.cat-section td{padding:13px 18px!important;border-top:0!important;border-bottom:0!important;background:transparent!important;cursor:default}
+#rosterTable tbody tr.cat-section .cat-label{display:inline-flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;letter-spacing:.3px;color:#fff;font-family:'Microsoft YaHei UI','PingFang SC',sans-serif}
+#rosterTable tbody tr.cat-section .cat-bar{width:4px;height:20px;border-radius:2px;display:inline-block;box-shadow:0 0 8px color-mix(in srgb, var(--cat-color, #0FF796) 55%, transparent)}
+#rosterTable tbody tr.cat-section .cat-text{color:#fff;font-size:13.5px;font-weight:600}
+#rosterTable tbody tr.cat-section .cat-cnt{color:rgba(212,221,227,.55);font-size:12px;font-weight:500;font-family:'JetBrains Mono','Microsoft YaHei UI',monospace;font-variant-numeric:tabular-nums;margin-left:2px}
+#rosterTable tbody tr.cat-section .cat-hint{margin-left:auto;color:rgba(212,221,227,.45);font-size:11.5px;font-style:italic;font-weight:400}
 #rosterTable tbody tr.cat-section td.ed:hover{background:transparent!important}
 /* 待选角组与首个分组标题之间留更明显的留白 */
-#rosterTable tbody tr.cat-first-after-pending td{padding-top:14px!important;border-top:0}
+#rosterTable tbody tr.cat-first-after-pending td{padding-top:18px!important}
 /* 最后一个分组后不留底部边 */
-#rosterTable tbody tr.cat-last td{border-bottom:0}
+#rosterTable tbody tr.cat-last::after{display:none}
 
 /* 行右键菜单 */
 .row-menu{position:fixed;display:none;min-width:150px;background:rgba(25,34,41,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--c-border);border-radius:5px;box-shadow:0 12px 40px rgba(0,0,0,.55);padding:4px;z-index:300;font-size:12.5px;font-family:'Inter',sans-serif}
@@ -1137,7 +1140,7 @@ function renderRoster(){
         const nextCat = (idx+1<list.length && !isPending(list[idx+1])) ? (list[idx+1].category||'__untyped__') : null;
         const isLastRow = !nextCat || nextCat !== cat;
         html += `
-    <tr class="cat-section${isFirstAfterPending?' cat-first-after-pending':''}${isLastRow?' cat-last':''}"><td colspan="10">
+    <tr class="cat-section${isFirstAfterPending?' cat-first-after-pending':''}${isLastRow?' cat-last':''}" style="--cat-color:${color}"><td colspan="10">
       <div class="cat-label">
         <span class="cat-bar" style="background:${color}"></span>
         <span class="cat-text">${escHtml(label)}</span>

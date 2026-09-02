@@ -234,6 +234,37 @@ function guessCategory(bracketTag, roleText) {
   return 'NPC';
 }
 
+// 从锚点名切出中/英角色名。
+// 背景（2026-09-02 修复）：原实现用 `roleCn = txt.replace(/\s+[A-Za-z].*$/, '')`，遇到
+// `克劳斯·阿德勒 (Klaus Adler) 代号“钟表匠”` 时，正则会在 "Klaus Adler" 中间的空格处命中
+// （空格后紧跟字母 A），把 " Adler) 代号…" 一并吃掉，落库成 `克劳斯·阿德勒 (Klaus` +
+// `Klaus Adler)`。这里改为：先摘括号内的纯拉丁段当英文名，再把中文名截到首个拉丁段之前，
+// 最后去掉「代号… / Codename…」这类中文尾注。
+function splitRoleName(txt) {
+  let s = String(txt || '').trim();
+  let en = '';
+  // 1) 摘括号英文名（半角/全角皆可），括号整体从中文名里移除
+  s = s.replace(/[（(]\s*([^）)]{1,80}?)\s*[)）]/g, (all, inner) => {
+    const t = inner.trim();
+    if (!en && /^[A-Za-z][A-Za-z0-9\.\-·'&,\s]*$/.test(t)) {
+      en = t.replace(/\s+/g, ' ').trim();
+      return ' ';
+    }
+    return all;
+  });
+  s = s.replace(/\s+/g, ' ').trim();
+  // 2) 摘尾部拉丁名（含紧贴无空格的情况，如 `卢卡斯Lukas`）；括号里已拿到英文名时不再覆盖
+  const lat = s.match(/[A-Za-z][A-Za-z0-9\.\-·'&,\s]*$/);
+  if (lat) {
+    const t = lat[0].trim();
+    s = s.slice(0, lat.index).trim();
+    if (!en && t) en = t;
+  }
+  // 3) 去掉中文尾注（代号 / Codename / 别名 / aka 起，到行尾）
+  s = s.replace(/[\s·,，、]*(?:代号|Codename|别名|aka).*$/i, '').trim();
+  return { cn: s, en };
+}
+
 // 从「声线：22岁；男性；青年；…」/「Voice: Male, 25-35. …」提取性别 + 完整声线描述
 function parseVoiceLine(txt) {
   const out = { gender: '', voice_desc: txt };
@@ -281,18 +312,23 @@ function parseNpcRoster(buffer, sourceName) {
   const characters = cn.map((block, idx) => {
     const m = CAT_BRACKET.exec(block.head);
     const bracket = m ? m[1].trim() : '';
-    const roleCn = m ? m[2].trim().replace(/\s+[A-Za-z].*$/, '') : block.head;
-    // 从头部或角色名后半段抠英文名
-    const enFromHead = (m ? m[2] : '').match(/[A-Za-z][A-Za-z\.\-·\s'"()]{1,60}/);
-    let roleEn = enFromHead ? enFromHead[0].replace(/\s*代号.*$/,'').trim() : '';
+    const rawHead = m ? m[2].trim() : block.head;
+    const parsed = splitRoleName(rawHead);
+    const roleCn = parsed.cn || rawHead;
+    let roleEn = parsed.en;
 
     // 找同序号的英文块补充
     const enBlock = en[idx];
     let enBody = [];
     if (enBlock) {
       const em = CAT_SQUARE.exec(enBlock.head);
-      if (em && !roleEn) roleEn = em[2].replace(/[,—-]\s*(Codename|codename).*/,'').trim();
+      if (em && !roleEn) roleEn = em[2].replace(/[,—-]\s*(Codename|codename).*/i,'').trim();
       enBody = enBlock.body;
+    }
+    // 末兜底：头部残留的拉丁段（不再包含收尾括号，避免 `Klaus Adler)`）
+    if (!roleEn) {
+      const tail = rawHead.match(/[A-Za-z][A-Za-z0-9\.\-·'&,\s]{1,60}/);
+      if (tail) roleEn = tail[0].trim();
     }
 
     // 从中文体里找「声线：xxx」
@@ -359,4 +395,4 @@ function parseVaDocxAuto(buffer, sourceName) {
   return { mode: 'npc-roster', ...parseNpcRoster(buffer, sourceName) };
 }
 
-module.exports = { parseVaDocx, parseNpcRoster, parseVaDocxAuto };
+module.exports = { parseVaDocx, parseNpcRoster, parseVaDocxAuto, splitRoleName };

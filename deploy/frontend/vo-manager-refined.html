@@ -97,6 +97,130 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .notification-action:hover{border-color:rgba(15,247,150,.55);color:var(--c-primary);background:rgba(15,247,150,.10)}
 @media (max-width:720px){.notification-popover{position:fixed;top:62px;right:12px;left:12px;width:auto;max-height:calc(100vh - 76px)}}
 
+/* ============== 分享面板（4 tab · 企业微信 / 复制链接 · 预览卡片）============== */
+.share-overlay{position:fixed;inset:0;z-index:7000;background:rgba(2,8,12,.62);backdrop-filter:blur(6px) saturate(.92);-webkit-backdrop-filter:blur(6px) saturate(.92);display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px 24px;opacity:0;visibility:hidden;transition:opacity .18s ease,visibility .18s;pointer-events:none;overflow:auto}
+.share-overlay.is-open{opacity:1;visibility:visible;pointer-events:auto}
+.share-modal{width:min(780px,100%);background:linear-gradient(180deg,rgba(15,247,150,.10) 0%,rgba(15,23,28,.55) 60%,rgba(15,23,28,.78) 100%),rgba(15,23,28,.62);border:1px solid rgba(15,247,150,.36);border-radius:18px;box-shadow:0 0 36px rgba(15,247,150,.18),0 22px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(15,247,150,.10);padding:24px 24px 20px;color:var(--c-text);position:relative}
+.share-head{display:flex;align-items:flex-start;gap:14px}
+.share-head h2{margin:0;font-size:15px;font-weight:600;letter-spacing:.6px;color:var(--c-primary);text-transform:uppercase}
+.share-head .share-head-sub{margin:4px 0 0;color:var(--c-text-mute);font-size:12px}
+.share-head .share-eyebrow{margin-top:8px;font-size:13px;color:var(--c-text-2);font-weight:600}
+.share-close{margin-left:auto;width:30px;height:30px;border:0;background:transparent;color:var(--c-text-mute);font:400 24px/1 Arial,sans-serif;cursor:pointer;border-radius:6px}
+.share-close:hover{color:var(--c-primary);background:rgba(15,247,150,.08)}
+.share-section-label{margin:18px 0 10px;font-size:11.5px;color:var(--c-text-mute);letter-spacing:.8px;text-transform:uppercase}
+.share-tabs{display:flex;flex-wrap:wrap;gap:8px}
+.share-tab{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid rgba(15,247,150,.22);border-radius:999px;background:rgba(15,23,28,.42);color:var(--c-text-2);font-size:13px;cursor:pointer;transition:all .15s}
+.share-tab:hover{border-color:rgba(15,247,150,.5);color:var(--c-text)}
+.share-tab.active{background:rgba(15,247,150,.16);border-color:var(--c-primary);color:var(--c-text);box-shadow:0 0 0 1px rgba(15,247,150,.30) inset}
+.share-tab svg{width:14px;height:14px;flex-shrink:0}
+.share-channels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.share-channel{padding:18px 16px 16px;border:1px solid rgba(15,247,150,.22);border-radius:14px;background:rgba(15,23,28,.42);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all .18s}
+.share-channel:hover{border-color:var(--c-primary);background:rgba(15,247,150,.06);box-shadow:0 0 0 2px rgba(15,247,150,.18)}
+.share-channel-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(15,247,150,.12);color:var(--c-primary);border:1px solid rgba(15,247,150,.32)}
+.share-channel-icon svg{width:24px;height:24px}
+.share-channel[disabled]{opacity:.4;pointer-events:none}
+.share-channel-label{font-size:14px;font-weight:600;color:var(--c-text);letter-spacing:.4px}
+.share-channel-desc{font-size:11.5px;color:var(--c-text-mute)}
+.share-preview-wrap{margin-top:18px;padding:16px 18px;border:1px solid rgba(15,247,150,.16);border-radius:14px;background:rgba(15,23,28,.34)}
+.share-preview-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;color:var(--c-text-mute);font-size:12px}
+.share-preview-bar .dot{width:6px;height:6px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 8px var(--c-primary);animation:share-pulse 1.6s infinite}
+@keyframes share-pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.share-preview-stage{display:flex;justify-content:center;padding:4px 0 0;min-height:200px}
+.share-loading,.share-empty{display:flex;align-items:center;gap:8px;justify-content:center;color:var(--c-text-mute);font-size:13px;padding:32px 0;width:100%}
+.share-empty{padding:18px 12px;text-align:center}
+.share-empty strong{display:block;color:var(--c-warning);margin-bottom:6px}
+.share-card{width:min(460px,100%);background:#fff;color:#1f2937;border-radius:14px;box-shadow:0 18px 36px rgba(0,0,0,.34);overflow:hidden;font-family:'PingFang SC','Microsoft YaHei UI','Microsoft YaHei',sans-serif;color-scheme:light}
+.share-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 16px 10px;border-bottom:1px solid #f0f4f8}
+.share-app{display:flex;align-items:center;gap:8px;font-size:12px;color:#475569;font-weight:600}
+.share-app-v{width:22px;height:22px;border-radius:6px;background:#0FF796;color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.share-card-sub{font-size:11px;color:#94a3b8}
+.share-card-sub .share-card-time{margin-left:6px;color:#cbd5e1}
+.share-card-body{padding:14px 16px 16px}
+.share-card-title{margin:0 0 4px;font-size:17px;color:#0f172a;font-weight:700}
+.share-card-kicker{margin:0 0 14px;font-size:11.5px;color:#64748b;text-transform:uppercase;letter-spacing:1px}
+.share-stats{display:grid;gap:8px;margin-bottom:14px}
+.share-stats-4{grid-template-columns:repeat(4,1fr)}
+.share-stats-3{grid-template-columns:repeat(3,1fr)}
+.share-stat{background:#f8fafc;border-radius:10px;padding:10px;text-align:center;border:1px solid #eef2f7}
+.share-stat-v{font-size:22px;font-weight:700;color:#0f172a;line-height:1}
+.share-stat-v.warn{color:#d97706}
+.share-stat-v.good{color:#0f9b54}
+.share-stat-label{font-size:11px;color:#64748b;margin-top:4px}
+.share-nodes{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.share-node{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#f8fafc;border:1px solid #eef2f7}
+.share-node-bullet{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.share-node-name{flex:1;font-size:13px;color:#0f172a;font-weight:600}
+.share-node-date{font-size:12px;color:#475569;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;gap:6px}
+.share-node-countdown{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(15,247,150,.16);color:#0f9b54}
+.share-node-countdown.danger{background:rgba(214,153,190,.18);color:#a04060}
+.share-risk{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:10px;background:#fef3c7;color:#92400e;font-size:12.5px;margin-bottom:14px;border:1px solid #fde68a}
+.share-risk .tri{flex-shrink:0;font-size:12px;line-height:1.4;margin-top:1px}
+.share-risk.ok{background:#ecfdf5;color:#0f9b54;border-color:#a7f3d0}
+.share-risk.ok .ok-dot{width:8px;height:8px;border-radius:50%;background:#0f9b54;flex-shrink:0;margin-top:4px}
+.share-card-actions{display:flex;gap:10px;align-items:center}
+.share-card-actions .btn{padding:8px 14px;font-size:13px;border-radius:8px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:0;font-weight:600}
+.share-card-actions .btn-primary{background:#0FF796;color:#000}
+.share-card-actions .btn-primary:hover{background:#22ffaf}
+.share-card-actions .btn-ghost{background:#f1f5f9;color:#475569;width:36px;padding:8px;justify-content:center}
+.share-card-actions .btn-ghost:hover{background:#e2e8f0}
+.share-card-actions .btn svg{width:14px;height:14px}
+
+/* 需求 / 录制档期 / 节点 卡片通用 */
+.share-rows{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;max-height:300px;overflow:auto}
+.share-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:#f8fafc;border:1px solid #eef2f7;font-size:12.5px;color:#1e293b}
+.share-row-rank{width:22px;flex-shrink:0;text-align:center;font-weight:700;color:#94a3b8;font-variant-numeric:tabular-nums}
+.share-row-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.share-row-tag{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.share-row-tag.warn{background:#fef3c7;color:#92400e}
+.share-row-tag.good{background:#dcfce7;color:#166534}
+.share-row-tag.pending{background:rgba(15,247,150,.16);color:#0f766e}
+.share-row-tag.mute{background:#e2e8f0;color:#475569}
+.share-row-count{font-variant-numeric:tabular-nums;color:#475569;font-weight:600}
+.share-empty-row{padding:18px 0;text-align:center;color:#94a3b8;font-size:12.5px;font-style:italic}
+.share-timeline{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.share-tl-node{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:11px;background:#f8fafc;border:1px solid #eef2f7}
+.share-tl-bullet{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor}
+.share-tl-name{font-size:13px;font-weight:700;color:#0f172a;flex:1;min-width:0}
+.share-tl-date{font-size:12px;color:#475569;font-variant-numeric:tabular-nums}
+
+/* ============== 联系选择面板（覆盖在分享面板之上）============== */
+.share-picker-overlay{position:fixed;inset:0;z-index:7100;background:rgba(2,8,12,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;visibility:hidden;transition:opacity .16s;pointer-events:none}
+.share-picker-overlay.is-open{opacity:1;visibility:visible;pointer-events:auto}
+.share-picker{width:min(440px,100%);max-height:80vh;background:linear-gradient(180deg,rgba(15,247,150,.10),rgba(15,23,28,.62)),rgba(15,23,28,.85);border:1px solid rgba(15,247,150,.36);border-radius:16px;box-shadow:0 0 36px rgba(15,247,150,.16),0 18px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
+.share-picker-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(15,247,150,.16)}
+.share-picker-head h3{margin:0;font-size:14px;color:var(--c-primary);text-transform:uppercase;letter-spacing:.6px}
+.share-picker-search{padding:12px 16px;border-bottom:1px solid rgba(15,247,150,.12)}
+.share-picker-search input{width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid rgba(15,247,150,.22);border-radius:9px;background:rgba(15,23,28,.42);color:var(--c-text);font-size:13px;outline:0}
+.share-picker-search input:focus{border-color:var(--c-primary)}
+.share-picker-list{flex:1;overflow:auto;padding:6px 0}
+.share-picker-group{padding:8px 16px 4px;font-size:10.5px;color:var(--c-text-mute);letter-spacing:1px;text-transform:uppercase}
+.share-picker-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;font-size:13px}
+.share-picker-item:hover{background:rgba(15,247,150,.08)}
+.share-picker-item input{margin:0;accent-color:var(--c-primary)}
+.share-picker-item .av{width:28px;height:28px;border-radius:50%;background:rgba(15,247,150,.18);color:var(--c-primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.share-picker-item .av.chat{background:rgba(255,210,76,.16);color:var(--c-warning,#FFD24C)}
+.share-picker-item .meta{flex:1;min-width:0}
+.share-picker-item .name{color:var(--c-text);font-weight:600}
+.share-picker-item .role{color:var(--c-text-mute);font-size:11px;margin-top:1px}
+.share-picker-item .id{color:var(--c-text-dim);font-size:10.5px;font-variant-numeric:tabular-nums}
+.share-picker-footer{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-top:1px solid rgba(15,247,150,.16);font-size:12px;color:var(--c-text-mute)}
+.share-picker-actions{display:flex;gap:8px}
+.share-picker-actions .btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:0}
+.share-picker-actions .btn-ghost{background:transparent;color:var(--c-text-mute);border:1px solid rgba(15,247,150,.22)}
+.share-picker-actions .btn-ghost:hover{border-color:var(--c-primary);color:var(--c-text)}
+.share-picker-actions .btn-primary{background:var(--c-primary);color:#000}
+.share-picker-actions .btn-primary:hover{background:#22ffaf}
+.share-picker-actions .btn-primary:disabled{background:rgba(15,247,150,.32);color:rgba(0,0,0,.5);cursor:not-allowed}
+.share-picker-actions .btn-danger{background:rgba(214,153,190,.16);color:#a04060;border:1px solid rgba(214,153,190,.32)}
+.share-toast-host{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(8px);z-index:9100;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.share-toast{padding:10px 18px;border-radius:10px;background:rgba(15,23,28,.95);border:1px solid rgba(15,247,150,.36);color:var(--c-text);font-size:13px;backdrop-filter:blur(14px);box-shadow:0 18px 36px rgba(0,0,0,.4);opacity:0;transition:opacity .2s,transform .2s;max-width:480px;text-align:center;line-height:1.55}
+.share-toast.is-open{opacity:1;transform:translateX(-50%) translateY(0)}
+.share-toast.warn{border-color:rgba(255,210,76,.42);color:#FFD24C}
+.share-toast.err{border-color:rgba(214,153,190,.42);color:#D699BE}
+@media (max-width:680px){.share-channels{grid-template-columns:1fr}}
+
+/* ============ End 分享面板 ============ */
+
 /* Layout */
 .layout{flex:1;display:flex;overflow:hidden}
 .sidebar{width:211px;background:var(--c-sidebar);border-right:1px solid var(--c-hairline);padding:16px 10px;flex-shrink:0;overflow-y:auto;transition:width .2s}
@@ -326,10 +450,101 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
   </div>
 </div>
 
+<!-- 分享面板：4 tab 内容模板 + 企业微信/复制链接 通道 -->
+<div class="share-overlay" id="shareModal" aria-modal="true" role="dialog" aria-labelledby="shareTitle" hidden>
+  <div class="share-modal" role="document">
+    <div class="share-head">
+      <div>
+        <h2 id="shareTitle">SHARE · 分享面板</h2>
+        <div class="share-head-sub">选一种分享内容，再选一种通道，对方看到的预览如下</div>
+        <div class="share-eyebrow" id="shareEyebrow">—</div>
+      </div>
+      <button class="share-close" type="button" aria-label="关闭" onclick="closeShare()">×</button>
+    </div>
+
+    <div class="share-section-label">分享内容</div>
+    <div class="share-tabs" id="shareTabs">
+      <button class="share-tab active" type="button" data-tab="progress" onclick="selectShareTab('progress')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+        版本进度简报
+      </button>
+      <button class="share-tab" type="button" data-tab="demands" onclick="selectShareTab('demands')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        需求汇总
+      </button>
+      <button class="share-tab" type="button" data-tab="schedules" onclick="selectShareTab('schedules')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        录制档期
+      </button>
+      <button class="share-tab" type="button" data-tab="nodes" onclick="selectShareTab('nodes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 6h6a3 3 0 0 1 3 3v6"/></svg>
+        版本节点
+      </button>
+    </div>
+
+    <div class="share-section-label">分享通道</div>
+    <div class="share-channels">
+      <div class="share-channel" role="button" tabindex="0" onclick="sendShareToChat()" onkeydown="if(event.key==='Enter')sendShareToChat()">
+        <div class="share-channel-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+        <div class="share-channel-label">企业微信</div>
+        <div class="share-channel-desc">发送到群或个人</div>
+      </div>
+      <div class="share-channel" role="button" tabindex="0" onclick="copyShareLink()" onkeydown="if(event.key==='Enter')copyShareLink()">
+        <div class="share-channel-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div class="share-channel-label">复制链接</div>
+        <div class="share-channel-desc">复制页面地址</div>
+      </div>
+    </div>
+
+    <div class="share-section-label"><span class="dot"></span>企微推送预览（对方收到的样子）</div>
+    <div class="share-preview-wrap">
+      <div class="share-preview-bar"><span class="dot"></span>预览示意 · 真实数据由下方卡片展示</div>
+      <div class="share-preview-stage" id="sharePreview">
+        <div class="share-loading"><span class="dot"></span>正在汇总数据…</div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;font-size:11.5px;color:var(--c-text-dim);line-height:1.7">
+      <strong style="color:var(--c-primary)">原型说明</strong>：点击「企业微信」→ 弹联系选择面板（群+人混排，可搜索多选）→ 确认发送。点击「复制链接」→ 直接复制当前页面 URL 到剪贴板。<br>
+      企业微信是同一个接口，群和个人统一选择，无需分开。
+    </div>
+  </div>
+</div>
+
+<!-- 联系选择面板（覆盖在分享面板之上） -->
+<div class="share-picker-overlay" id="sharePicker" role="dialog" aria-modal="true" hidden>
+  <div class="share-picker" role="document">
+    <div class="share-picker-head">
+      <h3>选择发送对象</h3>
+      <button class="share-close" type="button" aria-label="关闭" onclick="closeSharePicker()" style="margin-left:auto">×</button>
+    </div>
+    <div class="share-picker-search">
+      <input type="text" id="sharePickerSearch" placeholder="搜索联系人 / 群…" oninput="filterSharePicker()"/>
+    </div>
+    <div class="share-picker-list" id="sharePickerList">
+      <!-- 动态填充：组（个人 / 群） + 可勾选项 -->
+    </div>
+    <div class="share-picker-footer">
+      <span>已选 <strong id="sharePickerCount">0</strong> 项</span>
+      <div class="share-picker-actions">
+        <button class="btn btn-ghost" type="button" onclick="closeSharePicker()">取消</button>
+        <button class="btn btn-primary" type="button" id="sharePickerSend" onclick="confirmShareSend()" disabled>发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 容器：复用通知系统的 toast 风格 -->
+<div class="share-toast-host" id="shareToastHost"></div>
+
 <script src="assets/holiday-calendar.js?v=20260901a"></script>
 <script src="assets/release-calendar.js?v=20260901b"></script>
 <script>
-const __BUILD__ = '202609021204';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202609021437';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -672,12 +887,642 @@ function toast(msg){
   clearTimeout(t._timer);
   t._timer = setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(8px)'; }, 2200);
 }
-function sharePage(){
-  const url = location.href;
-  if(navigator.share){ navigator.share({title:document.title,url}).catch(()=>{}); }
-  else if(navigator.clipboard){ navigator.clipboard.writeText(url).then(()=>toast('链接已复制到剪贴板')).catch(()=>toast('分享：'+url)); }
-  else { toast('分享：'+url); }
+/* ============== 分享面板（替代旧的 sharePage()）============== */
+// 数据结构：每个 tab 返回 { eyebrow, cardHTML, summaryMd, detailUrl, plainText }；
+//   - cardHTML    预览卡片 HTML（白色卡片，仿企微应用消息样式）
+//   - summaryMd   纯文本摘要（用于企业微信通道发送 / 复制）
+//   - detailUrl   该 tab 对应外壳 URL（点击"查看完整详情"跳转）
+//   - plainText   一行说明（用于 toast 显示）
+const SHARE_STATE = { open:false, tab:'progress', payload:null, busy:false, picker:false, sending:false };
+
+async function openShare(){
+  if(SHARE_STATE.open){ closeShare(); return; }
+  SHARE_STATE.open = true;
+  const m = document.getElementById('shareModal');
+  if(!m) return;
+  m.hidden = false;
+  requestAnimationFrame(()=> m.classList.add('is-open'));
+  await renderShareTab(SHARE_STATE.tab);
 }
+function closeShare(){
+  SHARE_STATE.open = false;
+  const m = document.getElementById('shareModal');
+  if(!m) return;
+  m.classList.remove('is-open');
+  setTimeout(()=>{ if(!SHARE_STATE.open) m.hidden = true; }, 200);
+}
+async function selectShareTab(tab){
+  if(!tab || SHARE_STATE.tab === tab) return;
+  SHARE_STATE.tab = tab;
+  document.querySelectorAll('#shareTabs .share-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  await renderShareTab(tab);
+}
+async function renderShareTab(tab){
+  const body = document.getElementById('sharePreview');
+  const eyebrowEl = document.getElementById('shareEyebrow');
+  if(!body) return;
+  body.innerHTML = '<div class="share-loading"><span class="dot"></span>正在汇总数据…</div>';
+  if(eyebrowEl) eyebrowEl.textContent = '—';
+  SHARE_STATE.payload = null;
+  let payload;
+  try{
+    if(tab==='progress')      payload = await buildProgressBrief();
+    else if(tab==='demands')  payload = await buildDemandsBrief();
+    else if(tab==='schedules')payload = await buildSchedulesBrief();
+    else if(tab==='nodes')    payload = await buildNodesBrief();
+    else payload = { eyebrow:'-', cardHTML:'<div class="share-empty">未知分享类型</div>', summaryMd:'', detailUrl:'#' };
+  }catch(e){
+    payload = { eyebrow:'-', cardHTML:`<div class="share-empty"><strong>汇总失败</strong>${escHtml(e.message || String(e))}</div>`, summaryMd:'', detailUrl:'#' };
+  }
+  SHARE_STATE.payload = payload;
+  if(eyebrowEl) eyebrowEl.textContent = payload.eyebrow || '—';
+  body.innerHTML = payload.cardHTML;
+  body.dataset.summaryMd = payload.summaryMd || '';
+  body.dataset.detailUrl = payload.detailUrl || '#';
+}
+
+// HTML 转义
+function escHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+// 当前 release；缺数据兜底 Yang1.0
+async function getCurrentRelease(){
+  try{
+    if(window.VOMI_RELEASE_CALENDAR){
+      const cur = window.VOMI_RELEASE_CALENDAR.currentCached && window.VOMI_RELEASE_CALENDAR.currentCached();
+      const plan = await window.VOMI_RELEASE_CALENDAR.load().catch(()=>[]);
+      const hit = (plan || []).find(p => String(window.VOMI_RELEASE_CALENDAR.releaseName(p.label || p.name || p.release_plan)).toLowerCase() === String(cur || '').toLowerCase());
+      if(hit) return window.VOMI_RELEASE_CALENDAR.releaseName(hit.label || hit.name || hit.release_plan) || 'Yang1.0';
+      if(cur) return cur;
+    }
+  }catch(_){}
+  if(_curRelease) return _curRelease;
+  try{
+    const h = (location.hash || '').replace(/^#/, '').trim();
+    if(h){
+      const parts = h.split('/');
+      const view = parts[0];
+      const release = parts.slice(1).join('/');
+      const allowed = ['demands','actors','milestones','calendar'];
+      if(allowed.includes(view) && release) return decodeURIComponent(release);
+    }
+  }catch(_){}
+  return 'Yang1.0';
+}
+
+async function fetchDemandsSafe(release){
+  try{
+    const r = await fetch(`/api/demands?release_plan=${encodeURIComponent(release)}&status=`, {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    return Array.isArray(j) ? j : [];
+  }catch(_){ return []; }
+}
+async function fetchSchedulesSafe(release){
+  try{
+    const r = await fetch(`/api/schedules?release_plan=${encodeURIComponent(release)}`, {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    return Array.isArray(j) ? j : [];
+  }catch(_){ return []; }
+}
+
+function computeDemandStats(demands){
+  const list = demands || [];
+  const total = list.length;
+  let clarification = 0, unscripted = 0, lines = 0, areas = new Set();
+  list.forEach(d => {
+    const st = String(d.status || d.manual_status || '').toLowerCase();
+    const clar = String(d.clarification || '').trim();
+    if(clar && /待澄清|澄清|clarif/i.test(clar)) clarification++;
+    if(!d.script_doc_url) unscripted++;
+    if(d.area) areas.add(String(d.area));
+    const cn = Number(d.progress_lines_cn || 0);
+    const en = Number(d.progress_lines_en || 0);
+    lines += (cn > 0 ? cn : 0) + (en > 0 ? en : 0);
+  });
+  const completion = total ? Math.round(((total - clarification) / total) * 100) : 0;
+  return { total, clarification, unscripted, lines, areas: areas.size, completion };
+}
+
+// 节点：根据 release 的 plan 计算 4 个节点的日期（vo 锁 / 声优锁 / 台词锁 / VO 交付）
+async function getMilestonesForRelease(release){
+  const out = { vo_lock:null, va_lock:null, script_lock:null, vo_deliver:null };
+  try{
+    if(window.VOMI_RELEASE_CALENDAR){
+      const plans = await window.VOMI_RELEASE_CALENDAR.load();
+      const plan = (plans || []).find(p => String(window.VOMI_RELEASE_CALENDAR.releaseName(p.label || p.name || p.release_plan)).toLowerCase() === String(release || '').toLowerCase());
+      if(plan && window.VOMI_RELEASE_CALENDAR.vomiMilestones){
+        const holidays = window.VOMI_HOLIDAY_CALENDAR;
+        const ms = window.VOMI_RELEASE_CALENDAR.vomiMilestones(plan, holidays) || [];
+        ms.forEach(m => {
+          const k = String(m.key || m.id || m.name || '').toLowerCase();
+          const dateStr = m.date || m.target_date || m.at || '';
+          if(/vo.*需求锁|vo_need|volock/i.test(k) || /Vo需求锁/i.test(m.name || '')) out.vo_lock = m;
+          else if(/声优锁|va.*lock|valock/i.test(k) || /声优锁/i.test(m.name || '')) out.va_lock = m;
+          else if(/台词.*锁|脚本.*锁|script.*lock|脚本定稿/i.test(k) || /台词锁定|台词锁/i.test(m.name || '')) out.script_lock = m;
+          else if(/vo.*交付|vo.*资源|vo.*交付|vo_deliver/i.test(k) || /VO资源交付|VO交付/i.test(m.name || '')) out.vo_deliver = m;
+        });
+      }
+    }
+  }catch(_){}
+  // 即使节点失败，也至少设置 vo_lock 为当周周一（兜底显示）
+  return out;
+}
+
+function fmtDate(value){
+  if(!value) return '';
+  try{
+    const d = value instanceof Date ? value : new Date(value);
+    if(!Number.isFinite(d.getTime())) return '';
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${m}.${day}`;
+  }catch(_){ return ''; }
+}
+function isoDate(value){
+  if(!value) return '';
+  try{
+    const d = value instanceof Date ? value : new Date(value);
+    if(!Number.isFinite(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }catch(_){ return ''; }
+}
+function countdownDays(value){
+  if(!value) return '';
+  try{
+    const d = value instanceof Date ? value : new Date(value);
+    if(!Number.isFinite(d.getTime())) return '';
+    const today = new Date(); today.setHours(0,0,0,0);
+    const diff = Math.ceil((d - today) / 86400000);
+    if(diff > 0) return `${diff} 天后`;
+    if(diff < 0) return `${-diff} 天前`;
+    return '今天';
+  }catch(_){ return ''; }
+}
+
+// 预览卡片辅助
+function statBoxHTML(value, label, color, accent){
+  const cls = accent ? ' share-stat-v' + (String(accent).startsWith('warn') ? ' warn' : (String(accent).startsWith('good') ? ' good' : '')) : '';
+  return `<div class="share-stat"><div class="share-stat-v" style="color:${color}">${escHtml(value)}</div><div class="share-stat-label">${escHtml(label)}</div></div>`;
+}
+function milestoneRowHTML(name, milestone, color){
+  if(!milestone){ return `<div class="share-node"><div class="share-node-bullet" style="background:${color};box-shadow:0 0 6px ${color}"></div><div class="share-node-name">${escHtml(name)}</div><div class="share-node-date">待定</div></div>`; }
+  const date = fmtDate(milestone.date || milestone.target_date || milestone.at);
+  const cd = countdownDays(milestone.date || milestone.target_date || milestone.at);
+  const danger = /锁|锁定/.test(name) ? 'danger' : '';
+  return `<div class="share-node">
+    <div class="share-node-bullet" style="background:${color};box-shadow:0 0 6px ${color}"></div>
+    <div class="share-node-name">${escHtml(name)}</div>
+    <div class="share-node-date">${escHtml(date)}${cd ? `<span class="share-node-countdown ${danger}">${escHtml(cd)}</span>` : ''}</div>
+  </div>`;
+}
+
+// ============== 4 种简报内容 ==============
+async function buildProgressBrief(){
+  const release = await getCurrentRelease();
+  const demands = await fetchDemandsSafe(release);
+  const stats = computeDemandStats(demands);
+  const ms = await getMilestonesForRelease(release);
+  const detailUrl = `${location.origin}${location.pathname}#/demands/${encodeURIComponent(release)}`;
+  const cardHTML = `
+    <div class="share-card">
+      <div class="share-card-head">
+        <div class="share-app"><span class="share-app-v">V</span> Vomi · VO Manager</div>
+        <div class="share-card-sub">VO Manager<span class="share-card-time">刚刚</span></div>
+      </div>
+      <div class="share-card-body">
+        <h3 class="share-card-title">${escHtml(release)} · 版本进度简报</h3>
+        <p class="share-card-kicker">DELTA FORCE · Mission Operations</p>
+        <div class="share-stats share-stats-4">
+          ${statBoxHTML(String(stats.total), '总需求', 'var(--c-text)')}
+          ${statBoxHTML(String(stats.clarification), '待澄清', '#d97706', 'warn')}
+          ${statBoxHTML(stats.completion + '%', '完成度', '#0f9b54', 'good')}
+          ${statBoxHTML(String(stats.areas), 'Area', 'var(--c-text)')}
+        </div>
+        <div class="share-nodes">
+          ${milestoneRowHTML('Vo需求锁', ms.vo_lock,     '#D699BE')}
+          ${milestoneRowHTML('台词锁定',  ms.script_lock,'#7C3AED')}
+          ${milestoneRowHTML('VO交付',    ms.vo_deliver, '#597D4F')}
+        </div>
+        ${(stats.clarification > 0 || stats.unscripted > 0)
+          ? `<div class="share-risk"><span class="tri">▲</span>${stats.clarification} 条需求待澄清 · ${stats.unscripted} 条需求尚未关联台词表</div>`
+          : `<div class="share-risk ok"><span class="ok-dot"></span>暂无紧急风险</div>`}
+        <div class="share-card-actions">
+          <button class="btn btn-primary" type="button" onclick="copyShareCardAndLink()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10H7z"/><polyline points="4 7 7 7 7 4"/><polyline points="17 20 20 20 20 17"/></svg>
+            查看完整详情
+          </button>
+          <button class="btn btn-ghost" type="button" onclick="copyShareCardSummary()" aria-label="复制预览卡片摘要">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  const summaryMd = mdProgress(release, stats, ms);
+  return { eyebrow:`${release} · 版本进度简报`, cardHTML, summaryMd, detailUrl };
+}
+
+function mdProgress(release, stats, ms){
+  const lines = [];
+  lines.push(`【${release} · 版本进度简报】`);
+  lines.push(`总需求 ${stats.total} · 待澄清 ${stats.clarification} · 完成度 ${stats.completion}% · ${stats.areas} 个 Area`);
+  if(ms.vo_lock)     lines.push(`Vo需求锁：${isoDate(ms.vo_lock.date || ms.vo_lock.target_date || ms.vo_lock.at)}${countdownDays(ms.vo_lock.date || ms.vo_lock.target_date || ms.vo_lock.at) ? ' ('+countdownDays(ms.vo_lock.date || ms.vo_lock.target_date || ms.vo_lock.at)+')' : ''}`);
+  if(ms.script_lock) lines.push(`台词锁定：${isoDate(ms.script_lock.date || ms.script_lock.target_date || ms.script_lock.at)}${countdownDays(ms.script_lock.date || ms.script_lock.target_date || ms.script_lock.at) ? ' ('+countdownDays(ms.script_lock.date || ms.script_lock.target_date || ms.script_lock.at)+')' : ''}`);
+  if(ms.vo_deliver)  lines.push(`VO交付：${isoDate(ms.vo_deliver.date || ms.vo_deliver.target_date || ms.vo_deliver.at)}${countdownDays(ms.vo_deliver.date || ms.vo_deliver.target_date || ms.vo_deliver.at) ? ' ('+countdownDays(ms.vo_deliver.date || ms.vo_deliver.target_date || ms.vo_deliver.at)+')' : ''}`);
+  if(stats.clarification > 0 || stats.unscripted > 0){
+    lines.push(`▲ ${stats.clarification} 条需求待澄清 · ${stats.unscripted} 条需求尚未关联台词表`);
+  }
+  lines.push(`—— Vomi · VO Manager`);
+  return lines.join('\n');
+}
+
+async function buildDemandsBrief(){
+  const release = await getCurrentRelease();
+  const demands = await fetchDemandsSafe(release);
+  const stats = computeDemandStats(demands);
+  const byArea = {};
+  demands.forEach(d => {
+    const a = String(d.area || '未分区');
+    byArea[a] = byArea[a] || [];
+    byArea[a].push(d);
+  });
+  const sortedAreas = Object.keys(byArea).sort((a,b)=>byArea[b].length-byArea[a].length);
+  const top = [];
+  sortedAreas.forEach(area => {
+    byArea[area].slice(0, 3).forEach(d => top.push({ area, name: d.task_name || d.story || ('#'+d.id), clarification: !!d.clarification, script: !!d.script_doc_url }));
+  });
+  const detailUrl = `${location.origin}${location.pathname}#/demands/${encodeURIComponent(release)}`;
+  const rowsHtml = top.length
+    ? top.map((r,i)=>{
+        const status = r.clarification
+          ? `<span class="share-row-tag warn">待澄清</span>`
+          : r.script
+            ? `<span class="share-row-tag good">已关联</span>`
+            : `<span class="share-row-tag warn">未关联台词表</span>`;
+        return `<div class="share-row"><div class="share-row-rank">${i+1}</div><div class="share-row-name" title="${escHtml(r.area+' · '+r.name)}">${escHtml(r.area)} · ${escHtml(r.name)}</div>${status}</div>`;
+      }).join('')
+    : `<div class="share-empty-row">暂无需求数据 · 先在需求汇总页同步 TAPD</div>`;
+  const cardHTML = `
+    <div class="share-card">
+      <div class="share-card-head">
+        <div class="share-app"><span class="share-app-v">V</span> Vomi · VO Manager</div>
+        <div class="share-card-sub">VO Manager<span class="share-card-time">刚刚</span></div>
+      </div>
+      <div class="share-card-body">
+        <h3 class="share-card-title">${escHtml(release)} · 需求汇总简报</h3>
+        <p class="share-card-kicker">DELTA FORCE · ${sortedAreas.length} 个 Area · 共 ${stats.total} 条</p>
+        <div class="share-stats share-stats-4">
+          ${statBoxHTML(String(stats.total), '总需求', 'var(--c-text)')}
+          ${statBoxHTML(String(stats.clarification), '待澄清', '#d97706', 'warn')}
+          ${statBoxHTML(String(stats.unscripted), '未关联台词表', '#d97706', 'warn')}
+          ${statBoxHTML(String(stats.areas), 'Area', 'var(--c-text-2)')}
+        </div>
+        <div class="share-rows">${rowsHtml}</div>
+        <div class="share-card-actions">
+          <button class="btn btn-primary" type="button" onclick="copyShareCardAndLink()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10H7z"/><polyline points="4 7 7 7 7 4"/><polyline points="17 20 20 20 20 17"/></svg>
+            查看完整详情
+          </button>
+          <button class="btn btn-ghost" type="button" onclick="copyShareCardSummary()" aria-label="复制预览卡片摘要">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  const summaryMd = (()=>{
+    const L = [];
+    L.push(`【${release} · 需求汇总简报】`);
+    L.push(`${sortedAreas.length} 个 Area · 共 ${stats.total} 条需求 · 待澄清 ${stats.clarification} 条 · 未关联台词表 ${stats.unscripted} 条`);
+    L.push('');
+    if(top.length){
+      top.forEach((r,i)=>{
+        const s = r.clarification ? '待澄清' : (r.script ? '已关联' : '未关联台词表');
+        L.push(`${i+1}. [${r.area}] ${r.name} · ${s}`);
+      });
+    } else {
+      L.push('（暂无需求数据，先在需求汇总页同步 TAPD）');
+    }
+    L.push('—— Vomi · VO Manager');
+    return L.join('\n');
+  })();
+  return { eyebrow:`${release} · 需求汇总简报`, cardHTML, summaryMd, detailUrl };
+}
+
+async function buildSchedulesBrief(){
+  const release = await getCurrentRelease();
+  const schedules = await fetchSchedulesSafe(release);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const list = schedules || [];
+  const total = list.length;
+  const done = list.filter(s => String(s.status || '').toLowerCase() === 'done').length;
+  const pending = total - done;
+  const withVA = list.filter(s => s.voice_actor_name).length;
+  const byDate = {};
+  list.forEach(s => {
+    const k = String(s.record_date || '').slice(0,10);
+    if(!k) return;
+    byDate[k] = (byDate[k] || 0) + 1;
+  });
+  const upcoming = Object.keys(byDate).filter(k => new Date(k) >= today).sort().slice(0, 6);
+  const detailUrl = `${location.origin}${location.pathname}#/calendar/${encodeURIComponent(release)}`;
+  const rowsHtml = upcoming.length
+    ? upcoming.map(date => {
+        const items = list.filter(s => String(s.record_date || '').slice(0,10) === date);
+        const cn = items.filter(s => String(s.language || '').toLowerCase() === 'cn').length;
+        const en = items.filter(s => String(s.language || '').toLowerCase() === 'en').length;
+        const cancelled = items.filter(s => String(s.status || '').toLowerCase() === 'canceled').length;
+        const label = `${cn}中 / ${en}英`;
+        const tag = cancelled > 0 ? `<span class="share-row-tag warn">${cancelled} 已取消</span>` : (new Date(date) >= today && cn + en > 0 ? `<span class="share-row-tag good">已排</span>` : `<span class="share-row-tag mute">已过</span>`);
+        return `<div class="share-row"><div class="share-row-rank">${escHtml(fmtDate(date))}</div><div class="share-row-name">${escHtml(label)} · ${cn + en} 场</div>${tag}</div>`;
+      }).join('')
+    : `<div class="share-empty-row">暂无录制档期 · 在录制档期页补齐</div>`;
+  const cardHTML = `
+    <div class="share-card">
+      <div class="share-card-head">
+        <div class="share-app"><span class="share-app-v">V</span> Vomi · VO Manager</div>
+        <div class="share-card-sub">VO Manager<span class="share-card-time">刚刚</span></div>
+      </div>
+      <div class="share-card-body">
+        <h3 class="share-card-title">${escHtml(release)} · 录制档期快照</h3>
+        <p class="share-card-kicker">DELTA FORCE · 共 ${total} 场</p>
+        <div class="share-stats share-stats-4">
+          ${statBoxHTML(String(total), '总场次', 'var(--c-text)')}
+          ${statBoxHTML(String(pending), '待录', '#d97706', 'warn')}
+          ${statBoxHTML(String(done), '完成', '#0f9b54', 'good')}
+          ${statBoxHTML(String(withVA), '已关联声优', 'var(--c-text-2)')}
+        </div>
+        <div class="share-rows">${rowsHtml}</div>
+        <div class="share-card-actions">
+          <button class="btn btn-primary" type="button" onclick="copyShareCardAndLink()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10H7z"/><polyline points="4 7 7 7 7 4"/><polyline points="17 20 20 20 20 17"/></svg>
+            查看完整详情
+          </button>
+          <button class="btn btn-ghost" type="button" onclick="copyShareCardSummary()" aria-label="复制预览卡片摘要">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  const summaryMd = (()=>{
+    const L = [];
+    L.push(`【${release} · 录制档期快照】`);
+    L.push(`共 ${total} 场 · 待录 ${pending} · 完成 ${done} · 已关联声优 ${withVA} 场`);
+    if(upcoming.length){
+      L.push('');
+      upcoming.forEach(date => {
+        const items = list.filter(s => String(s.record_date || '').slice(0,10) === date);
+        const cn = items.filter(s => String(s.language || '').toLowerCase() === 'cn').length;
+        const en = items.filter(s => String(s.language || '').toLowerCase() === 'en').length;
+        L.push(`${date}  ${cn}中 / ${en}英`);
+      });
+    } else {
+      L.push('');
+      L.push('（暂无录制档期）');
+    }
+    L.push('—— Vomi · VO Manager');
+    return L.join('\n');
+  })();
+  return { eyebrow:`${release} · 录制档期快照`, cardHTML, summaryMd, detailUrl };
+}
+
+async function buildNodesBrief(){
+  const release = await getCurrentRelease();
+  const ms = await getMilestonesForRelease(release);
+  const detailUrl = `${location.origin}${location.pathname}#/milestones`;
+  const items = [
+    { name:'Vo需求锁',  ms: ms.vo_lock,     color:'#D699BE' },
+    { name:'声优锁',    ms: ms.va_lock,     color:'#A78BFA' },
+    { name:'台词锁定',  ms: ms.script_lock, color:'#7C3AED' },
+    { name:'VO资源交付',ms: ms.vo_deliver,  color:'#597D4F' },
+  ];
+  const rowsHtml = items.map(it => {
+    const date = it.ms ? (fmtDate(it.ms.date || it.ms.target_date || it.ms.at) || '待定') : '待定';
+    const cd = it.ms ? (countdownDays(it.ms.date || it.ms.target_date || it.ms.at) || '') : '';
+    return `<div class="share-tl-node">
+      <div class="share-tl-bullet" style="background:${it.color};color:${it.color}"></div>
+      <div class="share-tl-name">${escHtml(it.name)}</div>
+      <div class="share-tl-date">${escHtml(date)}${cd ? ' · '+escHtml(cd) : ''}</div>
+    </div>`;
+  }).join('');
+  const cardHTML = `
+    <div class="share-card">
+      <div class="share-card-head">
+        <div class="share-app"><span class="share-app-v">V</span> Vomi · VO Manager</div>
+        <div class="share-card-sub">VO Manager<span class="share-card-time">刚刚</span></div>
+      </div>
+      <div class="share-card-body">
+        <h3 class="share-card-title">${escHtml(release)} · 版本节点时间轴</h3>
+        <p class="share-card-kicker">DELTA FORCE · 4 个关键节点</p>
+        <div class="share-timeline">${rowsHtml}</div>
+        <div class="share-card-actions">
+          <button class="btn btn-primary" type="button" onclick="copyShareCardAndLink()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10H7z"/><polyline points="4 7 7 7 7 4"/><polyline points="17 20 20 20 20 17"/></svg>
+            查看完整详情
+          </button>
+          <button class="btn btn-ghost" type="button" onclick="copyShareCardSummary()" aria-label="复制预览卡片摘要">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  const summaryMd = (()=>{
+    const L = [];
+    L.push(`【${release} · 版本节点时间轴】`);
+    items.forEach(it => {
+      const date = it.ms ? isoDate(it.ms.date || it.ms.target_date || it.ms.at) : '待定';
+      const cd = it.ms ? countdownDays(it.ms.date || it.ms.target_date || it.ms.at) : '';
+      L.push(`${it.name}：${date}${cd ? '  ('+cd+')' : ''}`);
+    });
+    L.push('—— Vomi · VO Manager');
+    return L.join('\n');
+  })();
+  return { eyebrow:`${release} · 版本节点时间轴`, cardHTML, summaryMd, detailUrl };
+}
+
+// 工具：复制到剪贴板（navigator.clipboard 不存在时降级为 textarea）
+async function copyTextToClipboard(text){
+  try{
+    if(navigator.clipboard && window.isSecureContext !== false){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(_){}
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    const ok = document.execCommand && document.execCommand('copy');
+    document.body.removeChild(ta);
+    return !!ok;
+  }catch(_){ return false; }
+}
+
+function shareToast(msg, kind){
+  const host = document.getElementById('shareToastHost');
+  if(!host) return;
+  const t = document.createElement('div');
+  t.className = 'share-toast' + (kind ? ' ' + kind : '');
+  t.textContent = msg;
+  host.appendChild(t);
+  requestAnimationFrame(()=> t.classList.add('is-open'));
+  setTimeout(()=>{
+    t.classList.remove('is-open');
+    setTimeout(()=> t.remove(), 200);
+  }, 2600);
+}
+
+// 「复制链接」通道：当前页面 URL（含 hash）
+async function copyShareLink(){
+  const url = location.origin + location.pathname + location.hash;
+  const ok = await copyTextToClipboard(url);
+  shareToast(ok ? `链接已复制到剪贴板 ✓\n${url}` : '复制失败，请手动复制 URL：'+url, ok ? '' : 'err');
+}
+
+// 「企业微信」通道：弹联系选择面板
+async function sendShareToChat(){
+  if(!SHARE_STATE.payload){ shareToast('请先选择分享内容', 'warn'); return; }
+  const picker = document.getElementById('sharePicker');
+  if(!picker) return;
+  SHARE_STATE.picker = true;
+  picker.hidden = false;
+  requestAnimationFrame(()=> picker.classList.add('is-open'));
+  const search = document.getElementById('sharePickerSearch');
+  if(search) { search.value = ''; search.focus(); }
+  renderSharePickerList('');
+  updateSharePickerCount();
+}
+function closeSharePicker(){
+  SHARE_STATE.picker = false;
+  const picker = document.getElementById('sharePicker');
+  if(!picker) return;
+  picker.classList.remove('is-open');
+  setTimeout(()=>{ if(!SHARE_STATE.picker) picker.hidden = true; }, 180);
+}
+
+// 联系 + 群 静态列表（基于 USER_PROFILES + 常用群）—— 真实发送时由 wecomcli-message 取代；现在降级为剪贴板
+function sharePickerContacts(){
+  const people = Object.values(USER_PROFILES || {}).map(u => ({
+    id: u.id, kind:'person', name: u.name, role: u.role, initial: (u.name||'?').slice(0,1).toUpperCase()
+  }));
+  const groups = [
+    { id:'g-vomi-pm',       kind:'group', name:'VO PM 主群',     initial:'V' },
+    { id:'g-vomi-writers',  kind:'group', name:'文案策划群',     initial:'文' },
+    { id:'g-vomi-audio',    kind:'group', name:'音频同学群',     initial:'音' },
+    { id:'g-vomi-cw-pm',    kind:'group', name:'文案 PM 群',     initial:'P' },
+  ];
+  return { people, groups };
+}
+function renderSharePickerList(filter){
+  const host = document.getElementById('sharePickerList');
+  if(!host) return;
+  const f = String(filter || '').trim().toLowerCase();
+  const { people, groups } = sharePickerContacts();
+  const fPeople = people.filter(p => !f || p.name.toLowerCase().includes(f) || String(p.role).toLowerCase().includes(f) || p.id.toLowerCase().includes(f));
+  const fGroups = groups.filter(g => !f || g.name.toLowerCase().includes(f) || g.id.toLowerCase().includes(f));
+  let html = '';
+  if(fGroups.length){
+    html += `<div class="share-picker-group">群聊 (${fGroups.length})</div>`;
+    fGroups.forEach(g => {
+      html += `<label class="share-picker-item" data-kind="${g.kind}" data-id="${escHtml(g.id)}"><input type="checkbox" data-id="${escHtml(g.id)}" data-name="${escHtml(g.name)}" data-kind="${g.kind}" onchange="updateSharePickerCount()"/><span class="av chat">${escHtml(g.initial)}</span><span class="meta"><span class="name">${escHtml(g.name)}</span><span class="role">群 · ${escHtml(g.id)}</span></span></label>`;
+    });
+  }
+  if(fPeople.length){
+    html += `<div class="share-picker-group">个人 (${fPeople.length})</div>`;
+    fPeople.forEach(p => {
+      html += `<label class="share-picker-item" data-kind="${p.kind}" data-id="${escHtml(p.id)}"><input type="checkbox" data-id="${escHtml(p.id)}" data-name="${escHtml(p.name)}" data-kind="${p.kind}" onchange="updateSharePickerCount()"/><span class="av">${escHtml(p.initial)}</span><span class="meta"><span class="name">${escHtml(p.name)} <span style="color:var(--c-text-mute);font-size:11px;font-weight:400">· ${escHtml(p.role)}</span></span><span class="role">${escHtml(p.id)}</span></span></label>`;
+    });
+  }
+  if(!html){ html = '<div class="share-empty-row" style="padding:32px 0">没有匹配「'+escHtml(filter)+'」的联系人</div>'; }
+  host.innerHTML = html;
+}
+function filterSharePicker(){
+  const v = document.getElementById('sharePickerSearch');
+  renderSharePickerList(v ? v.value : '');
+}
+function updateSharePickerCount(){
+  const checked = document.querySelectorAll('#sharePickerList input[type=checkbox]:checked').length;
+  const counter = document.getElementById('sharePickerCount');
+  if(counter) counter.textContent = String(checked);
+  const sendBtn = document.getElementById('sharePickerSend');
+  if(sendBtn) sendBtn.disabled = checked === 0;
+}
+
+// 「发送」按钮：当前没有 wecomcli 接入，降级为复制摘要到剪贴板 + toast 引导
+async function confirmShareSend(){
+  if(SHARE_STATE.sending) return;
+  const checked = [...document.querySelectorAll('#sharePickerList input[type=checkbox]:checked')];
+  if(checked.length === 0){ shareToast('请至少选择 1 项', 'warn'); return; }
+  SHARE_STATE.sending = true;
+  const sendBtn = document.getElementById('sharePickerSend');
+  if(sendBtn){ sendBtn.disabled = true; sendBtn.textContent = '发送中…'; }
+  try{
+    const targets = checked.map(cb => ({ id: cb.dataset.id, name: cb.dataset.name, kind: cb.dataset.kind }));
+    const payload = SHARE_STATE.payload || {};
+    const md = (payload.summaryMd || '') + (payload.detailUrl ? '\n\n查看：' + payload.detailUrl : '');
+    const ok = await copyTextToClipboard(md);
+    if(!ok){ shareToast('复制失败，请重试', 'err'); return; }
+    const targetNames = targets.map(t => t.name).join('、');
+    shareToast(`已复制摘要 ✓ 即将打开企业微信发送\n对象：${targetNames}\n请到「${targets[0].name}」Ctrl+V 粘贴`, 'warn');
+    setTimeout(()=> closeSharePicker(), 600);
+  }finally{
+    SHARE_STATE.sending = false;
+    if(sendBtn){ sendBtn.disabled = false; sendBtn.textContent = '发送'; }
+  }
+}
+
+// 预览卡片「查看完整详情」按钮：复制卡片摘要 + 打开详情页（hash 跳转）
+async function copyShareCardAndLink(){
+  const body = document.getElementById('sharePreview');
+  if(!body) return;
+  const md = body.dataset.summaryMd || '';
+  const url = body.dataset.detailUrl || '';
+  const text = md + (url ? '\n\n' + url : '');
+  const ok = await copyTextToClipboard(text);
+  if(ok){ shareToast('已复制卡片摘要 + 链接 ✓ 粘贴到目标处即可', ''); }
+  else    { shareToast('复制失败，请手动复制', 'err'); }
+}
+
+// 复制按钮（小）：仅复制 summaryMd
+async function copyShareCardSummary(){
+  const body = document.getElementById('sharePreview');
+  if(!body) return;
+  const md = body.dataset.summaryMd || '';
+  if(!md){ shareToast('没有可复制的摘要', 'warn'); return; }
+  const ok = await copyTextToClipboard(md);
+  shareToast(ok ? '已复制预览卡片摘要 ✓' : '复制失败', ok ? '' : 'err');
+}
+
+// ESC 关闭 / 点击外侧关闭
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){
+    if(SHARE_STATE.picker){ closeSharePicker(); }
+    else if(SHARE_STATE.open){ closeShare(); }
+  }
+});
+// 点击遮罩外侧关闭分享面板（点击 picker 自身不关）
+document.addEventListener('click', (e)=>{
+  if(SHARE_STATE.open && e.target.id === 'shareModal') closeShare();
+  if(SHARE_STATE.picker && e.target.id === 'sharePicker') closeSharePicker();
+});
+
+// 老的 sharePage() 保留为降级（去掉 toast 直接弹面板）
+function sharePage(){
+  openShare();
+}
+
 console.log('◉ Vo Manager · iframe shell · v1');
 
 /* ── 登录身份（文案 Writer / PM）──

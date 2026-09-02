@@ -200,7 +200,7 @@ body.embed .mid{width:100%}
 /* 角色信息悬浮透明玻璃卡片 · 通知中心式结构化布局 · 2026-09-02 v4
    - 全局单例浮层（vomiCastingTip）· 默认 opacity:0 · mouseover 时填充+定位+显示
    - 多区块结构：分节标题 / 角色属性（角色名 / 大类 / 性别）/ 配音信息（中/英声优 + 录音地 + 棚）/ 备注 / 操作脚注 */
-.vomi-casting-tip{position:fixed;left:0;top:0;width:380px;max-width:calc(100vw - 32px);padding:0;background:rgba(25,34,41,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(15,247,150,.42);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.6),0 0 0 1px rgba(15,247,150,.10);opacity:0;pointer-events:none;transform:translateY(4px);transition:opacity .16s,transform .16s;z-index:9999;text-align:left;color:var(--c-text);font-family:'Microsoft YaHei UI','PingFang SC',sans-serif;overflow:hidden;font-size:12px;line-height:1.55}
+.vomi-casting-tip{position:fixed;left:0;top:0;width:380px;max-width:calc(100vw - 32px);padding:0;background:rgba(25,34,41,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(15,247,150,.42);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.6),0 0 0 1px rgba(15,247,150,.10);opacity:0;pointer-events:auto;transform:translateY(4px);transition:opacity .16s,transform .16s;z-index:9999;text-align:left;color:var(--c-text);font-family:'Microsoft YaHei UI','PingFang SC',sans-serif;overflow:hidden;font-size:12px;line-height:1.55}
 .vomi-casting-tip.is-on{opacity:1;transform:translateY(0)}
 /* 顶部品牌条 */
 .vomi-casting-tip .ct-hd{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid rgba(15,247,150,.18);background:linear-gradient(180deg,rgba(15,247,150,.06),transparent)}
@@ -260,15 +260,15 @@ body.embed .mid{width:100%}
 
 /* 6 大类分组标题行（已确定区域按 category 切分） · 2026-09-02 用户定稿 v2：
    字体统一全站（Microsoft YaHei UI / PingFang SC），加厚视觉权重，底色用 cat-color 横向淡渐变让"大类聚合"一眼可见 */
-#rosterTable tbody tr.cat-section{position:relative;background:linear-gradient(to right, color-mix(in srgb, var(--cat-color, #0FF796) 18%, transparent) 0%, color-mix(in srgb, var(--cat-color, #0FF796) 6%, transparent) 50%, transparent 100%)!important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-#rosterTable tbody tr.cat-section::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:color-mix(in srgb, var(--cat-color, #0FF796) 40%, transparent);pointer-events:none}
-#rosterTable tbody tr.cat-section::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:color-mix(in srgb, var(--cat-color, #0FF796) 28%, transparent);pointer-events:none}
-#rosterTable tbody tr.cat-section td{padding:13px 18px!important;border-top:0!important;border-bottom:0!important;background:transparent!important;cursor:default}
-#rosterTable tbody tr.cat-section .cat-label{display:inline-flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;letter-spacing:.3px;color:#fff;font-family:'Microsoft YaHei UI','PingFang SC',sans-serif}
-#rosterTable tbody tr.cat-section .cat-bar{width:4px;height:20px;border-radius:2px;display:inline-block;box-shadow:0 0 8px color-mix(in srgb, var(--cat-color, #0FF796) 55%, transparent)}
-#rosterTable tbody tr.cat-section .cat-text{color:#fff;font-size:13.5px;font-weight:600}
-#rosterTable tbody tr.cat-section .cat-cnt{color:rgba(212,221,227,.55);font-size:12px;font-weight:500;font-family:'JetBrains Mono','Microsoft YaHei UI',monospace;font-variant-numeric:tabular-nums;margin-left:2px}
-#rosterTable tbody tr.cat-section .cat-hint{margin-left:auto;color:rgba(212,221,227,.45);font-size:11.5px;font-style:italic;font-weight:400}
+#rosterTable tbody tr.cat-section{position:relative;background:color-mix(in srgb, var(--cat-color, #0FF796) 8%, transparent)!important}
+#rosterTable tbody tr.cat-section::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:color-mix(in srgb, var(--cat-color, #0FF796) 30%, transparent);pointer-events:none}
+#rosterTable tbody tr.cat-section::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:color-mix(in srgb, var(--cat-color, #0FF796) 15%, transparent);pointer-events:none}
+#rosterTable tbody tr.cat-section td{padding:10px 18px!important;border-top:0!important;border-bottom:0!important;background:transparent!important;cursor:default}
+#rosterTable tbody tr.cat-section .cat-label{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;letter-spacing:.3px;color:#fff;font-family:'Microsoft YaHei UI','PingFang SC',sans-serif}
+#rosterTable tbody tr.cat-section .cat-bar{width:3px;height:20px;border-radius:2px;display:inline-block}
+#rosterTable tbody tr.cat-section .cat-text{color:#fff;font-size:13px;font-weight:600}
+#rosterTable tbody tr.cat-section .cat-cnt{color:rgba(212,221,227,.48);font-size:12px;font-weight:500;font-family:'JetBrains Mono','Microsoft YaHei UI',monospace;font-variant-numeric:tabular-nums;margin-left:2px}
+#rosterTable tbody tr.cat-section .cat-hint{margin-left:auto;color:rgba(212,221,227,.38);font-size:11.5px;font-style:normal;font-weight:400}
 #rosterTable tbody tr.cat-section td.ed:hover{background:transparent!important}
 /* 待选角组与首个分组标题之间留更明显的留白 */
 #rosterTable tbody tr.cat-first-after-pending td{padding-top:18px!important}
@@ -360,7 +360,8 @@ body.embed .mid{width:100%}
 .va-batch-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px}
 .va-batch-item{display:grid;grid-template-columns:22px 78px 1fr 60px 44px;gap:10px;padding:10px 12px;background:var(--c-bg-0);border:1px solid var(--c-border);border-radius:5px;transition:border-color .12s;font-size:12.5px;align-items:center}
 .va-batch-item:hover{border-color:var(--c-primary)}
-.va-batch-item.dup{opacity:.55;border-style:dashed}
+.va-batch-item.dup{opacity:.92;border-style:dashed;border-color:rgba(255,210,76,.45)}
+.va-batch-item.dup:hover{border-color:var(--c-warning)}
 .va-batch-item input[type=checkbox]{accent-color:var(--c-primary);margin:0}
 .va-batch-item .cat-sel,.va-batch-item .gender-sel{background:rgba(15,247,150,.10);border:1px solid rgba(15,247,150,.35);color:var(--c-primary);border-radius:3px;padding:2px 4px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.4px;text-align:center;outline:none;cursor:pointer;color-scheme:dark;-webkit-appearance:menulist;appearance:menulist}
 .va-batch-item .gender-sel{background:rgba(255,255,255,.04);border-color:var(--c-border);color:var(--c-text-2);font-family:inherit;font-size:12px;letter-spacing:0}
@@ -492,10 +493,6 @@ body.embed .mid{width:100%}
         <button class="btn btn-primary" onclick="openAddVA()">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           新建声优
-        </button>
-        <button class="btn btn-sync" id="btnSyncRoster" onclick="syncRosterToBackend()">
-          <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
-          保存到系统
         </button>
         <span id="rosterSyncStatus" class="sync-status"></span>
       </div>
@@ -683,8 +680,8 @@ body.embed .mid{width:100%}
     </div>
     <div class="rec-pop-foot">
       <div style="flex:1;color:var(--c-warning);font-size:11.5px" id="vaFormError"></div>
-      <button class="btn btn-outline" onclick="closeVaForm()">取消</button>
-      <button class="btn btn-primary" onclick="submitVaForm()">保存声优</button>
+        <button class="btn btn-outline" onclick="closeVaForm()">取消</button>
+      <button class="btn btn-primary" id="vaFormSaveBtn" onclick="submitVaForm()">保存声优</button>
     </div>
   </div>
 </div>
@@ -704,7 +701,7 @@ body.embed .mid{width:100%}
       <div id="vaBatchList" class="va-batch-list"></div>
       <div class="va-batch-foot">
         <button class="btn btn-outline" onclick="closeVaBatch()">取消</button>
-        <button class="btn btn-primary" onclick="submitVaBatch()">导入所选</button>
+        <button class="btn btn-primary" id="vaBatchImportBtn" onclick="submitVaBatch()">导入所选</button>
       </div>
     </div>
   </div>
@@ -720,6 +717,8 @@ let ROSTER_CAT = '';
 let ROSTER_STATUS = ''; // '' = All / 'done' / 'pending'
 let ROSTER_GENDER = ''; // '' = 全部 / '男' / '女'
 let TALENT_LIST = [];   // 合并后的最终数据
+// /api/talents 最近一次快照：cell 直写时用它定位 db_id / revision，省去每次编辑都拉全表
+let ROSTER_DB_ROWS = [];
 const ROSTER_DELETE_QUEUE_KEY = 'vo_talent_delete_queue_v2';
 function loadRosterDeleteQueue(){
   try{
@@ -748,6 +747,7 @@ async function loadRoster(){
     if(r.ok){
       const db = await r.json();
       if(Array.isArray(db) && db.length){
+        ROSTER_DB_ROWS = db.slice();
         const toUi = (x, id)=>({
           id: id != null ? id : x.id,
           db_id: x.id,
@@ -803,12 +803,14 @@ async function loadRoster(){
   TALENT_LIST = list;
   renderMeter();
   renderRoster();
+  // 一次性：把「保存到系统」时代积压的 localStorage 草稿自动回写后端（无草稿时立即返回）
+  migrateRosterDrafts();
 }
 
-// ============ 保存到系统（声优库 → 后端 voice_roles 表）============
-// 闭环：网页里的编辑/新增/删除先存 localStorage，点「保存到系统」后回写后端 DB；
+// ============ 落库工具层（声优库 ↔ 后端 voice_roles 表）============
+// 2026-09-02 改直写：单元格编辑 / 新建 / 导入 / 删除一律立刻写库，「保存到系统」按钮已移除。
 // 生成台词表时后端实时读 voice_roles，Tab1 的 A/B 列即可拿到最新声优库信息。
-// 以 role_cn 作为匹配键（绕开 roster.json id 与 DB id 不一致）。
+// 匹配键优先级 db_id → role_cn（绕开 roster.json id 与 DB id 不一致，同时支持 role_cn 改名）。
 function flashRoster(msg, ok){
   const el = document.getElementById('rosterSyncStatus');
   if(!el) return;
@@ -818,123 +820,197 @@ function flashRoster(msg, ok){
   flashRoster._t = setTimeout(()=>{ el.textContent=''; el.className='sync-status'; }, 5000);
 }
 
-async function syncRosterToBackend(){
-  const btn = document.getElementById('btnSyncRoster');
-  if(btn) btn.disabled = true;
-  flashRoster('正在保存到系统…', true);
-  try{
-    const base = (typeof VA_API_BASE !== 'undefined' && VA_API_BASE) ? VA_API_BASE : '';
-    // 1) 读取后端当前 voice_roles（role_cn → row）
-    const dbRes = await fetch(base + '/api/talents', {cache:'no-store'});
-    if(!dbRes.ok) throw new Error('读取声优库失败 ('+dbRes.status+')');
-    const db = await dbRes.json();
-    const dbByCn = new Map(db.map(r=>[String(r.role_cn||'').trim(), r]));
-    const dbById = new Map(db.map(r=>[Number(r.id), r]));
+// ---- 字段映射：UI 行字段 → voice_roles 列名（其余同名直通）----
+const UI2DB_FIELD = { category:'module', cn_location:'cn_loc', en_location:'en_loc' };
+const ROSTER_DB_FIELDS = ['module','role_cn','gender','role_en','cn_va','cn_loc','cn_studio','en_va','en_loc','en_studio','casting_note','rec_time_cn','rec_time_en','remark'];
 
-    const cur = TALENT_LIST || [];
-    const deleteQueue = loadRosterDeleteQueue();
-    let patched=0, posted=0, recycled=0, skipped=0;
+// 录制档期允许数组 / JSON 串 / 换行分号分隔串，统一成数组
+function normalizeRecTimes(v){
+  if(Array.isArray(v)) return v.map(x=>String(x).trim()).filter(Boolean);
+  if(v == null || v === '') return [];
+  if(typeof v === 'string'){
+    try{
+      const parsed = JSON.parse(v);
+      if(Array.isArray(parsed)) return parsed.map(x=>String(x).trim()).filter(Boolean);
+    }catch(_){}
+    return v.split(/[\n;；]+/).map(x=>x.trim()).filter(Boolean);
+  }
+  return [];
+}
+// 全字段 UI 行 → DB payload（整行新建时用）
+function rosterRowPayload(e){
+  return {
+    module: e.category || '',
+    role_cn: String(e.role_cn || '').trim(),
+    gender: e.gender || '',
+    role_en: e.role_en || '',
+    cn_va: e.cn_va || '',
+    cn_loc: e.cn_location || '',
+    cn_studio: e.cn_studio || '',
+    en_va: e.en_va || '',
+    en_loc: e.en_location || '',
+    en_studio: e.en_studio || '',
+    casting_note: e.casting_note || '',
+    rec_time_cn: normalizeRecTimes(e.rec_time_cn),
+    rec_time_en: normalizeRecTimes(e.rec_time_en),
+    remark: e.remark || ''
+  };
+}
+// UI 字段名的 patch → DB 字段名的 patch
+function toDbPatch(patch){
+  const out = {};
+  for(const k of Object.keys(patch || {})){
+    const dk = UI2DB_FIELD[k] || k;
+    out[dk] = (dk === 'rec_time_cn' || dk === 'rec_time_en') ? normalizeRecTimes(patch[k]) : patch[k];
+  }
+  return out;
+}
+function cmpRosterField(k, v){
+  return (k === 'rec_time_cn' || k === 'rec_time_en') ? JSON.stringify(normalizeRecTimes(v)) : String(v == null ? '' : v);
+}
+async function refreshRosterDbRows(){
+  const r = await fetch(vaApiBase() + '/api/talents', { cache:'no-store' });
+  if(!r.ok) throw new Error('读取声优库失败（HTTP ' + r.status + '）');
+  const db = await r.json().catch(()=>[]);
+  ROSTER_DB_ROWS = Array.isArray(db) ? db : [];
+}
+// 定位某行在 DB 里的记录：先 db_id（支持 role_cn 改名），再 role_cn
+function rosterDbRow(row){
+  if(!row) return null;
+  if(row.db_id){
+    const byId = ROSTER_DB_ROWS.find(x => Number(x.id) === Number(row.db_id));
+    if(byId) return byId;
+  }
+  const cn = String(row.role_cn || '').trim();
+  return cn ? (ROSTER_DB_ROWS.find(x => String(x.role_cn || '').trim() === cn) || null) : null;
+}
 
-    const normalizeRecTimes = (v)=>{
-      if(Array.isArray(v)) return v.map(x=>String(x).trim()).filter(Boolean);
-      if(v == null || v === '') return [];
-      if(typeof v === 'string'){
-        try{
-          const parsed = JSON.parse(v);
-          if(Array.isArray(parsed)) return parsed.map(x=>String(x).trim()).filter(Boolean);
-        }catch(_){}
-        return v.split(/[\n;；]+/).map(x=>x.trim()).filter(Boolean);
-      }
-      return [];
-    };
-    const toPayload = (e)=>({
-      module: e.category || '',
-      role_cn: e.role_cn || '',
-      gender: e.gender || '',
-      role_en: e.role_en || '',
-      cn_va: e.cn_va || '',
-      cn_loc: e.cn_location || '',
-      cn_studio: e.cn_studio || '',
-      en_va: e.en_va || '',
-      en_loc: e.en_location || '',
-      en_studio: e.en_studio || '',
-      casting_note: e.casting_note || '',
-      rec_time_cn: normalizeRecTimes(e.rec_time_cn),
-      rec_time_en: normalizeRecTimes(e.rec_time_en),
-      remark: e.remark || ''
+// 把 patch 写进 voice_roles：命中则 PATCH（乐观锁），未命中则整行 POST
+// 返回 'updated' / 'created' / 'unchanged'
+async function persistVoiceRole(row, uiPatch){
+  const dbPatch = toDbPatch(uiPatch);
+  let hit = rosterDbRow(row);
+  // 保险：快照为空（首屏后端抖动 / 空表）时先拉一次真源，避免把已有角色重复插入
+  if(!hit && !ROSTER_DB_ROWS.length){
+    try{ await refreshRosterDbRows(); }catch(_){}
+    hit = rosterDbRow(row);
+  }
+  if(hit){
+    const same = Object.keys(dbPatch).every(k => cmpRosterField(k, hit[k]) === cmpRosterField(k, dbPatch[k]));
+    if(same) return 'unchanged';
+    const body = Object.assign({}, dbPatch, { expected_revision: Number(hit.revision || 1) });
+    const r = await fetch(vaApiBase() + '/api/talents/' + hit.id, {
+      method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
     });
-    const FIELDS = ['module','role_cn','gender','role_en','cn_va','cn_loc','cn_studio','en_va','en_loc','en_studio','casting_note','rec_time_cn','rec_time_en','remark'];
-    const comparableField = (key, value)=> key === 'rec_time_cn' || key === 'rec_time_en'
-      ? JSON.stringify(normalizeRecTimes(value))
-      : String(value == null ? '' : value);
-
-    // 2) upsert：优先按 db_id 命中（支持 role_cn 改名），其次按 role_cn 命中
-    const seenCn = new Set();
-    for(const e of cur){
-      const roleCn = String(e.role_cn||'').trim();
-      if(!roleCn) continue;
-      if(seenCn.has(roleCn)) throw new Error('角色中文名重复：'+roleCn);
-      seenCn.add(roleCn);
-
-      const p = toPayload(e);
-      const hitById = e.db_id ? dbById.get(Number(e.db_id)) : null;
-      const hitByCn = dbByCn.get(roleCn);
-      const hit = hitById || hitByCn;
-
-      if(hit){
-        const same = FIELDS.every(k => comparableField(k, hit[k]) === comparableField(k, p[k]));
-        if(!same){
-          const patchPayload = Object.assign({}, p, {expected_revision:Number(hit.revision||1)});
-          const r = await fetch(base + '/api/talents/'+hit.id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(patchPayload)});
-          const result = await r.json().catch(()=>({}));
-          if(!r.ok) throw new Error('更新角色失败: '+roleCn+' ('+(result.error||r.status)+')');
-          patched++;
-          const oldCn = String(hit.role_cn||'').trim();
-          Object.assign(hit, p);
-          hit.revision = Number(result.revision || (Number(hit.revision||1) + 1));
-          e.db_id = Number(hit.id);
-          e.revision = hit.revision;
-          if(oldCn && oldCn !== roleCn) dbByCn.delete(oldCn);
-          dbByCn.set(roleCn, hit);
-          dbById.set(Number(hit.id), hit);
-        } else skipped++;
-      } else {
-        const r = await fetch(base + '/api/talents', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p)});
-        if(!r.ok) throw new Error('新增角色失败: '+roleCn);
-        const created = await r.json().catch(()=>({}));
-        posted++;
-        if(created && created.id){
-          const row = Object.assign({}, created, p);
-          dbById.set(Number(created.id), row);
-          dbByCn.set(roleCn, row);
-        }
-      }
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok){
+      if(r.status === 409 || j.error === 'revision_conflict')
+        throw new Error('「' + (row.role_cn || '') + '」已被他人修改，请刷新页面后重试');
+      throw new Error(j.error || ('HTTP ' + r.status));
     }
+    hit.revision = Number(j.revision || (Number(hit.revision || 1) + 1));
+    Object.assign(hit, dbPatch);
+    if(row){ row.db_id = Number(hit.id); row.revision = hit.revision; }
+    return 'updated';
+  }
+  const payload = Object.assign(rosterRowPayload(row || {}), dbPatch);
+  if(!payload.role_cn) throw new Error('缺少角色中文名，无法写入系统');
+  const r = await fetch(vaApiBase() + '/api/talents', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  const created = Object.assign({ id: j.id, revision: 1 }, payload);
+  ROSTER_DB_ROWS.push(created);
+  if(row){ row.db_id = Number(created.id); row.revision = 1; row._added = false; }
+  return 'created';
+}
 
-    // 3) 仅处理显式确认过的回收站队列；绝不再用“当前列表缺失”推断删除。
-    for(const item of deleteQueue){
-      const roleCn = String(item.role_cn||'').trim();
-      const hit = dbByCn.get(roleCn);
+// 离线兜底：写 localStorage 草稿，等联网后由 migrateRosterDrafts 自动回写
+function saveRosterDraft(id, uiPatch){
+  try{
+    const edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
+    edits[id] = Object.assign({}, edits[id] || {}, uiPatch);
+    localStorage.setItem('vo_talent_edits_v1', JSON.stringify(edits));
+  }catch(_){}
+}
+
+// 单元格编辑统一入口：直写 DB；失败退回草稿并明确提示「未入库」
+async function saveCellEdits(id, uiPatch){
+  const row = TALENT_LIST.find(r => Number(r.id) === Number(id));
+  if(row) Object.assign(row, uiPatch);   // 内存先行，保证后续渲染与读取一致
+  if(!VA_API_AVAILABLE){
+    saveRosterDraft(id, uiPatch);
+    flashRoster('未入库：本地预览无法连接系统（已存草稿）', false);
+    return false;
+  }
+  try{
+    const res = await persistVoiceRole(row, uiPatch);
+    if(res === 'unchanged') return true;
+    flashRoster(res === 'created' ? '已新增到系统 ✓' : '已保存到系统 ✓', true);
+    return true;
+  }catch(err){
+    saveRosterDraft(id, uiPatch);
+    flashRoster('保存失败（已存草稿 · 未入库）：' + err.message, false);
+    return false;
+  }
+}
+function saveCellEdit(id, field, val){ return saveCellEdits(id, { [field]: val }); }
+
+// ============ 一次性草稿迁移（「保存到系统」按钮退役后的唯一出口）============
+// 历史上积在 localStorage 的编辑 / 新增 / 回收站队列，页面加载时自动回写后端，
+// 写完清空草稿；之后所有编辑都直写 DB，不会再产生草稿。跑过一次即不再执行。
+async function migrateRosterDrafts(){
+  if(migrateRosterDrafts._done) return;
+  migrateRosterDrafts._done = true;   // 先置位，避免 loadRoster 重入造成递归
+  let edits = {}, adds = [], queue = [];
+  try{
+    edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
+    adds  = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
+    queue = loadRosterDeleteQueue();
+  }catch(_){}
+  if(!Object.keys(edits).length && !adds.length && !queue.length) return;
+  if(!VA_API_AVAILABLE){
+    flashRoster('检测到未入库的本地草稿，请在 Vomi 站点打开以自动回写', false);
+    return;
+  }
+  try{
+    await refreshRosterDbRows();
+    let patched = 0, posted = 0, recycled = 0, skipped = 0;
+    for(const sid of Object.keys(edits)){
+      const row = TALENT_LIST.find(r => String(r.id) === String(sid));
+      if(!row){ skipped++; continue; }
+      const res = await persistVoiceRole(row, edits[sid]);
+      if(res === 'unchanged') skipped++; else patched++;
+    }
+    for(const a of adds){
+      if(!String(a.role_cn || '').trim()){ skipped++; continue; }
+      const res = await persistVoiceRole(a, {});
+      if(res === 'unchanged') skipped++; else posted++;
+    }
+    // 回收站队列：均为「输入角色名确认」过的，可安全执行
+    for(const item of queue){
+      const cn = String(item.role_cn || '').trim();
+      const hit = ROSTER_DB_ROWS.find(x => String(x.role_cn || '').trim() === cn);
       if(!hit){ skipped++; continue; }
-      const r = await fetch(base + '/api/talents/'+hit.id, {
+      const r = await fetch(vaApiBase() + '/api/talents/' + hit.id, {
         method:'DELETE', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({confirm_name:roleCn, expected_revision:Number(hit.revision||1)})
+        body: JSON.stringify({ confirm_name: cn, expected_revision: Number(hit.revision || 1) })
       });
-      const result = await r.json().catch(()=>({}));
-      if(!r.ok) throw new Error('移入回收站失败: '+roleCn+' ('+(result.error||r.status)+')');
+      const j = await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error('移入回收站失败：' + cn + '（' + (j.error || r.status) + '）');
       recycled++;
+      ROSTER_DB_ROWS = ROSTER_DB_ROWS.filter(x => Number(x.id) !== Number(hit.id));
     }
-
-    // 4) 仅在全部请求成功后清空草稿与回收站队列。
     ['vo_talent_edits_v1','vo_talent_adds_v1','vo_talent_deletes_v1',ROSTER_DELETE_QUEUE_KEY].forEach(k=>{
       try{ localStorage.removeItem(k); }catch(_){}
     });
-
-    flashRoster('已保存到系统 ✓ 更新 '+patched+' / 新增 '+posted+' / 回收站 '+recycled+' / 未变或跳过 '+skipped, true);
+    if(patched || posted || recycled){
+      flashRoster('已自动回写历史草稿 ✓ 更新 ' + patched + ' / 新增 ' + posted + ' / 回收站 ' + recycled, true);
+      await loadRoster();
+    }
   }catch(err){
-    flashRoster('保存失败：'+err.message, false);
-  }finally{
-    if(btn) btn.disabled = false;
+    flashRoster('历史草稿回写失败（草稿已保留）：' + err.message, false);
   }
 }
 
@@ -1282,10 +1358,8 @@ function initCellEdit(){
       const parts = val.split(/\s*[\/·、,，]\s*/).filter(Boolean);
       const loc = parts[0] || '';
       const studio = parts.slice(1).join(' ') || '';
-      saveCellEdit(rid, side+'_location', loc);
-      saveCellEdit(rid, side+'_studio',   studio);
-      const row = TALENT_LIST.find(r=>r.id===rid);
-      if(row){ row[side+'_location']=loc; row[side+'_studio']=studio; }
+      // 复合字段合并成一次请求，避免触发两次 PATCH
+      saveCellEdits(rid, { [side+'_location']: loc, [side+'_studio']: studio });
       const clean = [loc, studio].filter(x=>x && x!=='N/A').join(' · ');
       td.textContent = clean;
       td.dataset.orig = clean;
@@ -1302,15 +1376,13 @@ function initCellEdit(){
         }
         const dup = TALENT_LIST.some(r=>Number(r.id)!==rid && String(r.role_cn||'').trim()===val);
         if(dup){
-          alert('角色中文名重复：'+val+'\n请改成唯一名称后再保存到系统。');
+          alert('角色中文名重复：'+val+'\n请改成唯一名称后重新输入。');
           td.textContent = orig;
           td.dataset.orig = orig;
           return;
         }
       }
-      saveCellEdit(rid, field, val);
-      const row = TALENT_LIST.find(r=>r.id===rid);
-      if(row){ row[field] = val; }
+      saveCellEdit(rid, field, val);   // 内存值在 saveCellEdits 内统一更新
       if(val==='AI生成') td.style.color = 'var(--c-info)';
       else if(!val || val==='N/A') td.style.color = 'var(--c-text-dim)';
       else td.style.color = (field==='cn_va'||field==='en_va') ? '' : 'var(--c-text-2)';
@@ -1478,9 +1550,7 @@ function saveRecPicker(){
   // 序列化 + 过滤空行
   const arr = REC_CTX.rows.map(formatRecItem).map(x=>x.trim()).filter(Boolean);
   const { td, rid, field } = REC_CTX;
-  saveCellEdit(rid, field, arr);
-  const row = TALENT_LIST.find(r=>r.id===rid);
-  if(row){ row[field] = arr; }
+  saveCellEdit(rid, field, arr);   // 内存值在 saveCellEdits 内统一更新
   // 重绘 cell
   td.dataset.times = JSON.stringify(arr).replace(/'/g,"&#39;");
   td.innerHTML = arr.map(t=>`<span class="rec-chip">${escHtml(t)}</span>`).join('');
@@ -1520,7 +1590,9 @@ function closeRowMenu(){
 document.addEventListener('click', ()=>closeRowMenu());
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeRowMenu(); });
 
-function deleteRosterRow(rid){
+// 删除行：直接 DELETE voice_roles（软删除，管理员可恢复）。
+// 删除前必须输入完整角色名确认；绝不按「当前列表缺失」推断删除。
+async function deleteRosterRow(rid){
   const row = TALENT_LIST.find(r=>Number(r.id)===Number(rid));
   if(!row){ closeRowMenu(); return; }
   const label = String(row.role_cn || row.role_en || ('id='+rid)).trim();
@@ -1531,31 +1603,47 @@ function deleteRosterRow(rid){
     return;
   }
   closeRowMenu();
-  try{
-    if(row._added){
-      // 尚未保存到后端的新草稿只移除本地新增项。
-      const adds = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
-      const next = adds.filter(a => Number(a.id) !== Number(rid));
-      localStorage.setItem('vo_talent_adds_v1', JSON.stringify(next));
-    } else {
-      // 已有记录只按稳定的 role_cn 进入显式队列，禁止使用可能错位的本地数字 id。
-      const queue = loadRosterDeleteQueue();
-      if(!queue.some(x=>String(x.role_cn).trim()===label)){
-        queue.push({role_cn:label, local_id:Number(rid), queued_at:new Date().toISOString()});
-        saveRosterDeleteQueue(queue);
-      }
+  const hit = rosterDbRow(row);
+  if(hit && VA_API_AVAILABLE){
+    try{
+      const r = await fetch(vaApiBase() + '/api/talents/' + hit.id, {
+        method:'DELETE', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ confirm_name: label, expected_revision: Number(hit.revision || 1) })
+      });
+      const j = await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+      ROSTER_DB_ROWS = ROSTER_DB_ROWS.filter(x => Number(x.id) !== Number(hit.id));
+      flashRoster('已移入回收站 ✓ 可由管理员恢复', true);
+    }catch(error){
+      // 删除失败：排队，下次加载时由 migrateRosterDrafts 自动重试
+      enqueueRosterDelete(label, rid);
+      flashRoster('删除失败（已排队，将自动重试）：'+error.message, false);
     }
-    const edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
-    if(edits[rid]){ delete edits[rid]; localStorage.setItem('vo_talent_edits_v1', JSON.stringify(edits)); }
-  }catch(error){
-    alert('无法写入回收站队列：'+error.message);
-    return;
+  } else if(hit){
+    enqueueRosterDelete(label, rid);
+    flashRoster('已排队 ✓ 联网后自动移入回收站', true);
   }
+  // 无论后端结果如何，先移除本地行与本行残留草稿，保证界面与后续 diff 一致
   const idx = TALENT_LIST.findIndex(r=>Number(r.id)===Number(rid));
   if(idx>=0) TALENT_LIST.splice(idx,1);
+  try{
+    const edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
+    if(edits[rid]){ delete edits[rid]; localStorage.setItem('vo_talent_edits_v1', JSON.stringify(edits)); }
+    const adds = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
+    const next = adds.filter(a => Number(a.id) !== Number(rid));
+    if(next.length !== adds.length) localStorage.setItem('vo_talent_adds_v1', JSON.stringify(next));
+  }catch(_){}
   renderMeter();
   renderRoster();
-  flashRoster('已加入回收站队列；点击「保存到系统」后生效，可由管理员恢复。', true);
+}
+function enqueueRosterDelete(roleCn, rid){
+  try{
+    const queue = loadRosterDeleteQueue();
+    if(!queue.some(x=>String(x.role_cn).trim()===roleCn)){
+      queue.push({role_cn:String(roleCn).trim(), local_id:Number(rid), queued_at:new Date().toISOString()});
+      saveRosterDeleteQueue(queue);
+    }
+  }catch(_){}
 }
 
 // 角色信息 hover · 全局单例玻璃卡（v5 · 2026-09-02：通知中心式多区块结构）
@@ -1604,8 +1692,10 @@ function deleteRosterRow(rid){
     const dim     = td.classList.contains('casting-done-dim');
 
     // 顶部状态标签
+    // 说明：pending 只看声优是否定下（cn_va/en_va），与「选角资料是否齐全」是两个维度。
+    // 资料已入库但仍未定声优 → 「待选角 · 资料已备」，避免误以为资料没传。
     let tagClass, tagText;
-    if(pending){ tagClass='tag-pending'; tagText='待选角'; }
+    if(pending){ tagClass='tag-pending'; tagText = hasContent ? '待选角 · 资料已备' : '待选角'; }
     else if(dim){ tagClass='tag-dim';    tagText='资料待更新'; }
     else {        tagClass='tag-done';   tagText='已归档'; }
 
@@ -1617,7 +1707,8 @@ function deleteRosterRow(rid){
     const footBtn = hasContent
       ? `<span class="ct-btn" data-action="download">下载 Word</span>`
       : `<span class="ct-btn" style="background:rgba(212,221,227,.08);border-color:rgba(212,221,227,.22);color:var(--c-text-mute);cursor:default">${pending?'等待资料':'暂无资料'}</span>`;
-    const footHint = pending ? '← 双击下载（待资料）' : (hasContent ? '← 双击下载选角资料' : '');
+    // 脚注只看资料是否齐全：有资料就能下载，与是否定下声优无关
+    const footHint = hasContent ? '← 双击下载选角资料' : (pending ? '资料待文案补充' : '');
 
     // 角色名
     const roleHtml = rcn
@@ -1811,14 +1902,8 @@ function downloadCastingNote(rid){
 // 保留兼容
 function openCastingViewer(rid){ downloadCastingNote(rid); }
 
-function saveCellEdit(id, field, val){
-  try{
-    const edits = JSON.parse(localStorage.getItem('vo_talent_edits_v1')||'{}')||{};
-    edits[id] = edits[id] || {};
-    edits[id][field] = val;
-    localStorage.setItem('vo_talent_edits_v1', JSON.stringify(edits));
-  }catch(_){}
-}
+// saveCellEdit / saveCellEdits 已上移到「落库工具层」（见 persistVoiceRole 附近）：
+// 单元格编辑现在直写 voice_roles，不再只落 localStorage 草稿。
 
 // ==================== 新建声优 · 结构化表单 ====================
 const VA_FIELDS = ['vaCategory','vaGender','vaRoleCn','vaRoleEn','vaBasicInfo','vaPersona','vaLinesCn','vaLinesEn','vaRefLinks','vaNotes'];
@@ -1888,7 +1973,7 @@ function openVaBatchPicker(chars, sourceName){
       <select class="cat-sel" onclick="event.preventDefault();event.stopPropagation()" onmousedown="event.stopPropagation()">${catOpts}</select>
       <span class="role">${escHtml(roleCn)}<span class="en">${escHtml(roleEn)}</span></span>
       <select class="gender-sel" onclick="event.preventDefault();event.stopPropagation()" onmousedown="event.stopPropagation()">${gOpts}</select>
-      <span class="status ${dup?'dup-tag':''}">${dup?'已存在':'待入库'}</span>
+      <span class="status ${dup?'dup-tag':''}">${dup?'将更新':'待入库'}</span>
       <div class="voice">${escHtml(voice.slice(0,120))}</div>
     </label>`;
   }).join('');
@@ -1901,7 +1986,8 @@ function closeVaBatch(){
   VA_BATCH = { chars: [], sourceName: '' };
 }
 function toggleVaBatchAll(on){
-  document.querySelectorAll('#vaBatchList .va-batch-item:not(.dup) input[type=checkbox]').forEach(cb => cb.checked = !!on);
+  // 「将更新」的角色同样可以勾选：勾选 = 用文档资料覆盖其选角资料
+  document.querySelectorAll('#vaBatchList .va-batch-item input[type=checkbox]').forEach(cb => cb.checked = !!on);
   updateVaBatchHint();
 }
 function updateVaBatchHint(){
@@ -1909,9 +1995,127 @@ function updateVaBatchHint(){
   const total = items.length;
   const dup = items.filter(el => el.classList.contains('dup')).length;
   const sel = items.filter(el => el.querySelector('input[type=checkbox]').checked).length;
-  document.getElementById('vaBatchHint').textContent = `共 ${total} 个 · ${dup} 已存在 · 已选 ${sel} 个`;
+  document.getElementById('vaBatchHint').textContent =
+    `共 ${total} 个 · 新增 ${total - dup} / 更新 ${dup} · 已选 ${sel} 个`;
 }
-function submitVaBatch(){
+
+// ==================== 落库：解析结果 → voice_roles（2026-09-02 修链路） ====================
+// 背景：此前「保存声优 / 导入所选」只写 localStorage 草稿 vo_talent_adds_v1，
+// 若未再点「保存到系统」就刷新页面，整份文档资料即丢失（M5-33 等 3 份选角文档即因此未入库）。
+// 该按钮已于 2026-09-02 退役：上传/新建改为直写 DB，单元格编辑同样直写（见 saveCellEdits）。
+// 现在：能连后端就直写 DB —— 新角色 POST /api/talents，已存在角色 PATCH 只覆盖文档承载的字段
+// （module / role_en / gender / casting_note），保留库里已录的声优、录制地点等信息；
+// 仅 file:// 预览或后端不可用时才退回本地草稿，并明确提示「未入库」。
+function vaApiBase(){ return (typeof VA_API_BASE !== 'undefined' && VA_API_BASE) ? VA_API_BASE : ''; }
+
+async function vaFetchDbByCn(){
+  const r = await fetch(vaApiBase() + '/api/talents', { cache:'no-store' });
+  if(!r.ok) throw new Error('读取声优库失败（HTTP ' + r.status + '）');
+  const db = await r.json().catch(()=>[]);
+  const map = new Map();
+  (Array.isArray(db) ? db : []).forEach(x => {
+    const k = String(x.role_cn || '').trim();
+    if(k) map.set(k, x);
+  });
+  return map;
+}
+
+// 解析器输出的 basic_info / persona 自带【…】小标题；手填场景没有。
+// 这里只在首行不是【…】时才补标题，避免「【基本信息】\n【基础信息】」这种重复标题。
+function vaNoteBlock(title, txt){
+  const t = String(txt || '').trim();
+  if(!t) return '';
+  return /^\s*【/.test(t) ? t : '【' + title + '】\n' + t;
+}
+function vaCastingNote(f, sourceName){
+  return [
+    vaNoteBlock('基本信息', f.basic_info),
+    vaNoteBlock('人设 & 背景', f.persona),
+    vaNoteBlock('中试音台词', f.lines_cn),
+    vaNoteBlock('英试音台词', f.lines_en),
+    vaNoteBlock('参考音视频', f.ref_links),
+    vaNoteBlock('其他备注', f.notes),
+    sourceName && '【来源文档】\n' + sourceName,
+  ].filter(Boolean).join('\n\n');
+}
+
+async function vaPersistOne(dbMap, f, castingNote){
+  const payload = {
+    module: f.category || 'NPC',
+    role_cn: String(f.role_cn || '').trim(),
+    role_en: f.role_en || '',
+    gender: f.gender || '',
+    casting_note: castingNote || ''
+  };
+  const hit = dbMap.get(payload.role_cn);
+  if(hit){
+    const r = await fetch(vaApiBase() + '/api/talents/' + hit.id, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(Object.assign({}, payload, { expected_revision: Number(hit.revision || 1) }))
+    });
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(payload.role_cn + '：' + (j.error || r.status));
+    hit.revision = Number(j.revision || (Number(hit.revision || 1) + 1));
+    return 'updated';
+  }
+  const r = await fetch(vaApiBase() + '/api/talents', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(payload.role_cn + '：' + (j.error || r.status));
+  dbMap.set(payload.role_cn, { id: j.id, role_cn: payload.role_cn, revision: 1 });
+  return 'created';
+}
+
+// 落库后重新拉真源，并把目标行滚到视野中央高亮一下
+async function vaReloadAndFocus(roleCn){
+  await loadRoster();
+  requestAnimationFrame(()=>{
+    const td = [...document.querySelectorAll('#rosterTbody td[data-role_cn]')]
+      .find(t => t.getAttribute('data-role_cn') === roleCn);
+    const tr = td && td.closest('tr');
+    if(!tr) return;
+    tr.scrollIntoView({ behavior:'smooth', block:'center' });
+    tr.style.transition = 'background .6s';
+    tr.style.background = 'rgba(15,247,150,.18)';
+    setTimeout(()=>{ tr.style.background = ''; }, 1200);
+  });
+}
+
+// 后端不可用时的兜底：写本地草稿，页面下次加载时由 migrateRosterDrafts 自动回写（调用方负责重渲染）
+function vaDraftPush(rec){
+  const adds = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
+  const cn = String(rec.role_cn || '').trim();
+  // 同名按「更新」处理，避免列表里出现两条同名行
+  const ai = adds.findIndex(a => String(a.role_cn || '').trim() === cn);
+  if(ai >= 0) adds[ai] = rec; else adds.push(rec);
+  localStorage.setItem('vo_talent_adds_v1', JSON.stringify(adds));
+  const ti = TALENT_LIST.findIndex(r => String(r.role_cn || '').trim() === cn);
+  if(ti >= 0) TALENT_LIST[ti] = Object.assign({}, TALENT_LIST[ti], rec); else TALENT_LIST.push(rec);
+}
+// 构造一条声优库记录（落库 payload 之外，本地草稿 / 表格渲染也需要完整结构）
+function buildVaRec(f, castingNote, newId, sourceName){
+  return {
+    id: newId,
+    category: f.category || 'NPC',
+    role_cn: (f.role_cn || '').trim(),
+    role_en: f.role_en || '',
+    gender: f.gender || '',
+    cn_va:'', cn_location:'', cn_studio:'',
+    en_va:'', en_location:'', en_studio:'',
+    basic_info: f.basic_info || '',
+    persona: f.persona || '',
+    audition_lines_cn: f.lines_cn || '',
+    audition_lines_en: f.lines_en || '',
+    ref_links: f.ref_links || '',
+    notes: f.notes || '',
+    source_doc_url: sourceName || '',
+    casting_note: castingNote,
+    _added: true
+  };
+}
+
+async function submitVaBatch(){
   const items = [...document.querySelectorAll('#vaBatchList .va-batch-item')];
   const picked = items
     .filter(el => el.querySelector('input[type=checkbox]').checked)
@@ -1921,53 +2125,43 @@ function submitVaBatch(){
       gender: (el.querySelector('.gender-sel')||{}).value
     }));
   if(!picked.length){ alert('未选择任何角色'); return; }
-  const adds = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
-  let addedCount = 0;
-  const existingNames = new Set(TALENT_LIST.map(r => (r.role_cn||'').trim()));
-  picked.forEach(p => {
-    const idx = p.idx;
-    const c = VA_BATCH.chars[idx];
-    const f = { ...(c.fields||{}) };
+
+  const btn = document.getElementById('vaBatchImportBtn');
+  if(btn){ btn.disabled = true; btn.textContent = '入库中…'; }
+  let dbMap = null;
+  if(VA_API_AVAILABLE){
+    try{ dbMap = await vaFetchDbByCn(); }catch(_){ dbMap = null; }
+  }
+  const stat = { created:0, updated:0, drafted:0, failed:[] };
+
+  for(const p of picked){
+    const c = VA_BATCH.chars[p.idx];
+    if(!c) continue;
+    const f = Object.assign({}, c.fields || {});
     // 应用弹层里用户改过的大类/性别
     if(p.cat)    f.category = p.cat;
     if(p.gender !== undefined) f.gender = p.gender;
     const roleCn = (f.role_cn || '').trim();
-    if(!roleCn || existingNames.has(roleCn)) return;   // 二次防重
-    const newId = Math.max(0, ...TALENT_LIST.map(r => Number(r.id)||0), ...adds.map(r=>Number(r.id)||0)) + 1 + addedCount;
-    const castingNote = [
-      f.basic_info && '【基础信息】\n' + f.basic_info,
-      f.persona    && '【人设 & 背景】\n' + f.persona,
-      f.lines_cn   && '【中试音台词】\n' + f.lines_cn,
-      f.lines_en   && '【英试音台词】\n' + f.lines_en,
-      f.ref_links  && '【参考音视频】\n' + f.ref_links,
-      f.notes      && '【其他备注】\n' + f.notes,
-      VA_BATCH.sourceName && '【来源文档】\n' + VA_BATCH.sourceName,
-    ].filter(Boolean).join('\n\n');
-    const rec = {
-      id: newId,
-      category: f.category || 'NPC',
-      role_cn: roleCn,
-      role_en: f.role_en || '',
-      gender: f.gender || '',
-      cn_va:'', cn_location:'', cn_studio:'',
-      en_va:'', en_location:'', en_studio:'',
-      basic_info: f.basic_info || '',
-      persona: f.persona || '',
-      audition_lines_cn: f.lines_cn || '',
-      audition_lines_en: f.lines_en || '',
-      ref_links: f.ref_links || '',
-      notes: f.notes || '',
-      source_doc_url: VA_BATCH.sourceName || '',
-      casting_note: castingNote,
-      _added: true
-    };
-    adds.push(rec);
-    TALENT_LIST.push(rec);
-    existingNames.add(roleCn);
-    addedCount++;
-  });
-  try{ localStorage.setItem('vo_talent_adds_v1', JSON.stringify(adds)); }catch(_){}
-  // 切回全部视图 + 重新渲染
+    if(!roleCn){ continue; }
+    const note = vaCastingNote(f, VA_BATCH.sourceName);
+    if(!dbMap){
+      // 后端不可达：只落本地草稿，重名不覆盖（避免无真源时误改）
+      if(TALENT_LIST.some(r => (r.role_cn||'').trim() === roleCn)){
+        stat.failed.push(roleCn + '（已存在，离线不覆盖）');
+        continue;
+      }
+      const newId = Math.max(0, ...TALENT_LIST.map(r => Number(r.id)||0)) + 1 + stat.drafted;
+      vaDraftPush(buildVaRec(f, note, newId, VA_BATCH.sourceName));
+      stat.drafted++;
+      continue;
+    }
+    try{
+      const mode = await vaPersistOne(dbMap, f, note);
+      stat[mode]++;
+    }catch(e){ stat.failed.push(e.message); }
+  }
+
+  // 切回全部视图，保证结果可见
   ROSTER_CAT = '';
   const allBtn = document.querySelector('.toolbar .tool-btn[data-cat=""]');
   if(allBtn){
@@ -1978,10 +2172,19 @@ function submitVaBatch(){
   if(statusAllBtn) setRosterStatus('', statusAllBtn);
   const searchEl = document.getElementById('rosterSearch');
   if(searchEl) searchEl.value = '';
-  renderMeter();
-  renderRoster();
   closeVaBatch();
-  alert(`已批量导入 ${addedCount} 个角色（跳过 ${picked.length - addedCount} 个重名/无效）。请到表格里核对声优/地点等信息。`);
+  if(btn){ btn.disabled = false; btn.textContent = '导入所选'; }
+
+  if(dbMap){
+    await loadRoster();
+    let msg = `已入库：新建 ${stat.created} 个 · 更新 ${stat.updated} 个`;
+    if(stat.failed.length) msg += `\n失败 ${stat.failed.length} 个：\n- ` + stat.failed.join('\n- ');
+    alert(msg);
+  } else {
+    renderMeter();
+    renderRoster();
+    alert(`未能连接后端，已存为本地草稿 ${stat.drafted} 个【未入库】。\n请在 Vomi 站点重新打开本页，草稿会自动回写系统。`);
+  }
 }
 document.addEventListener('keydown', (e)=>{
   if(e.key==='Escape' && document.getElementById('vaBatchMask').classList.contains('show')){
@@ -2047,7 +2250,7 @@ function openAddVA(){
 function closeVaForm(){
   document.getElementById('vaPopMask').classList.remove('show');
 }
-function submitVaForm(){
+async function submitVaForm(){
   const v = (id) => (document.getElementById(id).value || '').trim();
   const err = document.getElementById('vaFormError');
   err.textContent = '';
@@ -2070,74 +2273,58 @@ function submitVaForm(){
   if(!role_en)    { err.textContent = '必填：请填写「Role (EN)」'; return; }
   // 基本信息 / 人设背景 / 中英试音台词 — 选填，不强制
 
-  // 重名检查
-  if(TALENT_LIST.some(r => (r.role_cn||'').trim() === role_cn)){
-    err.textContent = `角色"${role_cn}"已存在，请改名或直接在表格里编辑`;
+  // 重名：不再一刀切拒绝 —— 同名角色按「更新选角资料」处理（先确认，避免误覆盖）
+  const isDup = TALENT_LIST.some(r => (r.role_cn||'').trim() === role_cn);
+  if(isDup && !confirm(`角色「${role_cn}」已存在。\n保存将用当前表单内容覆盖它的选角资料（声优/录制信息保留）。\n继续？`)) return;
+
+  const f = { category, role_cn, role_en, gender, basic_info, persona, lines_cn, lines_en, ref_links, notes };
+  const castingNote = vaCastingNote(f, VA_SOURCE_DOC_URL);
+  const btn = document.getElementById('vaFormSaveBtn');
+  if(btn){ btn.disabled = true; btn.textContent = '保存中…'; }
+
+  // 切回「全部」视图，保证这条一定能被看到（否则大类芯片 / 侧栏状态过滤会挡住）
+  const showAll = () => {
+    ROSTER_CAT = '';
+    const allBtn = document.querySelector('.toolbar .tool-btn[data-cat=""]');
+    if(allBtn){
+      document.querySelectorAll('.toolbar .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
+      allBtn.classList.add('active');
+    }
+    const statusAllBtn = document.querySelector('#rosterStatusNav .nav-sub-item[data-status=""]');
+    if(statusAllBtn) setRosterStatus('', statusAllBtn);
+    const searchEl = document.getElementById('rosterSearch');
+    if(searchEl) searchEl.value = '';
+  };
+
+  let dbMap = null;
+  if(VA_API_AVAILABLE){ try{ dbMap = await vaFetchDbByCn(); }catch(_){ dbMap = null; } }
+
+  if(dbMap){
+    try{
+      const mode = await vaPersistOne(dbMap, f, castingNote);
+      showAll();
+      closeVaForm();
+      await vaReloadAndFocus(role_cn);
+      flashRoster(`已入库 ✓ ${mode === 'created' ? '新建' : '更新'}：${role_cn}`, true);
+    }catch(e){
+      // 落库失败：不静默吞错，退回本地草稿并明确告知「未写入系统」
+      showAll();
+      const newId = Math.max(0, ...TALENT_LIST.map(r => Number(r.id)||0)) + 1;
+      try{ vaDraftPush(buildVaRec(f, castingNote, newId, VA_SOURCE_DOC_URL)); renderMeter(); renderRoster(); }catch(_){}
+      closeVaForm();
+      flashRoster('入库失败，已存本地草稿（未写入系统）：' + e.message, false);
+    }finally{
+      if(btn){ btn.disabled = false; btn.textContent = '保存声优'; }
+    }
     return;
   }
-
+  if(btn){ btn.disabled = false; btn.textContent = '保存声优'; }
+  // file:// 预览或后端不可达：只落本地草稿
+  showAll();
   const newId = Math.max(0, ...TALENT_LIST.map(r => Number(r.id)||0)) + 1;
-  // casting_note 汇总所有资料（表格「角色信息」列展示，多行文本）
-  const castingNote = [
-    basic_info    && '【基本信息】\n' + basic_info,
-    persona       && '【人设 & 背景】\n' + persona,
-    lines_cn      && '【中试音台词】\n' + lines_cn,
-    lines_en      && '【英试音台词】\n' + lines_en,
-    ref_links     && '【参考音视频】\n' + ref_links,
-    notes         && '【其他备注】\n' + notes,
-    VA_SOURCE_DOC_URL && '【来源文档】\n' + VA_SOURCE_DOC_URL,
-  ].filter(Boolean).join('\n\n');
-
-  const rec = {
-    id: newId,
-    category,
-    role_cn,
-    role_en,
-    gender,                  // 从表单直接采集（必填）
-    cn_va: '', cn_location: '', cn_studio: '',
-    en_va: '', en_location: '', en_studio: '',
-    // 详细的角色资料，分字段存（可以后续单独消费）
-    basic_info,
-    persona,
-    audition_lines_cn: lines_cn,
-    audition_lines_en: lines_en,
-    ref_links,
-    notes,
-    source_doc_url: VA_SOURCE_DOC_URL || '',   // 在线文档存档（导入来源）
-    casting_note: castingNote,
-    _added: true
-  };
-  try{
-    const adds = JSON.parse(localStorage.getItem('vo_talent_adds_v1')||'[]')||[];
-    adds.push(rec);
-    localStorage.setItem('vo_talent_adds_v1', JSON.stringify(adds));
-  }catch(_){}
-  TALENT_LIST.push(rec);
-  // 切回"全部"视图，保证新建的行一定能被看到（否则 category 芯片 / 侧栏状态 过滤会挡住）
-  ROSTER_CAT = '';
-  const allBtn = document.querySelector('.toolbar .tool-btn[data-cat=""]');
-  if(allBtn){
-    document.querySelectorAll('.toolbar .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
-    allBtn.classList.add('active');
-  }
-  // 侧栏状态回 All
-  const statusAllBtn = document.querySelector('#rosterStatusNav .nav-sub-item[data-status=""]');
-  if(statusAllBtn) setRosterStatus('', statusAllBtn);
-  // 清空搜索框（防止搜索状态挡住新行）
-  const searchEl = document.getElementById('rosterSearch');
-  if(searchEl) searchEl.value = '';
-  renderMeter();
-  renderRoster();
+  try{ vaDraftPush(buildVaRec(f, castingNote, newId, VA_SOURCE_DOC_URL)); renderMeter(); renderRoster(); }catch(_){}
   closeVaForm();
-  requestAnimationFrame(()=>{
-    const tr = document.querySelector(`#rosterTbody tr[data-rid="${newId}"]`);
-    if(tr){
-      tr.scrollIntoView({behavior:'smooth', block:'center'});
-      tr.style.transition = 'background .6s';
-      tr.style.background = 'rgba(15,247,150,.18)';
-      setTimeout(()=>{ tr.style.background = ''; }, 1200);
-    }
-  });
+  flashRoster('已存本地草稿【未入库】，请通过 Vomi 站点打开后保存', false);
 }
 // Esc 关闭新建表单
 document.addEventListener('keydown', (e)=>{

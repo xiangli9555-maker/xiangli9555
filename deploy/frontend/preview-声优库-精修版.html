@@ -582,23 +582,23 @@ body.embed .mid{width:100%}
       </div>
 
       <div class="va-row">
-        <label class="va-full req">基本信息
+        <label class="va-full opt">基本信息
           <textarea id="vaBasicInfo" rows="2" placeholder="年龄段 / 口音要求 / 音色描述（低沉/清亮/沙哑…）…"></textarea>
         </label>
       </div>
 
       <div class="va-row">
-        <label class="va-full req">角色的人设 &amp; 背景故事
+        <label class="va-full opt">角色的人设 &amp; 背景故事
           <textarea id="vaPersona" rows="3" placeholder="要求能较全面地展现人物性格 …"></textarea>
         </label>
       </div>
 
       <div class="va-row">
-        <label class="req">中试音台词（至少 5 句）
+        <label class="opt">中试音台词
           <textarea id="vaLinesCn" rows="6" placeholder="每行一句，回车换句…"></textarea>
           <div class="va-hint" id="vaLinesCnHint">已 0 句</div>
         </label>
-        <label class="req">英试音台词（至少 5 句）
+        <label class="opt">英试音台词
           <textarea id="vaLinesEn" rows="6" placeholder="One line per sentence…"></textarea>
           <div class="va-hint" id="vaLinesEnHint">已 0 句</div>
         </label>
@@ -1810,17 +1810,12 @@ function submitVaForm(){
   const ref_links  = v('vaRefLinks');
   const notes      = v('vaNotes');
 
-  // 必填校验
+  // 必填校验（2026-09-02 用户定稿：仅 4 项基础元数据为必填，资料区全部选填）
   if(!category)   { err.textContent = '必填：请选择「大类」'; return; }
   if(!gender)     { err.textContent = '必填：请选择「性别」'; return; }
   if(!role_cn)    { err.textContent = '必填：请填写「游戏角色（中）」'; return; }
   if(!role_en)    { err.textContent = '必填：请填写「Role (EN)」'; return; }
-  if(!basic_info) { err.textContent = '必填：请填写「基本信息」'; return; }
-  if(!persona)    { err.textContent = '必填：请填写「角色的人设 & 背景故事」'; return; }
-  const cnLineCnt = _countLines(lines_cn);
-  const enLineCnt = _countLines(lines_en);
-  if(cnLineCnt < 5) { err.textContent = `必填：「中试音台词」需至少 5 句（当前 ${cnLineCnt} 句）`; return; }
-  if(enLineCnt < 5) { err.textContent = `必填：「英试音台词」需至少 5 句（当前 ${enLineCnt} 句）`; return; }
+  // 基本信息 / 人设背景 / 中英试音台词 — 选填，不强制
 
   // 重名检查
   if(TALENT_LIST.some(r => (r.role_cn||'').trim() === role_cn)){

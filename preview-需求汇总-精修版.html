@@ -228,7 +228,9 @@ table.demand-table thead .th-max-date{background:#0F171C!important;border-color:
 /* 用 clip-path 让 thead sticky 时上边缘不出现细缝 */
 table.demand-table thead .th-ve-group,
 table.demand-table thead .th-max-date{border-bottom:0!important;padding-bottom:0!important}
-table.demand-table thead .th-ve-cat{border-top:0!important;padding-top:6px!important}
+table.demand-table thead .th-ve-cat{border-top:0!important;padding-top:6px!important;border-left-color:transparent!important}
+/* Max 组下的中/英 category th 也去掉竖线，跟声优预估同族一致 */
+table.demand-table thead th.col-max-date{border-left-color:transparent!important}
 th{padding:12px 12px;text-align:left;font-size:12.5px;color:var(--c-primary);font-weight:900;border-bottom:1px solid var(--c-hairline);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;font-family:'Inter','JetBrains Mono',sans-serif;text-shadow:0 0 8px rgba(15,247,150,.15)}
 th.sortable{position:relative;cursor:pointer;user-select:none;transition:color .2s;padding-left:20px!important;padding-right:20px!important}
 th.sortable:hover{color:#0FF796;text-shadow:0 0 12px rgba(15,247,150,.3)}

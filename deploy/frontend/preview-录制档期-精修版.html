@@ -421,6 +421,25 @@ body.embed .main{width:100%}
 
 /* 按需求视图 */
 .actor-table-demand td{padding:12px 16px;vertical-align:middle;font-size:13px}
+
+/* 需求视图 · 角色构成堆叠条（还原旧原型） */
+.demand-roster-overview{background:rgba(31,42,50,.76);border:1px solid var(--c-hairline);border-radius:6px;padding:9px 14px 10px;margin:0 4px 14px 0;display:flex;flex-direction:column;gap:7px}
+.demand-roster-head{display:flex;align-items:center;gap:8px;min-height:16px;font-size:11px;color:var(--c-text-mute);letter-spacing:.2px}
+.demand-roster-title{font-weight:600;color:var(--c-text-2)}
+.demand-roster-live{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:3px;background:rgba(15,247,150,.10);border:1px solid rgba(15,247,150,.28);color:var(--c-primary);font-size:9.5px;font-weight:700;letter-spacing:.5px}
+.demand-roster-live::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 5px rgba(15,247,150,.7)}
+.demand-roster-bar{height:7px;display:flex;overflow:hidden;border-radius:2px;background:var(--c-bg-0);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+.demand-roster-seg{height:100%;min-width:4px;padding:0;border:0;border-right:2px solid var(--c-bg-0);cursor:pointer;opacity:.78;transition:opacity .12s,filter .12s,box-shadow .12s}
+.demand-roster-seg:last-child{border-right:0}
+.demand-roster-seg:hover,.demand-roster-seg.on{opacity:1;filter:brightness(1.15);box-shadow:0 0 9px rgba(15,247,150,.22);position:relative;z-index:1}
+.demand-roster-seg.dim{opacity:.22}
+.demand-roster-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.demand-roster-li{appearance:none;background:transparent;border:0;padding:0;display:inline-flex;align-items:center;gap:5px;color:var(--c-text-mute);font:500 10.5px/1.2 'Microsoft YaHei UI','Microsoft YaHei',sans-serif;cursor:pointer;transition:color .12s,opacity .12s}
+.demand-roster-li:hover,.demand-roster-li.on{color:#fff}
+.demand-roster-li.dim{opacity:.30}
+.demand-roster-dot{width:5px;height:5px;border-radius:1px;background:var(--cat-color);box-shadow:0 0 4px color-mix(in srgb,var(--cat-color) 55%,transparent)}
+.demand-roster-count{font-variant-numeric:tabular-nums;color:inherit;font-weight:700}
+.demand-roster-note{font-size:9.5px;color:var(--c-text-dim);line-height:1.4;letter-spacing:.1px}
 .actor-table-demand .demand-name{font-weight:700;color:#fff;display:block}
 .actor-table-demand .demand-meta{font-size:10.5px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI',sans-serif;margin-top:2px}
 .actor-table-demand .actor-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:3px;background:rgba(255,255,255,.04);border:1px solid var(--c-hairline);font-size:12px;font-family:inherit}
@@ -1101,8 +1120,17 @@ body.embed .main{width:100%}
         <div id="actorRoleEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无角色数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
       </div>
 
-      <!-- 视图 B · 按需求：按 AREA 分组 → 每 AREA 下需求卡片（1 卡 = 1 需求） -->
+      <!-- 视图 B · 按需求：角色构成概览 → 按 AREA 分组 → 每 AREA 下需求卡片（1 卡 = 1 需求） -->
       <div class="demand-cards-wrap" id="actorDemandView" style="display:none">
+        <section class="demand-roster-overview" id="demandRosterOverview" aria-label="需求角色构成">
+          <div class="demand-roster-head">
+            <span class="demand-roster-title">角色构成 · 堆叠分布（图例可点击筛选）</span>
+            <span class="demand-roster-live">实时数据</span>
+          </div>
+          <div class="demand-roster-bar" id="demandRosterBar" aria-label="角色大类占比"></div>
+          <div class="demand-roster-legend" id="demandRosterLegend"></div>
+          <p class="demand-roster-note">按当前 release 的声优预估去重统计；悬浮查看人数与占比，点击色块或图例筛选需求卡。</p>
+        </section>
         <div class="demand-area-stack" id="actorDemandTbody"></div>
         <div id="actorDemandEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无需求档期数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
       </div>
@@ -1185,7 +1213,7 @@ function releaseInScope(row){
   const release = typeof row === 'string' ? row : (row && (row.release_plan || row.plan));
   return !!(window.VOMI_RELEASE_CALENDAR && window.VOMI_RELEASE_CALENDAR.isAtOrAfterCached(release, RELEASE_SCOPE_START));
 }
-let ACTOR_STATE = { lang: 'all', status: 'all', cat: 'all', gender: 'all', area: 'all', release: '', demands: [], loaded: false, vmode: readStoredActorVmode() };
+let ACTOR_STATE = { lang: 'all', status: 'all', cat: 'all', demandCat: 'all', gender: 'all', area: 'all', release: '', demands: [], loaded: false, vmode: readStoredActorVmode() };
 let SCHED_STATE = {
   lang: (window.SHELL_LANG==='cn'||window.SHELL_LANG==='en') ? window.SHELL_LANG : 'all',
   status: 'all',
@@ -1217,6 +1245,9 @@ function actorEsc(s){ return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&
 // 大类顺序与配色复用声优库页 CAT_COLORS，保证跨页一致。
 const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'AI系统音':6};
 const CAT_COLORS = {'指挥官':'#60A5FA','干员':'#F59E0B','Boss':'#EF4444','AI兵':'#0FF796','NPC':'#D4DDE3','AI系统音':'#3D4C57'};
+/* 需求视图堆叠条沿用旧原型的低饱和色序；数据仍来自真实 voice_estimates。 */
+const DEMAND_ROSTER_CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
+const DEMAND_ROSTER_CAT_COLORS = {'指挥官':'#8BA3A0','干员':'#D5A85B','Boss':'#BDAA8D','AI兵':'#89ABBA','NPC':'#607887','AI系统音':'#70B4A8'};
 const ROLE_CATEGORY_MAP = new Map(); // role_cn -> category
 function setRoleCategoryMap(rows){
   ROLE_CATEGORY_MAP.clear();
@@ -1234,6 +1265,56 @@ function categoryOf(ve){
   if(direct) return direct;
   const role = String(ve && ve.role || '').trim();
   return ROLE_CATEGORY_MAP.get(role) || '';
+}
+
+// 需求视图顶部「角色构成」：按当前 release 的 voice_estimates 对角色去重，不使用演示常量。
+function collectDemandRosterStats(){
+  const roleCats = new Map();
+  (ACTOR_STATE.demands || []).forEach(function(d){
+    if(ACTOR_STATE.release && String(d && d.release_plan || '') !== ACTOR_STATE.release) return;
+    let ves = d && d.voice_estimates;
+    if(typeof ves === 'string'){ try{ ves = JSON.parse(ves); }catch(_){ ves = []; } }
+    if(!Array.isArray(ves)) return;
+    ves.forEach(function(v){
+      const role = String(v && v.role || '').trim();
+      if(!role || roleCats.has(role)) return;
+      roleCats.set(role, categoryOf(v) || '未分类');
+    });
+  });
+  const counts = {};
+  roleCats.forEach(function(cat){ counts[cat] = (counts[cat] || 0) + 1; });
+  const extra = Object.keys(counts).filter(function(cat){ return DEMAND_ROSTER_CAT_ORDER.indexOf(cat) < 0; }).sort();
+  return DEMAND_ROSTER_CAT_ORDER.concat(extra).filter(function(cat){ return counts[cat] > 0; }).map(function(cat){
+    return {cat:cat,count:counts[cat],color:DEMAND_ROSTER_CAT_COLORS[cat] || '#6B7A85'};
+  });
+}
+function renderDemandRosterOverview(){
+  const root = document.getElementById('demandRosterOverview');
+  const bar = document.getElementById('demandRosterBar');
+  const legend = document.getElementById('demandRosterLegend');
+  if(!root || !bar || !legend) return;
+  const stats = collectDemandRosterStats();
+  const total = stats.reduce(function(sum,item){ return sum + item.count; }, 0);
+  root.hidden = total === 0;
+  if(!total){ bar.innerHTML = ''; legend.innerHTML = ''; return; }
+  const active = ACTOR_STATE.demandCat || 'all';
+  bar.innerHTML = stats.map(function(item){
+    const pct = Math.round(item.count / total * 100);
+    const on = active === item.cat;
+    const dim = active !== 'all' && !on;
+    return `<button type="button" class="demand-roster-seg${on?' on':''}${dim?' dim':''}" data-demand-cat="${escHtmlSafe(item.cat)}" onclick="setDemandRosterCat(this.dataset.demandCat)" style="flex:${item.count} 1 0;background:${item.color}" title="${escHtmlSafe(item.cat)} · ${item.count} 个角色 · ${pct}%" aria-label="筛选 ${escHtmlSafe(item.cat)}"></button>`;
+  }).join('');
+  legend.innerHTML = stats.map(function(item){
+    const on = active === item.cat;
+    const dim = active !== 'all' && !on;
+    return `<button type="button" class="demand-roster-li${on?' on':''}${dim?' dim':''}" data-demand-cat="${escHtmlSafe(item.cat)}" onclick="setDemandRosterCat(this.dataset.demandCat)" title="点击筛选 ${escHtmlSafe(item.cat)}" style="--cat-color:${item.color}"><span class="demand-roster-dot"></span><span>${escHtmlSafe(item.cat)}</span><span class="demand-roster-count">${item.count}</span></button>`;
+  }).join('');
+}
+function setDemandRosterCat(cat){
+  const value = String(cat || 'all');
+  ACTOR_STATE.demandCat = ACTOR_STATE.demandCat === value ? 'all' : value;
+  renderDemandRosterOverview();
+  renderActorDemandTable();
 }
 // 角色 → 性别兜底映射（真实数据接入声优库前用 mock 演示）
 const ROLE_GENDER_MAP = new Map();
@@ -1454,6 +1535,7 @@ function clearAllFilters(){
   ACTOR_STATE.lang = 'all';
   ACTOR_STATE.status = 'all';
   ACTOR_STATE.cat = 'all';
+  ACTOR_STATE.demandCat = 'all';
   ACTOR_STATE.gender = 'all';
   ACTOR_STATE.area = 'all';
   window.MID_FOCUS_YMD = null;
@@ -1745,6 +1827,7 @@ function aggregateByDemand(demands, release){
           story: story,
           lang: lang,
           role: role,
+          category: categoryOf(v),
           actor: name,
           est: est,
           schedule: schedInfo,
@@ -2174,6 +2257,7 @@ function renderSchedCell(item, lang){
 }
 
 function renderActorDemandTable(){
+  renderDemandRosterOverview();
   const all = aggregateByDemand(ACTOR_STATE.demands, ACTOR_STATE.release);
   // 筛选：搜索框作用于 story/role/actor；需求视图额外按 AREA 筛
   const q = (document.getElementById('actorSearch').value || '').trim().toLowerCase();
@@ -2181,6 +2265,7 @@ function renderActorDemandTable(){
   const list = all.filter(r => {
     if(ACTOR_STATE.lang !== 'all' && r.lang !== ACTOR_STATE.lang) return false;
     if(ACTOR_STATE.status !== 'all' && r.status !== ACTOR_STATE.status) return false;
+    if(ACTOR_STATE.demandCat !== 'all' && (r.category||'未分类') !== ACTOR_STATE.demandCat) return false;
     if(ACTOR_STATE.area && ACTOR_STATE.area !== 'all' && (r.area||'未分类') !== ACTOR_STATE.area) return false;
     if(focusYmd && !itemHasSlotOn(r, focusYmd)) return false;
     if(q){

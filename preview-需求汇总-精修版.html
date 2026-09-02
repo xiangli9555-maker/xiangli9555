@@ -226,7 +226,13 @@ table.demand-table thead .th-ve-cat,
 table.demand-table thead .th-max-date{background:#0F171C!important;box-shadow:inset 0 0 0 1px #0F171C!important;border-color:#0F171C!important}
 /* 第一行 group th 底部小边框设为 bg 色，避免透视；再用 outline 补齐 border-collapse 造成的半像素 */
 table.demand-table thead .th-ve-group,
-table.demand-table thead .th-max-date{border-bottom:1px solid #0F171C!important;outline:1px solid #0F171C;outline-offset:-1px}
+table.demand-table thead .th-max-date{border-bottom:1px solid #0F171C!important;outline:1px solid #0F171C;outline-offset:-1px;position:relative}
+/* 用 ::after 绝对定位块彻底盖住 group th 与下方 category th 之间的接缝（应对 DPR/半像素/border-collapse 引起的透光） */
+table.demand-table thead .th-ve-group::after,
+table.demand-table thead .th-max-date::after{content:'';position:absolute;left:-1px;right:-1px;bottom:-3px;height:5px;background:#0F171C;z-index:1;pointer-events:none}
+/* category th 顶部也补一层，双保险 */
+table.demand-table thead .th-ve-cat{position:relative}
+table.demand-table thead .th-ve-cat::before{content:'';position:absolute;left:-1px;right:-1px;top:-3px;height:5px;background:#0F171C;z-index:1;pointer-events:none}
 th{padding:12px 12px;text-align:left;font-size:12.5px;color:var(--c-primary);font-weight:900;border-bottom:1px solid var(--c-hairline);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;font-family:'Inter','JetBrains Mono',sans-serif;text-shadow:0 0 8px rgba(15,247,150,.15)}
 th.sortable{position:relative;cursor:pointer;user-select:none;transition:color .2s;padding-left:20px!important;padding-right:20px!important}
 th.sortable:hover{color:#0FF796;text-shadow:0 0 12px rgba(15,247,150,.3)}

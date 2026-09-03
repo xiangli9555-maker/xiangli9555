@@ -273,7 +273,7 @@ test('需求汇总、录制档期与外壳均从 Yang1 发布计划开始取数'
   });
   schedulePages.forEach((page) => {
     assert.equal(/function schedReleaseMatch\(plan\)\{[\s\S]{0,180}!releaseInScope\(plan\)/.test(page), true, '录制档期筛选仍允许 Yang1 之前的数据');
-    assert.equal(/ACTOR_STATE\.demands\s*=\s*arr\.filter\(releaseInScope\)/.test(page), true, '录制档期声优汇总未过滤 Yang1 之前的需求');
+    assert.equal(/ACTOR_STATE\.demands\s*=\s*usedMockDemands\s*\?\s*arr\s*:\s*arr\.filter\(releaseInScope\)/.test(page), true, '录制档期声优汇总未过滤 Yang1 之前的需求（mock 兜底例外须受 file:// + FORCE_SCHED_MOCK 双重开关保护）');
     assert.equal(/PUBLISHED_ROWS\s*=\s*arr\.filter\(releaseInScope\)/.test(page), true, '录制档期已发布排期未过滤 Yang1 之前的数据');
   });
   shellPages.forEach((page) => {
@@ -383,8 +383,11 @@ test('1470×956 录制档期压缩辅助栏与卡片轨道且根级无横向溢�
   schedulePages.forEach((page, index) => {
     assert.equal(page.includes('1470 compact: no horizontal scroll'), true, `录制档期 ${index + 1} 缺少紧凑模式标记`);
     assert.match(page, /\.mid-panel\{width:220px/);
-    assert.match(page, /\.demand-cards\{grid-template-columns:repeat\(auto-fill,minmax\(280px,1fr\)\)/);
-    assert.match(page, /\.acard-group\{grid-template-columns:repeat\(auto-fill,minmax\(260px,1fr\)\)/);
+    // 2026-09-03 第三轮：声优视图与需求视图统一为「6 块向下看板」（line-board-stack），
+    // 紧凑模式仅约束 min-width 和 overflow-x，不再依赖 acard-group 网格
+    assert.match(page, /\.layout,\.main,\.demand-cards-wrap,\.actor-table-wrap\{min-width:0\}/);
+    assert.match(page, /\.demand-cards-wrap\{background:transparent;flex:1;overflow-y:auto;min-height:0/);
+    assert.match(page, /\.line-board-stack\{display:flex;flex-direction:column;gap:14px;height:100%;min-height:0\}/);
     assert.match(page, /html,body\{overflow-x:hidden\}/);
   });
 });

@@ -49,11 +49,13 @@ test('即将录制零数据时显示当月无安排提示', () => {
   assert.match(SRC, /月暂无待录制安排/, '空月提示文案应保留');
 });
 
-// ---------- 3. 声优视图骨架 ----------
+// ---------- 3. 声优视图骨架（2026-09-03 第三轮：声优视图与需求视图统一为 6 板架构） ----------
 test('声优视图在有需求无预估时给出骨架提示而非纯空态', () => {
-  const i0 = SRC.indexOf('function renderActorRoleTable(');
-  const block = SRC.slice(i0, i0 + 3000);
-  assert.match(block, /actor-skeleton|待录入声优预估/, '应给出与需求视图一致的骨架语义');
+  // 声优视图与需求视图共用 renderActorSixBoard，骨架语义（lb-skeleton / 待录入声优预估）
+  // 由公共函数统一处理；薄包装 renderActorRoleTable / renderActorDemandTable 保持简单
+  assert.match(SRC, /function renderActorSixBoard\(/, '应存在共用 6 板入口');
+  assert.match(SRC, /function renderActorRoleTable\(\)\{\s*return\s*renderActorSixBoard\('role'\);?\s*\}/, '声优视图应是 role 薄包装');
+  assert.match(SRC, /lbe-skel|lb-skeleton|待录入声优预估/, '应给出与需求视图一致的骨架语义');
 });
 
 // ---------- 4. 不得引入虚构数据 ----------

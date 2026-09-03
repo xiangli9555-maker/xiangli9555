@@ -91,31 +91,36 @@ body{display:flex;flex-direction:column;overflow:hidden}
 
 /* 编制分布 · 方案 A 样式（2026-09-02）：横向彩色条带 + eyebrow 文字注解 + 段间强化分隔 */
 .roster-meter{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:14px 18px;display:flex;flex-direction:column;gap:12px}
-.meter-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.meter-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;letter-spacing:.5px;color:var(--c-primary);font-family:'JetBrains Mono','Microsoft YaHei UI',monospace}
-.meter-eyebrow .meter-dot{width:6px;height:6px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
-.meter-hint{font-size:11px;color:var(--c-text-dim);font-family:'JetBrains Mono','Microsoft YaHei UI',monospace;letter-spacing:.3px}
+/* meter 头部 eyebrow/hint 已按用户要求移除（2026-09-03），相关规则一并清理 */
 .meter-value{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:2px}
 .meter-value .unit{font-size:12px;color:var(--c-text-mute);margin-left:6px;font-weight:500}
 .meter-bar{width:100%;height:18px;background:var(--c-bg-0);border-radius:4px;display:flex;overflow:hidden;border:1px solid var(--c-hairline);position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),inset 0 -1px 0 rgba(0,0,0,.4)}
-.meter-seg{height:100%;transition:background .18s,box-shadow .18s,filter .18s;position:relative;cursor:default;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
-.meter-seg:not(:last-child){border-right:2px solid var(--c-bg-0)}
-.meter-seg:hover{filter:brightness(1.25) saturate(1.15);box-shadow:0 0 14px var(--c-primary-glow),inset 0 0 0 1px rgba(0,0,0,.18);z-index:1}
-.meter-legend{display:flex;flex-wrap:wrap;gap:0;font-size:11.5px;color:var(--c-text-mute);align-items:center;font-family:'JetBrains Mono',monospace;letter-spacing:.3px}
-.meter-legend .li{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;padding:2px 14px;border-right:1px solid var(--c-hairline)}
-.meter-legend .li:last-child{border-right:none}
-.meter-legend .li:first-child{padding-left:0}
-.meter-legend .sw{width:3px;height:12px;flex-shrink:0;background:var(--c-text-dim);opacity:.9;border-radius:1px}
-.meter-legend .li b{color:var(--c-text-2);font-weight:700;margin-left:2px;font-family:'JetBrains Mono',monospace}
-.meter-legend .li:hover{color:var(--c-text-2)}
+.meter-seg{height:100%;transition:background .18s,box-shadow .18s,filter .18s;position:relative;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+/* 无空隙：段间不做描边/间距，靠色相区分（用户 2026-09-03 要求整条连续） */
+.meter-seg:hover,.meter-seg.on{filter:brightness(1.25) saturate(1.15);box-shadow:0 0 14px var(--c-primary-glow),inset 0 0 0 1px rgba(0,0,0,.18);z-index:1}
+.meter-seg.dim{opacity:.28}
+.meter-legend{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--c-text-mute);align-items:center;letter-spacing:.2px}
+/* 图例即筛选器：正文字体 + hover/选中底色高亮（原分类芯片行已下线，能力平移至此） */
+.meter-legend .li{display:inline-flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums;font-family:inherit;font-size:13px;font-weight:500;line-height:1.2;padding:5px 11px;border:1px solid transparent;border-radius:7px;background:transparent;cursor:pointer;user-select:none;transition:color .12s,background .12s,border-color .12s,opacity .12s}
+.meter-legend .sw{width:10px;height:10px;flex-shrink:0;background:var(--c-text-dim);opacity:.9;border-radius:3px}
+.meter-legend .li b{color:var(--c-text-2);font-weight:700;margin-left:2px;font-family:inherit}
+.meter-legend .li:hover{color:#fff;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)}
+.meter-legend .li:hover b{color:#fff}
 .meter-legend .li:hover .sw{opacity:1;filter:brightness(1.15)}
+.meter-legend .li.on{color:#fff;background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.20);font-weight:700}
+.meter-legend .li.on b{color:#fff}
+.meter-legend .li.on .sw{opacity:1;filter:brightness(1.2)}
+.meter-legend .li.dim{opacity:.34}
 
 /* 工具行（表格外） */
-.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+/* 原独立工具行已合并进 header .actions（2026-09-03），.toolbar 容器下线 */
 .tb-search{background:var(--c-surface);border:1px solid var(--c-border);color:#fff;border-radius:5px;padding:7px 12px;font-size:13px;min-width:220px;flex:0 0 auto;outline:none;font-family:inherit;transition:border-color .15s}
 .tb-search:focus{border-color:var(--c-primary)}
 .tb-search::placeholder{color:var(--c-text-dim)}
 .tb-chips{display:flex;gap:6px;flex-wrap:wrap}
+/* header 内的搜索框（工具行已合并进 .actions，2026-09-03）：窄屏收窄，避免挤压新建按钮 */
+.actions .tb-search{min-width:200px;border-radius:999px;padding:7px 14px}
+@media (max-width:1600px){ .actions .tb-search{min-width:150px} }
 
 /* 卡片 & 表格 */
 .card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0}
@@ -260,14 +265,14 @@ body.embed .mid{width:100%}
 
 /* 6 大类分组标题行（已确定区域按 category 切分） · 2026-09-02 用户定稿 v2：
    字体统一全站（Microsoft YaHei UI / PingFang SC），加厚视觉权重，底色用 cat-color 横向淡渐变让"大类聚合"一眼可见 */
-#rosterTable tbody tr.cat-section{position:relative;background:color-mix(in srgb, var(--cat-color, #0FF796) 8%, transparent)!important}
-#rosterTable tbody tr.cat-section::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:color-mix(in srgb, var(--cat-color, #0FF796) 30%, transparent);pointer-events:none}
-#rosterTable tbody tr.cat-section::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:color-mix(in srgb, var(--cat-color, #0FF796) 15%, transparent);pointer-events:none}
-#rosterTable tbody tr.cat-section td{padding:10px 18px!important;border-top:0!important;border-bottom:0!important;background:transparent!important;cursor:default}
-#rosterTable tbody tr.cat-section .cat-label{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;letter-spacing:.3px;color:#fff;font-family:'Microsoft YaHei UI','PingFang SC',sans-serif}
-#rosterTable tbody tr.cat-section .cat-bar{width:3px;height:20px;border-radius:2px;display:inline-block}
-#rosterTable tbody tr.cat-section .cat-text{color:#fff;font-size:13px;font-weight:600}
-#rosterTable tbody tr.cat-section .cat-cnt{color:rgba(212,221,227,.48);font-size:12px;font-weight:500;font-family:'JetBrains Mono','Microsoft YaHei UI',monospace;font-variant-numeric:tabular-nums;margin-left:2px}
+/* 分组标题 · 独立药丸徽章（2026-09-03）：不再通栏铺底，徽章自带底色/描边，视觉轻盈 */
+#rosterTable tbody tr.cat-section{position:relative;background:transparent!important}
+#rosterTable tbody tr.cat-section td{padding:14px 18px 8px!important;border-top:0!important;border-bottom:0!important;background:transparent!important;cursor:default}
+#rosterTable tbody tr.cat-section .cat-label{display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 12px;border-radius:999px;background:color-mix(in srgb, var(--cat-ink, #0FF796) 16%, transparent);border:1px solid color-mix(in srgb, var(--cat-ink, #0FF796) 42%, transparent);font-family:inherit;line-height:1.2}
+#rosterTable tbody tr.cat-section .cat-dot{width:8px;height:8px;flex-shrink:0;border-radius:50%;background:var(--cat-color, #0FF796);box-shadow:0 0 6px color-mix(in srgb, var(--cat-ink, #0FF796) 60%, transparent)}
+#rosterTable tbody tr.cat-section .cat-text{color:#fff;font-size:13px;font-weight:700;letter-spacing:.2px}
+#rosterTable tbody tr.cat-section .cat-en{color:rgba(212,221,227,.52);font-size:10.5px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase}
+#rosterTable tbody tr.cat-section .cat-cnt{color:var(--cat-ink, #0FF796);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;margin-left:2px}
 #rosterTable tbody tr.cat-section td.ed:hover{background:transparent!important}
 /* 待选角组与首个分组标题之间留更明显的留白 */
 #rosterTable tbody tr.cat-first-after-pending td{padding-top:18px!important}
@@ -489,6 +494,9 @@ body.embed .mid{width:100%}
         </div>
       </div>
       <div class="actions">
+        <input id="rosterSearch" class="tb-search" placeholder="搜索：角色 / 声优 / 录音棚" oninput="renderRoster()"/>
+        <button class="tool-btn tb-gender" data-gender="男" onclick="setRosterGender('男',this)" data-tip="只看男性"><span class="g-male">♂</span></button>
+        <button class="tool-btn tb-gender" data-gender="女" onclick="setRosterGender('女',this)" data-tip="只看女性"><span class="g-female">♀</span></button>
         <button class="btn btn-primary" onclick="openAddVA()">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           新建声优
@@ -499,30 +507,8 @@ body.embed .mid{width:100%}
 
     <!-- Roster meter · 方案 A 横向色条（按角色大类比例分配 · 圆角色块一行可见上限） -->
     <div class="roster-meter">
-      <div class="meter-head">
-        <span class="meter-eyebrow"><span class="meter-dot"></span>ROSTER · 横向编制分布（按角色大类比例）</span>
-        <span class="meter-hint">ANTEE · 涵义 · Hover 任一段查看详情</span>
-      </div>
       <div class="meter-bar" id="meterBar"></div>
       <div class="meter-legend" id="meterLegend"></div>
-    </div>
-
-    <!-- 工具行：搜索 + 分类芯片 + 密度 + 新增 -->
-    <div class="toolbar">
-      <input id="rosterSearch" class="tb-search" placeholder="搜索：角色 / 声优 / 录音棚" oninput="renderRoster()"/>
-      <div class="tb-chips">
-        <button class="tool-btn active" data-cat="" onclick="setRosterCat('',this)">全部</button>
-        <button class="tool-btn" data-cat="指挥官" onclick="setRosterCat('指挥官',this)">指挥官</button>
-        <button class="tool-btn" data-cat="干员" onclick="setRosterCat('干员',this)">干员</button>
-        <button class="tool-btn" data-cat="Boss" onclick="setRosterCat('Boss',this)">Boss</button>
-        <button class="tool-btn" data-cat="AI兵" onclick="setRosterCat('AI兵',this)">AI兵</button>
-        <button class="tool-btn" data-cat="NPC" onclick="setRosterCat('NPC',this)">NPC</button>
-        <button class="tool-btn" data-cat="AI系统音" onclick="setRosterCat('AI系统音',this)">AI系统音</button>
-        <span class="chip-divider"></span>
-        <button class="tool-btn tb-gender" data-gender="男" onclick="setRosterGender('男',this)" data-tip="只看男性"><span class="g-male">♂</span></button>
-        <button class="tool-btn tb-gender" data-gender="女" onclick="setRosterGender('女',this)" data-tip="只看女性"><span class="g-female">♀</span></button>
-        <span class="chip-divider"></span>
-      </div>
     </div>
 
     <!-- Table card：角色 → 中/英配声优 权威映射（单元格就地编辑） -->
@@ -791,7 +777,11 @@ function loadRosterDeleteQueue(){
 function saveRosterDeleteQueue(rows){
   localStorage.setItem(ROSTER_DELETE_QUEUE_KEY, JSON.stringify(rows));
 }
-const CAT_COLORS = {'指挥官':'#60A5FA','干员':'#F59E0B','Boss':'#EF4444','AI兵':'#0FF796','NPC':'#D4DDE3','AI系统音':'#3D4C57'};
+/* 大类色板 · 唯一真源（2026-09-03 统一）：分组徽章与顶部 meter bar 共用，禁止再另开一份 */
+const CAT_COLORS = {'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','AI系统音':'#608980'};
+/* 徽章文字/描边专用「墨色」：色块与色条保持原色不动；#727665 / #474C40 这类暗色在深底上读不清，
+   故为暗色单独给一版提亮值，仅作用于徽章文字与描边 */
+const CAT_INKS = {'指挥官':'#A8AD94','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#8B937E','AI系统音':'#7FB0A6'};
 
 async function loadRoster(){
   // 先加载静态兜底；旧浏览器可能缓存过 99 条 roster.js，不能再把它当系统真源。
@@ -1095,32 +1085,35 @@ function renderMeter(){
     window.parent.postMessage({type:'roster-status-counts', total, done, pending}, location.origin==='null'?'*':location.origin);
   }}catch(e){}
   const order = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
-  // 用户定制战术色板 v2（2026-07-23）：6 色按大类顺序固定映射
-  const PALETTE = {
-    '指挥官':  '#727665',  // 军橄榄     —— 权威主力
-    '干员':    '#CEA06C',  // 沙棕金     —— 战力
-    'Boss':    '#E9E6DF',  // 米白       —— 强度反差
-    'AI兵':    '#D3DFDD',  // 浅冰       —— 机械
-    'NPC':     '#474C40',  // 深橄榄     —— 环境
-    'AI系统音':'#608980'   // 青灰蓝     —— 系统
-  };
+  // 大类名进 onclick 的 JS 字符串字面量：转义反斜杠与单引号，避免拼出畸形 handler
+  const escAttr = s => escHtml(String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"));
+  // 色板复用唯一真源 CAT_COLORS（分组徽章同色，避免两处色不同步）
+  const PALETTE = CAT_COLORS;
   const visible = order.filter(c=>cnt[c]);
+  // 色条与图例都是筛选入口：当前选中类高亮，其余压暗；再点同类取消（回全部）
+  const active = ROSTER_CAT || '';
   const bar = visible.map(c=>{
     const w = (cnt[c]/total*100).toFixed(2);
     const bg = PALETTE[c] || '#6B7A85';
-    return `<div class="meter-seg" style="background:${bg};width:${w}%" data-tip="${c} · ${cnt[c]} 个角色"></div>`;
+    const cls = 'meter-seg' + (active === c ? ' on' : (active ? ' dim' : ''));
+    return `<div class="${cls}" role="button" tabindex="0" data-cat="${escHtml(c)}" onclick="setRosterCat('${escAttr(c)}')" style="background:${bg};width:${w}%" data-tip="${c} · ${cnt[c]} 个角色 · 点击筛选"></div>`;
   }).join('');
   document.getElementById('meterBar').innerHTML = bar;
-  // legend：小竖条用对应大类色 + 大类名 + 数量
-  document.getElementById('meterLegend').innerHTML = visible.map(c =>
-    `<span class="li"><span class="sw" style="background:${PALETTE[c]||'#6B7A85'}"></span>${c} <b>${cnt[c]}</b></span>`
-  ).join('');
+  // legend：10×10 圆角色块 + 大类名 + 数量，整块可点即筛选
+  document.getElementById('meterLegend').innerHTML = visible.map(c => {
+    const cls = 'li' + (active === c ? ' on' : (active ? ' dim' : ''));
+    return `<span class="${cls}" role="button" tabindex="0" data-cat="${escHtml(c)}" onclick="setRosterCat('${escAttr(c)}')" data-tip="点击筛选 ${c}"><span class="sw" style="background:${PALETTE[c]||'#6B7A85'}"></span>${c} <b>${cnt[c]}</b></span>`;
+  }).join('');
 }
 
+// 分类筛选：入口已从工具行芯片改为编制分布色条/图例（2026-09-03）
+// btn 参数保留仅为向后兼容，图例点击不传；再点同一类取消回「全部」。
+// renderRoster() 不会重绘 meter，必须显式调 renderMeter() 才能刷新色条/图例选中态。
 function setRosterCat(cat, btn){
-  ROSTER_CAT = cat;
-  document.querySelectorAll('.toolbar .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  const next = String(cat || '');
+  ROSTER_CAT = (ROSTER_CAT === next) ? '' : next;
+  document.querySelectorAll('.actions .tool-btn[data-cat]').forEach(b => b.classList.toggle('active', b.dataset.cat === ROSTER_CAT));
+  renderMeter();
   renderRoster();
 }
 
@@ -1131,7 +1124,7 @@ function setRosterGender(g, btn){
     if(btn) btn.classList.remove('active');
   } else {
     ROSTER_GENDER = g;
-    document.querySelectorAll('.toolbar .tb-gender').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.actions .tb-gender').forEach(b=>b.classList.remove('active'));
     if(btn) btn.classList.add('active');
   }
   renderRoster();
@@ -1204,7 +1197,8 @@ function renderRoster(){
   }
   const catBadge = c => {
     const color = CAT_COLORS[c] || '#6B7A85';
-    return `<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;background:${color}22;color:${color};border:1px solid ${color}66">${escHtml(c||'')}</span>`;
+    const ink = CAT_INKS[c] || color;
+    return `<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;background:${color}22;color:${ink};border:1px solid ${ink}66">${escHtml(c||'')}</span>`;
   };
   // 通用可编辑单元格（v3 · 2026-07-23：不再显示"待选角"，只有"角色信息"列显示待选角）
   //   空值 → 灰色 "—"；N/A → 灰斜体 "N/A"；有值 → 常规色
@@ -1302,7 +1296,8 @@ function renderRoster(){
   };
   // v6 · 2026-09-02 用户定稿：已确定区域按 6 大类插入分组标题行（视觉聚合锚点）
   // 待选角组置顶不变 → 第一个分类标题行做"分隔" → 组内按 id 升序
-  const CAT_LABEL = {'指挥官':'指挥官 · COMMANDER','干员':'干员 · OPERATOR','Boss':'Boss · BOSS','AI兵':'AI兵 · AI SOLDIER','NPC':'NPC · NPC','AI系统音':'AI系统音 · AI SYSTEM'};
+  // 徽章内中英文分列渲染，故拆成两份映射（原拼接式 CAT_LABEL 已废弃）
+  const CAT_EN = {'指挥官':'COMMANDER','干员':'OPERATOR','Boss':'BOSS','AI兵':'AI SOLDIER','NPC':'NPC','AI系统音':'AI SYSTEM'};
   // 找出 pending 切到 done 的边界位置
   let pendingEndIdx = 0;
   for(let i=0;i<list.length;i++){ if(isPending(list[i])) pendingEndIdx = i+1; else break; }
@@ -1322,7 +1317,9 @@ function renderRoster(){
       if(!seenCat.has(cat)){
         seenCat.add(cat);
         const color = CAT_COLORS[cat] || '#6B7A85';
-        const label = CAT_LABEL[cat] || cat;
+        const ink = CAT_INKS[cat] || color;
+        const label = cat;
+        const labelEn = CAT_EN[cat] || '';
         const cnt = catCount[cat] || 0;
         const isFirstAfterPending = idx === pendingEndIdx;
         const isLast = (idx + cnt) > lastDoneIdx; // 估算：分组最后一行
@@ -1330,11 +1327,12 @@ function renderRoster(){
         const nextCat = (idx+1<list.length && !isPending(list[idx+1])) ? (list[idx+1].category||'__untyped__') : null;
         const isLastRow = !nextCat || nextCat !== cat;
         html += `
-    <tr class="cat-section${isFirstAfterPending?' cat-first-after-pending':''}${isLastRow?' cat-last':''}" style="--cat-color:${color}"><td colspan="10">
+    <tr class="cat-section${isFirstAfterPending?' cat-first-after-pending':''}${isLastRow?' cat-last':''}" style="--cat-color:${color};--cat-ink:${ink}"><td colspan="10">
       <div class="cat-label">
-        <span class="cat-bar" style="background:${color}"></span>
+        <span class="cat-dot"></span>
         <span class="cat-text">${escHtml(label)}</span>
-        <span class="cat-cnt">· ${cnt} 个角色</span>
+        ${labelEn ? `<span class="cat-en">${escHtml(labelEn)}</span>` : ''}
+        <span class="cat-cnt">${cnt}</span>
       </div>
     </td></tr>`;
       }
@@ -2208,9 +2206,9 @@ async function submitVaBatch(){
 
   // 切回全部视图，保证结果可见
   ROSTER_CAT = '';
-  const allBtn = document.querySelector('.toolbar .tool-btn[data-cat=""]');
+  const allBtn = document.querySelector('.actions .tool-btn[data-cat=""]');
   if(allBtn){
-    document.querySelectorAll('.toolbar .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.actions .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
     allBtn.classList.add('active');
   }
   const statusAllBtn = document.querySelector('#rosterStatusNav .nav-sub-item[data-status=""]');
@@ -2330,9 +2328,9 @@ async function submitVaForm(){
   // 切回「全部」视图，保证这条一定能被看到（否则大类芯片 / 侧栏状态过滤会挡住）
   const showAll = () => {
     ROSTER_CAT = '';
-    const allBtn = document.querySelector('.toolbar .tool-btn[data-cat=""]');
+    const allBtn = document.querySelector('.actions .tool-btn[data-cat=""]');
     if(allBtn){
-      document.querySelectorAll('.toolbar .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.actions .tool-btn[data-cat]').forEach(b=>b.classList.remove('active'));
       allBtn.classList.add('active');
     }
     const statusAllBtn = document.querySelector('#rosterStatusNav .nav-sub-item[data-status=""]');

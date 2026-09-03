@@ -509,8 +509,8 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
     </div>
 
     <div style="margin-top:14px;font-size:11.5px;color:var(--c-text-dim);line-height:1.7">
-      <strong style="color:var(--c-primary)">原型说明</strong>：点击「企业微信」→ 弹联系选择面板（群+人混排，可搜索多选）→ 确认发送。点击「复制链接」→ 直接复制当前页面 URL 到剪贴板。<br>
-      企业微信是同一个接口，群和个人统一选择，无需分开。
+      <strong style="color:var(--c-primary)">原型说明</strong>：点击「企业微信」→ 弹联系选择面板（群+人混排，可搜索多选）→ 确认发送：先把摘要复制到剪贴板，再唤起企业微信客户端。<br>
+      单选个人且该成员配了企微账号时直达其聊天窗；群聊或多选只唤起客户端，需自行选中会话后 Ctrl+V 粘贴。点击「复制链接」→ 直接复制当前页面 URL。
     </div>
   </div>
 </div>
@@ -544,7 +544,7 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
 <script src="assets/holiday-calendar.js?v=20260901a"></script>
 <script src="assets/release-calendar.js?v=20260901b"></script>
 <script>
-const __BUILD__ = '202609021812';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202609031113';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -1412,10 +1412,11 @@ function closeSharePicker(){
   setTimeout(()=>{ if(!SHARE_STATE.picker) picker.hidden = true; }, 180);
 }
 
-// 联系 + 群 静态列表（基于 USER_PROFILES + 常用群）—— 真实发送时由 wecomcli-message 取代；现在降级为剪贴板
+// 联系 + 群 静态列表（基于 USER_PROFILES + 常用群）
+// wecomId 取 USER_PROFILES.cw（企微账号），只有它非空才能用 scheme 直达个人聊天窗。
 function sharePickerContacts(){
   const people = Object.values(USER_PROFILES || {}).map(u => ({
-    id: u.id, kind:'person', name: u.name, role: u.role, initial: (u.name||'?').slice(0,1).toUpperCase()
+    id: u.id, kind:'person', name: u.name, role: u.role, wecomId: u.cw || '', initial: (u.name||'?').slice(0,1).toUpperCase()
   }));
   const groups = [
     { id:'g-vomi-pm',       kind:'group', name:'VO PM 主群',     initial:'V' },
@@ -1436,13 +1437,13 @@ function renderSharePickerList(filter){
   if(fGroups.length){
     html += `<div class="share-picker-group">群聊 (${fGroups.length})</div>`;
     fGroups.forEach(g => {
-      html += `<label class="share-picker-item" data-kind="${g.kind}" data-id="${escHtml(g.id)}"><input type="checkbox" data-id="${escHtml(g.id)}" data-name="${escHtml(g.name)}" data-kind="${g.kind}" onchange="updateSharePickerCount()"/><span class="av chat">${escHtml(g.initial)}</span><span class="meta"><span class="name">${escHtml(g.name)}</span><span class="role">群 · ${escHtml(g.id)}</span></span></label>`;
+      html += `<label class="share-picker-item" data-kind="${g.kind}" data-id="${escHtml(g.id)}"><input type="checkbox" data-id="${escHtml(g.id)}" data-name="${escHtml(g.name)}" data-kind="${g.kind}" data-wecom="" onchange="updateSharePickerCount()"/><span class="av chat">${escHtml(g.initial)}</span><span class="meta"><span class="name">${escHtml(g.name)}</span><span class="role">群 · ${escHtml(g.id)}</span></span></label>`;
     });
   }
   if(fPeople.length){
     html += `<div class="share-picker-group">个人 (${fPeople.length})</div>`;
     fPeople.forEach(p => {
-      html += `<label class="share-picker-item" data-kind="${p.kind}" data-id="${escHtml(p.id)}"><input type="checkbox" data-id="${escHtml(p.id)}" data-name="${escHtml(p.name)}" data-kind="${p.kind}" onchange="updateSharePickerCount()"/><span class="av">${escHtml(p.initial)}</span><span class="meta"><span class="name">${escHtml(p.name)} <span style="color:var(--c-text-mute);font-size:11px;font-weight:400">· ${escHtml(p.role)}</span></span><span class="role">${escHtml(p.id)}</span></span></label>`;
+      html += `<label class="share-picker-item" data-kind="${p.kind}" data-id="${escHtml(p.id)}"><input type="checkbox" data-id="${escHtml(p.id)}" data-name="${escHtml(p.name)}" data-kind="${p.kind}" data-wecom="${escHtml(p.wecomId||'')}" onchange="updateSharePickerCount()"/><span class="av">${escHtml(p.initial)}</span><span class="meta"><span class="name">${escHtml(p.name)} <span style="color:var(--c-text-mute);font-size:11px;font-weight:400">· ${escHtml(p.role)}</span></span><span class="role">${escHtml(p.id)}</span></span></label>`;
     });
   }
   if(!html){ html = '<div class="share-empty-row" style="padding:32px 0">没有匹配「'+escHtml(filter)+'」的联系人</div>'; }
@@ -1460,7 +1461,53 @@ function updateSharePickerCount(){
   if(sendBtn) sendBtn.disabled = checked === 0;
 }
 
-// 「发送」按钮：当前没有 wecomcli 接入，降级为复制摘要到剪贴板 + toast 引导
+// ===== 方案 B：唤起企业微信客户端（wxwork:// URL Scheme）=====
+// 口径（2026-09-03 用户拍板选 B）：
+//   · 单选个人 + 该人有企微账号（USER_PROFILES.cw）→ 直达其聊天窗
+//   · 群聊 / 多选 / 无企微账号 → scheme 无法定位会话，只唤起客户端，由用户自己选会话
+//   · 无论哪种，摘要都已在剪贴板里，切过去 Ctrl+V 即可
+// 注意：wxwork://message?username= 属非官方写法，客户端升级可能失效；
+//       因此必须「先复制、再唤起」，失效时用户仍能手动粘贴，不会丢内容。
+function buildWecomLaunchUrl(targets){
+  const list = Array.isArray(targets) ? targets : [];
+  if(list.length !== 1) return 'wxwork://';
+  const only = list[0] || {};
+  if(only.kind !== 'person') return 'wxwork://';
+  const wecomId = String(only.wecomId || '').trim();
+  if(!wecomId) return 'wxwork://';
+  return 'wxwork://message?username=' + encodeURIComponent(wecomId);
+}
+
+// 唤起客户端：用隐藏 iframe 触发协议，避免直接改 location 在被拦截时留下报错页。
+// 成功判定：唤起后页面会失焦 / 转入后台（visibilitychange）；超时未切出则认为失败并提示。
+function launchWecomClient(url){
+  return new Promise(resolve => {
+    let settled = false;
+    const done = ok => {
+      if(settled) return;
+      settled = true;
+      document.removeEventListener('visibilitychange', onHide);
+      window.removeEventListener('blur', onHide);
+      clearTimeout(timer);
+      resolve(ok);
+    };
+    const onHide = () => { if(document.hidden || !document.hasFocus()) done(true); };
+    document.addEventListener('visibilitychange', onHide);
+    window.addEventListener('blur', onHide);
+    const timer = setTimeout(() => done(false), 1600);
+    try{
+      const f = document.createElement('iframe');
+      f.style.display = 'none';
+      f.src = url;
+      document.body.appendChild(f);
+      setTimeout(() => { try{ f.remove(); }catch(_){} }, 1500);
+    }catch(_){
+      done(false);
+    }
+  });
+}
+
+// 「发送」按钮：复制摘要 → 唤起企业微信客户端（方案 B）
 async function confirmShareSend(){
   if(SHARE_STATE.sending) return;
   const checked = [...document.querySelectorAll('#sharePickerList input[type=checkbox]:checked')];
@@ -1469,13 +1516,23 @@ async function confirmShareSend(){
   const sendBtn = document.getElementById('sharePickerSend');
   if(sendBtn){ sendBtn.disabled = true; sendBtn.textContent = '发送中…'; }
   try{
-    const targets = checked.map(cb => ({ id: cb.dataset.id, name: cb.dataset.name, kind: cb.dataset.kind }));
+    const targets = checked.map(cb => ({ id: cb.dataset.id, name: cb.dataset.name, kind: cb.dataset.kind, wecomId: cb.dataset.wecom || '' }));
     const payload = SHARE_STATE.payload || {};
     const md = (payload.summaryMd || '') + (payload.detailUrl ? '\n\n查看：' + payload.detailUrl : '');
-    const ok = await copyTextToClipboard(md);
-    if(!ok){ shareToast('复制失败，请重试', 'err'); return; }
+    // 顺序不可换：先落剪贴板，再唤起。唤起后页面失焦，此时已无法可靠写剪贴板。
+    const copied = await copyTextToClipboard(md);
+    if(!copied){ shareToast('复制失败，请重试', 'err'); return; }
     const targetNames = targets.map(t => t.name).join('、');
-    shareToast(`已复制摘要 ✓ 即将打开企业微信发送\n对象：${targetNames}\n请到「${targets[0].name}」Ctrl+V 粘贴`, 'warn');
+    const url = buildWecomLaunchUrl(targets);
+    const direct = url !== 'wxwork://';
+    const launched = await launchWecomClient(url);
+    if(!launched){
+      shareToast(`未能唤起企业微信（可能未安装客户端或被浏览器拦截）\n摘要已复制 ✓ 请手动打开企业微信粘贴\n对象：${targetNames}`, 'err');
+      return;
+    }
+    shareToast(direct
+      ? `已复制摘要 ✓ 已打开与「${targetNames}」的聊天窗\n请 Ctrl+V 粘贴发送`
+      : `已复制摘要 ✓ 已打开企业微信\n对象：${targetNames}\n请选中会话后 Ctrl+V 粘贴发送`, direct ? '' : 'warn');
     setTimeout(()=> closeSharePicker(), 600);
   }finally{
     SHARE_STATE.sending = false;

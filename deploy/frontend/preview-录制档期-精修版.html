@@ -429,15 +429,17 @@ body.embed .main{width:100%}
 .demand-roster-live{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:3px;background:rgba(15,247,150,.10);border:1px solid rgba(15,247,150,.28);color:var(--c-primary);font-size:9.5px;font-weight:700;letter-spacing:.5px}
 .demand-roster-live::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 5px rgba(15,247,150,.7)}
 .demand-roster-bar{height:7px;display:flex;overflow:hidden;border-radius:2px;background:var(--c-bg-0);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
-.demand-roster-seg{height:100%;min-width:4px;padding:0;border:0;border-right:2px solid var(--c-bg-0);cursor:pointer;opacity:.78;transition:opacity .12s,filter .12s,box-shadow .12s}
-.demand-roster-seg:last-child{border-right:0}
+/* 无空隙：段间不做任何描边/间距，靠色相区分（用户 2026-09-03 明确要求整条连续） */
+.demand-roster-seg{height:100%;min-width:4px;padding:0;border:0;cursor:pointer;opacity:.85;transition:opacity .12s,filter .12s,box-shadow .12s}
 .demand-roster-seg:hover,.demand-roster-seg.on{opacity:1;filter:brightness(1.15);box-shadow:0 0 9px rgba(15,247,150,.22);position:relative;z-index:1}
 .demand-roster-seg.dim{opacity:.22}
-.demand-roster-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.demand-roster-li{appearance:none;background:transparent;border:0;padding:0;display:inline-flex;align-items:center;gap:5px;color:var(--c-text-mute);font:500 10.5px/1.2 'Microsoft YaHei UI','Microsoft YaHei',sans-serif;cursor:pointer;transition:color .12s,opacity .12s}
-.demand-roster-li:hover,.demand-roster-li.on{color:#fff}
-.demand-roster-li.dim{opacity:.30}
-.demand-roster-dot{width:5px;height:5px;border-radius:1px;background:var(--cat-color);box-shadow:0 0 4px color-mix(in srgb,var(--cat-color) 55%,transparent)}
+.demand-roster-legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+/* 图例：正文字体 + 正文字号；hover / 选中态用底色高亮（非仅变色） */
+.demand-roster-li{appearance:none;background:transparent;border:1px solid transparent;padding:5px 11px;border-radius:7px;display:inline-flex;align-items:center;gap:8px;color:var(--c-text-mute);font-family:inherit;font-size:13px;font-weight:500;line-height:1.2;cursor:pointer;transition:color .12s,background .12s,border-color .12s,opacity .12s}
+.demand-roster-li:hover{color:#fff;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)}
+.demand-roster-li.on{color:#fff;background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.20);font-weight:700}
+.demand-roster-li.dim{opacity:.34}
+.demand-roster-dot{width:10px;height:10px;flex-shrink:0;border-radius:3px;background:var(--cat-color);box-shadow:0 0 4px color-mix(in srgb,var(--cat-color) 55%,transparent)}
 .demand-roster-count{font-variant-numeric:tabular-nums;color:inherit;font-weight:700}
 .demand-roster-note{font-size:9.5px;color:var(--c-text-dim);line-height:1.4;letter-spacing:.1px}
 .actor-table-demand .demand-name{font-weight:700;color:#fff;display:block}
@@ -663,6 +665,20 @@ body.embed .main{width:100%}
 .demand-cards .dcard-pending.ok{color:var(--c-primary);background:rgba(15,247,150,.10);border-color:rgba(15,247,150,.40)}
 .demand-cards .dcard-pending.ok::before{background:var(--c-primary);box-shadow:0 0 5px rgba(15,247,150,.55)}
 .demand-cards .dcard-pending .dp-icon{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0;font-weight:800;line-height:1}
+/* ── 骨架卡（2026-09-03）：需求已同步、声优预估未录入时的框架占位 ──
+   用中性灰而非黄/绿，明确表达"还没数据"而不是"待办"或"已完成" */
+.demand-cards .dcard-pending.skeleton{color:var(--c-text-mute);background:rgba(212,221,227,.04);border-color:rgba(212,221,227,.14)}
+.demand-cards .dcard-pending.skeleton::before{background:var(--c-text-dim);box-shadow:none}
+.demand-cards .dcard.is-skeleton{border-style:dashed;border-color:rgba(212,221,227,.13);background:rgba(255,255,255,.012)}
+.demand-cards .dcard-skeleton{display:flex;flex-direction:column;gap:7px;padding:4px 0 2px}
+.demand-cards .dsk-row{display:flex;gap:8px}
+.demand-cards .dsk-bar{height:22px;border-radius:5px;background:linear-gradient(90deg,rgba(212,221,227,.055),rgba(212,221,227,.10),rgba(212,221,227,.055));background-size:220% 100%;animation:dskShimmer 2.4s ease-in-out infinite}
+.demand-cards .dsk-bar.w1{flex:0 0 92px}
+.demand-cards .dsk-bar.w2{flex:0 0 132px}
+.demand-cards .dsk-bar.w3{flex:0 0 116px}
+.demand-cards .dsk-tip{font-size:10.5px;color:var(--c-text-dim);line-height:1.5;letter-spacing:.1px}
+@keyframes dskShimmer{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+@media (prefers-reduced-motion:reduce){.demand-cards .dsk-bar{animation:none}}
 
 /* 角色块：横向铺开，外边距收紧 */
 .demand-cards .dcard-roles{display:flex;flex-wrap:wrap;gap:8px;flex:1;align-content:flex-start}
@@ -724,6 +740,13 @@ body.embed .main{width:100%}
 .area-head .area-pend-badge .dot{flex-shrink:0;width:6px;height:6px;border-radius:50%;background:#FFD24C;box-shadow:0 0 6px rgba(255,210,76,.55)}
 .area-head .area-pend-badge.zero{background:rgba(15,247,150,.08);border-color:rgba(15,247,150,.32);color:var(--c-primary)}
 .area-head .area-pend-badge.zero .dot{background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55)}
+/* 骨架态（2026-09-03）：需求已同步但尚无声优预估 —— 中性灰，不用黄/绿，避免误读为待办或已完成 */
+.area-head .area-pend-badge.skeleton{background:rgba(212,221,227,.05);border-color:rgba(212,221,227,.16);color:var(--c-text-mute)}
+.area-head .area-pend-badge.skeleton .dot{background:var(--c-text-dim);box-shadow:none}
+.area-section.is-skeleton .area-progress .bar i{background:rgba(212,221,227,.18)}
+.area-head .area-metric.skeleton .val{color:var(--c-text-dim)}
+/* 骨架态数值是中文「待录入」而非数字，15px/800 会撑破 64px 格子，单独收字号 */
+.area-head .area-metric.skeleton .val{font-size:12px;font-weight:700;letter-spacing:.2px}
 
 /* v3：统计 → 三段 metric label + value（与卡片底部同语言） */
 .area-head .area-stat{margin-left:auto;display:flex;align-items:stretch;gap:6px;flex-shrink:0}
@@ -1129,7 +1152,7 @@ body.embed .main{width:100%}
           </div>
           <div class="demand-roster-bar" id="demandRosterBar" aria-label="角色大类占比"></div>
           <div class="demand-roster-legend" id="demandRosterLegend"></div>
-          <p class="demand-roster-note">按当前 release 的声优预估去重统计；悬浮查看人数与占比，点击色块或图例筛选需求卡。</p>
+          <p class="demand-roster-note">按当前 release 的声优预估去重统计；悬浮查看人数与占比，点击色块或图例筛选需求卡（与顶部筛选联动）。</p>
         </section>
         <div class="demand-area-stack" id="actorDemandTbody"></div>
         <div id="actorDemandEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无需求档期数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
@@ -1310,9 +1333,18 @@ function renderDemandRosterOverview(){
     return `<button type="button" class="demand-roster-li${on?' on':''}${dim?' dim':''}" data-demand-cat="${escHtmlSafe(item.cat)}" onclick="setDemandRosterCat(this.dataset.demandCat)" title="点击筛选 ${escHtmlSafe(item.cat)}" style="--cat-color:${item.color}"><span class="demand-roster-dot"></span><span>${escHtmlSafe(item.cat)}</span><span class="demand-roster-count">${item.count}</span></button>`;
   }).join('');
 }
+// 图例点击 → 分类筛选，并把顶部筛选芯片的选中态同步过去（用户 2026-09-03 要求「与芯片联动」）
+// 需求视图工具栏当前渲染 AREA 芯片，故按 data-cat 匹配：存在分类芯片时自动亮起，不存在则静默跳过。
+function syncDemandCatChips(){
+  const cat = ACTOR_STATE.demandCat || 'all';
+  document.querySelectorAll('.actor-toolbar [data-cat]').forEach(b => {
+    b.classList.toggle('on', b.dataset.cat === cat);
+  });
+}
 function setDemandRosterCat(cat){
   const value = String(cat || 'all');
   ACTOR_STATE.demandCat = ACTOR_STATE.demandCat === value ? 'all' : value;
+  syncDemandCatChips();
   renderDemandRosterOverview();
   renderActorDemandTable();
 }
@@ -1519,7 +1551,7 @@ function isBlankTarget(el){
   if(t === 'BUTTON' || t === 'A' || t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return false;
   if(t === 'SVG' || t === 'PATH' || t === 'LINE' || t === 'RECT' || t === 'CIRCLE' || t === 'POLYLINE' || t === 'POLYGON' || t === 'G') return false;
   // 命中任何交互元素（按钮、可点击 data 属性、卡片、pill、chip、tab、legend 等）→ 不算空白
-  if(el.closest && el.closest('[data-vmode],[data-area],[data-cat],[data-status],[data-gender],[data-lang-pill],[data-ymd],[onclick],button,a,input,select,textarea,.dcard,.acard,.role-chip,.sched-card,.sc-pill,.view-tab,.tb-btn,.filter-pill,.actor-toolbar,.demand-toolbar,.mp-cal-day,.mp-up-item,.risk-banner,.risk-stat,.risk-area-pill,.area-pend-badge,.deadline-meta,.page-title,.eyebrow,.brand-bar,.nav-item,.actor-lines-total,.actor-stat,.area-head,.area-name,.ac-cat-name,.dcard-name,.dcard-pending,.dcard-foot')) return false;
+  if(el.closest && el.closest('[data-vmode],[data-area],[data-cat],[data-status],[data-gender],[data-lang-pill],[data-ymd],[data-demand-cat],[onclick],button,a,input,select,textarea,.dcard,.acard,.role-chip,.sched-card,.sc-pill,.view-tab,.tb-btn,.filter-pill,.actor-toolbar,.demand-toolbar,.demand-roster-overview,.mp-cal-day,.mp-up-item,.risk-banner,.risk-stat,.risk-area-pill,.area-pend-badge,.deadline-meta,.page-title,.eyebrow,.brand-bar,.nav-item,.actor-lines-total,.actor-stat,.area-head,.area-name,.ac-cat-name,.dcard-name,.dcard-pending,.dcard-foot')) return false;
   return true;
 }
 
@@ -1546,6 +1578,7 @@ function clearAllFilters(){
   document.querySelectorAll('[data-lang-pill]').forEach(function(b){ b.classList.toggle('on', b.dataset.langPill === 'all'); });
   // 维度栏（大类 / AREA / gender）由 renderFilterBar 按 ACTOR_STATE 重绘
   renderFilterBar();
+  syncDemandCatChips();
   renderActorRollup();
 }
 
@@ -1808,12 +1841,30 @@ function aggregateByDemand(demands, release){
     if((dem.release_plan||'') !== release) return;
     let ves = dem.voice_estimates;
     if(typeof ves === 'string'){ try{ ves = JSON.parse(ves); }catch(_){ ves = []; } }
-    if(!Array.isArray(ves)) return;
+    const story = (dem.task_name || '').trim() || ('需求 ' + dem.id);
+    const area  = String(dem.area || '').trim();
+    // ★ 骨架占位（2026-09-03）：需求尚未同步声优预估时，仍产出 1 条占位行，
+    //   让 AREA 分组与需求卡骨架照常渲染，便于在无数据阶段验证框架。
+    //   占位行不参与待约数 / 完成度 / 角色构成统计（下游按 isPlaceholder 过滤）。
+    if(!Array.isArray(ves) || ves.length === 0){
+      map.set('PLACEHOLDER|' + (dem.id||''), {
+        demandId: dem.id,
+        area: area,
+        story: story,
+        lang: '',
+        role: '',
+        category: '',
+        actor: '',
+        est: 0,
+        schedule: null,
+        status: 'placeholder',
+        isPlaceholder: true
+      });
+      return;
+    }
     ves.forEach(v => {
       const role  = (v.role || '').trim() || '(未指定角色)';
       const est   = parseInt(v.est_lines || v.est || 0, 10) || 0;
-      const story = (dem.task_name || '').trim() || ('需求 ' + dem.id);
-      const area  = String(dem.area || '').trim();
       [['cn', v.cn_va], ['en', v.en_va]].forEach(([lang, actor]) => {
         const name = String(actor||'').trim();
         if(!name || name === 'N/A') return;
@@ -1837,8 +1888,9 @@ function aggregateByDemand(demands, release){
     });
   });
   const list = [...map.values()];
-  // 排序：未约置顶 → 同需求 → 同语种
+  // 排序：未约置顶 → 同需求 → 同语种；骨架占位行统一沉到最后
   list.sort((a,b) => {
+    if(!!a.isPlaceholder !== !!b.isPlaceholder) return a.isPlaceholder ? 1 : -1;
     if((a.status==='pending') !== (b.status==='pending')) return a.status==='pending' ? -1 : 1;
     if(a.story !== b.story) return a.story < b.story ? -1 : 1;
     if(a.lang !== b.lang) return a.lang < b.lang ? -1 : 1;
@@ -2263,6 +2315,13 @@ function renderActorDemandTable(){
   const q = (document.getElementById('actorSearch').value || '').trim().toLowerCase();
   const focusYmd = window.MID_FOCUS_YMD || null;
   const list = all.filter(r => {
+    // 骨架占位行没有 lang / category / 档期，只受 AREA 与搜索约束，
+    // 否则一旦用户切语种或分类，整个框架会连带消失，失去"无数据也能看框架"的意义。
+    if(r.isPlaceholder){
+      if(ACTOR_STATE.area && ACTOR_STATE.area !== 'all' && (r.area||'未分类') !== ACTOR_STATE.area) return false;
+      if(q && (r.story||'').toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    }
     if(ACTOR_STATE.lang !== 'all' && r.lang !== ACTOR_STATE.lang) return false;
     if(ACTOR_STATE.status !== 'all' && r.status !== ACTOR_STATE.status) return false;
     if(ACTOR_STATE.demandCat !== 'all' && (r.category||'未分类') !== ACTOR_STATE.demandCat) return false;
@@ -2294,7 +2353,8 @@ function renderActorDemandTable(){
     if(!groups.has(key)) groups.set(key, { demandId: r.demandId, story: r.story, area: r.area || '未分类', rows: [], pendingCount: 0 });
     const g = groups.get(key);
     g.rows.push(r);
-    if(r.status === 'pending') g.pendingCount++;
+    // 占位行不是"待预约"，不能计入待约数，否则骨架阶段会虚报一堆待办
+    if(!r.isPlaceholder && r.status === 'pending') g.pendingCount++;
   });
 
   // ② 按 AREA 分组（有未约的 AREA 排前，其余按名称）
@@ -2320,9 +2380,29 @@ function renderActorDemandTable(){
 
   const renderCard = g => {
     const hasPending = g.pendingCount > 0;
+    // ★ 骨架卡（2026-09-03）：该需求尚未同步声优预估 → 只出卡片外壳 + 骨架提示，
+    //   让 AREA 分组与卡片布局可见，便于在无数据阶段验证框架。
+    const realRows = g.rows.filter(r => !r.isPlaceholder);
+    const allPlaceholder = realRows.length === 0;
+    if(allPlaceholder){
+      return `
+      <div class="dcard is-skeleton">
+        <div class="dcard-head">
+          <div class="dcard-headline">
+            <div class="dcard-name">${escHtmlSafe(g.story||'—')}</div>
+          </div>
+          <div class="dcard-pending skeleton"><span class="dp-icon">○</span>待录入声优预估</div>
+        </div>
+        <div class="dcard-roles dcard-skeleton">
+          <div class="dsk-row"><span class="dsk-bar w1"></span><span class="dsk-bar w2"></span></div>
+          <div class="dsk-row"><span class="dsk-bar w3"></span><span class="dsk-bar w1"></span></div>
+          <div class="dsk-tip">角色与档期将在「需求汇总」页同步声优预估后自动填充</div>
+        </div>
+      </div>`;
+    }
     // ★ 按角色聚合：一个角色一块，块内并列中配 / 英配档期（待预约的角色排前）
     const roleMap = new Map();
-    g.rows.forEach(r => {
+    realRows.forEach(r => {
       const rk = (r.role || '—');
       if(!roleMap.has(rk)) roleMap.set(rk, { role:rk, actor:r.actor, cn:null, en:null, pend:0, slots:0 });
       const e = roleMap.get(rk);
@@ -2417,11 +2497,11 @@ function renderActorDemandTable(){
       return a.story < b.story ? -1 : 1;
     });
     const areaPending = demands.reduce((s,g)=>s+g.pendingCount,0);
-    // 完成度 = 该 AREA 下已排期的档期数 / 总档期数
-    const allSlots  = demands.reduce((s,g)=>s+g.rows.length, 0);
-    const doneSlots = demands.reduce((s,g)=>s+g.rows.filter(r=>r.status==='booked').length, 0);
+    // 完成度 = 该 AREA 下已排期的档期数 / 总档期数（骨架占位行不算档期）
+    const allSlots  = demands.reduce((s,g)=>s+g.rows.filter(r => !r.isPlaceholder).length, 0);
+    const doneSlots = demands.reduce((s,g)=>s+g.rows.filter(r=>!r.isPlaceholder && r.status==='booked').length, 0);
     const pct  = allSlots ? Math.round(doneSlots / allSlots * 100) : 0;
-    const cls  = areaPending > 0 ? 'has-pending' : 'is-done';
+    const cls  = areaPending > 0 ? 'has-pending' : (allSlots === 0 ? 'is-skeleton' : 'is-done');
     return `
       <div class="area-section ${cls}">
         <div class="area-head">
@@ -2431,13 +2511,15 @@ function renderActorDemandTable(){
               <span class="area-name">${escHtmlSafe(area)}</span>
               ${areaPending > 0
                 ? `<span class="area-pend-badge" title="该 AREA 下待预约的档期合计"><span class="dot"></span>${areaPending} 位待约</span>`
-                : `<span class="area-pend-badge zero" title="该 AREA 档期已全部确认"><span class="dot"></span>已排齐</span>`}
+                : allSlots === 0
+                  ? `<span class="area-pend-badge skeleton" title="该 AREA 下需求尚未同步声优预估"><span class="dot"></span>待录入</span>`
+                  : `<span class="area-pend-badge zero" title="该 AREA 档期已全部确认"><span class="dot"></span>已排齐</span>`}
             </div>
           </div>
           <div class="area-stat">
             <div class="area-metric"><span class="lbl">需求</span><span class="val">${demands.length}</span></div>
             <div class="area-metric"><span class="lbl">档期</span><span class="val">${allSlots}</span></div>
-            <div class="area-metric ${areaPending>0?'pend':'done'}"><span class="lbl">${areaPending>0?'待约':'完成'}</span><span class="val">${areaPending>0?areaPending:doneSlots}</span></div>
+            <div class="area-metric ${areaPending>0?'pend':(allSlots===0?'skeleton':'done')}"><span class="lbl">${areaPending>0?'待约':(allSlots===0?'状态':'完成')}</span><span class="val">${areaPending>0?areaPending:(allSlots===0?'待录入':doneSlots)}</span></div>
           </div>
         </div>
         <div class="area-progress">

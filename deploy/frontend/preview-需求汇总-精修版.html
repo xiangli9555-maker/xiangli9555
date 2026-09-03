@@ -1019,40 +1019,55 @@ function updateHeaderFilterState(){
 document.addEventListener('click',e=>{if(__headerFilterPop&&!e.target.closest('.header-filter-pop,.header-filter-btn'))closeHeaderFilter();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHeaderFilter();});
 // 点击空白区域 → 复位到初始（无任何排序 / 筛选）
-function resetAll(){
+// 2026-09-03 全站统一：release / 发布计划属**导航状态**（受外壳 ?release= 控制），点空白不清，
+//   否则会脱离外壳当前所在版本、与左侧导航高亮不一致。
+// 是否有已激活的筛选或排序 —— 没有就短路，避免高频误触带来的无谓重渲染
+function hasActiveFilters(){
+  const si = document.getElementById('searchInput');
+  return sortStack.length > 0
+      || !!filterArea || !!filterCw || !!filterStatus
+      || !!(searchTxt || '').trim()
+      || !!((si && si.value) || '').trim()
+      || Object.keys(headerFilters || {}).some(k => !!headerFilters[k]);
+}
+function clearAllFilters(){
+  if(!hasActiveFilters()) return;
   // 1) 排序归零
   sortStack = [];
   document.querySelectorAll('th.sortable').forEach(th=>th.classList.remove('sort-active','sort-asc','sort-desc'));
-  // 2) 筛选归零（含发布计划）
-  filterArea=''; filterCw=''; filterStatus=''; searchTxt=''; filterRelease=''; headerFilters={}; closeHeaderFilter(); updateHeaderFilterState();
+  // 2) 筛选归零（★ filterRelease 不动，属导航状态）
+  filterArea=''; filterCw=''; filterStatus=''; searchTxt=''; headerFilters={}; closeHeaderFilter(); updateHeaderFilterState();
   // 3) 状态/AREA/文案策划芯片：仅「全部」(data-fv="") 高亮
   ['status','area','cw'].forEach(fk=>{
     document.querySelectorAll(`[data-fk="${fk}"]`).forEach(c=>{
       c.classList.toggle('on', (c.dataset.fv||'')==='');
     });
   });
-  // 4) 发布计划行：仅「全部」(data-rel="") 高亮
-  const relSub = document.getElementById('releaseSubTabs');
-  if(relSub) relSub.querySelectorAll('.nav-sub-item').forEach(b=>b.classList.toggle('active', (b.dataset.rel||'')===''));
-  // 5) 搜索框清空
+  // 4) 搜索框清空
   const si=document.getElementById('searchInput'); if(si) si.value='';
-  // 6) 持久化清掉筛选记忆
+  // 5) 持久化一并清掉（用户 2026-09-03 拍板：覆盖 7-24 的「刷新不丢」，刷新后同为默认态）
   saveFilters();
-  // 7) 重渲染
+  // 6) 重渲染
   renderRows();
-  // 8) 联动外壳：撤回版本筛选，侧栏回到「全部」
-  try{ if(window.parent && window.parent!==window){ window.parent.postMessage({type:'reset-release-filter'}, '*'); } }catch(_){}
 }
-function isBlankClick(e){
-  const t = e.target;
+// 兼容旧调用名
+var resetAll = clearAllFilters;
+function isBlankAreaClick(el){
+  const t = el;
   if(!t || !t.closest) return false;
+  if(t.nodeType !== 1) return false;
+  const tag = t.tagName;
+  if(tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return false;
+  if(tag === 'SVG' || tag === 'PATH' || tag === 'LINE' || tag === 'RECT' || tag === 'CIRCLE' || tag === 'POLYLINE' || tag === 'POLYGON' || tag === 'G') return false;
   // 交互元素 → 不算空白（按钮/输入/链接/表头/筛选芯片/cw浮层/排序箭头/台词表图标）
-  if(t.closest('button, input, select, textarea, a, th, thead, .chip-filter, .chip-status, .chip-cw, .filter-groups, .cw-pick, .vs, [data-fk], #cwPop, .cw-pop, .popover, .sort-arrows, .header-filter-pop, .header-filter-btn')) return false;
+  if(t.closest('button, input, select, textarea, a, th, thead, .chip-filter, .chip-status, .chip-cw, .filter-groups, .cw-pick, .vs, [data-fk], [data-rel], [onclick], #cwPop, .cw-pop, .popover, .sort-arrows, .header-filter-pop, .header-filter-btn, .brand-bar, .sidebar, .nav-item, .nav-sub-item, .vomi-tip-host-pop')) return false;
   // 表格内容区(tr/td/tbody/table/.table-wrap) → 也不算空白，避免点行内误复位
   if(t.closest('tr, td, tbody, table, .table-wrap')) return false;
   return true;
 }
-document.addEventListener('click', (e)=>{ if(isBlankClick(e)) resetAll(); });
+// 兼容旧调用名
+function isBlankClick(e){ return isBlankAreaClick(e && e.target); }
+document.addEventListener('click', (e)=>{ if(isBlankAreaClick(e.target)) clearAllFilters(); });
 // ★ 行选中态 (2026-08-07)：点击行（非交互元素）→ 单选高亮，点击空白已由 isBlankClick 复位
 (()=>{
   const tb = document.getElementById('demandBody');

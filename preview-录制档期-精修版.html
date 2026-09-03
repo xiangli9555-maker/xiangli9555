@@ -1559,7 +1559,7 @@ function setActorArea(area, btn){
 }
 
 // 判断点击是否落在「空白处」：非控件、非内容、非日期/条目 → 可恢复默认总计
-function isBlankTarget(el){
+function isBlankAreaClick(el){
   if(!el) return false;
   if(el === document.body || el === document.documentElement) return true;
   if(el.nodeType !== 1) return false;
@@ -1579,8 +1579,22 @@ function actorSearchDebounce(){
   __actorSearchTimer = setTimeout(function(){ renderActorRollup(); }, 150);
 }
 
+// 是否存在已激活的筛选 —— 没有就别做无谓重渲染（点空白是高频误触）
+function hasActiveFilters(){
+  return ACTOR_STATE.lang !== 'all'
+      || ACTOR_STATE.status !== 'all'
+      || (ACTOR_STATE.cat && ACTOR_STATE.cat !== 'all')
+      || (ACTOR_STATE.demandCat && ACTOR_STATE.demandCat !== 'all')
+      || (ACTOR_STATE.gender && ACTOR_STATE.gender !== 'all')
+      || (ACTOR_STATE.area && ACTOR_STATE.area !== 'all')
+      || !!window.MID_FOCUS_YMD
+      || !!((document.getElementById('actorSearch')||{}).value||'').trim();
+}
+
 // 点页面空白 → 恢复默认总计：清空所有筛选 + 日期 focus + 搜索
+// 注意：release / 版本属导航状态（由外壳 URL 控制），此处不动。
 function clearAllFilters(){
+  if(!hasActiveFilters()) return;
   ACTOR_STATE.lang = 'all';
   ACTOR_STATE.status = 'all';
   ACTOR_STATE.cat = 'all';
@@ -3197,7 +3211,7 @@ function bookActor(role, lang){
         return;
       }
       // 都没命中 → 若点在空白处则恢复默认总计
-      if(!isBlankTarget(e.target)) return;
+      if(!isBlankAreaClick(e.target)) return;
       clearAllFilters();
     });
   }

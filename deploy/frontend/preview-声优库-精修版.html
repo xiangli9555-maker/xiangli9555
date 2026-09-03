@@ -1130,6 +1130,41 @@ function setRosterGender(g, btn){
   renderRoster();
 }
 
+/* ============ 点击空白处 → 清除筛选，回到默认视图（2026-09-03 全站统一行为）============ */
+// 是否有已激活的筛选：没有就短路，避免高频误触带来的无谓重渲染
+function hasActiveFilters(){
+  const q = ((document.getElementById('rosterSearch')||{}).value || '').trim();
+  return !!ROSTER_CAT || !!ROSTER_GENDER || !!q;
+}
+// 空白判定：命中任何交互元素（含其内部 svg/path 等子元素）都不算空白
+function isBlankAreaClick(el){
+  if(!el) return false;
+  if(el === document.body || el === document.documentElement) return true;
+  if(el.nodeType !== 1) return false;
+  const t = el.tagName;
+  if(t === 'BUTTON' || t === 'A' || t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return false;
+  if(t === 'SVG' || t === 'PATH' || t === 'LINE' || t === 'RECT' || t === 'CIRCLE' || t === 'POLYLINE' || t === 'POLYGON' || t === 'G') return false;
+  // 表格单元格默认可编辑（方案 A 点击即编辑），点它不能被当成「点空白」
+  if(el.closest && el.closest('[contenteditable="true"]')) return false;
+  if(el.closest && el.closest('[data-cat],[data-gender],[data-rid],[onclick],button,a,input,select,textarea,.tool-btn,.meter-bar,.meter-legend,.meter-seg,.li,.cat-label,.cat-section,.modal,.modal-mask,.brand-bar,.sidebar,.nav-item,.actions,.page-title,.eyebrow,.vomi-tip-host-pop,#rosterTable thead')) return false;
+  return true;
+}
+function clearAllFilters(){
+  if(!hasActiveFilters()) return;
+  ROSTER_CAT = '';
+  ROSTER_GENDER = '';
+  const s = document.getElementById('rosterSearch');
+  if(s) s.value = '';
+  document.querySelectorAll('.actions .tool-btn[data-cat]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.actions .tb-gender').forEach(b => b.classList.remove('active'));
+  renderMeter();
+  renderRoster();
+}
+document.addEventListener('click', function(e){
+  if(!isBlankAreaClick(e.target)) return;
+  clearAllFilters();
+});
+
 // 方案 A「点击即编辑」· 2026-09-02：删 toggleEditMode（默认全 td.ed 即可编辑，无需切模式）
 
 // 侧栏子导航：All / 已选角 / 待选角

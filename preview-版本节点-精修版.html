@@ -1561,8 +1561,10 @@ function setFilter(f){
 // 视角筛选：null=不过滤 / 'cn'=策划关注 / 'audio'=音频关注（互斥切换）
 function setRoleFilter(r){
   roleFilter = (roleFilter === r) ? null : r;
-  document.getElementById('roleCn').classList.toggle('on', roleFilter==='cn');
-  document.getElementById('roleAudio').classList.toggle('on', roleFilter==='audio');
+  const a = document.getElementById('roleCn');
+  if(a) a.classList.toggle('on', roleFilter==='cn');
+  const b = document.getElementById('roleAudio');
+  if(b) b.classList.toggle('on', roleFilter==='audio');
   rerenderView();
   renderRightPanel();
 }
@@ -1571,19 +1573,62 @@ function setRoleFilter(r){
 function setNodeFilter(tag){
   nodeFilter = (nodeFilter === tag) ? null : tag;
   const map = {'m-lock':'ndLock','m-estimate':'ndEstimate','m-script':'ndScript','m-schedule':'ndSchedule','m-deliver':'ndDeliver'};
-  document.getElementById('ndAll').classList.toggle('on', nodeFilter===null);
+  const all = document.getElementById('ndAll');
+  if(all) all.classList.toggle('on', nodeFilter===null);
   Object.entries(map).forEach(([t,id]) => { const el=document.getElementById(id); if(el) el.classList.toggle('on', nodeFilter===t); });
   rerenderView();
   renderRightPanel();
 }
 // 分类筛选：null=全部 / meeting|milestone（互斥切换）
+// 注意：catMeeting / catMilestone 按钮已从工具栏移除，这里必须判空，
+//   否则任何调用（含清筛选链路）都会抛 TypeError 中断后续逻辑。
 function setCatFilter(c){
   catFilter = (catFilter === c) ? null : c;
-  document.getElementById('catMeeting').classList.toggle('on', catFilter==='meeting');
-  document.getElementById('catMilestone').classList.toggle('on', catFilter==='milestone');
+  const m1 = document.getElementById('catMeeting');
+  if(m1) m1.classList.toggle('on', catFilter==='meeting');
+  const m2 = document.getElementById('catMilestone');
+  if(m2) m2.classList.toggle('on', catFilter==='milestone');
   rerenderView();
   renderRightPanel();
 }
+
+/* ============ 点击空白处 → 清除筛选，回到默认视图（2026-09-03 全站统一行为）============ */
+// ★ currentFilter（版本选择）与 activeVerId 属**导航状态**，不在清除范围内。
+// 是否有已激活的筛选 —— 没有就短路，避免高频误触带来的无谓重渲染
+function hasActiveFilters(){
+  return roleFilter !== null || nodeFilter !== null || catFilter !== null;
+}
+// 空白判定：命中任何交互元素（含其内部 svg/path 等子元素）都不算空白
+function isBlankAreaClick(el){
+  if(!el) return false;
+  if(el === document.body || el === document.documentElement) return true;
+  if(el.nodeType !== 1) return false;
+  const t = el.tagName;
+  if(t === 'BUTTON' || t === 'A' || t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return false;
+  if(t === 'SVG' || t === 'PATH' || t === 'LINE' || t === 'RECT' || t === 'CIRCLE' || t === 'POLYLINE' || t === 'POLYGON' || t === 'G') return false;
+  if(el.closest && el.closest('[onclick],button,a,input,select,textarea,th,thead,td,tr,table,.tb-btn,.tool-btn,.filter-pill,.chip,.yc-cell,.yc-ev,.dp-card,.detail-panel,.toolbar,.brand-bar,.sidebar,.nav-item,.nav-sub-item,.page-title,.eyebrow,.tt,.vomi-tip-host-pop')) return false;
+  return true;
+}
+function clearAllFilters(){
+  if(!hasActiveFilters()) return;
+  roleFilter = null;
+  nodeFilter = null;
+  catFilter  = null;
+  // 工具栏高亮复位
+  ['roleCn','roleAudio','catMeeting','catMilestone'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.classList.remove('on');
+  });
+  const ndAll = document.getElementById('ndAll'); if(ndAll) ndAll.classList.add('on');
+  ['ndLock','ndEstimate','ndScript','ndSchedule','ndDeliver'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.classList.remove('on');
+  });
+  rerenderView();
+  renderRightPanel();
+}
+document.addEventListener('click', function(e){
+  if(!isBlankAreaClick(e.target)) return;
+  clearAllFilters();
+});
 
 function rerenderView(){
   // 日历视图已废除，仅保留年历

@@ -41,6 +41,14 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-toggle{width:32px;height:32px;flex-shrink:0;background:rgba(31,42,50,.42);border:1px solid var(--c-hairline);border-radius:5px;color:var(--c-text-mute);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
 .brand-toggle:hover{background:var(--c-surface);border-color:rgba(15,248,155,.45);color:var(--c-primary)}
 .brand-toggle svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* 通用悬浮玻璃卡 · 与子页 [data-tip] 同一规格（深色玻璃 + 绿细边微光 + 12px 圆角 + 短句版）
+   外壳页 2026-09-03 接入，替代浏览器原生 title 的灰色小方块 */
+.vomi-tip-host-pop{position:fixed;z-index:9999;pointer-events:none;padding:6px 12px;max-width:280px;width:max-content;background:rgba(25,34,41,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(15,247,150,.42);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.55),0 0 0 1px rgba(15,247,150,.10);font-size:12px;line-height:1.6;color:rgba(230,237,242,.92);white-space:nowrap;letter-spacing:.2px;font-family:'Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif;text-align:center;opacity:0;transform:translateY(-4px);transition:opacity .14s,transform .14s}
+.vomi-tip-host-pop.show{opacity:1;transform:translateY(0)}
+.vomi-tip-host-pop[data-pos="top"]::after,
+.vomi-tip-host-pop[data-pos="bottom"]::after{content:'';position:absolute;left:50%;width:8px;height:8px;background:rgba(25,34,41,.92);border-right:1px solid rgba(15,247,150,.42);border-bottom:1px solid rgba(15,247,150,.42);transform:translateX(-50%) rotate(45deg)}
+.vomi-tip-host-pop[data-pos="bottom"]::after{top:-5px}
+.vomi-tip-host-pop[data-pos="top"]::after{bottom:-5px;border-right:0;border-bottom:0;border-left:1px solid rgba(15,247,150,.42);border-top:1px solid rgba(15,247,150,.42)}
 .brand-search{flex:1 1 420px;min-width:220px;max-width:420px;position:relative;margin:0 8px 0 18px}
 .brand-search input{width:100%;height:32px;padding:0 12px 0 32px;border:1px solid var(--c-hairline);border-radius:5px;font-size:13px;color:var(--c-text);background:rgba(31,42,50,.72);outline:none;transition:all .15s;font-family:inherit}
 .brand-search input::placeholder{color:#656668}
@@ -346,7 +354,7 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
     <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt"/>
   </div>
   <div class="brand-divider"></div>
-  <button class="brand-toggle" id="sidebarToggle" title="收起/展开侧栏" onclick="toggleSidebar()">
+  <button class="brand-toggle" id="sidebarToggle" data-tip="收起侧栏" aria-label="收起/展开侧栏" onclick="toggleSidebar()">
     <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
   </button>
   <div class="brand-subsys" aria-label="Vomi · VO Manager">
@@ -871,8 +879,30 @@ window.addEventListener('online',()=>{ loadReleases(); loadRosterCounts(); loadC
 // 2026-09-01: 收起态几何改为纯 CSS 静态变量链，不再用 JS 实时测量 DOM；
 // 避免 toggle 动画或 resize 期间读到旧布局值，导致对齐时好时坏。
 function toggleSidebar(){
-  document.body.classList.toggle('sidebar-collapsed');
+  const on = document.body.classList.toggle('sidebar-collapsed');
+  syncSidebarToggleTip(on);
+  try{ localStorage.setItem('vo-sidebar-collapsed', on ? '1' : '0'); }catch(_){}
 }
+// tooltip 文案跟随状态：展开态提示「收起侧栏」，收起态提示「展开侧栏」
+function syncSidebarToggleTip(collapsed){
+  const btn = document.getElementById('sidebarToggle');
+  if(!btn) return;
+  const txt = collapsed ? '展开侧栏' : '收起侧栏';
+  btn.setAttribute('data-tip', txt);
+  btn.setAttribute('aria-label', txt);
+  btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+}
+// 启动恢复：刷新后保持上次的收起/展开状态
+(function(){
+  let collapsed = false;
+  try{ collapsed = localStorage.getItem('vo-sidebar-collapsed') === '1'; }catch(_){}
+  const apply = () => {
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+    syncSidebarToggleTip(collapsed);
+  };
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+  else apply();
+})();
 function toast(msg){
   let t = document.getElementById('toast');
   if(!t){
@@ -1798,6 +1828,80 @@ initNotificationCenter();
 renderUserChip();
 setTimeout(()=>refreshNotificationContent(false), 600);
 restoreView();   // 刷新后还原上次所在页面（版本节点/录制档期/…）
+</script>
+
+<script>
+/* 通用悬浮玻璃卡提示 · 外壳页版（2026-09-03）
+   与声优库子页 [data-tip] 同规格，但有两点刻意差异：
+   1. 不做全局 scrubTitles —— 外壳页还有大量元素依赖原生 title，
+      子页那套 MutationObserver 全局清 title 会误伤，这里只处理 [data-tip] 元素自身。
+   2. 位置策略默认贴底部居中，超出视口时翻到上方，与子页保持一致。 */
+(function(){
+  if(window.__vomiTipInit) return;
+  window.__vomiTipInit = true;
+  let pop = null, activeHost = null, activeText = '', rafId = 0;
+
+  function ensurePop(){
+    if(pop && document.body.contains(pop)) return pop;
+    pop = document.createElement('div');
+    pop.className = 'vomi-tip-host-pop';
+    document.body.appendChild(pop);
+    return pop;
+  }
+  function hide(){
+    if(!pop) return;
+    pop.classList.remove('show');
+    activeHost = null; activeText = '';
+  }
+  function place(target, text){
+    const p = ensurePop();
+    p.textContent = text;
+    p.style.visibility = 'hidden';
+    p.classList.add('show');
+    const rect = target.getBoundingClientRect();
+    const tipW = p.offsetWidth, tipH = p.offsetHeight;
+    const winW = window.innerWidth, winH = window.innerHeight;
+    const margin = 8;
+    let pos = 'bottom';
+    let top = rect.bottom + margin;
+    if(top + tipH > winH - 4){ top = rect.top - tipH - margin; pos = 'top'; }
+    let left = rect.left + rect.width/2 - tipW/2;
+    if(left + tipW > winW - 6) left = winW - tipW - 6;
+    if(left < 6) left = 6;
+    p.setAttribute('data-pos', pos);
+    p.style.top = top + 'px';
+    p.style.left = left + 'px';
+    p.style.visibility = '';
+  }
+  function show(target, text){
+    activeHost = target; activeText = text;
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(()=>{ place(target, text); });
+  }
+  document.addEventListener('mouseover', (e) => {
+    const t = e.target.closest && e.target.closest('[data-tip]');
+    if(!t) return;
+    const txt = t.getAttribute('data-tip');
+    if(!txt) return;
+    // 只抑制挂了 data-tip 的元素自身的原生 title，不动其他元素
+    if(t.hasAttribute('title')) t.removeAttribute('title');
+    show(t, txt);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const t = e.target.closest && e.target.closest('[data-tip]');
+    if(!t) return;
+    const next = e.relatedTarget;
+    if(next && t.contains(next)) return;
+    hide();
+  });
+  // 点击后立刻收起，避免 toggle 时旧文案残留
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest && e.target.closest('[data-tip]');
+    if(t) hide();
+  });
+  window.addEventListener('scroll', hide, { passive:true });
+  window.addEventListener('resize', hide);
+})();
 </script>
 
 </body>

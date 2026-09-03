@@ -38,9 +38,14 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-logo .logo-txt{height:13px;width:auto;display:block;filter:brightness(0) invert(1);opacity:.92}
 .brand-divider{width:1px;height:26px;background:rgba(202,225,207,.16)}
 .brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;letter-spacing:.3px}
-.brand-toggle{width:32px;height:32px;flex-shrink:0;background:rgba(31,42,50,.42);border:1px solid var(--c-hairline);border-radius:5px;color:var(--c-text-mute);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
-.brand-toggle:hover{background:var(--c-surface);border-color:rgba(15,248,155,.45);color:var(--c-primary)}
-.brand-toggle svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* 收起侧栏按钮 · 2026-09-03 对齐子页原型：36×36 / 8px 圆角 / 透明底 / 实心播放三角 */
+.brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+.brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
+.brand-toggle svg{width:18px;height:18px;stroke:none;fill:currentColor;display:block;transition:transform .2s ease}
+.brand-toggle:hover svg{transform:translateX(1px)}
+/* 收起态：三角翻转朝左指向「展开」—— 子页缺这一步，外壳页补齐，避免箭头语义与状态相反 */
+body.sidebar-collapsed .brand-toggle svg{transform:rotate(180deg)}
+body.sidebar-collapsed .brand-toggle:hover svg{transform:rotate(180deg) translateX(1px)}
 /* 通用悬浮玻璃卡 · 与子页 [data-tip] 同一规格（深色玻璃 + 绿细边微光 + 12px 圆角 + 短句版）
    外壳页 2026-09-03 接入，替代浏览器原生 title 的灰色小方块 */
 .vomi-tip-host-pop{position:fixed;z-index:9999;pointer-events:none;padding:6px 12px;max-width:280px;width:max-content;background:rgba(25,34,41,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(15,247,150,.42);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.55),0 0 0 1px rgba(15,247,150,.10);font-size:12px;line-height:1.6;color:rgba(230,237,242,.92);white-space:nowrap;letter-spacing:.2px;font-family:'Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif;text-align:center;opacity:0;transform:translateY(-4px);transition:opacity .14s,transform .14s}
@@ -355,7 +360,7 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
   </div>
   <div class="brand-divider"></div>
   <button class="brand-toggle" id="sidebarToggle" data-tip="收起侧栏" aria-label="收起/展开侧栏" onclick="toggleSidebar()">
-    <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2 L8 18.8 L19.5 12 Z"/></svg>
   </button>
   <div class="brand-subsys" aria-label="Vomi · VO Manager">
     <span class="brand-vomi-lockup"><img class="vomi-mark" src="assets/vomi-mark.svg?v=20260815g" alt="-Vomi-"/></span>

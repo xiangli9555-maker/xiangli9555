@@ -139,13 +139,41 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .tool-btn.primary{color:#000;background:var(--c-primary);border-color:var(--c-primary);font-weight:600}
 .tool-btn.primary:hover{background:var(--c-primary-dark)}
 .tool-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
-/* 方案 A「点击即编辑」· 2026-09-02：所有 td.ed 默认就是可编辑态，无需切换编辑模式
-   - 整行 hover → 微绿底色，td.ed 加 inset 1px 细边暗示可编辑
-   - 当前 cell focus → 实心 inset 2px 绿边 + 绿底色 + 提亮文本色
-   - 性别单元（gender-cell）强制 dashed outline 提示「点这里换性别」 */
-#rosterTable tbody tr:hover td.ed{box-shadow:inset 0 0 0 1px rgba(15,247,150,.28)}
+/* 方案 C「悬浮铅笔 + Popover 卡片」· 2026-09-03 用户定稿（替换方案 A 的就地编辑）
+   - 表格纯只读，阅读优先：不再给 td 任何「可编辑」视觉暗示
+   - hover 行 → 行尾铅笔淡入；点击 → popover 编辑卡浮在行旁
+   - 仍需点击的特例单元（录制时间 / 性别 / 台词表）保留 pointer 光标 */
 #rosterTable td.ed.rec-cell{cursor:pointer}
-#rosterTable td.ed.gender-cell{outline:1px dashed rgba(15,247,150,.4);outline-offset:-2px;cursor:pointer}
+#rosterTable td.ed.gender-cell{cursor:pointer}
+/* ── 点击整行打开编辑卡（无显式按钮 · 2026-09-03 四次定稿）──
+   hover 只做预示：整行加左侧主色指示条 + 微底色 + 手型光标，告诉用户「这一行可点」。
+   真正开卡靠 click，所以指示条不代表"即将弹出"，只代表"点这里能编辑"。 */
+#rosterTable tbody tr[data-rid]:not(.cat-section){cursor:pointer}
+#rosterTable tbody tr.row-edit-armed td:first-child{box-shadow:inset 2px 0 0 var(--c-primary)}
+#rosterTable tbody tr.row-edit-armed td{background:rgba(15,247,150,.07)!important}
+/* 角色信息列有自己的双击下载语义，光标区分开，避免误以为点它也能编辑 */
+#rosterTable tbody tr[data-rid] td.casting-cell{cursor:default}
+/* ── Popover 编辑卡 ── */
+.row-editor-pop{position:fixed;z-index:9998;width:452px;max-width:calc(100vw - 24px);padding:14px 16px 12px;border-radius:12px;background:rgba(25,34,41,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(15,247,150,.30);box-shadow:0 18px 48px rgba(0,0,0,.62),0 0 0 1px rgba(15,247,150,.08);opacity:0;transform:translateY(-6px);transition:opacity .14s,transform .14s}
+.row-editor-pop.show{opacity:1;transform:translateY(0)}
+.rep-head{display:flex;align-items:center;gap:9px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.07)}
+.rep-cat{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;color:var(--cat-ink,#0FF796);background:color-mix(in srgb, var(--cat-ink,#0FF796) 16%, transparent);border:1px solid color-mix(in srgb, var(--cat-ink,#0FF796) 42%, transparent);white-space:nowrap}
+.rep-title{font-size:14px;font-weight:700;color:#fff;letter-spacing:.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rep-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.rep-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.rep-lbl{font-size:11px;color:var(--c-text-mute);letter-spacing:.2px}
+.rep-input{width:100%;box-sizing:border-box;padding:7px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.10);background:rgba(15,23,28,.72);color:#fff;font-size:13px;font-family:inherit;outline:none;transition:border-color .12s,background .12s}
+.rep-input:focus{border-color:var(--c-primary);background:rgba(15,247,150,.06)}
+.rep-input::placeholder{color:var(--c-text-dim)}
+.rep-err{display:none;margin-top:10px;padding:6px 10px;border-radius:6px;font-size:11.5px;line-height:1.5;color:var(--c-danger);background:rgba(214,153,190,.10);border:1px solid rgba(214,153,190,.34)}
+.rep-err.on{display:block}
+.rep-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.rep-btn{padding:6px 16px;border-radius:6px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid rgba(255,255,255,.14);background:transparent;color:var(--c-text-2);transition:all .13s}
+.rep-btn:hover{color:#fff;border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.05)}
+.rep-btn.primary{background:var(--c-primary);border-color:var(--c-primary);color:#08120E}
+.rep-btn.primary:hover{background:var(--c-primary-light,#5CFFB8);color:#08120E}
+.rep-btn:disabled{opacity:.55;cursor:not-allowed}
+@media (max-width:1500px){ .row-editor-pop{width:420px} }
 
 .table-wrap{overflow:auto;flex:1}
 table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
@@ -174,9 +202,8 @@ body.embed .main,
 body.embed .mid{width:100%}
 
 /* 可编辑单元格（就地编辑） */
-#rosterTable td.ed{cursor:text;position:relative;transition:box-shadow .12s,background .12s}
-#rosterTable td.ed:hover{background:rgba(15,247,150,.05);box-shadow:inset 0 0 0 1px rgba(15,247,150,.25)}
-#rosterTable td.ed:focus{outline:none;background:rgba(15,247,150,.1);box-shadow:inset 0 0 0 2px var(--c-primary);color:#fff!important;white-space:pre-wrap}
+/* 方案 C：表格只读，td 不再有 text 光标 / hover 绿边 / focus 高亮 */
+#rosterTable td.ed{position:relative}
 #rosterTable td.ed:empty::before{content:attr(data-placeholder);color:var(--c-text-dim);opacity:.55}
 
 /* 角色信息列 · 两态（v3） */
@@ -205,10 +232,10 @@ body.embed .mid{width:100%}
 /* 角色信息悬浮透明玻璃卡片 · 通知中心式结构化布局 · 2026-09-02 v4
    - 全局单例浮层（vomiCastingTip）· 默认 opacity:0 · mouseover 时填充+定位+显示
    - 多区块结构：分节标题 / 角色属性（角色名 / 大类 / 性别）/ 配音信息（中/英声优 + 录音地 + 棚）/ 备注 / 操作脚注 */
-.vomi-casting-tip{position:fixed;left:0;top:0;width:380px;max-width:calc(100vw - 32px);padding:0;background:rgba(25,34,41,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(15,247,150,.42);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.6),0 0 0 1px rgba(15,247,150,.10);opacity:0;pointer-events:auto;transform:translateY(4px);transition:opacity .16s,transform .16s;z-index:9999;text-align:left;color:var(--c-text);font-family:'Microsoft YaHei UI','PingFang SC',sans-serif;overflow:hidden;font-size:12px;line-height:1.55}
+.vomi-casting-tip{position:fixed;left:0;top:0;width:380px;max-width:calc(100vw - 32px);height:470px;display:flex;flex-direction:column;padding:0;background:rgba(25,34,41,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(15,247,150,.42);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.6),0 0 0 1px rgba(15,247,150,.10);opacity:0;pointer-events:auto;transform:translateY(4px);transition:opacity .16s,transform .16s;z-index:9999;text-align:left;color:var(--c-text);font-family:'Microsoft YaHei UI','PingFang SC',sans-serif;overflow:hidden;font-size:12px;line-height:1.55}
 .vomi-casting-tip.is-on{opacity:1;transform:translateY(0)}
 /* 顶部品牌条 */
-.vomi-casting-tip .ct-hd{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid rgba(15,247,150,.18);background:linear-gradient(180deg,rgba(15,247,150,.06),transparent)}
+.vomi-casting-tip .ct-hd{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid rgba(15,247,150,.18);background:linear-gradient(180deg,rgba(15,247,150,.06),transparent)}
 .vomi-casting-tip .ct-hd .ct-dot{width:8px;height:8px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 8px rgba(15,247,150,.6)}
 .vomi-casting-tip .ct-hd .ct-title{font-weight:700;font-size:13px;letter-spacing:.5px;color:#fff}
 .vomi-casting-tip .ct-hd .ct-tag{margin-left:auto;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.4px;text-transform:uppercase;font-family:'JetBrains Mono','Microsoft YaHei UI',monospace}
@@ -216,9 +243,11 @@ body.embed .mid{width:100%}
 .vomi-casting-tip .ct-hd .ct-tag.tag-pending{background:rgba(255,210,76,.12);color:var(--c-brand-yellow,#FFD24C);border:1px solid rgba(255,210,76,.35)}
 .vomi-casting-tip .ct-hd .ct-tag.tag-dim{background:rgba(212,221,227,.08);color:var(--c-text-mute);border:1px solid rgba(212,221,227,.18)}
 /* 区块 */
-.vomi-casting-tip .ct-block{padding:10px 14px;border-bottom:1px solid rgba(212,221,227,.06)}
+.vomi-casting-tip .ct-block{flex-shrink:0;padding:10px 14px;border-bottom:1px solid rgba(212,221,227,.06)}
 .vomi-casting-tip .ct-block:last-of-type{border-bottom:0}
-.vomi-casting-tip .ct-sec-title{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--c-text-mute);margin:0 0 8px;text-transform:uppercase;font-family:'JetBrains Mono','Microsoft YaHei UI',monospace}
+/* 备注块吃掉剩余高度：min-height:0 是必须的，否则 flex 子项按内容撑开、line-clamp 失效 */
+.vomi-casting-tip .ct-block.ct-block-note{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.vomi-casting-tip .ct-sec-title{flex-shrink:0;font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--c-text-mute);margin:0 0 8px;text-transform:uppercase;font-family:'JetBrains Mono','Microsoft YaHei UI',monospace}
 /* 角色属性（K/V 双列） */
 .vomi-casting-tip .ct-kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:baseline}
 .vomi-casting-tip .ct-kv .k{color:var(--c-text-mute);font-size:11px;letter-spacing:.3px}
@@ -246,11 +275,16 @@ body.embed .mid{width:100%}
 .vomi-casting-tip .ct-list-item.is-na .name{color:var(--c-text-mute);font-weight:500;font-style:italic}
 .vomi-casting-tip .ct-list-item .meta-na{color:var(--c-warning);font-size:11px;padding:1px 6px;border:1px solid rgba(255,210,76,.3);border-radius:3px;font-weight:600}
 /* 备注 / 风险提示 */
-.vomi-casting-tip .ct-quote{font-size:12px;color:var(--c-text);background:rgba(15,247,150,.05);border-left:2px solid rgba(15,247,150,.35);padding:7px 10px;border-radius:0 6px 6px 0;line-height:1.6;word-break:break-word;white-space:pre-wrap}
+/* 备注正文：多行省略号收束。line-clamp 必须 <= 实际可用行数，否则父级 overflow:hidden
+   会把最后一行硬切一半、而省略号根本不显示（看起来像内容被吃掉）。
+   实测口径（470px 卡 / 12px 字 / 1.6 行高）：头部 43 + 属性块 94 + 配音块 93 + 脚注 45
+   = 275px，备注块剩 193px，扣掉小标题与内边距后 154px / 19.2 = 8 行。
+   改动卡高、字号或上方任一区块高度时，必须重新实测这个数字。 */
+.vomi-casting-tip .ct-quote{flex:1;min-height:0;font-size:12px;color:var(--c-text);background:rgba(15,247,150,.05);border-left:2px solid rgba(15,247,150,.35);padding:7px 10px;border-radius:0 6px 6px 0;line-height:1.6;word-break:break-word;white-space:pre-wrap;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:8;overflow:hidden;text-overflow:ellipsis}
 .vomi-casting-tip .ct-quote.is-warn{background:rgba(255,210,76,.05);border-left-color:rgba(255,210,76,.4);color:var(--c-text)}
 .vomi-casting-tip .ct-quote.is-empty{font-style:italic;color:var(--c-text-mute);background:rgba(212,221,227,.04);border-left-color:rgba(212,221,227,.18)}
 /* 底部操作脚注（参考通知中心底部一行"提示 / 操作"按钮） */
-.vomi-casting-tip .ct-foot{padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(0,0,0,.18)}
+.vomi-casting-tip .ct-foot{flex-shrink:0;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(0,0,0,.18)}
 .vomi-casting-tip .ct-foot .ct-hint{font-size:10.5px;color:var(--c-text-mute);letter-spacing:.3px}
 .vomi-casting-tip .ct-foot .ct-btn{padding:4px 12px;font-size:11px;color:#fff;background:rgba(15,247,150,.18);border:1px solid rgba(15,247,150,.45);border-radius:6px;cursor:pointer;letter-spacing:.4px;font-weight:600;transition:background .12s}
 .vomi-casting-tip .ct-foot .ct-btn:hover{background:rgba(15,247,150,.30)}
@@ -413,7 +447,6 @@ body.embed .mid{width:100%}
   #rosterTable th:nth-child(10),#rosterTable td:nth-child(10){width:9%!important}
   #rosterTable{font-size:10.5px}
   #rosterTable td,#rosterTable th{padding:4px 5px}
-  #rosterTable td.ed:focus{white-space:normal;overflow:visible;text-overflow:clip}
   .meter-value{font-size:20px}
   .meter-legend{font-size:10px}
   .btn{font-size:11px;padding:5px 8px}
@@ -535,7 +568,7 @@ body.embed .mid{width:100%}
         </table>
       </div>
       <div class="card-foot">
-        <div>显示 <span id="rowCount">0</span> 行 · 方案 A 点击即编辑 · 失焦自动入库 · 录制时间统一在「录制档期」页管理</div>
+        <div>显示 <span id="rowCount">0</span> 行 · 点击任意行编辑 · 录制时间统一在「录制档期」页管理</div>
         <div class="keys">
           <span><kbd>Tab</kbd> 下一格</span>
           <span><kbd>Enter</kbd> 保存</span>
@@ -1144,8 +1177,9 @@ function isBlankAreaClick(el){
   const t = el.tagName;
   if(t === 'BUTTON' || t === 'A' || t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return false;
   if(t === 'SVG' || t === 'PATH' || t === 'LINE' || t === 'RECT' || t === 'CIRCLE' || t === 'POLYLINE' || t === 'POLYGON' || t === 'G') return false;
-  // 表格单元格默认可编辑（方案 A 点击即编辑），点它不能被当成「点空白」
-  if(el.closest && el.closest('[contenteditable="true"]')) return false;
+  // 表格已无 contenteditable；hover 编辑卡（.row-editor-pop）必须排除在「空白」之外，
+  // 否则在卡片里点输入框会被判成「点空白」→ 清筛选 + 重渲染，把卡片冲掉。
+  if(el.closest && el.closest('.row-editor-pop')) return false;
   if(el.closest && el.closest('[data-cat],[data-gender],[data-rid],[onclick],button,a,input,select,textarea,.tool-btn,.meter-bar,.meter-legend,.meter-seg,.li,.cat-label,.cat-section,.modal,.modal-mask,.brand-bar,.sidebar,.nav-item,.actions,.page-title,.eyebrow,.vomi-tip-host-pop,#rosterTable thead')) return false;
   return true;
 }
@@ -1249,7 +1283,7 @@ function renderRoster(){
     else if(isEmpty) color = 'color:var(--c-text-dim);';
     else if(opts.dim) color = 'color:var(--c-text-2);';
     const placeholder = isEmpty ? '—' : '';
-    return `<td class="ed" data-rid="${rid}" data-field="${field}" data-orig="${escHtml(raw)}" contenteditable="true" spellcheck="false" style="${color}${opts.extraStyle||''}" data-placeholder="${placeholder}">${display}</td>`;
+    return `<td class="ed" data-rid="${rid}" data-field="${field}" data-orig="${escHtml(raw)}" style="${color}${opts.extraStyle||''}" data-placeholder="${placeholder}">${display}</td>`;
   };
   // 「地点 / 录音棚」合并单元格（v3 · 2026-07-23）
   const locStudioCell = (loc, studio, rid, side, pending) => {
@@ -1270,7 +1304,7 @@ function renderRoster(){
     if(isAI) color = 'color:var(--c-info);';
     else if(isEmpty && !bothNA) color = 'color:var(--c-text-dim);';
     const placeholder = (isEmpty && !bothNA) ? '—' : '';
-    return `<td class="ed" data-rid="${rid}" data-field="loc_studio_${side}" data-loc="${escHtml(l)}" data-studio="${escHtml(s)}" data-orig="${escHtml(display)}" contenteditable="true" spellcheck="false" style="${color}" data-placeholder="${placeholder}">${display}</td>`;
+    return `<td class="ed" data-rid="${rid}" data-field="loc_studio_${side}" data-loc="${escHtml(l)}" data-studio="${escHtml(s)}" data-orig="${escHtml(display)}" style="${color}" data-placeholder="${placeholder}">${display}</td>`;
   };
   // 录制时间单元格：结构化多档期（日期 + 起 - 止）
   //   数据存于 localStorage 的 rec_time_cn / rec_time_en 字段（字符串数组）
@@ -1396,81 +1430,251 @@ function renderRoster(){
   tbody.innerHTML = html;
 }
 
-// 事件委托：tbody 只挂一次，无论重渲染多少次都不会失效
+// 方案 C（2026-09-03 用户定稿）：表格纯只读，编辑统一走行尾铅笔 → popover 编辑卡。
+// 原方案 A 的 focusin / keydown / focusout 就地编辑链已整段移除；
+// 函数名保留仅为兼容既有调用点（renderRoster 尾部），不再绑定任何编辑事件。
+/* ==================== 点击整行打开编辑卡（无显式按钮）====================
+   2026-09-03 四次定稿（用户原话）：「悬浮的时候不要出现编辑卡片，
+   点击该行的时候再出现对应的编辑卡片信息」。
+
+   分工明确：
+   · hover  → 只给整行加 .row-edit-armed 高亮，预示「这一行可点」，不弹任何东西
+   · click  → 打开编辑卡，位置贴鼠标点击处
+   · 再点同一行 → 收起（切换语义）
+
+   三处必须避让，否则会和既有交互打架：
+   1. 「角色信息」列 td.casting-cell 有双击下载 + 专属 hover 卡，点它不开编辑卡
+   2. 分组标题行 tr.cat-section 不是数据行，不触发
+   3. 行内若有按钮 / 链接 / 输入控件，点它们走各自逻辑，不开卡 */
+let ROW_EDITOR_MOUSE = { x: 0, y: 0 };   // 最近鼠标位置，卡片据此定位
+let ROW_ARMED_TR = null;
+
+// 全局记录鼠标位置：卡片要弹在「鼠标附近」而非固定贴行
+document.addEventListener('mousemove', (e)=>{
+  ROW_EDITOR_MOUSE.x = e.clientX;
+  ROW_EDITOR_MOUSE.y = e.clientY;
+}, { passive:true });
+
+function setArmedRow(tr){
+  if(ROW_ARMED_TR === tr) return;
+  if(ROW_ARMED_TR) ROW_ARMED_TR.classList.remove('row-edit-armed');
+  ROW_ARMED_TR = tr || null;
+  if(ROW_ARMED_TR) ROW_ARMED_TR.classList.add('row-edit-armed');
+}
+
+// 判断某个 DOM 是否属于「编辑区」（当前编辑行或编辑卡本身）
+function isWithinRowEditZone(el){
+  if(!el || !el.closest) return false;
+  if(el.closest('.row-editor-pop')) return true;
+  const tr = el.closest('#rosterTbody tr[data-rid]');
+  return !!(tr && ROW_EDITOR && Number(tr.dataset.rid) === ROW_EDITOR.rid);
+}
+
+// 点击目标是否应当打开编辑卡
+function shouldOpenRowEditor(target){
+  if(!target || !target.closest) return null;
+  const tr = target.closest('#rosterTbody tr[data-rid]');
+  if(!tr || tr.classList.contains('cat-section')) return null;
+  // 角色信息列：双击下载 Word + 专属 hover 卡，不抢它的点击
+  if(target.closest('td.casting-cell')) return null;
+  // 行内交互控件各走各自逻辑
+  if(target.closest('button, a, input, select, textarea, [onclick]')) return null;
+  return Number(tr.dataset.rid);
+}
+
 function initCellEdit(){
   const tbody = document.getElementById('rosterTbody');
-  if(!tbody || tbody._edBound) return;
-  tbody._edBound = true;
+  if(!tbody || tbody.dataset.rowEditBound === '1') return;
+  tbody.dataset.rowEditBound = '1';
 
-  // focusin 冒泡版 focus：单元格取得焦点时记原值 + 全选
-  tbody.addEventListener('focusin', (e)=>{
-    const td = e.target.closest('td.ed'); if(!td) return;
-    td.dataset.orig = td.textContent.trim();
-    requestAnimationFrame(()=>{
-      try{
-        const range = document.createRange(); range.selectNodeContents(td);
-        const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-      }catch(_){}
-    });
+  // hover：只做行高亮，绝不弹卡
+  tbody.addEventListener('mouseover', (e)=>{
+    const tr = e.target.closest && e.target.closest('tr[data-rid]');
+    if(!tr || tr.classList.contains('cat-section')){ setArmedRow(null); return; }
+    setArmedRow(tr);
   });
-
-  // keydown：Enter=提交，Esc=撤销
-  tbody.addEventListener('keydown', (e)=>{
-    const td = e.target.closest('td.ed'); if(!td) return;
-    if(e.key==='Enter'){ e.preventDefault(); td.blur(); }
-    else if(e.key==='Escape'){ e.preventDefault(); td.textContent = td.dataset.orig || ''; td.blur(); }
-  });
-
-  // focusout 冒泡版 blur：失焦时 diff → 存 localStorage → 闪绿
-  tbody.addEventListener('focusout', (e)=>{
-    const td = e.target.closest('td.ed'); if(!td) return;
-    const rid = Number(td.dataset.rid);
-    const field = td.dataset.field;
-    const orig = td.dataset.orig || '';
-    const val = td.textContent.replace(/\r?\n/g,' ').trim();
-    if(val === orig) return;
-
-    if(field==='loc_studio_cn' || field==='loc_studio_en'){
-      // 复合字段：拆成 location + studio 两个字段
-      const side = field==='loc_studio_cn' ? 'cn' : 'en';
-      const parts = val.split(/\s*[\/·、,，]\s*/).filter(Boolean);
-      const loc = parts[0] || '';
-      const studio = parts.slice(1).join(' ') || '';
-      // 复合字段合并成一次请求，避免触发两次 PATCH
-      saveCellEdits(rid, { [side+'_location']: loc, [side+'_studio']: studio });
-      const clean = [loc, studio].filter(x=>x && x!=='N/A').join(' · ');
-      td.textContent = clean;
-      td.dataset.orig = clean;
-      td.dataset.loc = loc;
-      td.dataset.studio = studio;
-      td.style.color = clean ? 'var(--c-text-2)' : 'var(--c-text-dim)';
-    } else {
-      if(field==='role_cn'){
-        if(!val){
-          alert('游戏角色（中）不能为空');
-          td.textContent = orig;
-          td.dataset.orig = orig;
-          return;
-        }
-        const dup = TALENT_LIST.some(r=>Number(r.id)!==rid && String(r.role_cn||'').trim()===val);
-        if(dup){
-          alert('角色中文名重复：'+val+'\n请改成唯一名称后重新输入。');
-          td.textContent = orig;
-          td.dataset.orig = orig;
-          return;
-        }
-      }
-      saveCellEdit(rid, field, val);   // 内存值在 saveCellEdits 内统一更新
-      if(val==='AI生成') td.style.color = 'var(--c-info)';
-      else if(!val || val==='N/A') td.style.color = 'var(--c-text-dim)';
-      else td.style.color = (field==='cn_va'||field==='en_va') ? '' : 'var(--c-text-2)';
+  tbody.addEventListener('mouseleave', ()=>{
+    // 卡片打开时保留其所在行的高亮，让用户知道在改哪一行
+    if(ROW_EDITOR){
+      const tr = document.querySelector('#rosterTbody tr[data-rid="' + ROW_EDITOR.rid + '"]');
+      setArmedRow(tr || null);
+      return;
     }
+    setArmedRow(null);
+  });
 
-    td.style.transition = 'background .4s';
-    td.style.background = 'rgba(15,247,150,.18)';
-    setTimeout(()=>{ td.style.background=''; }, 420);
+  // click：打开编辑卡
+  tbody.addEventListener('click', (e)=>{
+    const rid = shouldOpenRowEditor(e.target);
+    if(rid == null) return;
+    openRowEditor(e, rid);
+  });
+
+  // 表格滚动 / 窗口变化 → 卡片位置失效，直接收起
+  const wrap = tbody.closest('.table-wrap');
+  const bail = ()=>{ if(ROW_EDITOR){ closeRowEditor(); setArmedRow(null); } };
+  if(wrap) wrap.addEventListener('scroll', bail, { passive:true });
+  window.addEventListener('resize', bail);
+}
+
+/* ==================== 行编辑 Popover ====================
+   交互：hover 行停留 260ms → 编辑卡在鼠标附近浮出 → 保存 / 取消 / 移开 / 点外部 / Esc
+   落库：复用既有 saveCellEdits（直写 DB），不另开写入逻辑 */
+let ROW_EDITOR = null;   // { pop, rid }
+
+function closeRowEditor(){
+  if(!ROW_EDITOR) return;
+  try{ ROW_EDITOR.pop.remove(); }catch(_){}
+  ROW_EDITOR = null;
+}
+
+// 主动关闭（取消按钮 / Esc / 点外部 / 保存完成）。
+// 点击触发模式下不再需要 hover 冻结与静默期 —— 卡片只会因用户点击而出现。
+function dismissRowEditor(){
+  closeRowEditor();
+  setArmedRow(null);
+}
+
+function openRowEditor(evt, rid){
+  if(evt){ evt.preventDefault(); evt.stopPropagation(); }
+  const id = Number(rid);
+  // 再点同一行 → 收起（点击触发下的切换语义）
+  if(ROW_EDITOR && ROW_EDITOR.rid === id){ dismissRowEditor(); return; }
+  closeRowEditor();
+
+  const row = TALENT_LIST.find(r => Number(r.id) === id);
+  if(!row) return;
+  const cat = row.category || '';
+  const color = CAT_COLORS[cat] || '#6B7A85';
+  const ink = CAT_INKS[cat] || color;
+
+  const field = (label, f, val, opts) => {
+    opts = opts || {};
+    const v = (val == null ? '' : String(val));
+    return `<label class="rep-field">
+      <span class="rep-lbl">${escHtml(label)}</span>
+      <input class="rep-input" data-f="${f}" value="${escHtml(v)}" placeholder="${escHtml(opts.ph || '—')}" spellcheck="false" autocomplete="off"/>
+    </label>`;
+  };
+
+  const pop = document.createElement('div');
+  pop.className = 'row-editor-pop';
+  pop.innerHTML = `
+    <div class="rep-head">
+      <span class="rep-cat" style="--cat-color:${color};--cat-ink:${ink}">${escHtml(cat || '未分类')}</span>
+      <span class="rep-title">${escHtml(row.role_cn || '(未命名)')}</span>
+    </div>
+    <div class="rep-grid">
+      ${field('角色（中）', 'role_cn', row.role_cn)}
+      ${field('角色（英）', 'role_en', row.role_en)}
+      ${field('中配声优', 'cn_va', row.cn_va)}
+      ${field('英配声优', 'en_va', row.en_va)}
+      ${field('中配地点', 'cn_location', row.cn_location)}
+      ${field('中配录音棚', 'cn_studio', row.cn_studio)}
+      ${field('英配地点', 'en_location', row.en_location)}
+      ${field('英配录音棚', 'en_studio', row.en_studio)}
+    </div>
+    <div class="rep-err" id="repErr"></div>
+    <div class="rep-foot">
+      <button class="rep-btn" onclick="dismissRowEditor()">取消</button>
+      <button class="rep-btn primary" onclick="saveRowEditor(${id})">保存</button>
+    </div>`;
+  document.body.appendChild(pop);
+  ROW_EDITOR = { pop, rid: id };
+
+  // 定位：以「鼠标附近」为锚（用户三次定稿要求），默认右下偏移 14px；
+  // 贴边时自动翻到左侧 / 上方，保证整卡始终在视口内。
+  // 关键细节：卡片不能压在鼠标正下方——否则鼠标一动就等于 hover 到卡片上，
+  // 会立刻抢走行的 hover 态。所以横向留 14px、纵向留 12px 的呼吸位。
+  const mx = ROW_EDITOR_MOUSE.x || 0, my = ROW_EDITOR_MOUSE.y || 0;
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  const winW = window.innerWidth, winH = window.innerHeight;
+  const GX = 14, GY = 12, EDGE = 10;
+  let left = mx + GX;
+  if(left + pw > winW - EDGE) left = mx - pw - GX;      // 右侧放不下 → 翻到左侧
+  if(left < EDGE) left = Math.max(EDGE, Math.min(mx + GX, winW - pw - EDGE));
+  let top = my + GY;
+  if(top + ph > winH - EDGE) top = my - ph - GY;        // 下方放不下 → 翻到上方
+  if(top < EDGE) top = EDGE;
+  pop.style.top = top + 'px';
+  pop.style.left = left + 'px';
+  requestAnimationFrame(()=> pop.classList.add('show'));
+
+  // 点击触发下**主动聚焦**首个输入框：点击是明确的编辑意图，直接给光标最省事。
+  // preventScroll 必须带 —— 卡片是 fixed 定位，不加会让表格容器跳滚一下。
+  const first = pop.querySelector('.rep-input');
+  if(first){ first.focus({ preventScroll:true }); try{ first.select(); }catch(_){} }
+
+  // Enter 提交（非 IME 组合态）
+  pop.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); saveRowEditor(id); }
   });
 }
+
+async function saveRowEditor(rid){
+  if(!ROW_EDITOR) return;
+  const id = Number(rid);
+  const row = TALENT_LIST.find(r => Number(r.id) === id);
+  if(!row){ closeRowEditor(); return; }
+  const pop = ROW_EDITOR.pop;
+  const errBox = pop.querySelector('#repErr');
+  const showErr = msg => { if(errBox){ errBox.textContent = msg; errBox.classList.add('on'); } };
+
+  const patch = {};
+  pop.querySelectorAll('.rep-input').forEach(inp => {
+    const f = inp.dataset.f;
+    const val = String(inp.value || '').replace(/\r?\n/g, ' ').trim();
+    const old = row[f] == null ? '' : String(row[f]);
+    if(val !== old) patch[f] = val;
+  });
+
+  // 角色中文名：非空 + 全表唯一（沿用方案 A 的校验口径）
+  if('role_cn' in patch){
+    if(!patch.role_cn){ showErr('角色（中）不能为空'); return; }
+    const dup = TALENT_LIST.some(r => Number(r.id) !== id && String(r.role_cn||'').trim() === patch.role_cn);
+    if(dup){ showErr('角色中文名重复：' + patch.role_cn); return; }
+  }
+
+  if(Object.keys(patch).length === 0){ dismissRowEditor(); return; }
+
+  const btn = pop.querySelector('.rep-btn.primary');
+  if(btn){ btn.disabled = true; btn.textContent = '保存中…'; }
+  try{
+    await saveCellEdits(id, patch);   // 直写 DB，内存值由 saveCellEdits 统一更新
+    // 必须冻结本行：renderRoster() 会重建 <tr>，新节点出现在鼠标下方时浏览器会
+    // **重新派发 mouseover**，卡片会立刻自己弹回来，看起来就是「保存没生效」。
+    dismissRowEditor();
+    renderRoster();
+    // 保存成功后目标行闪一次绿，给出明确反馈
+    const tr = document.querySelector(`#rosterTbody tr[data-rid="${id}"]`);
+    if(tr){
+      tr.style.transition = 'background .4s';
+      tr.style.background = 'rgba(15,247,150,.16)';
+      setTimeout(()=>{ tr.style.background = ''; }, 460);
+    }
+  }catch(err){
+    showErr('未入库：' + (err && err.message ? err.message : '保存失败'));
+    if(btn){ btn.disabled = false; btn.textContent = '保存'; }
+  }
+}
+
+// 点卡片外部关闭（捕获阶段先跑，避免被行点击等逻辑吞掉）。
+// 时序说明：点另一行时 mousedown 先关掉旧卡，随后该行的 click 打开新卡，衔接正确；
+// 点当前编辑行本身不算「外部」，交给 click 的切换语义处理，避免"关了又开"闪一下。
+document.addEventListener('mousedown', (e)=>{
+  if(!ROW_EDITOR) return;
+  if(isWithinRowEditZone(e.target)) return;
+  dismissRowEditor();
+}, true);
+// Esc 关闭
+document.addEventListener('keydown', (e)=>{
+  if(e.key !== 'Escape' || !ROW_EDITOR) return;
+  e.preventDefault();
+  dismissRowEditor();
+});
+// 滚动 / 缩放时跟随失效，直接收起，避免卡片脱离行
+window.addEventListener('scroll', ()=>{ if(ROW_EDITOR){ closeRowEditor(); setArmedRow(null); } }, { passive:true, capture:true });
+window.addEventListener('resize', ()=>{ if(ROW_EDITOR){ closeRowEditor(); setArmedRow(null); } });
 
 // ==================== 录制档期结构化编辑器 ====================
 // 数据格式：字符串数组，每项形如
@@ -1785,8 +1989,14 @@ function enqueueRosterDelete(roleCn, rid){
     const footBtn = hasContent
       ? `<span class="ct-btn" data-action="download">下载 Word</span>`
       : `<span class="ct-btn" style="background:rgba(212,221,227,.08);border-color:rgba(212,221,227,.22);color:var(--c-text-mute);cursor:default">${pending?'等待资料':'暂无资料'}</span>`;
-    // 脚注只看资料是否齐全：有资料就能下载，与是否定下声优无关
-    const footHint = hasContent ? '← 双击下载选角资料' : (pending ? '资料待文案补充' : '');
+    // 脚注只看资料是否齐全：有资料就能下载，与是否定下声优无关。
+    // 卡片定高 470px 后长备注会被省略号截断，必须明确告知完整内容去哪看，
+    // 否则用户以为资料只有这么多（阈值 300 字 ≈ 8 行 line-clamp 的容量）。
+    const noteLen = String(note || remark || '').length;
+    const truncated = hasContent && noteLen > 300;
+    const footHint = truncated
+      ? '内容较长已折叠 · 双击下载完整资料'
+      : (hasContent ? '← 双击下载选角资料' : (pending ? '资料待文案补充' : ''));
 
     // 角色名
     const roleHtml = rcn
@@ -1834,7 +2044,7 @@ function enqueueRosterDelete(roleCn, rid){
           ${voiceRow('英配', enVa, enLoc, enStu, 'en')}
         </div>
       </div>
-      <div class="ct-block">
+      <div class="ct-block ct-block-note">
         <div class="ct-sec-title">${note?'选角备注':(remark?'角色备注':'当前状态')}</div>
         ${quoteHtml}
       </div>

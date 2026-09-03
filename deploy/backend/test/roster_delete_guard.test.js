@@ -45,14 +45,21 @@ test('frontend patch sends the current revision and stores the returned revision
 });
 
 // 2026-09-02：「保存到系统」批量按钮退役，单元格编辑改为直写 voice_roles
+// 2026-09-03 更新：编辑入口从方案 A（td contenteditable 就地编辑）改为方案 C（行尾铅笔 + popover 卡），
+//   落库层 saveCellEdits / persistVoiceRole 不变；原「复合字段合并成一次 PATCH」的断言随
+//   loc_studio 复合单元格一起下线 —— 方案 C 里地点与录音棚本就是两个独立输入，
+//   仍由 saveRowEditor 汇总成单次 saveCellEdits 调用，合并语义未丢失。
 test('roster cell edits write straight to the voice_roles API', () => {
   assert.doesNotMatch(rosterPage, /syncRosterToBackend/);             // 旧批量回写入口已删除
   assert.doesNotMatch(rosterPage, /id="btnSyncRoster"/);              // 按钮 DOM 已删除
-  assert.match(rosterPage, /async function saveCellEdits\(/);          // 单元格编辑统一入口
+  assert.match(rosterPage, /async function saveCellEdits\(/);          // 落库统一入口
   assert.match(rosterPage, /function saveCellEdit\(id, field, val\)\{ return saveCellEdits\(/);
   assert.match(rosterPage, /await persistVoiceRole\(row, uiPatch\)/);  // 走落库层而非 localStorage
-  // 复合字段（录制地点 / 棚）必须合并成一次 PATCH，不能连发两次
-  assert.match(rosterPage, /saveCellEdits\(rid, \{ \[side\+'_location'\]: loc, \[side\+'_studio'\]: studio \}\)/);
+  // 方案 C：一次编辑的多字段仍必须合并成单次 saveCellEdits（含地点 + 录音棚），不得逐字段连发
+  assert.match(rosterPage, /async function saveRowEditor\(/);
+  const i0 = rosterPage.indexOf('async function saveRowEditor(');
+  const block = rosterPage.slice(i0, i0 + 2200);
+  assert.equal((block.match(/saveCellEdits\(/g) || []).length, 1, '整卡保存只允许一次落库调用');
 });
 
 // 落库失败不能静默：必须提示「未入库」，且草稿要有自动回写出口

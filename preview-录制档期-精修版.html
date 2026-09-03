@@ -589,6 +589,23 @@ body.embed .main{width:100%}
 .acard.has-pending{border-color:rgba(107,122,133,.20);background:linear-gradient(180deg,rgba(107,122,133,.03) 0%,var(--c-surface) 50%)}
 .acard.has-pending::before{background:rgba(107,122,133,.45)}
 
+/* ── 声优视图骨架卡（2026-09-03）：有需求但未同步声优预估时的结构占位 ──
+   中性灰，不用绿/黄，明确表达"还没数据"而非"待办/已完成" */
+.acard.is-skeleton{border-style:dashed;border-color:rgba(212,221,227,.13);background:rgba(255,255,255,.012);justify-content:flex-start;gap:12px}
+.acard.is-skeleton::before{background:rgba(212,221,227,.18)}
+.acard.is-skeleton .ask-head{display:flex;align-items:center;gap:10px}
+.acard.is-skeleton .ask-dot{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:rgba(212,221,227,.07);border:1px solid rgba(212,221,227,.10)}
+.acard.is-skeleton .ask-body{display:flex;flex-direction:column;gap:9px;margin-top:2px}
+.acard.is-skeleton .ask-line{display:flex;align-items:center;gap:8px}
+.acard.is-skeleton .ask-lang{flex-shrink:0;width:20px;height:18px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:var(--c-text-dim);background:rgba(212,221,227,.05);border:1px solid rgba(212,221,227,.10)}
+.acard.is-skeleton .ask-bar{height:16px;border-radius:4px;background:linear-gradient(90deg,rgba(212,221,227,.055),rgba(212,221,227,.10),rgba(212,221,227,.055));background-size:220% 100%;animation:dskShimmer 2.4s ease-in-out infinite}
+.acard.is-skeleton .ask-bar.w-name{flex:0 0 96px;height:18px}
+.acard.is-skeleton .ask-bar.w-slot{flex:0 0 116px}
+.acard.is-skeleton .ask-bar.w-slot2{flex:0 0 88px}
+.acard.is-skeleton .ask-foot{margin-top:auto;font-size:10.5px;color:var(--c-text-dim);letter-spacing:.2px}
+/* 预约进度零数据骨架的图例文案 */
+.mp-pr-legend.skeleton{color:var(--c-text-dim);opacity:.75}
+
 /* 卡片头：头像 + 角色名 + 状态 */
 .acard-head{display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--c-hairline)}
 .acard-avatar{width:32px;height:32px;border-radius:50%;background:rgba(140,168,189,.10);border:1px solid rgba(140,168,189,.16);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--c-text-mute);font-family:inherit;flex-shrink:0;letter-spacing:.3px}
@@ -2166,6 +2183,28 @@ function renderActorRoleTable(filteredFlat){
   const empty = document.getElementById('actorRoleEmpty');
   const tbody = document.getElementById('actorRoleTbody');
   if(!list.length){
+    // ★ 骨架卡（2026-09-03）：已有需求但还没同步声优预估时，
+    //   渲染 6 张占位卡让「按角色」视图的卡片网格结构可见，而不是一句空文案。
+    //   只在"无任何筛选条件"时出骨架；用户主动筛出空结果仍给明确空态，避免误导。
+    const noFilter = !focusYmd
+      && ACTOR_STATE.lang === 'all' && ACTOR_STATE.status === 'all'
+      && (!ACTOR_STATE.cat || ACTOR_STATE.cat === 'all')
+      && (!ACTOR_STATE.gender || ACTOR_STATE.gender === 'all')
+      && !((document.getElementById('actorSearch')||{}).value||'').trim();
+    const hasDemands = (ACTOR_STATE.demands || []).length > 0;
+    if(noFilter && hasDemands){
+      empty.style.display = 'none';
+      tbody.innerHTML = Array.from({length:6}).map(() => `
+        <div class="acard is-skeleton">
+          <div class="ask-head"><span class="ask-dot"></span><span class="ask-bar w-name"></span></div>
+          <div class="ask-body">
+            <div class="ask-line"><span class="ask-lang">中</span><span class="ask-bar w-slot"></span></div>
+            <div class="ask-line"><span class="ask-lang">英</span><span class="ask-bar w-slot2"></span></div>
+          </div>
+          <div class="ask-foot">待录入声优预估</div>
+        </div>`).join('');
+      return;
+    }
     tbody.innerHTML = '';
     empty.style.display = 'block';
     empty.innerHTML = ACTOR_STATE.demands.length === 0
@@ -2926,7 +2965,6 @@ function bookActor(role, lang){
       else if(lg==='en'){ enT++; if(parseYMD(r.date)) enD++; }
     });
     var allT=cnT+enT, allD=cnD+enD;
-    if(!allT){ box.innerHTML='<div class="mp-empty">暂无可展示的录制数据</div>'; return; }
     function row(label, done, total, cls, extra, pill){
       var pct=total?Math.max(0,Math.min(100,Math.round(done*100/total))):0;
       var curLang = (window.ACTOR_STATE && window.ACTOR_STATE.lang) || 'all';
@@ -2936,6 +2974,15 @@ function bookActor(role, lang){
         +'<div class="mp-pr-bar"><div class="mp-pr-fill '+cls+'" style="width:'+pct+'%"></div></div>'
         +'<div class="mp-pr-val">'+done+' / '+total+'</div>'
       +'</div>';
+    }
+    // ★ 零数据骨架（2026-09-03）：仍渲染中/英/总计三条 0 / 0，让结构与语种切换可见，
+    //   而不是甩一句空文案 —— 便于在无录制数据阶段验证框架。
+    if(!allT){
+      box.innerHTML = row('中配',0,0,'cn','','cn')
+                    + row('英配',0,0,'en','','en')
+                    + row('总计',0,0,'all','total','all')
+                    + '<div class="mp-pr-legend skeleton">暂无录制档期 · 发布档期后自动统计</div>';
+      return;
     }
     box.innerHTML = row('中配',cnD,cnT,'cn','','cn')
                   + row('英配',enD,enT,'en','','en')
@@ -3170,9 +3217,20 @@ function bookActor(role, lang){
   }
 
   function renderSched(){
-    // 档期草稿区块已从主页面移除；本函数保留仅用于兼容旧调用，直接返回不再渲染
+    // 档期草稿区块已从主页面移除；本函数保留仅用于兼容旧调用。
+    // ★ 2026-09-03 修复：原实现在此处 `if(!body) return;` 直接返回，
+    //   导致函数尾部的 renderMidPanel(panelRows) 永远执行不到 ——
+    //   「预约进度 / 录制日历 / 即将录制」三块因此永久停在初始占位「数据加载中…」。
+    //   现改为：草稿表不存在时，仍用已发布档期渲染中栏，再返回。
     var body=document.getElementById('schedBody');
-    if(!body) return;
+    if(!body){
+      try{
+        var pubOnly = (typeof PUBLISHED_ROWS !== 'undefined' && Array.isArray(PUBLISHED_ROWS)) ? PUBLISHED_ROWS : [];
+        var scoped = pubOnly.filter(function(r){ return schedReleaseMatch(r.release_plan||r.plan||''); });
+        renderMidPanel(buildPanelRows([], scoped));
+      }catch(_){ try{ renderMidPanel([]); }catch(__){} }
+      return;
+    }
     var rows=loadSched();
     var lang=SCHED_STATE.lang||'all';
     if(window.FORCE_SCHED_MOCK){

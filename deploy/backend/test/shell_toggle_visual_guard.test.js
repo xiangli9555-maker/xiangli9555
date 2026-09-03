@@ -56,10 +56,12 @@ test('hover 时描边与图标转为主色', () => {
   assert.match(rule, /color:var\(--c-primary\)/, 'hover 图标应为主色');
 });
 
-// ---------- 3. 收起态三角翻转（外壳页要比子页更完整）----------
-test('收起态三角翻转朝左，语义与状态一致', () => {
-  assert.match(SRC, /body\.sidebar-collapsed .brand-toggle svg\{[^}]*rotate\(180deg\)/,
-    '收起后三角应旋转 180 度指向展开方向');
+// ---------- 3. 三角方向恒定（用户 2026-09-03 明确要求）----------
+test('收起态三角不得翻转，方向始终朝右', () => {
+  assert.doesNotMatch(SRC, /body\.sidebar-collapsed .brand-toggle svg\{[^}]*rotate\(/,
+    '用户明确要求三角方向恒定，不得随收起态旋转');
+  assert.doesNotMatch(SRC, /body\.sidebar-collapsed .brand-toggle svg\{[^}]*scaleX\(-1\)/,
+    '也不得用 scaleX 镜像翻转');
 });
 
 // ---------- 4. 既有能力不得回退 ----------

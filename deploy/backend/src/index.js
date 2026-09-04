@@ -19,6 +19,7 @@ const {
   requireRole,
   secureHeaders,
 } = require('./security');
+const { pullLiveDemands, isLiveReady } = require('./tapd_live');
 
 const app = express();
 app.disable('x-powered-by');
@@ -640,26 +641,48 @@ app.post('/api/refresh', requireRole('admin'), async (req, res) => {
     await DEMANDS_READY;
     const fs = require('fs');
     const path = require('path');
-    // 快照文件路径（容器内 nginx 挂载或构建时 COPY）
-    const snapPaths = [
-      '/usr/share/nginx/html/assets/tapd-snapshot.js',   // 生产：nginx 挂载
-      '/app/tapd-snapshot.js',                              // 备用：手动 docker cp
-      '../frontend/assets/tapd-snapshot.js'                  // 开发
-    ];
-    let content = null, snapshotPath = null, snapshotMtime = null;
-    for (const p of snapPaths) {
-      try {
-        content = fs.readFileSync(p, 'utf-8');
-        snapshotPath = p;
-        snapshotMtime = fs.statSync(p).mtime.toISOString();
-        break;
-      } catch(_) {}
-    }
-    if (!content) return res.status(404).json({ ok:false, source:'tapd_snapshot', error:'tapd-snapshot.js not found', rows:0 });
 
-    const start = content.indexOf('[');
-    const end = content.lastIndexOf(']') + 1;
-    const data = JSON.parse(content.slice(start, end));
+    // ★ 优先实时拉取 DFAI get_story（配置了 DFAI_TOKEN 且拉到数据）；
+    //   失败 / 无 token / 0 行时回退静态快照，保持「永远有数据」。
+    let data = null, source = 'tapd_snapshot', snapshotPath = null, snapshotMtime = null, snapshotFile = null;
+    if (isLiveReady()) {
+      try {
+        const live = await pullLiveDemands();
+        if (live.length) {
+          data = live;
+          source = 'dfai_live';
+          snapshotMtime = new Date().toISOString();
+        } else {
+          console.warn('[refresh] 实时拉取 0 行，回退静态快照');
+        }
+      } catch (e) {
+        console.warn('[refresh] 实时拉取失败，回退静态快照：', e.message);
+      }
+    }
+
+    if (!data) {
+      // 快照文件路径（容器内 nginx 挂载或构建时 COPY）
+      const snapPaths = [
+        '/usr/share/nginx/html/assets/tapd-snapshot.js',   // 生产：nginx 挂载
+        '/app/tapd-snapshot.js',                              // 备用：手动 docker cp
+        '../frontend/assets/tapd-snapshot.js'                  // 开发
+      ];
+      let content = null;
+      for (const p of snapPaths) {
+        try {
+          content = fs.readFileSync(p, 'utf-8');
+          snapshotPath = p;
+          snapshotMtime = fs.statSync(p).mtime.toISOString();
+          break;
+        } catch(_) {}
+      }
+      if (!content) return res.status(404).json({ ok:false, source:'tapd_snapshot', error:'tapd-snapshot.js not found', rows:0 });
+
+      const start = content.indexOf('[');
+      const end = content.lastIndexOf(']') + 1;
+      data = JSON.parse(content.slice(start, end));
+      snapshotFile = path.basename(snapshotPath);
+    }
 
     let inserted = 0, updated = 0;
     for (const item of data) {
@@ -718,8 +741,8 @@ app.post('/api/refresh', requireRole('admin'), async (req, res) => {
 
     res.json({
       ok:true,
-      source:'tapd_snapshot',
-      snapshot_file:path.basename(snapshotPath),
+      source,
+      snapshot_file: snapshotFile || (source === 'dfai_live' ? 'dfai-live' : null),
       snapshot_updated_at:snapshotMtime,
       updated_fields:TAPD_DEMAND_FIELDS,
       preserved_fields:MANUAL_DEMAND_FIELDS,

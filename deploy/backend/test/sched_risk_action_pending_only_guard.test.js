@@ -99,3 +99,19 @@ test('9. deploy 副本与根文件 byte-equal', () => {
   assert.ok(fs.existsSync(DEPLOY), 'deploy 副本应存在');
   assert.equal(read(DEPLOY), read(SRC), 'deploy 副本必须与根文件 byte-equal');
 });
+
+test('10. pendingOnly 模式：line-group 加 pendingOnly 类，整行拓宽给待预约（2026-09-04 用户定稿）', () => {
+  const js = read(SRC);
+  // JS: renderActorSixBoard 必须按 ACTOR_STATE.pendingOnly 切换 line-group class
+  assert.match(js, /<div class="line-group\$\{ACTOR_STATE\.pendingOnly\s*\?\s*['"] pendingOnly['"]\s*:\s*['"]['"]\}" data-lang="\$\{grp\.lang\}">/,
+    'line-group 模板必须按 ACTOR_STATE.pendingOnly 追加 pendingOnly 类');
+
+  // CSS: .line-group.pendingOnly 三条规则（每条独立成行，便于断言）
+  const css = read(SRC);
+  assert.match(css, /\.line-group\.pendingOnly\s*\{[^}]*grid-template-columns:\s*minmax\(0,1fr\)\s*\}/,
+    '.line-group.pendingOnly 必须收紧为单列 minmax(0,1fr)');
+  assert.match(css, /\.line-group\.pendingOnly\s+\.line-board\.seg-up,\s*\.line-group\.pendingOnly\s+\.line-board\.seg-done\s*\{[^}]*display:none\s*\}/,
+    '必须合并隐藏 seg-up / seg-done 板');
+  assert.match(css, /\.line-group\.pendingOnly\s+\.lh-stat\.up,\s*\.line-group\.pendingOnly\s+\.lh-stat\.done\s*\{[^}]*display:none\s*\}/,
+    '必须合并隐藏 up / done 行头统计');
+});

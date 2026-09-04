@@ -54,7 +54,8 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:inline-flex;align-items:baseline;gap:14px;margin:0}
-.title-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.title-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.title-row .search-input{width:220px;margin-left:auto}
 .title-count{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums;display:inline-flex;align-items:baseline}
 .title-count .unit{font-size:12px;color:var(--c-text-mute);margin-left:8px;font-weight:500;font-family:'Inter',sans-serif;letter-spacing:.2px}
 .title-kpis{display:inline-flex;gap:10px;margin-left:12px;align-items:center}
@@ -69,7 +70,6 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .title-kpis .kpi-b-ok b{color:var(--c-primary)}
 .title-sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c-text-mute);letter-spacing:.3px;font-variant-numeric:tabular-nums;margin-top:2px}
 .title-bar{display:flex;align-items:center;gap:12px}
-.title-bar .search-input{width:220px;margin-left:auto}
 /* filter chip 圆点样式（替代 emoji） */
 .chip-num{opacity:.55;font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:2px}
 .chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
@@ -111,6 +111,9 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .person.editable:hover{border-bottom-color:var(--c-border);background:rgba(255,255,255,.03)}
 .person.editable:focus{outline:none;border-bottom-color:var(--c-primary);background:rgba(15,247,150,.06)}
 .page-title .code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
+/* 标题旁的「数据快照 · 月日」胶囊（2026-09-04 由原 title-sub 的 updated 迁移而来） */
+.page-title .snap-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:rgba(15,247,150,.06);border:1px solid rgba(15,247,150,.32);color:var(--c-primary);font-size:13px;font-weight:600;letter-spacing:.2px;font-variant-numeric:tabular-nums;line-height:1.2;font-family:'Inter',sans-serif;align-self:center}
+.page-title .snap-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px var(--c-primary);flex-shrink:0}
 .subtitle{font-size:12.5px;color:var(--c-text-mute);line-height:1.5;max-width:640px}
 .actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .btn{border:none;font-family:inherit;cursor:pointer;font-size:12.5px;font-weight:600;border-radius:5px;padding:8px 14px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.3px}
@@ -626,17 +629,14 @@ body.embed .mid{width:100%}
       <div class="title-block">
         <div class="eyebrow"><span class="sig"></span>MISSION OPERATIONS<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <div class="title-row">
-          <h1 class="page-title">需求汇总</h1>
-        </div>
-        <div class="title-bar">
-          <div class="title-sub">// <span id="kpiStories">—</span> stories<span class="chip-divider"></span>updated <span id="updatedTime">—:—</span></div>
+          <h1 class="page-title">需求汇总<span class="snap-chip" id="snapChip" hidden>数据快照 · <span id="snapChipDate">—</span></span></h1>
           <input class="search-input" id="searchInput" placeholder="搜索任务名 / 文案策划..."/>
         </div>
       </div>
       <div class="actions">
         <span id="syncStatus" class="sync-pill"><span class="dot-live offline"></span>未同步</span>
         <div class="refresh-action">
-          <button id="btnRefresh" class="btn btn-primary" onclick="importLatestSnapshot()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span class="refresh-label">从 TAPD 刷新导入</span></button>
+          <button id="btnRefresh" class="btn btn-primary" onclick="importLatestSnapshot()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span class="refresh-label">从 TAPD 刷新</span></button>
           <span class="auto-sync-note" title="自动任务每周三 11:30 拉取并导入；网页按钮本身不直接请求TAPD">自动拉取 · 周三 11:30</span>
           <span id="snapshotTimeNote" class="auto-sync-note snapshot-time-note" hidden>【快照时间：未知】</span>
         </div>
@@ -1885,7 +1885,8 @@ function updateKPI(){
   const pct = Math.round(cDone*100/totalC);
   const warnCnt = cWrite + cVo;   // "进行中"合计（文案ING + Vo ING）
 
-  document.getElementById('kpiStories').textContent = fmt(total);
+  const ks = document.getElementById('kpiStories');
+  if(ks) ks.textContent = fmt(total);
   // 副标题中的更新时间由数据源元数据统一写入，禁止使用页面加载时间冒充。
   const er = document.querySelector('.eyebrow-release');
   if(er) er.textContent = (window.__INIT_RELEASE__ || 'Yang1.0');
@@ -2123,8 +2124,17 @@ function setVisibleDataTime(source, atIso){
   const d = parseDataMoment(atIso);
   window.__DEMAND_DATA_SOURCE__ = source || '';
   window.__DEMAND_DATA_AT__ = d ? d.toISOString() : null;
-  const updated = document.getElementById('updatedTime');
-  if(updated) updated.textContent = dataClock(atIso);
+  // 标题右侧「数据快照 · 月日」胶囊（2026-09-04 由原 title-sub 的 updated 迁移而来）
+  const snapChip = document.getElementById('snapChip');
+  const snapDate = document.getElementById('snapChipDate');
+  if(snapChip && snapDate){
+    if(d){
+      snapDate.textContent = (d.getMonth()+1) + '月' + d.getDate() + '号';
+      snapChip.hidden = false;
+    } else {
+      snapChip.hidden = true;
+    }
+  }
   const note = document.getElementById('snapshotTimeNote');
   if(note){
     const isSnapshot = String(source||'').includes('snapshot');
@@ -2233,7 +2243,8 @@ async function loadDemands(){
   pushAssignments();     // 推送策划分配映射到后端（供 /sync 一键生成 + 常驻自动补齐）
 }
 
-// 「导入最新快照」：以服务器现有 tapd-snapshot.js 对账 demands，新增/更新当前项并停用同版本缺失项。
+// 「从 TAPD 刷新」：优先实时调 DFAI get_story（后端有 DFAI_TOKEN 时），失败回退静态快照；
+// 均以同一对账口径新增/更新当前项并停用同版本缺失项。
 // 人工字段（文案策划/音画同步/备注/台词表/声优预估等）保留，不因停用或再次恢复而丢失。
 async function importLatestSnapshot(){
   const btn = document.getElementById('btnRefresh');
@@ -2241,23 +2252,26 @@ async function importLatestSnapshot(){
   const st  = document.getElementById('syncStatus');
   const before = allDemands.length;
   if(btn){ btn.disabled = true; btn.classList.add('spinning'); }
-  if(label) label.textContent = '正在导入…';
-  if(st) st.innerHTML = '<span class="dot-live idle"></span>正在导入 TAPD 快照…';
-  flashInfo('正在导入服务器上的最新 TAPD 快照…');
+  if(label) label.textContent = '正在刷新…';
+  if(st) st.innerHTML = '<span class="dot-live idle"></span>正在从 TAPD 拉取…';
+  flashInfo('正在从 TAPD 实时拉取最新需求…');
   try{
     const rr = await fetch('/api/refresh', {method:'POST', cache:'no-store', headers:{'Accept':'application/json'}});
     const j = await rr.json().catch(()=>({}));
     if(!rr.ok || j.ok === false) throw new Error(j.error || `HTTP ${rr.status}`);
-    if(j.source && j.source!=='tapd_snapshot') throw new Error(`数据源异常：${j.source}`);
+    if(j.source && j.source!=='tapd_snapshot' && j.source!=='dfai_live') throw new Error(`数据源异常：${j.source}`);
     await loadDemands();
     const added = Number(j.inserted ?? Math.max(0, allDemands.length-before));
     const updated = Number(j.updated ?? Math.max(0, (j.rows||0)-added));
     const deactivated = Number(j.deactivated ?? 0);
-    flashOk(`快照已导入：新增 ${added} 条，更新 TAPD 字段 ${updated} 条，自动移除 ${deactivated} 条，共 ${allDemands.length} 条`);
+    const isLive = j.source === 'dfai_live';
+    flashOk(isLive
+      ? `已从 TAPD 实时刷新：新增 ${added} 条，更新 TAPD 字段 ${updated} 条，自动移除 ${deactivated} 条，共 ${allDemands.length} 条`
+      : `快照已导入：新增 ${added} 条，更新 TAPD 字段 ${updated} 条，自动移除 ${deactivated} 条，共 ${allDemands.length} 条`);
   }catch(e){
-    flashErr(`快照导入失败：${e.message || '未知错误'}`);
+    flashErr(`刷新失败：${e.message || '未知错误'}`);
   }finally{
-    if(label) label.textContent = '从 TAPD 刷新导入';
+    if(label) label.textContent = '从 TAPD 刷新';
     if(btn){ btn.disabled = false; btn.classList.remove('spinning'); }
   }
 }

@@ -111,9 +111,9 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .person.editable:hover{border-bottom-color:var(--c-border);background:rgba(255,255,255,.03)}
 .person.editable:focus{outline:none;border-bottom-color:var(--c-primary);background:rgba(15,247,150,.06)}
 .page-title .code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
-/* 标题旁的「数据快照 · 月日」胶囊（2026-09-04 由原 title-sub 的 updated 迁移而来） */
-.page-title .snap-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:rgba(15,247,150,.06);border:1px solid rgba(15,247,150,.32);color:var(--c-primary);font-size:13px;font-weight:600;letter-spacing:.2px;font-variant-numeric:tabular-nums;line-height:1.2;font-family:'Inter',sans-serif;align-self:center}
-.page-title .snap-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px var(--c-primary);flex-shrink:0}
+/* 标题旁的「Tapd 数据拉取时间 X月X号」灰色小字（2026-09-04 由 snap-chip 改 deadline-meta，复用录制档期同款样式） */
+.page-title .deadline-meta{display:inline-block;font-family:'Inter','Microsoft YaHei UI',sans-serif;font-size:12.5px;font-weight:400;color:var(--c-text-2);letter-spacing:.2px;line-height:1;vertical-align:middle;margin-left:4px;white-space:nowrap}
+.page-title .deadline-meta .deadline-date{font-family:var(--font-ui);font-weight:600;color:var(--c-text-2);letter-spacing:.4px;font-variant-numeric:tabular-nums;margin-left:4px}
 .subtitle{font-size:12.5px;color:var(--c-text-mute);line-height:1.5;max-width:640px}
 .actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .btn{border:none;font-family:inherit;cursor:pointer;font-size:12.5px;font-weight:600;border-radius:5px;padding:8px 14px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.3px}
@@ -632,7 +632,7 @@ body.embed .mid{width:100%}
       <div class="title-block">
         <div class="eyebrow"><span class="sig"></span>MISSION OPERATIONS<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <div class="title-row">
-          <h1 class="page-title">需求汇总<span class="snap-chip" id="snapChip" hidden>数据快照 · <span id="snapChipDate">—</span></span></h1>
+          <h1 class="page-title">需求汇总<span class="deadline-meta" id="snapChip" hidden>Tapd 数据拉取时间<span class="deadline-date" id="snapChipDate">—</span></span></h1>
           <input class="search-input" id="searchInput" placeholder="搜索任务名 / 文案策划..."/>
         </div>
       </div>
@@ -640,7 +640,6 @@ body.embed .mid{width:100%}
         <span id="syncStatus" class="sync-pill"><span class="dot-live offline"></span>未同步</span>
         <div class="refresh-action">
           <button id="btnRefresh" class="btn btn-primary" onclick="importLatestSnapshot()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span class="refresh-label">从 TAPD 刷新</span></button>
-          <span class="auto-sync-note" title="自动任务每周三 11:30 拉取并导入；网页按钮本身不直接请求TAPD">自动拉取 · 周三 11:30</span>
           <span id="snapshotTimeNote" class="auto-sync-note snapshot-time-note" hidden>【快照时间：未知】</span>
         </div>
       </div>
@@ -2181,7 +2180,7 @@ function setVisibleDataTime(source, atIso){
   const d = parseDataMoment(atIso);
   window.__DEMAND_DATA_SOURCE__ = source || '';
   window.__DEMAND_DATA_AT__ = d ? d.toISOString() : null;
-  // 标题右侧「数据快照 · 月日」胶囊（2026-09-04 由原 title-sub 的 updated 迁移而来）
+  // 标题右侧「Tapd 数据拉取时间 X月X号」灰色小字（2026-09-04 由 snap-chip 胶囊改 deadline-meta 灰色小字，复用录制档期同款样式）
   const snapChip = document.getElementById('snapChip');
   const snapDate = document.getElementById('snapChipDate');
   if(snapChip && snapDate){

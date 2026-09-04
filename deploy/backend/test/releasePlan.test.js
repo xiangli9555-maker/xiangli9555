@@ -187,11 +187,11 @@ for (const [index, page] of demandPages.entries()) {
     assert.equal(/const now = new Date\(\);[\s\S]{0,180}updatedTime/.test(page), false, '仍使用页面加载时间冒充数据时间');
   });
 
-  test(`需求汇总页 ${index + 1} 标题右侧「数据快照 · 月日」胶囊（2026-09-04 由原 title-sub 迁移而来）`, () => {
+  test(`需求汇总页 ${index + 1} 标题右侧「Tapd 数据拉取时间 X月X号」灰色小字（2026-09-04 由 snap-chip 胶囊改 deadline-meta，复用录制档期同款样式）`, () => {
     assert.equal(/id="snapChip"/.test(page), true, '缺少 #snapChip 元素');
     assert.equal(/id="snapChipDate"/.test(page), true, '缺少 #snapChipDate 元素');
-    assert.equal(/\.page-title \.snap-chip/.test(page), true, '缺少 .page-title .snap-chip CSS');
-    assert.equal(/数据快照 · /.test(page), true, '缺少「数据快照 · 」文案');
+    assert.equal(/\.page-title \.deadline-meta/.test(page), true, '缺少 .page-title .deadline-meta CSS');
+    assert.equal(/Tapd 数据拉取时间/.test(page), true, '缺少「Tapd 数据拉取时间」文案');
     // setVisibleDataTime 应当把数据时间的月日写入到 snapChipDate（不含时分秒）
     assert.equal(/d\.getMonth\(\)\+1\)\s*\+\s*'月'\s*\+\s*d\.getDate\(\)\s*\+\s*'号'/.test(page), true,
       'setVisibleDataTime 应把数据时间的月日（不带时分秒）写入到 snapChipDate');

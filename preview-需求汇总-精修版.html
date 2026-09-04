@@ -1365,7 +1365,7 @@ async function pollCwJobs(){
     if(veBtn){const c=countsByType.voice_estimates;veBtn.title=`声优预估任务：排队${c.pending} · 运行${c.running} · 完成${c.done} · 失败${c.failed}；右键重试失败`}
     if(refreshEstimates){
       const dr=await fetch('/api/demands',{cache:'no-store'});
-      if(dr.ok){ allDemands=applyOfflineDrafts(await dr.json()); updateKPI(); renderRows(); }
+      if(dr.ok){ allDemands=applyOfflineDrafts(await dr.json()).filter(releaseInScope); updateKPI(); renderRows(); }
     }
     document.querySelectorAll('[data-doccell="1"]').forEach(td=>{
       const id = td.dataset.id;

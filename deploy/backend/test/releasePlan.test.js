@@ -344,6 +344,10 @@ test('需求汇总、录制档期与外壳均从 Yang1 发布计划开始取数'
   demandPages.forEach((page) => {
     assert.equal(/allDemands\s*=\s*applyOfflineDrafts\([\s\S]{0,160}\.filter\(releaseInScope\)/.test(page), true, '需求汇总未过滤 Yang1 之前的数据');
     assert.equal(/currentReleasePlan\(\)[\s\S]{0,220}clampFromCached/.test(page), true, '需求汇总当前版本未钳制到 Yang1 起步');
+    // 回归：pollCwJobs 轮询到声优预估任务完成时会重新 fetch /api/demands 覆盖 allDemands，
+    // 曾漏 .filter(releaseInScope) 导致归档视图漏出 Ma5 数据。此处守卫该赋值点必须带过滤。
+    assert.equal(/allDemands=applyOfflineDrafts\(await dr\.json\(\)\)\.filter\(releaseInScope\)/.test(page), true, 'pollCwJobs 刷新 allDemands 未过滤 releaseInScope');
+    assert.equal(/allDemands=applyOfflineDrafts\(await dr\.json\(\)\)\s*;/.test(page), false, '存在未过滤 releaseInScope 的 allDemands 轮询赋值');
   });
   schedulePages.forEach((page) => {
     assert.equal(/function schedReleaseMatch\(plan\)\{[\s\S]{0,180}!releaseInScope\(plan\)/.test(page), true, '录制档期筛选仍允许 Yang1 之前的数据');

@@ -1084,6 +1084,7 @@ app.post('/api/va-doc/parse-file', vaDocUpload.single('file'), async (req, res) 
 // 单需求建表走 /api/cw-doc/jobs 或 /api/cw-doc/submit-v6（兼容）
 // ============================================================
 const cwExecutor = require('./cw_doc_executor');
+const { runScriptTableWithFallback } = require('./script_table_fallback');
 // ============================================================
 // 统一需求Jobs：script_table + voice_estimates
 // 状态固定 pending/running/done/failed；幂等键 = type:demand:id:version
@@ -1097,12 +1098,13 @@ const demandJobs = createDemandJobs({
     const dem = rows[0];
     if (!dem) throw new Error('需求不存在或已删除');
     if (job.type === 'script_table') {
-      const r = await cwExecutor.generateForDemand(dem, { lite: !!job.lite });
+      // 自动降级：完整模式撞 WAF/限流时静默用 lite 重跑（详见 ./script_table_fallback）
+      const { result: r, downgraded } = await runScriptTableWithFallback(dem, !!job.lite, cwExecutor);
       await pool.query(
         'UPDATE demands SET script_doc_url=? WHERE id=? AND (script_doc_url IS NULL OR script_doc_url="")',
         [r.url, dem.id]
       );
-      return { doc_url:r.url, doc_file_id:r.file_id, doc_title:r.tab, warnings: (r.warnings||[]) };
+      return { doc_url:r.url, doc_file_id:r.file_id, doc_title:r.tab, downgraded, warnings: (r.warnings||[]) };
     }
     if (job.type === 'voice_estimates') {
       const tableJob = demandJobs.latest('script_table', dem.id, 'v6');

@@ -583,6 +583,13 @@ const VIEW_SRC = {
   calendar:'preview-录制档期-精修版.html',
   ai:'preview-AI助手-精修版.html'
 };
+// 2026-09-04 顶栏 #globalSearch 代理到当前 iframe 子页搜索框（B 方案）：
+//   单向 top→inner（用户输在顶栏，转发到子页对应搜索框并派发 input 事件让子页自处理函数重渲）
+//   双向 inner→top（监听子页 isTrusted=true 的真实输入事件，反向同步顶栏，避免反馈循环）
+//   视图→子页搜索框 id 映射；milestones / ai 无搜索框，代理静默 no-op
+//   切视图时清空顶栏 + 挂起值，避免上一个视图的搜索词污染下一个
+const VIEW_SEARCH_MAP = { demands:'searchInput', actors:'rosterSearch', calendar:'actorSearch' };
+let _pendingGlobalSearch = null;
 const VIEW_KEY = 'vo_shell_view_v1';   // localStorage 持久化当前所在页面
 let _curView = null, _curRelease = '', _restored = null;
 const SHELL_RELEASE_STATE = { current: '', currentCount: 0, archiveCount: 0, total: 0 };
@@ -640,6 +647,10 @@ function applyView(view, release, btn){
   const paramName = view==='actors' ? 'status' : 'release';
   f.src = VIEW_SRC[view] + '?embed=1&_v='+__BUILD__ + (release ? '&'+paramName+'='+encodeURIComponent(release) : '');
   _curView = view; _curRelease = release;
+  // 切换视图时清空顶栏全局搜索 + 挂起值，避免上一个视图的搜索词污染新视图
+  const gs = document.getElementById('globalSearch');
+  if(gs) gs.value = '';
+  _pendingGlobalSearch = null;
   syncHash(view, release);   // 同步 URL hash（replaceState 不触发 hashchange，无循环）
 }
 /* 记住当前页，刷新后还原 */
@@ -922,8 +933,53 @@ window.addEventListener('message', (e)=>{
     } catch(_){}
   }
 });
+// 2026-09-04：顶栏 #globalSearch 代理实现（B 方案）
+//   proxyGlobalSearchToIframe：把顶栏当前值写到子页对应搜索框并派发 input 事件。
+//   返回 true=已成功转发；false=当前视图无搜索框 / iframe 未就绪 / 子页元素未挂，调用方应挂起等下次机会。
+function proxyGlobalSearchToIframe(){
+  const gs = document.getElementById('globalSearch');
+  if(!gs) return false;
+  const view = _curView;
+  if(!view) return false;
+  const targetId = VIEW_SEARCH_MAP[view];
+  if(!targetId) return false;
+  const iframe = document.getElementById('viewFrame');
+  if(!iframe || !iframe.contentDocument) return false;
+  const target = iframe.contentDocument.getElementById(targetId);
+  if(!target) return false;
+  if(target.value === gs.value) return true;
+  target.value = gs.value;
+  // 派发 input 事件让子页自己的 input 监听器（addEventListener('input',...) 或 oninput="..."）触发重渲染
+  target.dispatchEvent(new Event('input', { bubbles: true }));
+  return true;
+}
+// 监听子页 isTrusted=true 的真实用户输入事件，反向同步顶栏；跳过我们派发的合成事件避免反馈循环
+function attachInnerToTopSync(){
+  const view = _curView;
+  if(!view) return;
+  const targetId = VIEW_SEARCH_MAP[view];
+  if(!targetId) return;
+  const iframe = document.getElementById('viewFrame');
+  if(!iframe || !iframe.contentDocument) return;
+  const target = iframe.contentDocument.getElementById(targetId);
+  if(!target || target.__globalSearchBound) return;
+  target.addEventListener('input', (e)=>{
+    if(!e.isTrusted) return;   // 合成事件：来自 proxyGlobalSearchToIframe 的派发，跳过
+    const gs = document.getElementById('globalSearch');
+    if(gs && gs.value !== e.target.value) gs.value = e.target.value;
+  });
+  target.__globalSearchBound = true;
+}
+document.getElementById('globalSearch')?.addEventListener('input', ()=>{
+  const ok = proxyGlobalSearchToIframe();
+  // 转发失败（视图无搜索框 / iframe 未就绪 / 子页元素未挂）时挂起，等下次 iframe 加载补发
+  if(!ok) _pendingGlobalSearch = document.getElementById('globalSearch').value;
+});
 document.getElementById('viewFrame').addEventListener('load', ()=>{
   document.getElementById('loader').classList.remove('on');
+  // 2026-09-04：iframe 加载完成时挂载 inner→top 同步监听 + 补发挂起的 top→inner
+  attachInnerToTopSync();
+  if(_pendingGlobalSearch != null) setTimeout(proxyGlobalSearchToIframe, 0);
 });
 // 初始加载超时保护（file:// 协议下 onload 可能不触发）
 setTimeout(()=>{

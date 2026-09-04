@@ -22,6 +22,8 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-logo .logo-txt{height:14px;width:auto;display:block;filter:brightness(0) invert(1)}
 .brand-divider{width:1px;height:32px;background:var(--c-border)}
 .brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+/* 2026-09-03: 按钮颜色跟随侧栏状态（用户截图定稿：展开态绿 / 缩进态白）*/
+body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:'Inter',sans-serif;letter-spacing:.3px}

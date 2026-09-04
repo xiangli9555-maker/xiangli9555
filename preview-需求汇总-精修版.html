@@ -25,6 +25,8 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-logo .logo-txt{height:14px;width:auto;display:block;filter:brightness(0) invert(1)}
 .brand-divider{width:1px;height:32px;background:var(--c-border)}
 .brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+/* 2026-09-03: 按钮颜色跟随侧栏状态（用户截图定稿：展开态绿 / 缩进态白）*/
+body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:'Inter',sans-serif;letter-spacing:.3px}
@@ -48,7 +50,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 
 .tactical-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--c-hairline)}
 .title-block{display:flex;flex-direction:column;gap:6px}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:inline-flex;align-items:baseline;gap:14px;margin:0}
@@ -70,7 +72,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .title-bar .search-input{width:220px;margin-left:auto}
 /* filter chip 圆点样式（替代 emoji） */
 .chip-num{opacity:.55;font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:2px}
-.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 4px}
+.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
 .chip-prog i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
 /* ★ 状态芯片 · 工业战术色板（2026-07-24 排版整理：改用 .chip-status 独立类避开 .chip-filter.on 绿色覆盖）
    待澄清=BLACKPINK霓虹粉 / 文案ING=沙棕金 / Vo ING=青灰蓝 / 已完成=军橄榄 */

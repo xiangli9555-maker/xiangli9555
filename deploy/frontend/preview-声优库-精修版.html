@@ -32,6 +32,8 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-logo .logo-txt{height:14px;width:auto;display:block;filter:brightness(0) invert(1)}
 .brand-divider{width:1px;height:32px;background:var(--c-border)}
 .brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+/* 2026-09-03: 按钮颜色跟随侧栏状态（用户截图定稿：展开态绿 / 缩进态白）*/
+body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle svg{width:18px;height:18px;stroke:none;fill:currentColor;display:block;transition:transform .2s ease}
 .brand-toggle:hover svg{transform:translateX(1px)}
@@ -62,7 +64,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
 .tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
 .title-block{display:flex;flex-direction:column;gap:6px}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px}
@@ -128,7 +130,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .tool-btn{background:transparent;border:1px solid var(--c-border);color:var(--c-text-mute);cursor:pointer;padding:6px 12px;border-radius:5px;font-size:12.5px;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:all .12s;line-height:1.2}
 .tool-btn:hover{color:var(--c-primary);border-color:var(--c-primary)}
 .tool-btn.active{color:var(--c-primary);border-color:var(--c-primary);background:var(--c-primary-glow)}
-.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 4px}
+.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
 .tool-btn.tb-gender{padding:5px 10px;font-size:15px;line-height:1;font-family:'Segoe UI Symbol','Apple Symbols',sans-serif}
 .tool-btn.tb-gender .g-male  {color:#5A7A8E;text-shadow:0 0 4px rgba(90,122,142,.4)}
 .tool-btn.tb-gender .g-female{color:#B87A9C;text-shadow:0 0 4px rgba(184,122,156,.4)}
@@ -154,7 +156,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 /* 角色信息列有自己的双击下载语义，光标区分开，避免误以为点它也能编辑 */
 #rosterTable tbody tr[data-rid] td.casting-cell{cursor:default}
 /* ── Popover 编辑卡 ── */
-.row-editor-pop{position:fixed;z-index:9998;width:452px;max-width:calc(100vw - 24px);padding:14px 16px 12px;border-radius:12px;background:rgba(25,34,41,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(15,247,150,.30);box-shadow:0 18px 48px rgba(0,0,0,.62),0 0 0 1px rgba(15,247,150,.08);opacity:0;transform:translateY(-6px);transition:opacity .14s,transform .14s}
+.row-editor-pop{position:fixed;z-index:9998;width:452px;max-width:calc(100vw - 24px);padding:14px 16px 12px;border-radius:12px;background:rgba(25,34,41,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(15,247,150,.30);box-shadow:0 18px 48px rgba(0,0,0,.62),0 0 0 1px rgba(15,247,150,.08);opacity:0;transform:translateY(-6px);transition:opacity .14s,transform .14s;outline:none}
 .row-editor-pop.show{opacity:1;transform:translateY(0)}
 .rep-head{display:flex;align-items:center;gap:9px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.07)}
 .rep-cat{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;color:var(--cat-ink,#0FF796);background:color-mix(in srgb, var(--cat-ink,#0FF796) 16%, transparent);border:1px solid color-mix(in srgb, var(--cat-ink,#0FF796) 42%, transparent);white-space:nowrap}
@@ -1600,10 +1602,11 @@ function openRowEditor(evt, rid){
   pop.style.left = left + 'px';
   requestAnimationFrame(()=> pop.classList.add('show'));
 
-  // 点击触发下**主动聚焦**首个输入框：点击是明确的编辑意图，直接给光标最省事。
-  // preventScroll 必须带 —— 卡片是 fixed 定位，不加会让表格容器跳滚一下。
-  const first = pop.querySelector('.rep-input');
-  if(first){ first.focus({ preventScroll:true }); try{ first.select(); }catch(_){} }
+  // 卡片根 tabindex=-1：让卡片整体可获焦，但不抢占任一 input 的焦点。
+  // 用户主动点击哪个 input，浏览器原生 click→focus 自然跳到对应框，不再被 default 抢焦。
+  // preventScroll 必带：卡片是 fixed 定位，否则会让表格容器跳滚一下。
+  pop.setAttribute('tabindex','-1');
+  pop.focus({ preventScroll:true });
 
   // Enter 提交（非 IME 组合态）
   pop.addEventListener('keydown', (e)=>{
@@ -2180,6 +2183,17 @@ function downloadCastingNote(rid){
   ${bodyHtml}
 </div></body></html>`;
   const filename = `${row.role_cn||'role'}_选角资料.doc`;
+  // 2026-09-03：Chrome 124+ 在 iframe 内的 Blob + a[download].click() 会弹「已阻止不安全的下载」
+  // （user activation 跨 iframe 边界丢失）。优先把下载委托给顶层 vo-manager-refined shell：
+  // shell 在自己的 top-level 上下文里构 Blob + click，user activation 完整，Chrome 放行。
+  // 若不在 iframe 内（声优库顶层直开）或顶层尚未注册 listener，则降级为原 Blob 路径。
+  try {
+    if(window.parent && window.parent !== window && typeof window.parent.postMessage === 'function'){
+      const target = String(location.origin||'*');
+      window.parent.postMessage({type:'__vomi_casting_note_download', filename, html}, target);
+      return;
+    }
+  } catch(_){ /* 降级走原路径 */ }
   const blob = new Blob(['\ufeff'+html], {type:'application/msword;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

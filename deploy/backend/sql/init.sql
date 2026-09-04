@@ -192,6 +192,25 @@ CREATE TABLE IF NOT EXISTS voice_roles (
   INDEX idx_role_cn (role_cn)
 ) ENGINE=InnoDB COMMENT='声优库·角色映射（Excel 10 列）';
 
+-- ----------------------------
+-- 8. 声优库·角色变更审计（字段级 diff）
+--    与通用 audit_log（整行快照）互补，对标 script_line_history 留痕范式
+--    action: create / update / soft_delete / restore
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS voice_roles_audit (
+  id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+  role_id     INT NOT NULL COMMENT 'voice_roles.id',
+  action      VARCHAR(32) NOT NULL DEFAULT 'update' COMMENT 'create/update/soft_delete/restore',
+  field_name  VARCHAR(64) NULL COMMENT '变更字段；动作级记录（create）为 NULL',
+  old_value   MEDIUMTEXT NULL,
+  new_value   MEDIUMTEXT NULL,
+  changed_by  VARCHAR(64) NULL COMMENT '操作者（登录身份）',
+  changed_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_role (role_id),
+  INDEX idx_role_time (role_id, changed_at),
+  INDEX idx_changed_at (changed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='声优库角色变更审计（字段级 diff）';
+
 -- ============================================================
 -- 初始种子数据（用于第一次登录看到有内容）
 -- ============================================================

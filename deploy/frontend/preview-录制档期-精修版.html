@@ -22,6 +22,8 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-logo .logo-txt{height:14px;width:auto;display:block;filter:brightness(0) invert(1)}
 .brand-divider{width:1px;height:32px;background:var(--c-border)}
 .brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+/* 2026-09-03: 按钮颜色跟随侧栏状态（用户截图定稿：展开态绿 / 缩进态白）*/
+body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:'Inter',sans-serif;letter-spacing:.3px}
@@ -40,9 +42,9 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
 .tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
 .title-block{display:flex;flex-direction:column;gap:6px}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
-.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 4px}
+.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px;text-shadow:0 0 16px rgba(15,247,150,.18)}
 .page-title .code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
@@ -429,12 +431,23 @@ body.embed .main{width:100%}
 /* 看板阵列：6 块板按「中/英文 × 3 状态」排成 3 列 × 2 行；列内卡片纵向堆叠 + 列内纵滚（2026-09-03 第 N 轮） */
 .line-board-stack{display:flex;flex-direction:column;gap:14px;height:100%;min-height:0}
 .line-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto minmax(0,1fr);gap:10px 12px;flex:1 1 0;min-height:0}
-.line-head{display:flex;align-items:center;gap:9px;padding:2px 2px 0;grid-column:1/-1}
-.lh-tag{flex-shrink:0;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font-size:10.5px;font-weight:800;font-family:'Microsoft YaHei UI',sans-serif}
+.line-head{display:flex;align-items:center;gap:14px;padding:8px 16px;grid-column:1/-1;border-radius:999px;background:rgba(15,23,28,.55);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 4px 12px rgba(0,0,0,.18)}
+.line-group[data-lang="cn"] .line-head{box-shadow:0 0 0 1.5px rgba(140,168,189,.55) inset,0 4px 12px rgba(0,0,0,.18);background:linear-gradient(180deg,rgba(140,168,189,.12) 0%,rgba(15,23,28,.55) 100%);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2)}
+.line-group[data-lang="en"] .line-head{box-shadow:0 0 0 1.5px rgba(15,247,150,.55) inset,0 4px 12px rgba(0,0,0,.18);background:linear-gradient(180deg,rgba(15,247,150,.12) 0%,rgba(15,23,28,.55) 100%);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2)}
+.lh-title{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.lh-divider{width:1px;height:22px;background:rgba(255,255,255,.12);flex-shrink:0}
+.lh-stats{display:flex;align-items:stretch;gap:18px;margin-left:auto}
+.lh-stat{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:46px}
+.lh-stat-n{font-size:24px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.lh-stat-l{font-size:11px;color:rgba(255,255,255,.78);letter-spacing:1px;font-weight:500}
+.lh-stat.pend .lh-stat-n{color:#FFD24C}
+.lh-stat.up .lh-stat-n{color:#8CA8C1}
+.lh-stat.done .lh-stat-n{color:var(--c-primary)}
+.lh-stat.tot .lh-stat-n{color:rgba(255,255,255,.55)}
+.lh-tag{flex-shrink:0;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:11px;font-weight:800;font-family:'Microsoft YaHei UI',sans-serif}
 .lh-tag.cn{background:rgba(140,168,189,.20);color:#B8CBD8;border:1px solid rgba(140,168,189,.28)}
 .lh-tag.en{background:rgba(15,247,150,.16);color:var(--c-primary);border:1px solid rgba(15,247,150,.28)}
 .lh-name{font-size:15px;font-weight:800;color:#fff;letter-spacing:1px}
-.lh-count{margin-left:auto;font-size:10.5px;color:var(--c-text-mute);letter-spacing:.5px;font-variant-numeric:tabular-nums}
 .line-board{display:flex;flex-direction:column;min-height:0;background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:8px;overflow:hidden}
 /* 列头色条改到顶边（列状看板更直观） */
 .line-board.seg-pend{border-top:3px solid rgba(255,210,76,.55)}
@@ -682,6 +695,8 @@ body.embed .main{width:100%}
         <div class="risk-areas" id="riskAreas" hidden></div>
         <div class="risk-sub" id="riskSub">正在汇总当前版本的中英配预约状态。</div>
       </div>
+      <!-- 风险预警快捷筛选（2026-09-03 加回）：跨视图共享，置于 body 与 stats 之间 -->
+      <button id="riskAction" class="risk-action" type="button" aria-pressed="false" data-tip="只显示尚未预约档期的项">仅看未预约</button>
       <div class="risk-stats" id="riskStats"></div>
     </div>
 
@@ -796,7 +811,7 @@ function releaseInScope(row){
   const release = typeof row === 'string' ? row : (row && (row.release_plan || row.plan));
   return !!(window.VOMI_RELEASE_CALENDAR && window.VOMI_RELEASE_CALENDAR.isAtOrAfterCached(release, RELEASE_SCOPE_START));
 }
-let ACTOR_STATE = { lang: 'all', status: 'all', cat: 'all', gender: 'all', area: 'all', release: '', demands: [], loaded: false, vmode: readStoredActorVmode() };
+let ACTOR_STATE = { lang: 'all', status: 'all', pendingOnly: false, cat: 'all', gender: 'all', area: 'all', release: '', demands: [], loaded: false, vmode: readStoredActorVmode() };
 let SCHED_STATE = {
   lang: (window.SHELL_LANG==='cn'||window.SHELL_LANG==='en') ? window.SHELL_LANG : 'all',
   status: 'all',
@@ -1060,6 +1075,7 @@ function actorSearchDebounce(){
 function hasActiveFilters(){
   return ACTOR_STATE.lang !== 'all'
       || ACTOR_STATE.status !== 'all'
+      || ACTOR_STATE.pendingOnly
       || (ACTOR_STATE.cat && ACTOR_STATE.cat !== 'all')
       || (ACTOR_STATE.gender && ACTOR_STATE.gender !== 'all')
       || (ACTOR_STATE.area && ACTOR_STATE.area !== 'all')
@@ -1073,12 +1089,16 @@ function clearAllFilters(){
   if(!hasActiveFilters()) return;
   ACTOR_STATE.lang = 'all';
   ACTOR_STATE.status = 'all';
+  ACTOR_STATE.pendingOnly = false;
   ACTOR_STATE.cat = 'all';
   ACTOR_STATE.gender = 'all';
   ACTOR_STATE.area = 'all';
   window.MID_FOCUS_YMD = null;
   var s = document.getElementById('actorSearch');
   if(s) s.value = '';
+  // 风险预警按钮跟随清空（pendingOnly = false 时按钮回到非 active 态）
+  var riskBtn = document.getElementById('riskAction');
+  if(riskBtn){ riskBtn.classList.remove('active'); riskBtn.setAttribute('aria-pressed','false'); }
   // 侧栏预约进度胶囊同步回「总计」
   document.querySelectorAll('[data-lang-pill]').forEach(function(b){ b.classList.toggle('on', b.dataset.langPill === 'all'); });
   // 维度栏（大类 / AREA / gender）由 renderFilterBar 按 ACTOR_STATE 重绘
@@ -1514,7 +1534,7 @@ function renderActorRollup(){
   const sub = document.getElementById('riskSub');
   const stats = document.getElementById('riskStats');
   const areasEl = document.getElementById('riskAreas');
-  const action = document.getElementById('riskAction'); // 已下线：筛选器里已有"未约"选项
+  const riskBtn = document.getElementById('riskAction');
   if(banner && title && sub && stats){
     if(ACTOR_STATE.vmode === 'demand'){
       // ===== 需求视图：按 AREA 口径 =====
@@ -1541,13 +1561,11 @@ function renderActorRollup(){
           ? ap.topNames.map(n => escHtmlSafe(n)).join('、')
           : '—';
         sub.innerHTML = `${nameTxt} 需要音频尽快确认预约`;
-        if(action){ action.classList.remove('active'); action.textContent = '仅看未预约'; }
       } else {
         banner.classList.add('calm');
         if(areasEl){ areasEl.innerHTML = ''; areasEl.hidden = true; }
         title.textContent = '全部需求档期已出齐';
         sub.innerHTML = '当前版本所有需求的录制档期均已排期完成。';
-        if(action){ action.classList.add('active'); action.textContent = '✓ 全部完成'; }
       }
     } else if(pendingN > 0){
       // ===== 声优视图：按 game 角色大类（category）口径，镜像需求视图 AREA =====
@@ -1570,13 +1588,11 @@ function renderActorRollup(){
       }
       title.textContent = `风险预警 · ${unalignedRoles} 位声优尚未预约档期（中配 ${cnPendingN} ，英配 ${enPendingN} ）`;
       sub.innerHTML = '录制时间需要音频同学尽快确认';
-      if(action){ action.classList.remove('active'); action.textContent = '仅看未预约'; }
     } else {
       banner.classList.add('calm');
       if(areasEl){ areasEl.innerHTML = ''; areasEl.hidden = true; }
       title.textContent = '全部声优档期已确认';
       sub.innerHTML = `当前版本共 ${cnTotal+enTotal} 位应约的中英配档期均已排期完成。`;
-      if(action){ action.classList.add('active'); action.textContent = '✓ 全部完成'; }
     }
     stats.innerHTML = `
       <div class="risk-stat"><div class="k">受影响需求</div><div class="v ${pendingN>0?'warn':'ok'}">${affectedDemands}<span class="unit">个</span></div></div>
@@ -1648,6 +1664,8 @@ function renderActorSixBoard(viewType){
     }
     if(ACTOR_STATE.lang !== 'all' && r.lang !== ACTOR_STATE.lang) return false;
     if(ACTOR_STATE.status !== 'all' && r.status !== ACTOR_STATE.status) return false;
+    // 「仅看未预约」快捷筛选：用 schedStatusBucket 归一化，覆盖 'pending'/'draft'/'草稿'/'未约' 全部未约形态
+    if(ACTOR_STATE.pendingOnly && schedStatusBucket(r.status) !== 'unbooked') return false;
     if(ACTOR_STATE.area && ACTOR_STATE.area !== 'all' && (r.area||'未分类') !== ACTOR_STATE.area) return false;
     // 声优视图额外按大类/性别筛（cat 来自 row.category 字段；性别通过性别辅助函数反查）
     if(viewType === 'role'){
@@ -1739,8 +1757,18 @@ function renderActorSixBoard(viewType){
     const pend = rows.filter(r => boardOfRow(r) === 'pend');
     const up   = rows.filter(r => boardOfRow(r) === 'up');
     const done = rows.filter(r => boardOfRow(r) === 'done');
+    const tot = pend.length + up.length + done.length;
     return `<div class="line-group" data-lang="${grp.lang}">
-      <div class="line-head"><span class="lh-tag ${grp.lang}">${grp.lang === 'cn' ? '中' : '英'}</span><span class="lh-name">${grp.name}</span><span class="lh-count">${rows.length} 项</span></div>
+      <div class="line-head">
+        <div class="lh-title"><span class="lh-tag ${grp.lang}">${grp.lang === 'cn' ? '中' : '英'}</span><span class="lh-name">${grp.name}</span></div>
+        <div class="lh-divider"></div>
+        <div class="lh-stats">
+          <div class="lh-stat pend"><span class="lh-stat-n">${pend.length}</span><span class="lh-stat-l">待预约</span></div>
+          <div class="lh-stat up"><span class="lh-stat-n">${up.length}</span><span class="lh-stat-l">部分已约</span></div>
+          <div class="lh-stat done"><span class="lh-stat-n">${done.length}</span><span class="lh-stat-l">已约完</span></div>
+          <div class="lh-stat tot"><span class="lh-stat-n">${tot}</span><span class="lh-stat-l">总计</span></div>
+        </div>
+      </div>
       ${boardHtml('pend', '待预约', pend, allPlaceholder)}
       ${boardHtml('up',   '部分已约', up,   allPlaceholder)}
       ${boardHtml('done', '已约完',     done, allPlaceholder)}
@@ -1855,6 +1883,16 @@ document.addEventListener('DOMContentLoaded', function(){
   try{ renderScheduleDeadline(); }catch(_){}
   // 首屏保险：即便无档期数据，也把中间辅助栏日历先画出来（当月空月历）
   try{ if(typeof renderMidPanel === 'function') renderMidPanel([]); }catch(_){}
+  // 风险预警「仅看未预约」按钮：toggle pendingOnly + 同步 aria-pressed + 立刻重渲
+  var riskBtn = document.getElementById('riskAction');
+  if(riskBtn){
+    riskBtn.addEventListener('click', function(){
+      ACTOR_STATE.pendingOnly = !ACTOR_STATE.pendingOnly;
+      riskBtn.classList.toggle('active', ACTOR_STATE.pendingOnly);
+      riskBtn.setAttribute('aria-pressed', ACTOR_STATE.pendingOnly ? 'true' : 'false');
+      try{ renderActorRollup(); }catch(_){}
+    });
+  }
   setTimeout(function(){
     try{ renderScheduleDeadline(); }catch(_){}
     try{ if(typeof renderMidPanel === 'function') renderMidPanel([]); }catch(_){}

@@ -4,7 +4,7 @@ const fs = require('fs');
 const multer = require('multer');
 const pool = require('./db');
 const { deletePrecondition, updatePrecondition } = require('./soft_delete');
-const { ensureAuditTable, writeAudit } = require('./audit');
+const { ensureAuditTable, writeAudit, ensureVoiceRolesAuditTable, diffVoiceRoleChanges, writeVoiceRoleAudit } = require('./audit');
 const { assertRoleNameBalanced } = require('./role_name');
 const calendar = require('./calendar');
 const releasePlan = require('./releasePlan');
@@ -146,6 +146,8 @@ const DEMANDS_READY = (async () => {
 
 // 审计日志表（幂等）
 const AUDIT_READY = ensureAuditTable(pool);
+// 声优库角色字段级审计表（幂等）
+const VOICE_ROLES_AUDIT_READY = ensureVoiceRolesAuditTable(pool);
 
 app.get('/api/kv/:key', async (req, res) => {
   try {
@@ -345,6 +347,8 @@ function voiceRoleDbValue(field, value) {
 }
 // 统一 Router：/api/voice-roles（历史入口）与 /api/talents（新命名入口）共用同一套 handler 与 voice_roles 表
 const voiceRoleRouter = express.Router();
+// 确保字段级审计表已建好，再处理任何声优库角色写入
+voiceRoleRouter.use(async (req, res, next) => { await VOICE_ROLES_AUDIT_READY; next(); });
 voiceRoleRouter.get('/', async (req, res) => {
   await VOICE_ROLES_READY;
   const { module } = req.query;
@@ -368,7 +372,7 @@ voiceRoleRouter.post('/', async (req, res) => {
   try {
     await conn.beginTransaction();
     // upsert：同 (module, role_cn) 已存在则更新（含软删后重建），否则插入
-    const [existing] = await conn.query('SELECT id FROM voice_roles WHERE module=? AND role_cn=? LIMIT 1', [body.module, body.role_cn]);
+    const [existing] = await conn.query('SELECT * FROM voice_roles WHERE module=? AND role_cn=? LIMIT 1', [body.module, body.role_cn]);
     let id, created;
     if (existing[0]) {
       const cols = VOICE_ROLE_FIELDS.filter(f => f in body && f !== 'module' && f !== 'role_cn');
@@ -378,12 +382,18 @@ voiceRoleRouter.post('/', async (req, res) => {
       vals.push(existing[0].id);
       await conn.query(`UPDATE voice_roles SET ${sets.join(',')} WHERE id=?`, vals);
       id = existing[0].id; created = false;
+      // 字段级审计：同 (module, role_cn) upsert 视为 update
+      for (const c of diffVoiceRoleChanges(existing[0], body, cols, voiceRoleDbValue)) {
+        await writeVoiceRoleAudit(conn, { role_id: id, action: 'update', field_name: c.field_name, old_value: c.old_value, new_value: c.new_value, changed_by: req.auth.subject });
+      }
     } else {
       const cols = VOICE_ROLE_FIELDS.filter(f => f in body);
       const vals = cols.map(f => voiceRoleDbValue(f, body[f]));
       const placeholders = cols.map(() => '?').join(',');
       const [r] = await conn.query(`INSERT INTO voice_roles (${cols.join(',')}) VALUES (${placeholders})`, vals);
       id = r.insertId; created = true;
+      // 动作级审计：create 记一条，new_value 存角色摘要
+      await writeVoiceRoleAudit(conn, { role_id: id, action: 'create', field_name: null, old_value: null, new_value: JSON.stringify({ module: body.module, role_cn: body.role_cn, role_en: body.role_en || '' }), changed_by: req.auth.subject });
     }
     await writeAudit(conn, { actor: req.auth.subject, action: created ? 'create' : 'update', table_name: 'voice_roles', record_id: id, detail: { module: body.module, role_cn: body.role_cn } });
     await conn.commit();
@@ -418,6 +428,7 @@ voiceRoleRouter.patch('/:id', async (req, res) => {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
+    const [oldRows] = await conn.query('SELECT * FROM voice_roles WHERE id=? LIMIT 1', [id]);
     const [result] = await conn.query(
       `UPDATE voice_roles SET ${sets.join(',')} WHERE id=? AND revision=? AND is_deleted=0`,
       vals
@@ -433,6 +444,10 @@ voiceRoleRouter.patch('/:id', async (req, res) => {
         error:'revision_conflict',
         current_revision:Number(current[0].revision || 1)
       });
+    }
+    // 字段级审计：谁在何时把哪个字段从什么改成什么
+    for (const c of diffVoiceRoleChanges(oldRows[0] || {}, req.body, VOICE_ROLE_FIELDS, voiceRoleDbValue)) {
+      await writeVoiceRoleAudit(conn, { role_id: id, action: 'update', field_name: c.field_name, old_value: c.old_value, new_value: c.new_value, changed_by: req.auth.subject });
     }
     await writeAudit(conn, { actor: req.auth.subject, action: 'update', table_name: 'voice_roles', record_id: id, detail: { fields: VOICE_ROLE_FIELDS.filter(f => f in req.body) } });
     await conn.commit();
@@ -460,6 +475,7 @@ voiceRoleRouter.delete('/:id', async (req, res) => {
       [req.auth.subject, id, rows[0].revision]
     );
     if (!result.affectedRows) { await conn.rollback(); return res.status(409).json({ok:false,error:'revision_conflict'}); }
+    await writeVoiceRoleAudit(conn, { role_id: id, action: 'soft_delete', field_name: 'is_deleted', old_value: '0', new_value: '1', changed_by: req.auth.subject });
     await writeAudit(conn, { actor: req.auth.subject, action: 'soft_delete', table_name: 'voice_roles', record_id: id, detail: { role_cn: rows[0].role_cn } });
     await conn.commit();
     res.json({ ok:true, soft_deleted:true, id });
@@ -481,6 +497,7 @@ voiceRoleRouter.post('/:id/restore', requireRole('admin'), async (req, res) => {
     const [active] = await conn.query('SELECT id FROM voice_roles WHERE module=? AND role_cn=? AND is_deleted=0 LIMIT 1', [rows[0].module, rows[0].role_cn]);
     if (active[0]) { await conn.rollback(); return res.status(409).json({ok:false,error:'active_duplicate_exists',active_id:active[0].id}); }
     await conn.query('UPDATE voice_roles SET is_deleted=0,deleted_at=NULL,deleted_by=NULL,revision=revision+1 WHERE id=?', [id]);
+    await writeVoiceRoleAudit(conn, { role_id: id, action: 'restore', field_name: 'is_deleted', old_value: '1', new_value: '0', changed_by: req.auth.subject });
     await writeAudit(conn, { actor: req.auth.subject, action: 'restore', table_name: 'voice_roles', record_id: id, detail: { role_cn: rows[0].role_cn } });
     await conn.commit();
     res.json({ok:true,restored:true,id});

@@ -164,7 +164,7 @@ const eyebrowPageSpecs = [
   ['声优库', 'preview-声优库-精修版.html', 'TALENT OPERATIONS'],
   ['声优库部署镜像', 'deploy/frontend/preview-声优库-精修版.html', 'TALENT OPERATIONS'],
 ];
-const canonicalEyebrowRule = '.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}';
+const canonicalEyebrowRule = '.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}';
 
 for (const [name, relativePath, label] of eyebrowPageSpecs) {
   test(`${name} 顶部英文提示统一为全大写与同一字体规格`, () => {

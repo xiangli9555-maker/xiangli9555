@@ -40,6 +40,12 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;letter-spacing:.3px}
 /* 收起侧栏按钮 · 2026-09-03 对齐子页原型：36×36 / 8px 圆角 / 透明底 / 实心播放三角 */
 .brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+/* 2026-09-03: 按钮颜色跟随侧栏状态（用户截图定稿）
+   - 展开态（侧栏可见）: 描边 + 三角用品牌绿
+   - 缩进态（侧栏已收）: 描边 + 三角回到白色（沿用默认 --c-text）
+   hover 规则保留不动：任何状态 hover 都会再尝试转绿，展开态 hover 因为默认就是绿，
+   视觉差异只剩 background 微亮 + svg translateX(1px)，仍可感知。 */
+body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle svg{width:18px;height:18px;stroke:none;fill:currentColor;display:block;transition:transform .2s ease}
 .brand-toggle:hover svg{transform:translateX(1px)}
@@ -110,9 +116,15 @@ body{display:flex;flex-direction:column;overflow:hidden}
 @media (max-width:720px){.notification-popover{position:fixed;top:62px;right:12px;left:12px;width:auto;max-height:calc(100vh - 76px)}}
 
 /* ============== 分享面板（4 tab · 企业微信 / 复制链接 · 预览卡片）============== */
-.share-overlay{position:fixed;inset:0;z-index:7000;background:rgba(2,8,12,.62);backdrop-filter:blur(6px) saturate(.92);-webkit-backdrop-filter:blur(6px) saturate(.92);display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px 24px;opacity:0;visibility:hidden;transition:opacity .18s ease,visibility .18s;pointer-events:none;overflow:auto}
-.share-overlay.is-open{opacity:1;visibility:visible;pointer-events:auto}
-.share-modal{width:min(780px,100%);background:linear-gradient(180deg,rgba(15,247,150,.10) 0%,rgba(15,23,28,.55) 60%,rgba(15,23,28,.78) 100%),rgba(15,23,28,.62);border:1px solid rgba(15,247,150,.36);border-radius:18px;box-shadow:0 0 36px rgba(15,247,150,.18),0 22px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(15,247,150,.10);padding:24px 24px 20px;color:var(--c-text);position:relative}
+/* 与通知中心一致：分享按钮外包 .share-wrap，popover 从按钮位置绝对弹出，
+   无全屏遮罩，跟 .notification-popover 同款玻璃/绿边/blur/圆角。*/
+.share-wrap{position:relative;display:flex;align-items:center}
+#shareBtn[aria-expanded="true"]{border-color:rgba(15,247,150,.58);color:var(--c-primary);background:rgba(15,247,150,.10);box-shadow:0 0 18px rgba(15,247,150,.10)}
+.share-popover{position:absolute;z-index:6200;top:calc(100% + 13px);right:-10px;width:min(430px,calc(100vw - 24px));max-height:min(680px,calc(100vh - 88px));overflow:auto;padding:18px 20px 16px;border:1px solid rgba(15,247,150,.42);border-radius:16px;background:linear-gradient(180deg,rgba(15,247,150,.10) 0%,rgba(15,247,150,.05) 60%,rgba(15,23,28,.55) 100%),rgba(15,23,28,.42);box-shadow:0 0 32px rgba(15,247,150,.18),0 18px 48px rgba(0,0,0,.36),inset 0 1px 0 rgba(15,247,150,.10);backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);opacity:0;visibility:hidden;transform:translateY(-6px);transform-origin:top right;transition:opacity .16s ease,transform .16s ease,visibility .16s;pointer-events:none}
+.share-popover::before{content:'';position:absolute;top:-6px;right:21px;width:10px;height:10px;transform:rotate(45deg);background:rgba(15,247,150,.12);border-left:1px solid rgba(15,247,150,.42);border-top:1px solid rgba(15,247,150,.42);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.share-popover.is-open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
+@media (max-width:720px){.share-popover{position:fixed;top:62px;right:12px;left:12px;width:auto;max-height:calc(100vh - 76px)}}
+.share-modal{width:100%;position:relative;color:var(--c-text)}
 .share-head{display:flex;align-items:flex-start;gap:14px}
 .share-head h2{margin:0;font-size:15px;font-weight:600;letter-spacing:.6px;color:var(--c-primary);text-transform:uppercase}
 .share-head .share-head-sub{margin:4px 0 0;color:var(--c-text-mute);font-size:12px}
@@ -196,9 +208,11 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .share-tl-date{font-size:12px;color:#475569;font-variant-numeric:tabular-nums}
 
 /* ============== 联系选择面板（覆盖在分享面板之上）============== */
-.share-picker-overlay{position:fixed;inset:0;z-index:7100;background:rgba(2,8,12,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;visibility:hidden;transition:opacity .16s;pointer-events:none}
-.share-picker-overlay.is-open{opacity:1;visibility:visible;pointer-events:auto}
-.share-picker{width:min(440px,100%);max-height:80vh;background:linear-gradient(180deg,rgba(15,247,150,.10),rgba(15,23,28,.62)),rgba(15,23,28,.85);border:1px solid rgba(15,247,150,.36);border-radius:16px;box-shadow:0 0 36px rgba(15,247,150,.16),0 18px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
+.share-picker-popover{position:absolute;z-index:6300;top:calc(100% + 13px);right:-10px;width:min(430px,calc(100vw - 24px));max-height:min(680px,calc(100vh - 88px));overflow:auto;padding:18px 20px 16px;border:1px solid rgba(15,247,150,.42);border-radius:16px;background:linear-gradient(180deg,rgba(15,247,150,.10) 0%,rgba(15,247,150,.05) 60%,rgba(15,23,28,.55) 100%),rgba(15,23,28,.42);box-shadow:0 0 32px rgba(15,247,150,.18),0 18px 48px rgba(0,0,0,.36),inset 0 1px 0 rgba(15,247,150,.10);backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);opacity:0;visibility:hidden;transform:translateY(-6px);transform-origin:top right;transition:opacity .16s ease,transform .16s ease,visibility .16s;pointer-events:none}
+.share-picker-popover::before{content:'';position:absolute;top:-6px;right:21px;width:10px;height:10px;transform:rotate(45deg);background:rgba(15,247,150,.12);border-left:1px solid rgba(15,247,150,.42);border-top:1px solid rgba(15,247,150,.42);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.share-picker-popover.is-open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
+@media (max-width:720px){.share-picker-popover{position:fixed;top:62px;right:12px;left:12px;width:auto;max-height:calc(100vh - 76px)}}
+.share-picker{width:100%;display:flex;flex-direction:column;overflow:hidden}
 .share-picker-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(15,247,150,.16)}
 .share-picker-head h3{margin:0;font-size:14px;color:var(--c-primary);text-transform:uppercase;letter-spacing:.6px}
 .share-picker-search{padding:12px 16px;border-bottom:1px solid rgba(15,247,150,.12)}
@@ -393,10 +407,102 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
       </div>
     </section>
   </div>
-  <button class="brand-icon-btn" title="分享" onclick="sharePage()">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-  </button>
-  <div class="brand-user" id="brandUser" title="点击切换预览身份（PM / 文案 Writer）" onclick="cycleUser()">
+  <div class="share-wrap" id="shareWrap">
+    <button class="brand-icon-btn" id="shareBtn" title="分享" aria-label="分享" aria-haspopup="dialog" aria-controls="shareModal" aria-expanded="false" onclick="toggleShare(event)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    </button>
+
+
+    <!-- 分享面板：4 tab 内容模板 + 企业微信/复制链接 通道（与通知中心同款 popover，绝对定位，无遮罩） -->
+    <section class="share-popover" id="shareModal" role="dialog" aria-modal="false" aria-labelledby="shareTitle" hidden>
+      <div class="share-modal" role="document">
+        <div class="share-head">
+          <div>
+            <h2 id="shareTitle">SHARE · 分享面板</h2>
+            <div class="share-head-sub">选一种分享内容，再选一种通道，对方看到的预览如下</div>
+            <div class="share-eyebrow" id="shareEyebrow">—</div>
+          </div>
+          <button class="share-close" type="button" aria-label="关闭" onclick="closeShare()">×</button>
+        </div>
+
+        <div class="share-section-label">分享内容</div>
+        <div class="share-tabs" id="shareTabs">
+          <button class="share-tab active" type="button" data-tab="progress" onclick="selectShareTab('progress')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+            版本进度简报
+          </button>
+          <button class="share-tab" type="button" data-tab="demands" onclick="selectShareTab('demands')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            需求汇总
+          </button>
+          <button class="share-tab" type="button" data-tab="schedules" onclick="selectShareTab('schedules')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            录制档期
+          </button>
+          <button class="share-tab" type="button" data-tab="nodes" onclick="selectShareTab('nodes')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 6h6a3 3 0 0 1 3 3v6"/></svg>
+            版本节点
+          </button>
+        </div>
+
+        <div class="share-section-label">分享通道</div>
+        <div class="share-channels">
+          <div class="share-channel" role="button" tabindex="0" onclick="sendShareToChat()" onkeydown="if(event.key==='Enter')sendShareToChat()">
+            <div class="share-channel-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            </div>
+            <div class="share-channel-label">企业微信</div>
+            <div class="share-channel-desc">发送到群或个人</div>
+          </div>
+          <div class="share-channel" role="button" tabindex="0" onclick="copyShareLink()" onkeydown="if(event.key==='Enter')copyShareLink()">
+            <div class="share-channel-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <div class="share-channel-label">复制链接</div>
+            <div class="share-channel-desc">复制页面地址</div>
+          </div>
+        </div>
+
+        <div class="share-section-label"><span class="dot"></span>企微推送预览（对方收到的样子）</div>
+        <div class="share-preview-wrap">
+          <div class="share-preview-bar"><span class="dot"></span>预览示意 · 真实数据由下方卡片展示</div>
+          <div class="share-preview-stage" id="sharePreview">
+            <div class="share-loading"><span class="dot"></span>正在汇总数据…</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;font-size:11.5px;color:var(--c-text-dim);line-height:1.7">
+          <strong style="color:var(--c-primary)">原型说明</strong>：点击「企业微信」→ 弹联系选择面板（群+人混排，可搜索多选）→ 确认发送：先把摘要复制到剪贴板，再唤起企业微信客户端。<br>
+          单选个人且该成员配了企微账号时直达其聊天窗；群聊或多选只唤起客户端，需自行选中会话后 Ctrl+V 粘贴。点击「复制链接」→ 直接复制当前页面 URL。
+        </div>
+      </div>
+    </section>
+
+    <!-- 联系选择面板（同款 popover，绝对定位覆盖在分享面板之上，无遮罩） -->
+    <section class="share-picker-popover" id="sharePicker" role="dialog" aria-modal="false" aria-labelledby="sharePickerTitle" hidden>
+      <div class="share-picker" role="document">
+        <div class="share-picker-head">
+          <h3 id="sharePickerTitle">选择发送对象</h3>
+          <button class="share-close" type="button" aria-label="关闭" onclick="closeSharePicker()" style="margin-left:auto">×</button>
+        </div>
+        <div class="share-picker-search">
+          <input type="text" id="sharePickerSearch" placeholder="搜索联系人 / 群…" oninput="filterSharePicker()"/>
+        </div>
+        <div class="share-picker-list" id="sharePickerList">
+          <!-- 动态填充：组（个人 / 群） + 可勾选项 -->
+        </div>
+        <div class="share-picker-footer">
+          <span>已选 <strong id="sharePickerCount">0</strong> 项</span>
+          <div class="share-picker-actions">
+            <button class="btn btn-ghost" type="button" onclick="closeSharePicker()">取消</button>
+            <button class="btn btn-primary" type="button" id="sharePickerSend" onclick="confirmShareSend()" disabled>发送</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<div class="brand-user" id="brandUser" title="点击切换预览身份（PM / 文案 Writer）" onclick="cycleUser()">
     <div class="av" id="buAvatar">L</div>
     <div>
       <div class="name" id="buName">lycheelli</div>
@@ -462,101 +568,13 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
   </div>
 </div>
 
-<!-- 分享面板：4 tab 内容模板 + 企业微信/复制链接 通道 -->
-<div class="share-overlay" id="shareModal" aria-modal="true" role="dialog" aria-labelledby="shareTitle" hidden>
-  <div class="share-modal" role="document">
-    <div class="share-head">
-      <div>
-        <h2 id="shareTitle">SHARE · 分享面板</h2>
-        <div class="share-head-sub">选一种分享内容，再选一种通道，对方看到的预览如下</div>
-        <div class="share-eyebrow" id="shareEyebrow">—</div>
-      </div>
-      <button class="share-close" type="button" aria-label="关闭" onclick="closeShare()">×</button>
-    </div>
-
-    <div class="share-section-label">分享内容</div>
-    <div class="share-tabs" id="shareTabs">
-      <button class="share-tab active" type="button" data-tab="progress" onclick="selectShareTab('progress')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
-        版本进度简报
-      </button>
-      <button class="share-tab" type="button" data-tab="demands" onclick="selectShareTab('demands')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        需求汇总
-      </button>
-      <button class="share-tab" type="button" data-tab="schedules" onclick="selectShareTab('schedules')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        录制档期
-      </button>
-      <button class="share-tab" type="button" data-tab="nodes" onclick="selectShareTab('nodes')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 6h6a3 3 0 0 1 3 3v6"/></svg>
-        版本节点
-      </button>
-    </div>
-
-    <div class="share-section-label">分享通道</div>
-    <div class="share-channels">
-      <div class="share-channel" role="button" tabindex="0" onclick="sendShareToChat()" onkeydown="if(event.key==='Enter')sendShareToChat()">
-        <div class="share-channel-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        </div>
-        <div class="share-channel-label">企业微信</div>
-        <div class="share-channel-desc">发送到群或个人</div>
-      </div>
-      <div class="share-channel" role="button" tabindex="0" onclick="copyShareLink()" onkeydown="if(event.key==='Enter')copyShareLink()">
-        <div class="share-channel-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-        </div>
-        <div class="share-channel-label">复制链接</div>
-        <div class="share-channel-desc">复制页面地址</div>
-      </div>
-    </div>
-
-    <div class="share-section-label"><span class="dot"></span>企微推送预览（对方收到的样子）</div>
-    <div class="share-preview-wrap">
-      <div class="share-preview-bar"><span class="dot"></span>预览示意 · 真实数据由下方卡片展示</div>
-      <div class="share-preview-stage" id="sharePreview">
-        <div class="share-loading"><span class="dot"></span>正在汇总数据…</div>
-      </div>
-    </div>
-
-    <div style="margin-top:14px;font-size:11.5px;color:var(--c-text-dim);line-height:1.7">
-      <strong style="color:var(--c-primary)">原型说明</strong>：点击「企业微信」→ 弹联系选择面板（群+人混排，可搜索多选）→ 确认发送：先把摘要复制到剪贴板，再唤起企业微信客户端。<br>
-      单选个人且该成员配了企微账号时直达其聊天窗；群聊或多选只唤起客户端，需自行选中会话后 Ctrl+V 粘贴。点击「复制链接」→ 直接复制当前页面 URL。
-    </div>
-  </div>
-</div>
-
-<!-- 联系选择面板（覆盖在分享面板之上） -->
-<div class="share-picker-overlay" id="sharePicker" role="dialog" aria-modal="true" hidden>
-  <div class="share-picker" role="document">
-    <div class="share-picker-head">
-      <h3>选择发送对象</h3>
-      <button class="share-close" type="button" aria-label="关闭" onclick="closeSharePicker()" style="margin-left:auto">×</button>
-    </div>
-    <div class="share-picker-search">
-      <input type="text" id="sharePickerSearch" placeholder="搜索联系人 / 群…" oninput="filterSharePicker()"/>
-    </div>
-    <div class="share-picker-list" id="sharePickerList">
-      <!-- 动态填充：组（个人 / 群） + 可勾选项 -->
-    </div>
-    <div class="share-picker-footer">
-      <span>已选 <strong id="sharePickerCount">0</strong> 项</span>
-      <div class="share-picker-actions">
-        <button class="btn btn-ghost" type="button" onclick="closeSharePicker()">取消</button>
-        <button class="btn btn-primary" type="button" id="sharePickerSend" onclick="confirmShareSend()" disabled>发送</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Toast 容器：复用通知系统的 toast 风格 -->
 <div class="share-toast-host" id="shareToastHost"></div>
 
 <script src="assets/holiday-calendar.js?v=20260901a"></script>
 <script src="assets/release-calendar.js?v=20260901b"></script>
 <script>
-const __BUILD__ = '202609032016';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202609041016';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -862,6 +880,22 @@ window.addEventListener('message', (e)=>{
       setTxt('cnt-cw-' + cwId, cnt);
     });
   }
+  // 2026-09-03：声优库「下载角色信息」原在 iframe 内 Blob + a[download].click()，
+  // Chrome 124+ 会弹「已阻止不安全的下载」（user activation 跨 iframe 边界丢失）。
+  // 委托给顶层触发：在 top-level 浏览器上下文里构 Blob + click，user activation 完整，Chrome 放行。
+  if(d.type === '__vomi_casting_note_download'){
+    try {
+      const fn = String(d.filename||''), body = String(d.html||'');
+      if(!fn || !body) return;
+      try { if(e.origin && location.origin && e.origin !== location.origin) return; } catch(_){}
+      const blob = new Blob(['\ufeff'+body], {type:'application/msword;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fn; a.rel = 'noopener';
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>{ try{ document.body.removeChild(a); }catch(_){ } URL.revokeObjectURL(url); }, 200);
+    } catch(_){}
+  }
 });
 document.getElementById('viewFrame').addEventListener('load', ()=>{
   document.getElementById('loader').classList.remove('on');
@@ -929,21 +963,35 @@ function toast(msg){
 //   - plainText   一行说明（用于 toast 显示）
 const SHARE_STATE = { open:false, tab:'progress', payload:null, busy:false, picker:false, sending:false };
 
+function toggleShare(event){
+  if(event) event.stopPropagation();
+  const btn = document.getElementById('shareBtn');
+  if(btn && btn.getAttribute('aria-expanded') === 'true'){ closeShare(); return; }
+  openShare();
+}
 async function openShare(){
-  if(SHARE_STATE.open){ closeShare(); return; }
+  if(SHARE_STATE.open) return;
   SHARE_STATE.open = true;
   const m = document.getElementById('shareModal');
+  const btn = document.getElementById('shareBtn');
   if(!m) return;
+  if(SHARE_STATE.picker){ closeSharePicker(); }
   m.hidden = false;
   requestAnimationFrame(()=> m.classList.add('is-open'));
+  if(btn) btn.setAttribute('aria-expanded','true');
   await renderShareTab(SHARE_STATE.tab);
 }
 function closeShare(){
+  if(!SHARE_STATE.open && document.getElementById('shareBtn')?.getAttribute('aria-expanded') !== 'true') return;
   SHARE_STATE.open = false;
   const m = document.getElementById('shareModal');
-  if(!m) return;
-  m.classList.remove('is-open');
-  setTimeout(()=>{ if(!SHARE_STATE.open) m.hidden = true; }, 200);
+  const btn = document.getElementById('shareBtn');
+  if(m){
+    m.classList.remove('is-open');
+    setTimeout(()=>{ if(!SHARE_STATE.open) m.hidden = true; }, 200);
+  }
+  if(btn) btn.setAttribute('aria-expanded','false');
+  if(SHARE_STATE.picker){ closeSharePicker(); }
 }
 async function selectShareTab(tab){
   if(!tab || SHARE_STATE.tab === tab) return;
@@ -1603,10 +1651,12 @@ document.addEventListener('keydown', (e)=>{
     else if(SHARE_STATE.open){ closeShare(); }
   }
 });
-// 点击遮罩外侧关闭分享面板（点击 picker 自身不关）
+// 点击 popover 外侧关闭（wrap 内点任意处不关，含按钮自身，其 onclick 已 stopPropagation）
 document.addEventListener('click', (e)=>{
-  if(SHARE_STATE.open && e.target.id === 'shareModal') closeShare();
-  if(SHARE_STATE.picker && e.target.id === 'sharePicker') closeSharePicker();
+  const wrap = document.getElementById('shareWrap');
+  if(!wrap) return;
+  if(SHARE_STATE.open && !wrap.contains(e.target)){ closeShare(); }
+  else if(SHARE_STATE.picker && !wrap.contains(e.target)){ closeSharePicker(); }
 });
 
 // 老的 sharePage() 保留为降级（去掉 toast 直接弹面板）

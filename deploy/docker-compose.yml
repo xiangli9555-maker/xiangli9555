@@ -37,7 +37,7 @@ services:
       RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-180}
       MAX_AUDIO_BYTES: ${MAX_AUDIO_BYTES:-104857600}
       MAX_STORAGE_BYTES: ${MAX_STORAGE_BYTES:-10737418240}
-      DFAI_TOKEN: ${DFAI_TOKEN:-}
+      DFAI_API_TOKEN: ${DFAI_API_TOKEN:-}
       DEMAND_JOBS_FILE: /app/demand_jobs.json
       TENCENT_DOCS_MCP_TOKEN_FILE: /app/tencent_docs_token
       TENCENT_DOCS_OA_MCP_TOKEN_FILE: /app/tencent_docs_oa_token

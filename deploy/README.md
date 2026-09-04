@@ -88,14 +88,14 @@ GET    /api/assets                    列出资产（?voice_actor_id=1&version=Y
 POST   /api/assets/upload             上传音频（multipart/form-data · field: file）
 GET    /audio/:filename               下载音频
 
-POST   /api/tapd/sync                 TAPD 同步（占位，需 DFAI_TOKEN）
+POST   /api/tapd/sync                 TAPD 同步（占位，需 DFAI_API_TOKEN）
 ```
 
 ## ⚠️ 注意事项
 
 - 首次部署完成后**改一下 `.env` 的 `DB_PASSWORD`**（数据库密码）
 - 音频文件存 CVM 数据盘的 Docker volume（`audio_data`），50GB 数据盘可以撑
-- 未来接 TAPD：填 `.env` 的 `DFAI_TOKEN`，改 `backend/src/index.js` 的 `/api/tapd/sync` 实现
+- 未来接 TAPD：填 `.env` 的 `DFAI_API_TOKEN`，改 `backend/src/index.js` 的 `/api/tapd/sync` 实现
 - 备份见 `一键部署命令.md` 底部
 
 ## 🔐 本轮加固新增（与原 README 一同交付）

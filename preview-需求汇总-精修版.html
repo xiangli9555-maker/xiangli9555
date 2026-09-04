@@ -170,6 +170,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .filter-row.status-row{background:linear-gradient(90deg,rgba(15,247,150,0.04),transparent 60%);border-color:rgba(15,247,150,.18)}
 .filter-row.area-row{background:linear-gradient(90deg,rgba(96,165,250,0.04),transparent 60%);border-color:rgba(96,165,250,.18)}
 .filter-row.cw-row{background:linear-gradient(90deg,rgba(212,165,84,0.04),transparent 60%);border-color:rgba(212,165,84,.18)}
+.filter-row.release-row{background:linear-gradient(90deg,rgba(255,210,76,0.05),transparent 60%);border-color:rgba(255,210,76,.22)}
 
 /* 兼容旧 .status-row / .filter-bar（避免其它引用出错） */
 .status-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -691,6 +692,12 @@ body.embed .mid{width:100%}
         <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="Vo ING"><i></i>Vo ING<span class="chip-num" id="cnt-vo">—</span></div>
         <div class="chip-status chip-prog chip-prog-done"     data-fk="status" data-fv="已完成"><i></i>已完成<span class="chip-num" id="cnt-done">—</span></div>
       </div>
+      <!-- 历史归档：STATUS 行整行 → 动态 RELEASE chip 行（2026-09-04 方案 A；仅 filterRelease==='__archive__' 时显示） -->
+      <div class="filter-row release-row" id="releaseRow" style="display:none">
+        <span class="flabel">RELEASE</span>
+        <div class="chip-filter on" data-fk="archive-rel" data-fv="">全部<span class="chip-num" id="cnt-release-all">—</span></div>
+        <span id="releaseChips"></span>
+      </div>
       <!-- 分类：全部 + AREA 芯片 -->
       <div class="filter-row area-row" id="filterBar">
         <span class="flabel">AREA</span>
@@ -983,12 +990,13 @@ let filterArea = _f0.area || '';       // '' = 全部
 let filterCw = _f0.cw || '';           // '' = 全部文案策划；'__none__' = 未分配
 let filterRelease = (window.__INIT_RELEASE__ !== undefined ? window.__INIT_RELEASE__ : (_f0.release || '')); // '' = 全部发布计划；外壳 URL ?release= 优先
 let filterStatus = _f0.status || '';   // '' = 全部；待澄清/文案ING/Vo ING/已完成
+let archiveSubRelease = (filterRelease === '__archive__') ? (_f0.archiveRelease || '') : ''; // 历史归档内的发布计划子筛选（'' = 全部归档版本）
 let searchTxt = _f0.search || '';
 let recordingMaxByDemand = {};
 let headerFilters = (_f0.headers && typeof _f0.headers==='object') ? _f0.headers : {};
 function saveFilters(){
   try{ localStorage.setItem(FILTERS_KEY, JSON.stringify({
-    area:filterArea, cw:filterCw, release:filterRelease, status:filterStatus, search:searchTxt, headers:headerFilters
+    area:filterArea, cw:filterCw, release:filterRelease, status:filterStatus, search:searchTxt, headers:headerFilters, archiveRelease:archiveSubRelease
   })); }catch(_){}
 }
 const HEADER_FILTER_NAMES={release_plan:'发布计划',area:'AREA',creator:'创建人',status:'状态',video_sync:'音画同步',cn_lines_handler:'文案策划'};
@@ -1102,7 +1110,7 @@ function parentStoryUrl(d){
 // 整行不点：只把 task_name 包成 <a>，「· N 条需求」保持纯文本；未配置版本降级为纯文本不显示链接。
 // URL 整体存（筛选条件会变，整体存最稳、便于一眼核查）。
 const RELEASE_TAPD_URL = {
-  'Yang1.0': 'https://tapd.woa.com/tapd_fe/20421949/story/list?sort_name=name&order=asc&useScene=storyList&groupType=multiple_group%3A%3A1020421949001742853&conf_id=1020421949078164499&queryToken=fad74c6b814c9511c394cef64a9404b9&page=1',
+  'Yang1.0': 'https://tapd.woa.com/tapd_fe/20421949/story/list?sort_name=created&order=desc&useScene=storyList&groupType=multiple_group%3A%3A1020421949001742853&conf_id=1020421949078164499&queryToken=5b4f8ebc0e5fbb99eff055908d4634ec&page=1',
   'Yang2.0': 'https://tapd.woa.com/tapd_fe/20421949/story/list?sort_name=name&order=asc&useScene=storyList&groupType=multiple_group%3A%3A1020421949001742853&conf_id=1020421949078164499&queryToken=8995f590148bef4f643ef8657d4b7bff&page=1',
   // Ma4.0 / Ma5.0 待补，配置后立即生效
 };
@@ -1558,6 +1566,7 @@ function matchFilter(d){
     if(filterRelease === '__archive__'){
       const cur = currentReleasePlan();
       if(cur && normRelease(d.release_plan) === normRelease(cur)) return false;
+      if(archiveSubRelease && normRelease(d.release_plan) !== normRelease(archiveSubRelease)) return false;
     }else if(normRelease(d.release_plan) !== normRelease(filterRelease)){
       return false;
     }
@@ -1648,6 +1657,7 @@ function renderRows(){
   updateHeaderFilterState();
   // 兼容旧引用（隐藏元素，保持存在）
   const scOld = document.getElementById('kpiDocs'); if(scOld) scOld.textContent = `${rows.length} / ${allDemands.length} stories`;
+  renderReleaseChips();
   renderClarifyBoard();
 }
 
@@ -1704,6 +1714,38 @@ function updateChipCounts(){
   const ew=document.getElementById('cnt-writing'); if(ew) ew.textContent=fmt(stWriting);
   const ev=document.getElementById('cnt-vo');      if(ev) ev.textContent=fmt(stVo);
   const ed=document.getElementById('cnt-done');    if(ed) ed.textContent=fmt(stDone);
+}
+// 历史归档：STATUS 行 ↔ RELEASE chip 行切换 + 动态渲染发布计划芯片（2026-09-04 方案 A）
+function renderReleaseChips(){
+  const statusRow = document.getElementById('statusRow');
+  const releaseRow = document.getElementById('releaseRow');
+  const inArchive = filterRelease === '__archive__';
+  if(statusRow) statusRow.style.display = inArchive ? 'none' : '';
+  if(!releaseRow) return;
+  releaseRow.style.display = inArchive ? '' : 'none';
+  if(!inArchive) return;
+  // 归档数据集 = 排除当前版本的需求；distinct release_plan 按数量降序
+  const cur = currentReleasePlan();
+  const cntByRel = {};
+  allDemands.forEach(d=>{
+    if(cur && normRelease(d.release_plan)===normRelease(cur)) return;
+    const r = (d.release_plan||'未指定').trim();
+    cntByRel[r]=(cntByRel[r]||0)+1;
+  });
+  const rels = Object.keys(cntByRel).sort((a,b)=>cntByRel[b]-cntByRel[a] || String(a).localeCompare(String(b),'zh-CN'));
+  const totalArch = rels.reduce((s,r)=>s+cntByRel[r],0);
+  const cntAll = document.getElementById('cnt-release-all'); if(cntAll) cntAll.textContent = fmt(totalArch);
+  const rc = document.getElementById('releaseChips');
+  if(rc){
+    rc.innerHTML = rels.map(r=>`<div class="chip-filter${archiveSubRelease===r?' on':''}" data-fk="archive-rel" data-fv="${esc(r)}">${esc(r)}<span class="chip-num">${cntByRel[r]}</span></div>`).join('');
+    rc.querySelectorAll('.chip-filter').forEach(c=>c.addEventListener('click',onChipClick));
+  }
+  // 静态「全部」chip（releaseRow 内不随 innerHTML 重建）高亮态 + 一次性绑点击
+  const allChip = releaseRow.querySelector('.chip-filter[data-fk="archive-rel"][data-fv=""]');
+  if(allChip){
+    allChip.classList.toggle('on', archiveSubRelease==='');
+    if(!allChip.__bound){ allChip.addEventListener('click', onChipClick); allChip.__bound = true; }
+  }
 }
 // ============ KV 云备份：revision乐观锁，冲突时禁止静默覆盖 ============
 const KV_REVISIONS = {};
@@ -2007,6 +2049,7 @@ function updateKPI(){
   sub.querySelectorAll('.nav-sub-item').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       filterRelease = btn.dataset.rel || '';
+      if(filterRelease !== '__archive__') archiveSubRelease = '';  // 离开归档时清空子筛选
       sub.querySelectorAll('.nav-sub-item').forEach(b=>b.classList.toggle('active', b===btn));
       saveFilters();
       renderRows();
@@ -2208,6 +2251,9 @@ function onChipClick(e){
   } else if(fk==='cw'){
     filterCw = (filterCw===fv) ? '' : fv;
     document.querySelectorAll(sel).forEach(c=>c.classList.toggle('on', c.dataset.fv===filterCw));
+  } else if(fk==='archive-rel'){
+    archiveSubRelease = (archiveSubRelease===fv) ? '' : fv;
+    // 历史归档内的发布计划子筛选：renderRows → renderReleaseChips 会重渲染 chip 并同步 .on
   }
   saveFilters();
   renderRows();
@@ -2257,7 +2303,7 @@ async function loadDemands(){
   pushAssignments();     // 推送策划分配映射到后端（供 /sync 一键生成 + 常驻自动补齐）
 }
 
-// 「从 TAPD 刷新」：优先实时调 DFAI get_story（后端有 DFAI_TOKEN 时），失败回退静态快照；
+// 「从 TAPD 刷新」：优先实时调 DFAI get_story（后端有 DFAI_API_TOKEN 时），失败回退静态快照；
 // 均以同一对账口径新增/更新当前项并停用同版本缺失项。
 // 人工字段（文案策划/音画同步/备注/台词表/声优预估等）保留，不因停用或再次恢复而丢失。
 async function importLatestSnapshot(){

@@ -1,7 +1,7 @@
 // 发布计划聚合 —— 版本节点实时数据源
 // 设计：
 //  · 主源：本地 DB（demands.release_plan + recording_schedules 节点日期），始终可用、实时。
-//  · 增强：若配置了 DFAI_TOKEN，则叠加 dfai.woa.com 官方发布计划（5min 内存缓存），覆盖更完整的阶段周数。
+//  · 增强：若配置了 DFAI_API_TOKEN，则叠加 dfai.woa.com 官方发布计划（5min 内存缓存），覆盖更完整的阶段周数。
 //  · 两者统一为前端契约 { success:true, data:[{ label, id, status, phases }] }。
 // 纯函数（aggregateLocal / normalizeDfai* / deriveStatus）便于单测；池查询集中在 getReleasePlans / getCalendarEntries。
 
@@ -121,7 +121,7 @@ async function fetchDfai(url, token, timeoutMs = 5000) {
 
 // 对外主函数：优先 dfai（有 token 且可达），否则本地真源
 async function getReleasePlans(pool) {
-  const token = process.env.DFAI_TOKEN;
+  const token = process.env.DFAI_API_TOKEN;
   if (token) {
     try {
       const fresh = _dfaiCache.data && Date.now() - _dfaiCache.at < DFAI_TTL_MS;
@@ -213,7 +213,7 @@ async function getReleasePlans(pool) {
 
 // 对外：某 release 的日历节点（对外正式包确认等）
 async function getCalendarEntries(pool, releaseId) {
-  const token = process.env.DFAI_TOKEN;
+  const token = process.env.DFAI_API_TOKEN;
   if (token && releaseId) {
     try {
       const raw = await fetchDfai(

@@ -73,6 +73,19 @@ test('声优库子页判定 iframe 环境后降级', () => {
   assert.match(SUB_SRC, /window\.parent\s*[!=]==\s*window/, '应判定 window.parent !== window');
 });
 
+test('顶层 shell 与声优库子页均优先 showSaveFilePicker 直写盘，失败/不支持降级 Blob（2026-09-04 方案 D）', () => {
+  // 顶层 shell：检测 API + 直写盘 + 用户取消/失败降级
+  assert.match(SHELL_SRC, /typeof window\.showSaveFilePicker === 'function'/, 'shell 未检测 showSaveFilePicker');
+  assert.match(SHELL_SRC, /showSaveFilePicker\(\{\s*suggestedName:\s*fn/, 'shell 未传 suggestedName');
+  assert.match(SHELL_SRC, /handle\.createWritable\(\)/, 'shell 未 createWritable');
+  assert.match(SHELL_SRC, /err\.name === 'AbortError'/, 'shell 未处理用户取消（AbortError）');
+  assert.match(SHELL_SRC, /const fallbackBlob = \(\) =>/, 'shell 缺少 Blob 降级函数');
+  // 声优库子页（顶层直开降级路径）
+  assert.match(SUB_SRC, /typeof window\.showSaveFilePicker === 'function'/, '声优库子页未检测 showSaveFilePicker');
+  assert.match(SUB_SRC, /showSaveFilePicker\(\{\s*suggestedName:\s*filename/, '声优库子页未传 suggestedName');
+  assert.match(SUB_SRC, /const legacyBlob = \(\) =>/, '声优库子页缺少 Blob 降级函数');
+});
+
 test('deploy 镜像与根文件 byte-equal（发布零漂移）', () => {
   const a = fs.readFileSync(SHELL);
   const b = fs.readFileSync(DEPLOY_SHELL);

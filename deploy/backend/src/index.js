@@ -642,7 +642,7 @@ app.post('/api/refresh', requireRole('admin'), async (req, res) => {
     const fs = require('fs');
     const path = require('path');
 
-    // ★ 优先实时拉取 DFAI get_story（配置了 DFAI_TOKEN 且拉到数据）；
+    // ★ 优先实时拉取 DFAI get_story（配置了 DFAI_API_TOKEN 且拉到数据）；
     //   失败 / 无 token / 0 行时回退静态快照，保持「永远有数据」。
     let data = null, source = 'tapd_snapshot', snapshotPath = null, snapshotMtime = null, snapshotFile = null;
     if (isLiveReady()) {
@@ -993,10 +993,10 @@ app.get('/audio/:filename', (req, res) => {
 // ---------- TAPD 同步（占位，未来接 DFAI）----------
 app.post('/api/tapd/sync', requireRole('admin'), async (req, res) => {
   // TODO: 接入 https://dfai.woa.com/aiapi/get_story
-  // 需要环境变量 DFAI_TOKEN
+  // 需要环境变量 DFAI_API_TOKEN
   res.json({
     ok: true,
-    message: 'DFAI 同步接口占位。请在 .env 里配置 DFAI_TOKEN 后启用真实同步。',
+    message: 'DFAI 同步接口占位。请在 .env 里配置 DFAI_API_TOKEN 后启用真实同步。',
     synced_count: 0
   });
 });

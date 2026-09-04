@@ -2,7 +2,7 @@
 // ============================================================================
 // DFAI get_story 实时拉取 TAPD 音频需求（子单粒度）
 // ----------------------------------------------------------------------------
-// 目的：生产「从 TAPD 刷新」按钮不再只重放静态快照，而是在配置了 DFAI_TOKEN
+// 目的：生产「从 TAPD 刷新」按钮不再只重放静态快照，而是在配置了 DFAI_API_TOKEN
 //       时实时调 https://dfai.woa.com/aiapi/get_story 拉最新需求，条数对齐
 //       TAPD 界面筛选口径（标题含「语音-中」+ 需求类型音频 + 非挂起）。
 // 回退：pullLiveDemands 抛错 / 0 行时，调用方（index.js /api/refresh）应回退
@@ -14,12 +14,13 @@
 const https = require('https');
 
 const DFAI_BASE = process.env.DFAI_BASE || 'https://dfai.woa.com';
-const DFAI_TOKEN = process.env.DFAI_TOKEN || '';
+const DFAI_API_TOKEN = process.env.DFAI_API_TOKEN || '';
 const WORKSPACE_ID = '20421949';
 
 // 发布计划 → release_plan（与 dfai-live-server.js 同源；新增版本在此追加）
+// 2026-09-04：当前版本仅 Yang1.0；Ma5.0 已移除（历史版本不参与实时拉取）。
+//   等 Yang1.0 收尾后，将 Yang1.0 归档、并把当前版本切到 Yang2.0（届时在此替换）。
 const RELEASE_MAP = {
-  '1020421949002192265': 'Ma5.0',
   '1020421949002200155': 'Yang1.0',
 };
 
@@ -39,6 +40,12 @@ function cleanTitle(name) {
   return n.replace(/\s+/g, ' ').trim();
 }
 
+// 父需求名兜底清洗：在 cleanTitle 基础上再剥首尾分隔符（- — – 及空白）。
+// 父名剥【】后常残留「- 音频制作」这类悬空前缀，去掉后更接近正文（与前端 cleanTaskName 同口径）。
+function cleanParentName(name) {
+  return cleanTitle(name).replace(/^[\s\-—–]+|[\s\-—–]+$/g, '').trim();
+}
+
 // area 取【】内文字；无【】则原样返回 —— 与 build_snapshot.py clean_area 同口径
 function cleanArea(area) {
   const a = String(area || '').trim();
@@ -55,7 +62,7 @@ function clean(v) {
 function httpsGetJson(url) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, {
-      headers: { Authorization: `Bearer ${DFAI_TOKEN}`, Accept: 'application/json' },
+      headers: { Authorization: `Bearer ${DFAI_API_TOKEN}`, Accept: 'application/json' },
       timeout: 15000,
     }, (res) => {
       let buf = '';
@@ -73,19 +80,27 @@ function httpsGetJson(url) {
   });
 }
 
-// 单个 release 的实时拉取
+// 单个 release 的实时拉取（needParents=1 附带父需求，供 task_name 剥空时回退父需求名）
 async function fetchStories(releaseId) {
   const u = new URL(`${DFAI_BASE}/aiapi/get_story`);
   u.searchParams.set('releaseId', releaseId);
   u.searchParams.set('type', '音频');
   u.searchParams.set('fields', 'id,name,status,release_id,owner,developer,creator,parent_id,type,area');
   u.searchParams.set('limit', '1000');
+  u.searchParams.set('needParents', '1');
   const json = await httpsGetJson(u.toString());
   return Array.isArray(json.data) ? json.data : [];
 }
 
 // 过滤 + 映射：get_story 子单数组 → 快照 item 同构数组（纯函数，便于单测）
 function toSnapshotItems(stories) {
+  // needParents=1 附带进来的父需求（type=父需求、release_id 可能为空/0）也在此数组中；
+  // 先建 id → 原始名 映射，供 task_name 剥空/「-」时回退父需求名。父需求本身不产出独立行（type 过滤排除）。
+  const parentNameById = new Map();
+  for (const s of stories) {
+    parentNameById.set(String(s.id), String(s.name || ''));
+  }
+
   const items = [];
   for (const s of stories) {
     const name = String(s.name || '');
@@ -101,6 +116,17 @@ function toSnapshotItems(stories) {
     const rel = RELEASE_MAP[String(s.release_id)] || '';
     if (!rel) continue; // 不在关注版本内（如 Yang2 尚未纳入）则跳过
 
+    // task_name：剥【】后可能为空或「-」（Cutscene 子单标题全是【】标签）；此时回退显示父需求名
+    let taskName = cleanTitle(name);
+    if (!taskName || taskName === '-') {
+      const pname = parentNameById.get(pid);
+      if (pname && String(pname).trim()) {
+        taskName = cleanParentName(pname) || String(pname).trim();
+      } else {
+        taskName = '-';
+      }
+    }
+
     const parentUrl = pid
       ? `https://tapd.woa.com/tapd_fe/${WORKSPACE_ID}/story/detail/${pid}`
       : `https://tapd.woa.com/tapd_fe/${WORKSPACE_ID}/story/detail/${sid}`;
@@ -111,7 +137,7 @@ function toSnapshotItems(stories) {
       parent_url: parentUrl,
       release_plan: rel,
       area: cleanArea(s.Area || s.area || s.custom_field_47),
-      task_name: cleanTitle(name),
+      task_name: taskName,
       description: '',
       creator: clean(s.creator),
       developer: '',   // 与快照一致：暂不落真实开发人员，避免空→有值的展示变化
@@ -125,7 +151,7 @@ function toSnapshotItems(stories) {
     });
   }
 
-  const order = { 'Ma5.0': 0, 'Yang1.0': 1 };
+  const order = { 'Yang1.0': 0 };
   items.sort((a, b) =>
     (order[a.release_plan] ?? 9) - (order[b.release_plan] ?? 9) ||
     a.area.localeCompare(b.area) ||
@@ -143,7 +169,7 @@ async function pullLiveDemands() {
 }
 
 function isLiveReady() {
-  return !!DFAI_TOKEN;
+  return !!DFAI_API_TOKEN;
 }
 
 module.exports = { pullLiveDemands, toSnapshotItems, isLiveReady, RELEASE_MAP };

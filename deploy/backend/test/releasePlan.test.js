@@ -117,8 +117,8 @@ test('normalizeDfaiEntries 归一化节点条目', () => {
   assert.match(out.data[0].title, /对外正式包确认/);
 });
 
-test('getReleasePlans 无 DFAI_TOKEN 时走本地真源（mock pool）', async () => {
-  delete process.env.DFAI_TOKEN;
+test('getReleasePlans 无 DFAI_API_TOKEN 时走本地真源（mock pool）', async () => {
+  delete process.env.DFAI_API_TOKEN;
   const pool = {
     query: async (sql) => {
       if (sql.includes('DISTINCT release_plan')) {
@@ -222,8 +222,8 @@ for (const [index, page] of demandPages.entries()) {
     assert.equal(/function releaseSummaryUrl\(releaseName\)\{[\s\S]*?RELEASE_TAPD_URL\[releaseName\][\s\S]*?\}/.test(page), true,
       'releaseSummaryUrl 未走字典查询');
     // 2) Yang1 / Yang2 queryToken 必须各落对一条链接（方案 A 唯一差异点）
-    assert.equal(/'Yang1\.0':\s*'https:\/\/tapd\.woa\.com\/tapd_fe\/20421949\/story\/list\?[^\n]*queryToken=fad74c6b814c9511c394cef64a9404b9/.test(page), true,
-      'Yang1.0 链接 queryToken 缺失或不匹配');
+    assert.equal(/'Yang1\.0':\s*'https:\/\/tapd\.woa\.com\/tapd_fe\/20421949\/story\/list\?sort_name=created&order=desc&[^\n]*queryToken=5b4f8ebc0e5fbb99eff055908d4634ec/.test(page), true,
+      'Yang1.0 链接 queryToken 或排序缺失/不匹配（应 created/desc + 新 token）');
     assert.equal(/'Yang2\.0':\s*'https:\/\/tapd\.woa\.com\/tapd_fe\/20421949\/story\/list\?[^\n]*queryToken=8995f590148bef4f643ef8657d4b7bff/.test(page), true,
       'Yang2.0 链接 queryToken 缺失或不匹配');
     // 3) Story 单元格渲染：命中时输出 <a class="release-summary-link" target="_blank" rel="noopener noreferrer">
@@ -243,6 +243,27 @@ for (const [index, page] of demandPages.entries()) {
       '未提供 .release-summary-link 默认样式');
     assert.equal(/\.release-summary-link:hover\{[^}]*var\(--c-primary\)[^}]*\}/.test(page), true,
       '.release-summary-link:hover 未转 --c-primary');
+  });
+
+  test(`需求汇总页 ${index + 1} 历史归档 STATUS 行 → RELEASE chip 行（2026-09-04 方案 A）`, () => {
+    // 1) 两个筛选行都存在，releaseRow 默认隐藏
+    assert.equal(/<div class="filter-row status-row" id="statusRow">/.test(page), true, '缺少 STATUS 筛选行');
+    assert.equal(/id="releaseRow" style="display:none"/.test(page), true, '缺少默认隐藏的 RELEASE 筛选行');
+    assert.equal(/data-fk="archive-rel" data-fv="">全部/.test(page), true, 'RELEASE 行缺少「全部」chip');
+    // 2) 局部子筛选变量 + 持久化字段
+    assert.equal(/let archiveSubRelease = \(filterRelease === '__archive__'\) \? \(_f0\.archiveRelease \|\| ''\) : ''/.test(page), true, '缺少 archiveSubRelease 局部变量初始化');
+    assert.equal(/archiveRelease:archiveSubRelease/.test(page), true, 'saveFilters 未持久化 archiveRelease');
+    // 3) 渲染函数 + 行切换逻辑
+    assert.equal(/function renderReleaseChips\(\)\{/.test(page), true, '缺少 renderReleaseChips 渲染函数');
+    assert.equal(/statusRow\.style\.display = inArchive \? 'none' : ''/.test(page), true, 'renderReleaseChips 未隐藏 STATUS 行');
+    assert.equal(/releaseRow\.style\.display = inArchive \? '' : 'none'/.test(page), true, 'renderReleaseChips 未显示 RELEASE 行');
+    // 4) 匹配过滤与点击处理
+    assert.equal(/if\(archiveSubRelease && normRelease\(d\.release_plan\) !== normRelease\(archiveSubRelease\)\) return false/.test(page), true, 'matchFilter 未按 archiveSubRelease 过滤');
+    assert.equal(/else if\(fk==='archive-rel'\)\{/.test(page), true, 'onChipClick 未处理 archive-rel');
+    // 5) 离开归档清空子筛选
+    assert.equal(/if\(filterRelease !== '__archive__'\) archiveSubRelease = ''/.test(page), true, '离开归档未清空 archiveSubRelease');
+    // 6) CSS 行样式
+    assert.equal(/\.filter-row\.release-row\{/.test(page), true, '缺少 .filter-row.release-row 样式');
   });
 }
 

@@ -2194,12 +2194,34 @@ function downloadCastingNote(rid){
       return;
     }
   } catch(_){ /* 降级走原路径 */ }
-  const blob = new Blob(['\ufeff'+html], {type:'application/msword;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+  // 2026-09-04：顶层直开（非 iframe）降级路径同样受 Chrome HTTP 源下 .doc 硬拦截，
+  // 优先 showSaveFilePicker 直接写盘，失败/不支持再回退 Blob。
+  const legacyBlob = () => {
+    const blob = new Blob(['\ufeff'+html], {type:'application/msword;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+  };
+  if(typeof window.showSaveFilePicker === 'function'){
+    (async ()=>{
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{description:'Word 文档', accept:{'application/msword':['.doc']}}]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(new Blob(['\ufeff'+html], {type:'application/msword;charset=utf-8'}));
+        await writable.close();
+      } catch(err){
+        if(err && err.name === 'AbortError') return; // 用户取消，静默
+        legacyBlob();
+      }
+    })();
+    return;
+  }
+  legacyBlob();
 }
 // 保留兼容
 function openCastingViewer(rid){ downloadCastingNote(rid); }

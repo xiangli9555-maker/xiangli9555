@@ -479,6 +479,62 @@ body.embed .main{width:100%}
 .lbe-skel,.lbe-none{color:var(--c-text-dim);font-size:11.5px;border-style:dashed;background:transparent}
 .lb-skeleton{border-style:dashed;border-color:rgba(212,221,227,.13);background:rgba(255,255,255,.012)}
 .lb-skeleton .lb-side{background:transparent}
+
+/* ========== 标签云式卡片（2026-09-04 用户定稿） ==========
+ * 声优/需求视图看板：去掉演员名，卡片仅两行——上行=角色名+总句数，下行=需求标签
+ * 部分已约列额外显示「已约/总需求」进度；需求标签三态：已约=绿底✓/待约=虚线—/未约=按句数着色
+ */
+/* 列内容器：替代 .lb-strip 的滚动作业，语义更准（col-body = 列体） */
+.col-body{flex:1 1 auto;display:flex;flex-direction:column;gap:6px;padding:10px;overflow-y:auto;overflow-x:hidden;min-height:0;align-items:stretch;scrollbar-width:thin;scrollbar-color:rgba(15,247,150,.28) transparent}
+.col-body::-webkit-scrollbar{width:6px}
+.col-body::-webkit-scrollbar-track{background:transparent}
+.col-body::-webkit-scrollbar-thumb{background:rgba(15,247,150,.22);border-radius:3px}
+.col-body::-webkit-scrollbar-thumb:hover{background:rgba(15,247,150,.42)}
+/* 大类分组：左侧色条用 inline style --cat-color 注入，复用声优库页 CAT_COLORS 真源 */
+.cat-band{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:2px 0 4px;background:rgba(255,255,255,.025);border-radius:5px;border-left:3px solid var(--cat-color,var(--c-hairline))}
+.cat-ico{width:18px;height:18px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#0F171C;flex-shrink:0;background:var(--cat-color,#6B7A85)}
+.cat-name{font-size:12px;font-weight:700;color:var(--c-text)}
+.cat-need{font-size:10.5px;color:var(--c-text-mute);font-weight:500;margin-left:auto}
+.cat-need .num{color:#FFD24C;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.cat-need.ok{color:var(--c-primary)}
+/* 卡片主体：两行紧凑 */
+.cardB{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;transition:border-color .15s}
+.cardB:hover{border-color:rgba(255,255,255,.16)}
+.cardB-head{display:flex;align-items:center;gap:8px;min-width:0}
+.cardB-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,rgba(58,82,102,.45),rgba(140,168,189,.3));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.cardB-avatar.en{background:linear-gradient(135deg,rgba(15,247,150,.35),rgba(58,82,102,.15))}
+.cardB-name{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.cardB-total{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0;display:flex;align-items:baseline;gap:2px}
+.cardB-total .n{font-size:15px}
+.cardB-total .u{font-size:9px;color:var(--c-text-mute);font-weight:400}
+.seg-pend .cardB-total .n{color:#FFD24C}
+.seg-up .cardB-total .n{color:#8CA8C1}
+.seg-done .cardB-total .n{color:var(--c-primary)}
+/* 部分已约：已约/总需求 进度 */
+.cardB-progress{font-size:10px;color:var(--c-text-mute);font-variant-numeric:tabular-nums;flex-shrink:0;margin-left:2px}
+.cardB-progress .booked{color:#8CA8C1;font-weight:700}
+/* 标签云：flex-wrap 排需求/角色标签 */
+.cardB-tags{display:flex;flex-wrap:wrap;gap:4px;padding-left:36px}
+.cardB-req .cardB-tags{padding-left:0}
+.cardB-req .cardB-head{padding-left:0}
+.cardB-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 5px 2px 8px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);font-size:10.5px;color:var(--c-text-2);transition:background .12s;max-width:100%}
+.cardB-tag:hover{background:rgba(255,255,255,.07)}
+.cardB-tag .tn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.cardB-tag .tc{font-size:9.5px;font-weight:700;font-variant-numeric:tabular-nums;padding:1px 5px;border-radius:999px;flex-shrink:0;background:rgba(255,255,255,.06);color:var(--c-text-dim)}
+/* 未约标签按句数三态着色 */
+.cardB-tag .tc.hi{background:rgba(253,208,75,.18);color:#FDD04B}
+.cardB-tag .tc.mid{background:rgba(136,168,192,.15);color:#88A8C0}
+.cardB-tag .tc.lo{background:rgba(255,255,255,.06);color:var(--c-text-dim)}
+/* 已约 = 绿底+划线+✓ */
+.cardB-tag.done{opacity:.6}
+.cardB-tag.done .tn{text-decoration:line-through;text-decoration-color:rgba(15,247,150,.4)}
+.cardB-tag.done .tc{background:rgba(15,247,150,.12);color:var(--c-primary)}
+/* 待约（在部分已约列）= 虚线+灰底+— */
+.cardB-tag.wait{border-style:dashed;opacity:.55}
+.cardB-tag.wait .tc{color:var(--c-text-dim);background:transparent;border:1px dashed rgba(255,255,255,.12)}
+.cardB-tag.wait .tn{color:var(--c-text-dim)}
+/* 列内空态（替代 .lbe-none） */
+.col-empty{padding:20px 8px;font-size:11.5px;color:var(--c-text-dim);border:1px dashed rgba(212,221,227,.14);border-radius:5px;background:transparent;text-align:center}
 /* 待录入声优预估占位条：无声优预估的需求沉到底部，中性灰不与状态色混淆 */
 .ph-strip{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:8px 10px;border:1px dashed rgba(212,221,227,.14);border-radius:6px;background:rgba(255,255,255,.012)}
 .ph-label{font-size:10.5px;color:var(--c-text-dim);letter-spacing:.5px;margin-right:2px}
@@ -1736,23 +1792,115 @@ function renderActorSixBoard(viewType){
 
   const boardHtml = (kind, label, arr, skeleton) => {
     const ico = kind === 'pend' ? '⚠' : (kind === 'up' ? '◆' : '✓');
-    let strip;
+    let body;
     if(skeleton){
-      strip = `<span class="lbe lbe-skel">待录入声优预估</span>`;
+      body = `<div class="col-empty">待录入声优预估</div>`;
     } else if(!arr.length){
-      strip = `<span class="lbe lbe-none">—</span>`;
+      body = `<div class="col-empty">—</div>`;
     } else {
-      strip = arr.map(r => {
-        const isPend = r.status !== 'booked';
-        const t = isPend ? '待确认' : schedLabelOf(r);
-        return `<span class="lbe${kind === 'done' ? ' is-done' : ''}${isPend ? ' is-pend' : ''}" title="${escHtmlSafe(r.story + ' · ' + r.role + (r.actor ? ' · ' + r.actor : ''))}"><span class="lbe-story">${escHtmlSafe(r.story)}</span><span class="lbe-row"><span class="lbe-role">${escHtmlSafe(r.role)}</span><span class="lbe-time">${escHtmlSafe(t)}</span></span></span>`;
+      // 二次聚合：role 视图按 role 分组，demand 视图按 story 分组（2026-09-04 用户定稿）
+      const groups = buildCardBList(viewType, arr);
+      body = groups.map(g => {
+        const color = (typeof CAT_COLORS !== 'undefined' && CAT_COLORS[g.cat]) || '#6B7A85';
+        const isDone = kind === 'done';
+        const catNeed = isDone
+          ? `<span class="cat-need ok">✓ 已约齐</span>`
+          : `<span class="cat-need">需约 <span class="num">${g.cards.length}</span> ${viewType==='role'?'位':'个需求'}</span>`;
+        const cards = g.cards.map(card => {
+          // 头像：声优视图=角色首字；需求视图不显示（用 .cardB-req 类名去掉 padding-left 偏移）
+          const avatar = viewType === 'role'
+            ? `<div class="cardB-avatar">${escHtmlSafe((card.name||'').slice(0,1) || '·')}</div>`
+            : '';
+          const cardBClass = viewType === 'demand' ? 'cardB cardB-req' : 'cardB';
+          // 进度（仅 up 列：已约/总需求）
+          const progress = (kind === 'up' && card.totalCount > 0)
+            ? `<span class="cardB-progress"><span class="booked">${card.bookedCount}</span>/${card.totalCount}</span>`
+            : '';
+          // 头部单位：role 视图="句"；demand 视图：pend="人待约" / up="人待约" / done="全约齐"
+          let totalN, totalU = '';
+          if (viewType === 'role') {
+            totalN = card.totalEst;
+            totalU = '<span class="u">句</span>';
+          } else {
+            if (kind === 'done') { totalN = '✓'; totalU = '<span class="u">全约齐</span>'; }
+            else { totalN = card.totalCount; totalU = '<span class="u">人待约</span>'; }
+          }
+          // 标签云
+          const tags = card.tags.map(t => {
+            let cls = 'cardB-tag';
+            let tcCls = 'tc';
+            let tcTxt = '';
+            if (kind === 'done' || (kind === 'up' && t.isBooked)) {
+              cls += ' done';
+              tcTxt = `${t.est || 0} ✓`;
+            } else if (kind === 'up' && !t.isBooked) {
+              cls += ' wait';
+              tcTxt = '—';
+            } else {
+              // 待预约列：按句数三态着色（黄≥50 / 蓝 20-49 / 灰<20）
+              const n = t.est || 0;
+              if (n >= 50) tcCls = 'tc hi';
+              else if (n >= 20) tcCls = 'tc mid';
+              else tcCls = 'tc lo';
+              tcTxt = String(n);
+            }
+            // tag 文字：role 视图=需求名；demand 视图=「角色 · 大类」
+            const tagLabel = viewType === 'role'
+              ? t.label
+              : `${t.label} · ${t.cat || '未分类'}`;
+            return `<span class="${cls}"><span class="tn">${escHtmlSafe(tagLabel)}</span><span class="${tcCls}">${tcTxt}</span></span>`;
+          }).join('');
+          return `<div class="${cardBClass}">
+            <div class="cardB-head">
+              ${avatar}
+              <span class="cardB-name">${escHtmlSafe(card.name)}</span>
+              <span class="cardB-total"><span class="n">${totalN}</span>${totalU}</span>
+              ${progress}
+            </div>
+            <div class="cardB-tags">${tags}</div>
+          </div>`;
+        }).join('');
+        return `<div class="cat-band" style="--cat-color:${color}">
+          <span class="cat-ico"></span>
+          <span class="cat-name">${escHtmlSafe(g.cat)}</span>
+          ${catNeed}
+        </div>${cards}`;
       }).join('');
     }
     return `<div class="line-board seg-${kind}${skeleton ? ' lb-skeleton' : ''}">
       <div class="lb-side"><span class="lb-ico">${ico}</span><span class="lb-name">${label}</span><span class="lb-n">${skeleton ? '待录入' : arr.length}</span></div>
-      <div class="lb-strip">${strip}</div>
+      <div class="col-body">${body}</div>
     </div>`;
   };
+
+  // 标签云二次聚合（2026-09-04）：role 视图按 role 分组，demand 视图按 story 分组
+  function buildCardBList(viewType, arr){
+    const map = new Map();
+    arr.forEach(r => {
+      const key = viewType === 'role' ? (r.role || '') : (r.story || '');
+      if(!key) return;
+      if(!map.has(key)){
+        map.set(key, { key, name: key, cat: r.category || '', totalEst: 0, tags: [], bookedCount: 0, totalCount: 0 });
+      }
+      const card = map.get(key);
+      if(!card.cat && r.category) card.cat = r.category;
+      card.totalEst += (r.est || 0);
+      const isBooked = r.status === 'booked';
+      card.tags.push({ label: viewType === 'role' ? (r.story || '') : (r.role || ''), est: r.est || 0, isBooked, cat: r.category || '' });
+      if(isBooked) card.bookedCount++;
+      card.totalCount++;
+    });
+    // 按 cat 分组（cat 顺序：固定 6 类）
+    const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
+    const grouped = new Map();
+    map.forEach(card => { const c = card.cat || '未分类'; if(!grouped.has(c)) grouped.set(c, []); grouped.get(c).push(card); });
+    // 每个 cat 内按 totalEst 倒序
+    grouped.forEach(list => list.sort((a,b) => b.totalEst - a.totalEst));
+    // 按 CAT_ORDER 输出，未分类最后
+    return CAT_ORDER.filter(c => grouped.has(c))
+      .concat([...grouped.keys()].filter(c => !CAT_ORDER.includes(c)))
+      .map(c => ({ cat: c, cards: grouped.get(c) }));
+  }
 
   grid.innerHTML = LANG_GROUPS.filter(g => visibleLangs.indexOf(g.lang) >= 0).map(grp => {
     const rows = realRows.filter(r => r.lang === grp.lang);

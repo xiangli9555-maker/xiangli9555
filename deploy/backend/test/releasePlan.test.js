@@ -214,6 +214,36 @@ for (const [index, page] of demandPages.entries()) {
     assert.equal(/j\.source!=='dfai_live'/.test(page), true, 'source 白名单未含 dfai_live 实时源');
     assert.equal(/已从 TAPD 实时刷新/.test(page), true, '缺少实时刷新成功提示文案');
   });
+
+  test(`需求汇总页 ${index + 1} 版本汇总行 Story 文字 → 对应 TAPD 筛选链接（2026-09-04 方案 A）`, () => {
+    // 1) 字典与函数必须存在
+    assert.equal(/const RELEASE_TAPD_URL\s*=\s*\{[\s\S]*?Yang1\.0[\s\S]*?Yang2\.0[\s\S]*?\};/.test(page), true,
+      'RELEASE_TAPD_URL 字典未同时含 Yang1.0 / Yang2.0');
+    assert.equal(/function releaseSummaryUrl\(releaseName\)\{[\s\S]*?RELEASE_TAPD_URL\[releaseName\][\s\S]*?\}/.test(page), true,
+      'releaseSummaryUrl 未走字典查询');
+    // 2) Yang1 / Yang2 queryToken 必须各落对一条链接（方案 A 唯一差异点）
+    assert.equal(/'Yang1\.0':\s*'https:\/\/tapd\.woa\.com\/tapd_fe\/20421949\/story\/list\?[^\n]*queryToken=fad74c6b814c9511c394cef64a9404b9/.test(page), true,
+      'Yang1.0 链接 queryToken 缺失或不匹配');
+    assert.equal(/'Yang2\.0':\s*'https:\/\/tapd\.woa\.com\/tapd_fe\/20421949\/story\/list\?[^\n]*queryToken=8995f590148bef4f643ef8657d4b7bff/.test(page), true,
+      'Yang2.0 链接 queryToken 缺失或不匹配');
+    // 3) Story 单元格渲染：命中时输出 <a class="release-summary-link" target="_blank" rel="noopener noreferrer">
+    assert.equal(/<a class="release-summary-link" href="\$\{esc\(u\)\}" target="_blank" rel="noopener noreferrer">/.test(page), true,
+      '命中时未把 task_name 包成安全的新标签链接');
+    // 4) 未配置版本降级为纯文本
+    assert.equal(/return u \? `<a class="release-summary-link"[\s\S]*?<\/a>` : esc\(d\.task_name\)/.test(page), true,
+      '未配置版本应降级为 esc(d.task_name) 纯文本，不得无脑包 <a>');
+    // 5) 整行不点：<tr class="release-summary-row"> 的开标签内（到第一个 > 为止）不应有 onclick
+    assert.equal(/<tr class="release-summary-row"[^>]*\bonclick\b/.test(page), false,
+      '整行的 <tr> 开标签不应含 onclick（方案 A：仅 Story 文字是链接）');
+    // 6) · N 条需求 仍保持纯文本：链接必须在 · 之前闭合（</a> 后是三元表达式 else 分支 + 中点 + 计数）
+    assert.equal(/<\/a>` : esc\(d\.task_name\); \}\)\(\)\} \u00b7 \$\{rows\.length\} 条需求/.test(page), true,
+      '「· N 条需求」必须紧跟 </a> 与三元表达式之后保持纯文本，不可被包进链接');
+    // 7) CSS：链接 hover 转 c-primary
+    assert.equal(/\.release-summary-link\{[^}]*color:inherit[^}]*\}/.test(page), true,
+      '未提供 .release-summary-link 默认样式');
+    assert.equal(/\.release-summary-link:hover\{[^}]*var\(--c-primary\)[^}]*\}/.test(page), true,
+      '.release-summary-link:hover 未转 --c-primary');
+  });
 }
 
 test('快照生成器和现有前端快照都携带生成时间元数据', () => {

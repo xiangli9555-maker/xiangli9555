@@ -470,6 +470,8 @@ body.embed .mid{width:100%}
   .release-summary-row .rp-tag,.release-summary-row .area{color:var(--c-text);font-weight:600}
   .release-summary-row .creator-cell,.release-summary-row .max-date-cell{color:var(--c-text)}
   .release-summary-story{color:var(--c-text);font-weight:600;letter-spacing:.1px;white-space:normal;line-height:1.5}
+  .release-summary-link{color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:color .12s ease,border-color .12s ease}
+  .release-summary-link:hover{color:var(--c-primary);border-bottom-color:var(--c-primary)}
   .release-summary-meta{display:block;margin-top:4px;font-size:12px;color:var(--c-text-2);font-weight:500}
   .release-summary-text{font-size:12px;color:var(--c-text-2);text-align:center;white-space:nowrap}
   .release-library-link{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:62px;height:25px;padding:0 7px;border:1px solid rgba(107,217,149,.38);border-radius:4px;color:#6BD995;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap}
@@ -1096,6 +1098,18 @@ function parentStoryUrl(d){
   if(parentId) return `https://tapd.woa.com/tapd_fe/20421949/story/detail/${encodeURIComponent(parentId)}`;
   return d.parent_url || d.tapd_url || '';
 }
+// ★ 版本汇总行 Story 文字 → 对应 TAPD 筛选链接（2026-09-04 方案 A）
+// 整行不点：只把 task_name 包成 <a>，「· N 条需求」保持纯文本；未配置版本降级为纯文本不显示链接。
+// URL 整体存（筛选条件会变，整体存最稳、便于一眼核查）。
+const RELEASE_TAPD_URL = {
+  'Yang1.0': 'https://tapd.woa.com/tapd_fe/20421949/story/list?sort_name=name&order=asc&useScene=storyList&groupType=multiple_group%3A%3A1020421949001742853&conf_id=1020421949078164499&queryToken=fad74c6b814c9511c394cef64a9404b9&page=1',
+  'Yang2.0': 'https://tapd.woa.com/tapd_fe/20421949/story/list?sort_name=name&order=asc&useScene=storyList&groupType=multiple_group%3A%3A1020421949001742853&conf_id=1020421949078164499&queryToken=8995f590148bef4f643ef8657d4b7bff&page=1',
+  // Ma4.0 / Ma5.0 待补，配置后立即生效
+};
+function releaseSummaryUrl(releaseName){
+  if(!releaseName) return '';
+  return RELEASE_TAPD_URL[releaseName] || '';
+}
 // ★ 数字千分位格式化 (2026-08-07)
 function fmt(n){ const v=Number(n); return Number.isFinite(v) ? v.toLocaleString('en-US') : (n==null?'':String(n)); }
 function cleanTaskName(n){
@@ -1464,7 +1478,7 @@ function releaseSummaryRowHTML(d){
   return `<tr class="release-summary-row" data-stage="${esc(effectiveStage)}" data-id="${esc(d.id)}" data-area="ALL">
     <td class="col-release"><span class="rp-tag">${esc(d.release_plan)}</span></td>
     <td class="col-area"><span class="area">ALL</span></td>
-    <td class="col-story"><div class="release-summary-story">${esc(d.task_name)} · ${rows.length} 条需求</div></td>
+    <td class="col-story"><div class="release-summary-story">${(() => { const u = releaseSummaryUrl(d.release_plan); return u ? `<a class="release-summary-link" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(d.task_name)}</a>` : esc(d.task_name); })()} · ${rows.length} 条需求</div></td>
     <td class="col-creator creator-cell" title="汇总负责人">Vomi</td>
     <td class="col-status" oncontextmenu="return clearManualStage('${esc(d.id)}',event)"><select class="va-status${manualCls} ${stCls}" style="${STATUS_STYLE[effectiveStage]||STATUS_STYLE['待澄清']}" onchange="saveClarify('${esc(d.id)}','status',this.value,this)" title="版本汇总状态：可手动选择">${STATUS_LIST.map(s=>`<option value="${s}" ${effectiveStage===s?'selected':''}>${s}</option>`).join('')}</select></td>
     <td class="col-doc" style="text-align:center!important">${releaseLibraryDocCell(d.release_plan)}</td>

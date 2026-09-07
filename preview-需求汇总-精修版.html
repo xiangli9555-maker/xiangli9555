@@ -463,7 +463,6 @@ body.embed .mid{width:100%}
   .release-library-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
   .release-library-link.pending{color:var(--c-text-dim);border-color:var(--c-hairline);border-style:dashed;cursor:default}
   .col-status .va-status{width:108px!important;padding:5px 8px!important}
-  .summary-status-cell{display:flex;flex-direction:column;align-items:center;gap:6px}
 
   /* ===== 不透明背景：修复透光 (2026-09-02) ===== */
   /* 侧栏 */
@@ -1366,15 +1365,13 @@ function buildReleaseSummaryRows(){
 function releaseSummaryRowHTML(d){
   const cVa=clarifyOf(d.id);
   const effectiveStage=(cVa&&cVa.status)?cVa.status:'待澄清';
-  const stCls=CLARIFY_STATUS[effectiveStage]||'s-none';
-  const manualCls=(cVa&&cVa._manual)?' va-manual':'';
   const rows=d._releaseRows||[];
   return `<tr class="release-summary-row" data-stage="${esc(effectiveStage)}" data-id="${esc(d.id)}" data-area="ALL">
     <td class="col-release"><span class="rp-tag">${esc(d.release_plan)}</span></td>
     <td class="col-area"><span class="area">ALL</span></td>
     <td class="col-story"><div class="release-summary-story">${(() => { const u = releaseSummaryUrl(d.release_plan); return u ? `<a class="release-summary-link" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(d.task_name)}</a>` : esc(d.task_name); })()} · ${rows.length} 条需求</div></td>
     <td class="col-creator creator-cell" title="汇总负责人">Vomi</td>
-    <td class="col-status" oncontextmenu="return clearManualStage('${esc(d.id)}',event)"><div class="summary-status-cell"><select class="va-status${manualCls} ${stCls}" style="${STATUS_STYLE[effectiveStage]||STATUS_STYLE['待澄清']}" onchange="saveClarify('${esc(d.id)}','status',this.value,this)" title="版本汇总状态：可手动选择">${STATUS_LIST.map(s=>`<option value="${s}" ${effectiveStage===s?'selected':''}>${s}</option>`).join('')}</select>${releaseLibraryDocCell(d.release_plan)}</div></td>
+    <td class="col-status">${releaseLibraryDocCell(d.release_plan)}</td>
     <td class="col-video"><span class="release-summary-text">${esc(d.video_sync)} 音画</span></td>
     <td class="col-cw"><span class="release-summary-text">${esc(d.cn_lines_handler)}</span></td>
     ${veCells(d)}

@@ -103,6 +103,32 @@ test('normalizeDfaiReleasePlans 归一化多种形状', () => {
   assert.equal(out.data[0].phases.test.end, '2026-07-20');
 });
 
+test('normalizeDfaiReleasePlans 透传官方周数字段（缺失会致前端日历空白）', () => {
+  const raw = {
+    data: [
+      {
+        label: 'Yang_1.0',
+        id: 'yang1',
+        status: 'open',
+        phases: {
+          dev_weeks: 5,
+          test_weeks: 4,
+          total_weeks: 11,
+          dev: { start: '2026-11-16', end: '2026-12-20' },
+          test: { start: '2026-12-21', end: '2027-01-17' },
+          release: { start: '2027-01-18', end: '2027-01-24' },
+        },
+      },
+    ],
+  };
+  const out = normalizeDfaiReleasePlans(raw);
+  assert.equal(out.data[0].phases.dev_weeks, 5);
+  assert.equal(out.data[0].phases.test_weeks, 4);
+  assert.equal(out.data[0].phases.total_weeks, 11);
+  assert.equal(out.data[0].phases.dev.start, '2026-11-16');
+  assert.equal(out.data[0].phases.test.end, '2027-01-17');
+});
+
 test('normalizeDfaiReleasePlans 空/异常输入安全降级', () => {
   assert.equal(normalizeDfaiReleasePlans(null).success, false);
   assert.equal(normalizeDfaiReleasePlans({}).data.length, 0);

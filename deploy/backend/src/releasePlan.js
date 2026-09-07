@@ -73,6 +73,12 @@ function normalizeDfaiReleasePlans(raw) {
           phases[k] = { start: String(seg.start).slice(0, 10), end: String(seg.end).slice(0, 10) };
         }
       }
+      // 透传官方周数字段：前端 phaseObjToArr 依赖 dev_weeks/test_weeks 计算周列数，
+      // 缺失会 fallback 到 1 导致第 2 周起全部被判定为溢出空白（「日历时间消失」根因）。
+      for (const k of ['dev_weeks', 'test_weeks', 'total_weeks']) {
+        const v = phasesIn[k];
+        if (v !== undefined && v !== null && v !== '') phases[k] = Number(v);
+      }
       return {
         label,
         id: p.id || slugify(label),

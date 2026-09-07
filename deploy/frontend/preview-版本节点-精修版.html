@@ -22,6 +22,8 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .brand-logo .logo-txt{height:14px;width:auto;display:block;filter:brightness(0) invert(1)}
 .brand-divider{width:1px;height:32px;background:var(--c-border)}
 .brand-toggle{width:36px;height:36px;flex-shrink:0;background:transparent;border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+/* 2026-09-03: 按钮颜色跟随侧栏状态（用户截图定稿：展开态绿 / 缩进态白）*/
+body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;letter-spacing:.3px}
@@ -43,9 +45,9 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
 .tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
 .title-block{display:flex;flex-direction:column;gap:6px}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
-.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 4px}
+.chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px}
 .page-title .code{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
@@ -1561,8 +1563,10 @@ function setFilter(f){
 // 视角筛选：null=不过滤 / 'cn'=策划关注 / 'audio'=音频关注（互斥切换）
 function setRoleFilter(r){
   roleFilter = (roleFilter === r) ? null : r;
-  document.getElementById('roleCn').classList.toggle('on', roleFilter==='cn');
-  document.getElementById('roleAudio').classList.toggle('on', roleFilter==='audio');
+  const a = document.getElementById('roleCn');
+  if(a) a.classList.toggle('on', roleFilter==='cn');
+  const b = document.getElementById('roleAudio');
+  if(b) b.classList.toggle('on', roleFilter==='audio');
   rerenderView();
   renderRightPanel();
 }
@@ -1571,19 +1575,62 @@ function setRoleFilter(r){
 function setNodeFilter(tag){
   nodeFilter = (nodeFilter === tag) ? null : tag;
   const map = {'m-lock':'ndLock','m-estimate':'ndEstimate','m-script':'ndScript','m-schedule':'ndSchedule','m-deliver':'ndDeliver'};
-  document.getElementById('ndAll').classList.toggle('on', nodeFilter===null);
+  const all = document.getElementById('ndAll');
+  if(all) all.classList.toggle('on', nodeFilter===null);
   Object.entries(map).forEach(([t,id]) => { const el=document.getElementById(id); if(el) el.classList.toggle('on', nodeFilter===t); });
   rerenderView();
   renderRightPanel();
 }
 // 分类筛选：null=全部 / meeting|milestone（互斥切换）
+// 注意：catMeeting / catMilestone 按钮已从工具栏移除，这里必须判空，
+//   否则任何调用（含清筛选链路）都会抛 TypeError 中断后续逻辑。
 function setCatFilter(c){
   catFilter = (catFilter === c) ? null : c;
-  document.getElementById('catMeeting').classList.toggle('on', catFilter==='meeting');
-  document.getElementById('catMilestone').classList.toggle('on', catFilter==='milestone');
+  const m1 = document.getElementById('catMeeting');
+  if(m1) m1.classList.toggle('on', catFilter==='meeting');
+  const m2 = document.getElementById('catMilestone');
+  if(m2) m2.classList.toggle('on', catFilter==='milestone');
   rerenderView();
   renderRightPanel();
 }
+
+/* ============ 点击空白处 → 清除筛选，回到默认视图（2026-09-03 全站统一行为）============ */
+// ★ currentFilter（版本选择）与 activeVerId 属**导航状态**，不在清除范围内。
+// 是否有已激活的筛选 —— 没有就短路，避免高频误触带来的无谓重渲染
+function hasActiveFilters(){
+  return roleFilter !== null || nodeFilter !== null || catFilter !== null;
+}
+// 空白判定：命中任何交互元素（含其内部 svg/path 等子元素）都不算空白
+function isBlankAreaClick(el){
+  if(!el) return false;
+  if(el === document.body || el === document.documentElement) return true;
+  if(el.nodeType !== 1) return false;
+  const t = el.tagName;
+  if(t === 'BUTTON' || t === 'A' || t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return false;
+  if(t === 'SVG' || t === 'PATH' || t === 'LINE' || t === 'RECT' || t === 'CIRCLE' || t === 'POLYLINE' || t === 'POLYGON' || t === 'G') return false;
+  if(el.closest && el.closest('[onclick],button,a,input,select,textarea,th,thead,td,tr,table,.tb-btn,.tool-btn,.filter-pill,.chip,.yc-cell,.yc-ev,.dp-card,.detail-panel,.toolbar,.brand-bar,.sidebar,.nav-item,.nav-sub-item,.page-title,.eyebrow,.tt,.vomi-tip-host-pop')) return false;
+  return true;
+}
+function clearAllFilters(){
+  if(!hasActiveFilters()) return;
+  roleFilter = null;
+  nodeFilter = null;
+  catFilter  = null;
+  // 工具栏高亮复位
+  ['roleCn','roleAudio','catMeeting','catMilestone'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.classList.remove('on');
+  });
+  const ndAll = document.getElementById('ndAll'); if(ndAll) ndAll.classList.add('on');
+  ['ndLock','ndEstimate','ndScript','ndSchedule','ndDeliver'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.classList.remove('on');
+  });
+  rerenderView();
+  renderRightPanel();
+}
+document.addEventListener('click', function(e){
+  if(!isBlankAreaClick(e.target)) return;
+  clearAllFilters();
+});
 
 function rerenderView(){
   // 日历视图已废除，仅保留年历

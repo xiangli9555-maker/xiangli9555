@@ -6,6 +6,7 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..', '..', '..');
 const demandHtml = fs.readFileSync(path.join(ROOT, 'preview-需求汇总-精修版.html'), 'utf8');
+const rosterHtml = fs.readFileSync(path.join(ROOT, 'preview-声优库-精修版.html'), 'utf8');
 const schedHtml = fs.readFileSync(path.join(ROOT, 'preview-录制档期-精修版.html'), 'utf8');
 const indexSrc = fs.readFileSync(path.join(__dirname, '..', 'src', 'index.js'), 'utf8');
 const executorSrc = fs.readFileSync(path.join(__dirname, '..', 'src', 'cw_doc_executor.js'), 'utf8');
@@ -143,17 +144,26 @@ test('腾讯文档写入失败时不得提前提交 MySQL 镜像', async () => {
   assert.equal(mirrored, false);
 });
 
-test('需求汇总页包含铅笔入口、7类动态角色面板、空白空态和锁定规则', () => {
-  assert.match(demandHtml, /class="ve-edit-btn/);
-  assert.match(demandHtml, /id="veEditorPanel"/);
-  assert.match(demandHtml, /openVeEditor/);
-  assert.match(demandHtml, /saveVeEditor/);
-  assert.match(demandHtml, /'路人角色'/);
-  assert.match(demandHtml, /#7A8A96/);
-  assert.match(demandHtml, /if\(!rows\.length\) return '';/);
+test('需求汇总声优预估大类与声优库一致且取消路人角色与编辑列', () => {
+  const demandCats = demandHtml.match(/const VE_CATEGORIES=\[([^\]]+)\]/)?.[1].match(/'[^']+'/g)?.map(x=>x.slice(1,-1));
+  const rosterCats = rosterHtml.match(/const order = \[([^\]]+)\]/)?.[1].match(/'[^']+'/g)?.map(x=>x.slice(1,-1));
+  assert.deepEqual(demandCats, rosterCats);
+  assert.deepEqual(demandCats, ['指挥官','干员','Boss','AI兵','NPC','AI系统音']);
+  assert.doesNotMatch(demandHtml, /class="th-ve-edit|class="col-ve-edit|class="ve-edit-btn/);
+  assert.doesNotMatch(demandHtml, /data-sort="veCat:路人角色"/);
+});
+
+test('点击大类单元格打开该类角色句数框且不区分中英', () => {
+  assert.match(demandHtml, /openVeCategory\('\$\{d\.id\}',\s*'\$\{cat\}',\s*this\)/);
+  assert.match(demandHtml, /id="veCategoryPopover"/);
+  assert.match(demandHtml, /id="veCategoryScroll"/);
+  assert.match(demandHtml, /\.ve-category-scroll\{[^}]*overflow-y:auto/);
+  assert.match(demandHtml, /data-role="\$\{esc\(r\.role_cn\)\}"[^>]*type="number"/);
+  assert.match(demandHtml, /language:'cn'/);
+  assert.doesNotMatch(demandHtml, /class="ve-lang-tabs|data-ve-lang=|setVeEditorLang/);
+  assert.doesNotMatch(demandHtml, />中配<|>英配</);
   assert.match(demandHtml, /待澄清.*文案ing/);
   assert.match(demandHtml, /data\.actual_sync\.ok\s*===\s*false/);
-  assert.doesNotMatch(demandHtml, /<label class="ve-role-row/, '角色行不能用一个 label 同时包裹 checkbox 与数字输入框');
 });
 
 test('录制档期声优视图使用角色卡展示预估、实际、偏差与独立预约状态', () => {

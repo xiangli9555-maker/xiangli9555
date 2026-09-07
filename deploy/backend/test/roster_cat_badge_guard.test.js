@@ -46,7 +46,7 @@ test('中英文拆成独立字段，不再靠字符串里的 · 拼接', () => {
 
 // ---------- 2. 色板统一 ----------
 test('分组色板与顶部 bar 共用同一份定义', () => {
-  assert.match(SRC, /const CAT_COLORS = \{'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','AI系统音':'#608980'\}/, '应统一为用户给定色板');
+  assert.match(SRC, /const CAT_COLORS = \{'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','路人角色':'#7A8A96','AI系统音':'#608980'\}/, '应统一为用户给定 7 类色板（路人角色冷灰）');
   // 色块色板（CAT_COLORS）与徽章文字墨色（CAT_INKS）各只允许一份定义
   assert.equal((SRC.match(/const CAT_COLORS\s*=/g) || []).length, 1, 'CAT_COLORS 只允许一份定义');
   assert.equal((SRC.match(/const CAT_INKS\s*=/g) || []).length, 1, 'CAT_INKS 只允许一份定义');

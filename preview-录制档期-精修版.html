@@ -599,6 +599,15 @@ body.embed .main{width:100%}
 .actor-btn.secondary{border-color:var(--c-hairline);color:var(--c-text-2)}
 .actor-btn.secondary:hover{background:var(--c-hairline);color:var(--c-text)}
 .actor-empty{padding:60px 20px;text-align:center;color:var(--c-text-mute);font-size:13px;line-height:1.8}
+/* 声优视图 v2：按角色×语言聚合的卡片列表；偏差只在卡片汇总行展示 */
+.role-estimate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;padding:12px}
+.role-estimate-card{position:relative;background:#111B20;border:1px solid var(--c-hairline);border-radius:10px;padding:14px;overflow:hidden}
+.role-estimate-card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--cat-color,#7A8A96)}
+.rec-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}.rec-role{font-size:15px;font-weight:700;color:var(--c-text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rec-lang{padding:2px 7px;border:1px solid var(--c-hairline);border-radius:3px;color:var(--c-text-2);font-size:10px}.rec-cat{margin-left:auto;color:var(--cat-color,#7A8A96);font-size:11px;font-weight:600}
+.rec-metrics{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:6px}.rec-metric{background:#0B1216;border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:8px}.rec-metric .k{display:block;color:var(--c-text-mute);font-size:10px;margin-bottom:4px}.rec-metric .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--c-text)}.rec-metric .u{font-size:10px;color:var(--c-text-dim);margin-left:2px}
+.rec-delta .v.normal{color:var(--c-primary)}.rec-delta .v.over{color:#D699BE}.rec-delta .v.negative,.rec-delta .v.unestimated,.rec-delta .v.waiting{color:var(--c-text-mute);font-size:13px}
+.rec-foot{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.07)}.rec-demand-count{font-size:11px;color:var(--c-text-mute)}.rec-booking{margin-left:auto;font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid var(--c-hairline)}.rec-booking.pending{color:var(--c-brand-yellow);border-color:rgba(255,210,76,.35)}.rec-booking.booked{color:var(--c-primary);border-color:rgba(15,247,150,.35)}
+.rec-unmatched{margin-top:8px;color:var(--c-brand-yellow);font-size:11px}
 
 /* ============ 字体系统 · 全站统一收敛（录制档期） ============ */
 /* 数字/时间/编号 → 等宽（JetBrains Mono）；中文正文 → Inter+YaHei，不混排 */
@@ -904,7 +913,7 @@ function releaseInScope(row){
   const release = typeof row === 'string' ? row : (row && (row.release_plan || row.plan));
   return !!(window.VOMI_RELEASE_CALENDAR && window.VOMI_RELEASE_CALENDAR.isAtOrAfterCached(release, RELEASE_SCOPE_START));
 }
-let ACTOR_STATE = { lang: 'all', status: 'all', pendingOnly: false, cat: 'all', gender: 'all', area: 'all', release: '', demands: [], loaded: false, vmode: readStoredActorVmode() };
+let ACTOR_STATE = { lang: 'all', status: 'all', pendingOnly: false, cat: 'all', gender: 'all', area: 'all', release: '', demands: [], estimates: [], loaded: false, vmode: readStoredActorVmode() };
 let SCHED_STATE = {
   lang: (window.SHELL_LANG==='cn'||window.SHELL_LANG==='en') ? window.SHELL_LANG : 'all',
   status: 'all',
@@ -935,17 +944,21 @@ function actorEsc(s){ return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&
 // 声优视图按「所属大类」(category/module) 聚合；需求视图按「AREA」(demand.area) 聚合。
 // 大类顺序沿用 CAT_ORDER；配色改用声优库 v13.2 真源（与 preview-声优库-精修版.html 完全一致）。
 // 指挥官 #727665 / 干员 #CEA06C / Boss #E9E6DF / AI兵 #D3DFDD / NPC #474C40 / AI系统音 #608980
-const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'AI系统音':6};
-const CAT_COLORS = {'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','AI系统音':'#608980'};
+const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'路人角色':6,'AI系统音':7};
+const CAT_COLORS = {'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','路人角色':'#7A8A96','AI系统音':'#608980','未匹配':'#7A8A96'};
 const ROLE_CATEGORY_MAP = new Map(); // role_cn -> category
+const ROLE_META_MAP = new Map();
 function setRoleCategoryMap(rows){
   ROLE_CATEGORY_MAP.clear();
+  ROLE_META_MAP.clear();
   (rows||[]).forEach(function(r){
     const rc = String(r && r.role_cn || '').trim();
     const re = String(r && r.role_en || '').trim();
     const cat = String(r && (r.category || r.module) || '').trim();
     if(rc && cat) ROLE_CATEGORY_MAP.set(rc, cat);
     if(re && cat && !ROLE_CATEGORY_MAP.has(re)) ROLE_CATEGORY_MAP.set(re, cat);
+    if(rc) ROLE_META_MAP.set(rc,r);
+    if(re && !ROLE_META_MAP.has(re)) ROLE_META_MAP.set(re,r);
   });
 }
 // 解析某个 voice_estimate 的大类：优先 ve.category，其次按 role 查声优库
@@ -1122,13 +1135,13 @@ function renderFilterBar(){
     g.innerHTML = label + pills;
   } else {
     /* 角色视图：大类维度（按数据动态统计角色去重数，2026-09-07 用户定稿） */
-    var rows = ACTOR_STATE.demands || [];
-    var seenByCat = {'指挥官':{}, '干员':{}, 'Boss':{}, 'AI兵':{}, 'NPC':{}, 'AI系统音':{}};
+    var rows = ACTOR_STATE.estimates || [];
+    var seenByCat = {'指挥官':{}, '干员':{}, 'Boss':{}, 'AI兵':{}, 'NPC':{}, '路人角色':{}, 'AI系统音':{}};
     var seenAll = {};
-    var catCnt = {'指挥官':0, '干员':0, 'Boss':0, 'AI兵':0, 'NPC':0, 'AI系统音':0};
+    var catCnt = {'指挥官':0, '干员':0, 'Boss':0, 'AI兵':0, 'NPC':0, '路人角色':0, 'AI系统音':0};
     var total = 0;
     rows.forEach(function(r){
-      var role = String(r.role || '').trim();
+      var role = String(r.role_name || r.role || '').trim();
       var cat = String(r.category || '').trim();
       if(!role) return;
       if(cat && catCnt.hasOwnProperty(cat) && !seenByCat[cat][role]){
@@ -1142,7 +1155,7 @@ function renderFilterBar(){
     });
     var label = '<span class="tb-label">大类</span>';
     var pills = '<button class="tb-btn'+(ACTOR_STATE.cat==='all'?' on':'')+'" data-cat="all" onclick="setActorCat(\'all\',this)">全部 <span class="dim-count">'+total+'</span></button>';
-    ['指挥官','干员','Boss','AI兵','NPC','AI系统音'].forEach(function(c){
+    ['指挥官','干员','Boss','AI兵','NPC','路人角色','AI系统音'].forEach(function(c){
       var isOn = ACTOR_STATE.cat === c;
       pills += '<button class="tb-btn'+(isOn?' on':'')+'" data-cat="'+c+'" onclick="setActorCat(\''+c+'\',this)">'+c+' <span class="dim-count">'+catCnt[c]+'</span></button>';
     });
@@ -1232,6 +1245,12 @@ async function loadActorData(){
     const t = await fetch('/api/talents', {cache:'no-store'});
     if(t.ok){ const j = await t.json(); talents = Array.isArray(j) ? j : (j.data || []); }
   }catch(e){ talents = []; }
+  // 角色需求明细：腾讯文档真源的 MySQL 查询镜像；角色卡只展示这里有记录的角色。
+  try{
+    const v = await fetch('/api/voice-estimates', {cache:'no-store'});
+    if(v.ok){ const j=await v.json(); ACTOR_STATE.estimates=Array.isArray(j.rows)?j.rows:[]; }
+    else ACTOR_STATE.estimates=[];
+  }catch(e){ ACTOR_STATE.estimates=[]; }
   // 虚拟数据兜底：仅 file:// 本地预览注入；线上保持真实数据（空则空态）2026-08-31
   // 2026-09-03：mock 数据不做 releaseInScope 过滤 —— file:// 下 release 日历无法加载
   //（fetch 不可用 → cachedPlans 空 → isAtOrAfterCached 恒 false），若过滤会把 mock 全清空。
@@ -1240,6 +1259,13 @@ async function loadActorData(){
   if(usedMockDemands) arr = buildMockDemands();
   setRoleCategoryMap(talents);
   ACTOR_STATE.demands = usedMockDemands ? arr : arr.filter(releaseInScope);
+  if(usedMockDemands && !ACTOR_STATE.estimates.length){
+    ACTOR_STATE.estimates=[];
+    ACTOR_STATE.demands.forEach(d=>(d.voice_estimates||[]).forEach(v=>{
+      if(v.cn_va)ACTOR_STATE.estimates.push({demand_id:d.id,release_plan:d.release_plan,language:'cn',category:v.category,role_name:v.role,estimated_lines:Number(v.est_lines)||0,actual_lines:0,match_status:'exact'});
+      if(v.en_va)ACTOR_STATE.estimates.push({demand_id:d.id,release_plan:d.release_plan,language:'en',category:v.category,role_name:v.role,estimated_lines:Number(v.est_lines)||0,actual_lines:0,match_status:'exact'});
+    }));
+  }
   ACTOR_STATE.loaded = true;
   renderFilterBar();
   renderActorRollup();
@@ -1352,7 +1378,7 @@ function buildMockSchedules(){
 
 // 按 (lang, role) 归组：一行 = 同一游戏角色的中配/英配之一
 // 返回 [{role, lang, actor, covers:[{story,est}], total, status}, ...]
-function aggregateActors(demands, release){
+function aggregateActorsLegacy(demands, release){
   const map = new Map();  // key = lang + '|' + role
   demands.forEach(dem => {
     if((dem.release_plan||'') !== release) return;
@@ -1447,8 +1473,47 @@ function aggregateActors(demands, release){
 // 按角色视图聚合：把 (cn|role) + (en|role) 合并到同一个 role（带所属大类）
 
 
+// v2：角色明细表驱动；只展示当前版本角色明细中有记录的角色。
+function aggregateActors(demands, release){
+  const demandMap=new Map((demands||[]).map(d=>[String(d.id),d]));
+  const map=new Map();
+  const rows=(ACTOR_STATE.estimates||[]).filter(r=>normReleaseToken(r.release_plan)===normReleaseToken(release));
+  rows.forEach(r=>{
+    const role=String(r.role_name||r.role||'').trim(); const lang=normLang(r.language); if(!role||!lang)return;
+    const k=lang+'|'+role, d=demandMap.get(String(r.demand_id))||{};
+    const meta=ROLE_META_MAP.get(role)||{};
+    if(!map.has(k)) map.set(k,{role,category:r.category||meta.module||'未匹配',gender:meta.gender||'',lang,actor:lang==='en'?(meta.en_va||''):(meta.cn_va||''),covers:[],total:0,actual:0,delivered:0,demandTotal:0,unmatched:0,status:'pending'});
+    const g=map.get(k); const est=Number(r.estimated_lines)||0; const act=Number(r.actual_lines)||0; const st=String(d.manual_status||'待澄清');
+    g.covers.push({story:d.task_name||'',est,actual:act,status:st,demandId:r.demand_id}); g.total+=est; g.demandTotal++;
+    if(['已交稿','Vo ing','Done'].includes(st)){g.actual+=act;g.delivered++;}
+    if(r.match_status==='unmatched')g.unmatched++;
+  });
+  const schedules=window.PUBLISHED_SCHEDULES||[];
+  const list=[...map.values()];
+  list.forEach(g=>{
+    const matched=schedules.filter(s=>{
+      const sl=normLang(s.lang||s.language)||(s.role_en?'en':'cn');
+      const roles=[s.role,s.role_cn,s.role_en].concat(Array.isArray(s.roles)?s.roles:[]).map(x=>String(x||'').trim());
+      return sl===g.lang&&roles.includes(g.role);
+    }).map(s=>({date:s.date||s.record_date||'',slot:s.slot||s.time_slot||'',start_time:s.start_time||'',end_time:s.end_time||'',studio:s.studio||''})).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+    g.schedules=matched;g.schedule=matched[0]||null;g.status=matched.length?'booked':'pending';
+    g.deviation=deviationState(g.total,g.actual,{delivered:g.delivered,total:g.demandTotal});
+  });
+  list.sort((a,b)=>(CAT_ORDER[a.category]||99)-(CAT_ORDER[b.category]||99)||b.total-a.total||a.role.localeCompare(b.role,'zh-CN'));
+  return list;
+}
+function deviationState(estimated,actual,progress){
+  const est=Math.max(0,Number(estimated)||0),act=Math.max(0,Number(actual)||0),total=Number(progress&&progress.total)||0,delivered=Number(progress&&progress.delivered)||0;
+  if(total>0&&delivered===0)return {kind:'waiting',label:'待交稿'};
+  if(est===0&&act>0)return {kind:'unestimated',label:'未预估'};
+  const value=act-est,percent=est>0?value/est:0;
+  if(value<0)return {kind:'negative',label:String(value)};
+  if(percent>.3)return {kind:'over',label:'+'+value};
+  return {kind:'normal',label:value>0?'+'+value:String(value)};
+}
+
 // 按需求视图聚合：1 行 = 需求 × 演员 × 语种
-function aggregateByDemand(demands, release){
+function aggregateByDemandLegacy(demands, release){
   const map = new Map(); // key = demandId|lang|role
   const sched = window.PUBLISHED_SCHEDULES || [];
   // 简化版：复用 aggregateActors 找 schedule
@@ -1513,6 +1578,20 @@ function aggregateByDemand(demands, release){
     return b.est - a.est;
   });
   return list;
+}
+
+function aggregateByDemand(demands,release){
+  const map=new Map(),flat=aggregateActors(demands,release),rows=(ACTOR_STATE.estimates||[]).filter(r=>normReleaseToken(r.release_plan)===normReleaseToken(release));
+  const byDemand=new Map();rows.forEach(r=>{const k=String(r.demand_id);if(!byDemand.has(k))byDemand.set(k,[]);byDemand.get(k).push(r);});
+  (demands||[]).filter(d=>normReleaseToken(d.release_plan)===normReleaseToken(release)).forEach(d=>{
+    const list=byDemand.get(String(d.id))||[],story=(d.task_name||'').trim()||('需求 '+d.id),area=String(d.area||'').trim();
+    if(!list.length){
+      map.set('PLACEHOLDER|'+d.id,{demandId:d.id,area:area,story:story,lang:'',role:'',category:'',actor:'',est:0,actual:0,schedule:null,status:'placeholder',isPlaceholder: true});
+      return;
+    }
+    list.forEach(r=>{const role=String(r.role_name||'').trim(),lang=normLang(r.language);if(!role||!lang)return;const found=flat.find(a=>a.role===role&&a.lang===lang),meta=ROLE_META_MAP.get(role)||{};map.set(d.id+'|'+lang+'|'+role,{demandId:d.id,area,story,lang,role,category:r.category||meta.module||'未匹配',actor:lang==='en'?(meta.en_va||''):(meta.cn_va||''),est:Number(r.estimated_lines)||0,actual:Number(r.actual_lines)||0,schedule:found?found.schedule:null,schedules:found?found.schedules:[],status:found?found.status:'pending',demandStatus:d.manual_status||'待澄清',matchStatus:r.match_status||'exact'});});
+  });
+  return [...map.values()].sort((a,b)=>{if(!!a.isPlaceholder!==!!b.isPlaceholder)return a.isPlaceholder?1:-1;if((a.status==='pending')!==(b.status==='pending'))return a.status==='pending'?-1:1;if(a.story!==b.story)return a.story.localeCompare(b.story,'zh-CN');return b.est-a.est;});
 }
 
 function renderActorRollup(){
@@ -1596,16 +1675,11 @@ function renderActorRollup(){
   const enPendingN = list.filter(a=>a.lang==='en' && a.status==='pending').length;
   const affectedDemands = (function(){
     const m = new Set();
-    const pendingRoles = new Set(list.filter(a=>a.status==='pending').map(a=>a.role));
-    (ACTOR_STATE.demands||[]).forEach(d => {
-      if(ACTOR_STATE.release && (d.release_plan||'') !== ACTOR_STATE.release) return;
-      let ves = d.voice_estimates;
-      if(typeof ves === 'string'){ try{ ves = JSON.parse(ves); }catch(_){ ves = []; } }
-      if(!Array.isArray(ves)) return;
-      ves.forEach(v => {
-        const role = (v.role||'').trim();
-        if(role && pendingRoles.has(role)) m.add(d.id || (d.task_name||''));
-      });
+    const pendingRoles = new Set(list.filter(a=>a.status==='pending').map(a=>a.lang+'|'+a.role));
+    (ACTOR_STATE.estimates||[]).forEach(v=>{
+      if(normReleaseToken(v.release_plan)!==normReleaseToken(ACTOR_STATE.release))return;
+      const key=normLang(v.language)+'|'+String(v.role_name||'').trim();
+      if(pendingRoles.has(key))m.add(v.demand_id);
     });
     return m.size;
   })();
@@ -1683,7 +1757,7 @@ function renderActorRollup(){
       const cp = catPendingStats;
       if(areasEl){
         // 预设大类顺序（与侧栏 tab 顺序一致），非预设项追加在末
-        const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
+        const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','路人角色','AI系统音'];
         const extras = Object.keys(cp.cnt).filter(c => CAT_ORDER.indexOf(c) < 0);
         const order = CAT_ORDER.concat(extras).filter(c => (cp.cnt[c]||0) > 0);
         if(order.length){
@@ -1971,7 +2045,7 @@ function renderActorSixBoard(viewType){
       card.totalCount++;
     });
     // 固定 6 类声优大类（保留原守卫测试字面量）· 仅 role 视图使用
-    const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
+    const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','路人角色','AI系统音'];
     // AREA 流程优先级（需求视图使用）：从 SOL 战斗玩法，到剧情/多人协作，到商业化
     const AREA_ORDER = ['SOL','大战场','撤离','系统','剧情','多人','商业化'];
     const ORDER = viewType === 'role' ? CAT_ORDER : AREA_ORDER;
@@ -2017,8 +2091,39 @@ function renderActorSixBoard(viewType){
       : '');
 }
 
-// 薄包装：声优视图 + 需求视图共享 renderActorSixBoard
-function renderActorRoleTable(){ return renderActorSixBoard('role'); }
+// 声优视图：角色卡列表。偏差仅在卡片汇总行展示；预约状态与预估/实际独立。
+function renderRoleEstimateCards(){
+  const grid=document.getElementById('actorRoleTbody'),empty=document.getElementById('actorRoleEmpty');if(!grid||!empty)return;
+  const q=(document.getElementById('actorSearch')?.value||'').trim().toLowerCase();
+  let list=aggregateActors(ACTOR_STATE.demands,ACTOR_STATE.release).filter(r=>{
+    if(ACTOR_STATE.lang!=='all'&&r.lang!==ACTOR_STATE.lang)return false;
+    if(ACTOR_STATE.cat!=='all'&&r.category!==ACTOR_STATE.cat)return false;
+    if(ACTOR_STATE.status!=='all'&&r.status!==ACTOR_STATE.status)return false;
+    if(ACTOR_STATE.pendingOnly&&r.status!=='pending')return false;
+    if(ACTOR_STATE.gender!=='all'){
+      const g=String(r.gender||genderOf(r.role)||'').toLowerCase();
+      if(ACTOR_STATE.gender==='male'&&!['m','male','男'].includes(g))return false;
+      if(ACTOR_STATE.gender==='female'&&!['f','female','女'].includes(g))return false;
+    }
+    return !q||(r.role+' '+r.actor+' '+r.covers.map(x=>x.story).join(' ')).toLowerCase().includes(q);
+  });
+  if(!list.length){grid.innerHTML='';empty.style.display='block';empty.innerHTML=ACTOR_STATE.estimates.length?'当前筛选下暂无角色。':'当前版本还没有声优预估记录。';return;}
+  empty.style.display='none';grid.className='role-estimate-grid';
+  grid.innerHTML=list.map(r=>{
+    const d=r.deviation||deviationState(r.total,r.actual,{delivered:r.delivered,total:r.demandTotal});
+    const actual=r.delivered===0?'—':r.actual;
+    const booking=r.status==='booked'?'已预约':'待预约';
+    const progress=r.delivered>0&&r.delivered<r.demandTotal?`实际为已交稿 ${r.delivered}/${r.demandTotal} 需求`:(r.delivered===r.demandTotal?'全部已交稿':'全部待交稿');
+    return `<article class="role-estimate-card" style="--cat-color:${CAT_COLORS[r.category]||'#7A8A96'}">
+      <div class="rec-head"><span class="rec-role">${escHtmlSafe(r.role)}</span><span class="rec-lang">${r.lang==='en'?'英配':'中配'}</span><span class="rec-cat">${escHtmlSafe(r.category||'未匹配')}</span></div>
+      <div class="rec-metrics"><div class="rec-metric"><span class="k">预估</span><span class="v">${r.total}<span class="u">句</span></span></div><div class="rec-metric"><span class="k">实际</span><span class="v">${actual}${actual==='—'?'':'<span class="u">句</span>'}</span></div><div class="rec-metric rec-delta"><span class="k">偏差</span><span class="v ${d.kind}">${d.label}</span></div></div>
+      <div class="rec-foot"><span class="rec-demand-count" data-tip="${escHtmlSafe(progress)}">${r.demandTotal} 个需求 · ${escHtmlSafe(r.actor||'未绑定声优')}</span><span class="rec-booking ${r.status}">${booking}</span></div>
+      ${r.unmatched?`<div class="rec-unmatched">${r.unmatched} 条角色名未匹配，请检查台词库</div>`:''}
+    </article>`;
+  }).join('');
+}
+
+function renderActorRoleTable(){ return renderRoleEstimateCards(); }
 function renderActorDemandTable(){ return renderActorSixBoard('demand'); }
 
 function setActorView(mode, btn, evt){

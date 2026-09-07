@@ -25,6 +25,7 @@ const mcp = require('./cw_mcp_client');
 const recipe = require('../cw_doc_recipe_v6');
 const pool = require('./db');
 const tableTemplate = require('./script_table_template');
+const voiceEstimates = require('./voice_estimates');
 
 // 声优库真源：优先读后端 voice_roles 表（实时，含声优库页「保存到系统」回写的编辑），
 // 失败或为空时回退到 roster.json 静态文件。
@@ -468,8 +469,8 @@ async function generateForDemand(demand, opts = {}) {
 
     // 5b) 句数统计(J/index9) + 角色校验(K/index10)公式 + 条件格式（500行）
     //   句数统计：读取 C 列(台词-中)，每 20 字一句 ROUNDUP
-    //   角色校验：B 列角色名不在「需求统计」页 B列(已有)/G列(新建) 时，该格显示 ⚠ 提示并整格标红
-    //   注：条件格式仅能整格着色，无法整行标红（平台 CF 仅支持 CF_CELL_IS 值规则）
+    //   角色校验：B 列角色名不在「需求统计」页 B列(已有)/G列(新建) 时，显示「⚠ 角色名不规范，请检查」并标黄
+    //   注：条件格式仅能整格着色，无法整行标黄（平台 CF 仅支持 CF_CELL_IS 值规则）
     if (!LITE) {
     try {
       const sentVals = [];
@@ -494,11 +495,11 @@ async function generateForDemand(demand, opts = {}) {
         await mcp.setRangeValueSmcp(file_id, lineSheetId, sentVals);
         await mcp.setRangeValueSmcp(file_id, lineSheetId, validVals);
       }
-      // 条件格式：角色校验列出现 ⚠ 前缀 → 红底红字加粗（仅该格；整行标红受平台限制无法实现）
+      // 条件格式：角色校验列出现 ⚠ 前缀 → 品牌黄底 + 深色字（仅该格；平台不支持跨列整行着色）
       await mcp.addConditionalFormat(file_id, lineSheetId, [`${VALID_COL_LETTER}3:${VALID_COL_LETTER}${2 + VALID_ROWS}`], {
         type: 'CF_CELL_IS',
         cell_is: { operator: 'contains_text', formulas: [VALID_HINT_PREFIX] },
-        style: { bg_color: '#FFC7CE', font_color: '#9C0006', bold: true },
+        style: { bg_color: '#FFD24C', font_color: '#0F171C', bold: true },
       });
       console.log('[cw] Tab2 句数统计 + 角色校验 公式已写入（' + VALID_ROWS + ' 行）');
     } catch (e) {
@@ -665,10 +666,12 @@ async function generateSummaryBoard(demands, release, oldFileId) {
   const defSid = tables[0] && tables[0].sheet_id;
   const relSid = await mcp.addTable(fid, '版本汇总', 1, cookie);
   const detSid = await mcp.addTable(fid, '需求明细', 2, cookie);
+  // 角色需求明细：Web 声优预估的腾讯文档真源；一行 = 需求ID × 游戏角色名 × 语言。
+  const roleSid = await mcp.addTable(fid, voiceEstimates.DETAIL_TABLE_TITLE, 3, cookie);
   try { if (defSid) await mcp.deleteTable(fid, defSid, cookie); }
   catch (e) { console.warn('[cw] 删除默认子表失败(忽略):', e.message); }
 
-  const CATS = ['指挥官', '干员', 'Boss', 'AI兵', 'NPC', 'AI系统音'];
+  const CATS = ['指挥官', '干员', 'Boss', 'AI兵', 'NPC', '路人角色', 'AI系统音'];
   const numField = () => ({ field_type: 'number', property_number: { decimal_places: 0 } });
   const txtField = (t) => ({ field_title: t, field_type: 'text', property_text: {} });
   const txtVal = (v) => ({ items: [{ text: String(v == null ? '' : v), type: 'text' }] });
@@ -685,6 +688,7 @@ async function generateSummaryBoard(demands, release, oldFileId) {
     Object.assign({ field_title: 'Boss' }, numField()),
     Object.assign({ field_title: 'AI兵' }, numField()),
     Object.assign({ field_title: 'NPC' }, numField()),
+    Object.assign({ field_title: '路人角色' }, numField()),
     Object.assign({ field_title: 'AI系统音' }, numField()),
     txtField('文案策划句数'),
   ];
@@ -733,6 +737,32 @@ async function generateSummaryBoard(demands, release, oldFileId) {
     return { field_values: fv };
   });
   if (detRecords.length) await mcp.addRecords(fid, detSid, detRecords, cookie);
+
+  // —— 子表 3：角色需求明细（系统写入，文案只从 Web 面板编辑）——
+  const roleFields = [
+    { field_title: '序号', field_type: 'autoNumber', property_auto_number: { type: 1 } },
+    ...voiceEstimates.DETAIL_FIELDS.map(([field_title, field_type]) => field_type === 'number'
+      ? { field_title, field_type: 'number', property_number: { decimal_places: 0 } }
+      : { field_title, field_type: 'text', property_text: {} })
+  ];
+  await mcp.addFields(fid, roleSid, roleFields, cookie);
+
+  // 若 MySQL 镜像已有数据（重建台词库时），同步灌回新建的角色需求明细页。
+  try {
+    await voiceEstimates.ensureTable(pool);
+    const [stored] = await pool.query(
+      `SELECT v.*, d.task_name, d.manual_status
+       FROM voice_estimate_roles v JOIN demands d ON d.id=v.demand_id
+       WHERE (?='' OR v.release_plan=?) ORDER BY v.demand_id,v.category,v.role_name,v.language`,
+      [release || '', release || '']
+    );
+    if (stored.length) {
+      const roleRecords = stored.map((r) => ({
+        field_values: voiceEstimates.recordFields(r, { id:r.demand_id, task_name:r.task_name, manual_status:r.manual_status }, 'Vomi')
+      }));
+      for (let i=0;i<roleRecords.length;i+=100) await mcp.addRecords(fid, roleSid, roleRecords.slice(i,i+100), cookie);
+    }
+  } catch (e) { console.warn('[cw] 角色需求明细镜像回灌失败(忽略):', e.message); }
 
   // 权限：全员只读
   await mcp.setPrivilege(fid, 2, cookie);
@@ -805,6 +835,40 @@ async function readVoiceEstimatesForDemand(demand) {
   return { file_id, sheet_id:stat.sheet_id, estimates };
 }
 
+// 从单需求台词页按「游戏角色名 × 语言」统计实际句数。
+// 角色名不规范时不丢行：返回原始名称，后续由 voice_estimates.matchRoleName 做精确/模糊/未匹配归类。
+async function readActualLinesForDemand(demand) {
+  const file_id = demand.doc_file_id || demand._doc_file_id || fileIdFromUrl(demand.script_doc_url);
+  if (!file_id) throw new Error('需求尚无可读取的台词表 file_id');
+  const info = await mcp.smcpCall('get_sheet_info', { file_id });
+  const sheets = info.sheets || info.sheet_list || info || [];
+  const lineSheet = sheets.find((s) => {
+    const title = s.title || s.name || s.sheet_name || '';
+    return title && !title.includes('需求统计') && !title.includes('音画同步');
+  }) || sheets[1];
+  const sheet_id = lineSheet && (lineSheet.sheet_id || lineSheet.id);
+  if (!sheet_id) throw new Error('台词表缺少台词明细子表');
+  const raw = await mcp.smcpCall('get_cell_data', {
+    file_id, sheet_id,
+    start_row: 0, end_row: tableTemplate.DATA_ROWS + 2,
+    start_col: 0, end_col: tableTemplate.LINE.columns.length - 1,
+    return_csv: true, include_formula: false, return_formula: false
+  });
+  const csv = raw.csv_data || raw.csv || raw.data || raw._raw || '';
+  const rows = parseCsv(typeof csv === 'string' ? csv : '');
+  const actualRows = voiceEstimates.aggregateActualLineRows(rows.slice(2), {
+    roleIndex:COL_ROLE,
+    textCnIndex:COL_TEXT_CN,
+    textEnIndex:COL_TEXT_EN,
+    sentenceIndex:COL_SENTENCE,
+    linesPerChunk:tableTemplate.LINES_PER_CHUNK,
+  });
+  return { file_id, sheet_id, rows:actualRows };
+}
+
+// 供角色明细模块复用的腾讯文档增量 upsert；真源写入失败时 MySQL 镜像不得提交。
+const upsertRoleDetailRecords = voiceEstimates.upsertRoleDetailRecords;
+
 // 演示用：往指定需求的 Tab2 台词表批量写入 [DEMO] 台词行。
 // lines: [{ role_cn, cn_text, en_text, situation?, trigger?, audio_file?, remark? }]
 // 从第 3 行（0-based row=2）起写；列位统一由 script_table_template.js 推导。
@@ -844,4 +908,4 @@ async function appendDemoLinesForDemand(demand, lines) {
   return { ok: true, file_id, sheet_id, rows: lines.length };
 }
 
-module.exports = { generateForDemand, appendDemoLinesForDemand, aggregateAllDemands, generateSummaryBoard, readVoiceEstimatesForDemand, fileIdFromUrl, parseCsv, loadRoster, buildStatRows, COL_WIDTHS: LINE_COL_WIDTHS };
+module.exports = { generateForDemand, appendDemoLinesForDemand, aggregateAllDemands, generateSummaryBoard, readVoiceEstimatesForDemand, readActualLinesForDemand, upsertRoleDetailRecords, fileIdFromUrl, parseCsv, loadRoster, buildStatRows, COL_WIDTHS: LINE_COL_WIDTHS };

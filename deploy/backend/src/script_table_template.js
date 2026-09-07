@@ -79,7 +79,7 @@ function lineSentenceFormula(oneBasedRow) {
 }
 function roleValidationFormula(oneBasedRow) {
   const end = STAT.dataStartRow + DATA_ROWS - 1;
-  return `=IF(AND($B${oneBasedRow}<>"",COUNTIF('${escapeSheetName(STAT.name)}'!$B$${STAT.dataStartRow}:$B$${end},$B${oneBasedRow})=0,COUNTIF('${escapeSheetName(STAT.name)}'!$G$${STAT.dataStartRow}:$G$${end},$B${oneBasedRow})=0),"⚠ 该角色不在「需求统计」页（已有B列/新建G列），请到系统提交声优信息或在对应页补行","")`;
+  return `=IF(AND($B${oneBasedRow}<>"",COUNTIF('${escapeSheetName(STAT.name)}'!$B$${STAT.dataStartRow}:$B$${end},$B${oneBasedRow})=0,COUNTIF('${escapeSheetName(STAT.name)}'!$G$${STAT.dataStartRow}:$G$${end},$B${oneBasedRow})=0),"⚠ 角色名不规范，请检查","")`;
 }
 function statActualFormula(tabName, roleColumn, oneBasedRow) {
   const tab = quoteSheetName(tabName);

@@ -838,10 +838,10 @@ function saveRosterDeleteQueue(rows){
   localStorage.setItem(ROSTER_DELETE_QUEUE_KEY, JSON.stringify(rows));
 }
 /* 大类色板 · 唯一真源（2026-09-03 统一）：分组徽章与顶部 meter bar 共用，禁止再另开一份 */
-const CAT_COLORS = {'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','AI系统音':'#608980'};
+const CAT_COLORS = {'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','路人角色':'#7A8A96','AI系统音':'#608980'};
 /* 徽章文字/描边专用「墨色」：色块与色条保持原色不动；#727665 / #474C40 这类暗色在深底上读不清，
    故为暗色单独给一版提亮值，仅作用于徽章文字与描边 */
-const CAT_INKS = {'指挥官':'#A8AD94','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#8B937E','AI系统音':'#7FB0A6'};
+const CAT_INKS = {'指挥官':'#A8AD94','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#8B937E','路人角色':'#7A8A96','AI系统音':'#7FB0A6'};
 
 async function loadRoster(){
   // 先加载静态兜底；旧浏览器可能缓存过 99 条 roster.js，不能再把它当系统真源。
@@ -1272,7 +1272,7 @@ function renderRoster(){
   // 1) 待选角行永远置顶（中/英配声优任一为空 = 待选角；'N/A' 视为已确定，不算待选角）
   // 2) 待选角内部按新建时间倒序（_added=true 优先，其次 id 大的靠前）
   // 3) 已确定行按大类顺序分组（指挥官 → 干员 → Boss → AI兵 → NPC → AI系统音），组内保持 roster 原始 id 顺序
-  const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'AI系统音':6};
+  const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'路人角色':6,'AI系统音':7};
   const isPending = r => (!r.cn_va) || (!r.en_va);
   list = list.slice().sort((a,b)=>{
     const pa = isPending(a), pb = isPending(b);

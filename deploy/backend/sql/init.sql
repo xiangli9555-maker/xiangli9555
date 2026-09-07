@@ -211,6 +211,34 @@ CREATE TABLE IF NOT EXISTS voice_roles_audit (
   INDEX idx_changed_at (changed_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='声优库角色变更审计（字段级 diff）';
 
+-- ----------------------------
+-- 9. 声优预估·角色需求明细（腾讯文档真源的本地查询镜像）
+--    唯一键：需求ID × 游戏角色名 × 语言；文案只从 Web 面板编辑
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS voice_estimate_roles (
+  id               BIGINT AUTO_INCREMENT PRIMARY KEY,
+  demand_id        BIGINT NOT NULL,
+  release_plan     VARCHAR(64) NOT NULL,
+  language         ENUM('cn','en') NOT NULL,
+  category         VARCHAR(32) NOT NULL,
+  role_name        VARCHAR(255) NOT NULL,
+  role_id          BIGINT NULL,
+  estimated_lines  INT NOT NULL DEFAULT 0,
+  actual_lines     INT NOT NULL DEFAULT 0,
+  match_status     ENUM('exact','fuzzy','unmatched') NOT NULL DEFAULT 'exact',
+  source_role_name VARCHAR(255) NULL,
+  doc_file_id      VARCHAR(128) NULL,
+  doc_table_id     VARCHAR(128) NULL,
+  doc_record_id    VARCHAR(128) NULL,
+  revision         BIGINT NOT NULL DEFAULT 1,
+  updated_by       VARCHAR(128) NULL,
+  created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_voice_estimate_demand_role_lang (demand_id, role_name, language),
+  KEY idx_voice_estimate_release_lang_role (release_plan, language, role_name),
+  KEY idx_voice_estimate_demand (demand_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='声优预估角色明细（腾讯文档真源镜像）';
+
 -- ============================================================
 -- 初始种子数据（用于第一次登录看到有内容）
 -- ============================================================

@@ -20,6 +20,7 @@ const {
   secureHeaders,
 } = require('./security');
 const { pullLiveDemands, isLiveReady } = require('./tapd_live');
+const voiceEstimates = require('./voice_estimates');
 
 const app = express();
 app.disable('x-powered-by');
@@ -149,6 +150,8 @@ const DEMANDS_READY = (async () => {
 const AUDIT_READY = ensureAuditTable(pool);
 // 声优库角色字段级审计表（幂等）
 const VOICE_ROLES_AUDIT_READY = ensureVoiceRolesAuditTable(pool);
+// 声优预估角色明细镜像表（腾讯文档「角色需求明细」为真源）
+const VOICE_ESTIMATES_READY = voiceEstimates.ensureTable(pool).catch((e) => console.error('[voice-estimates] init fail:', e.message));
 
 app.get('/api/kv/:key', async (req, res) => {
   try {
@@ -627,7 +630,76 @@ app.patch('/api/demands/:id', async (req, res) => {
   vals.push(req.params.id);
   await pool.query(`UPDATE demands SET ${sets.join(',')} WHERE id=?`, vals);
 
-  res.json({ ok: true });
+  // 需求进入「已交稿」即自动反读该需求台词表并回填实际句数。
+  // 全版本台词锁仍可调用 /api/voice-estimates/sync-actual 批量兜底；这里支撑“部分已交稿”实时偏差。
+  let actualSync = null;
+  if (req.body.manual_status === '已交稿') {
+    try {
+      const cw = require('./cw_doc_executor');
+      actualSync = await voiceEstimates.syncActualLines({
+        pool,
+        mcp: require('./cw_mcp_client'),
+        readActualLinesForDemand: cw.readActualLinesForDemand,
+        demandId: req.params.id,
+        actor: req.auth.subject,
+      });
+    } catch (e) {
+      actualSync = { ok:false, processed:0, error:publicError(e) };
+    }
+  }
+
+  res.json({ ok: true, ...(actualSync ? { actual_sync:actualSync } : {}) });
+});
+
+// ---------- 声优预估·角色需求明细 ----------
+// 腾讯文档「角色需求明细」为真源；MySQL voice_estimate_roles 仅作 Web 查询/聚合镜像。
+app.get('/api/voice-estimates', async (req, res) => {
+  try {
+    await VOICE_ESTIMATES_READY;
+    const rows = await voiceEstimates.listEstimates(pool, {
+      release: String(req.query.release || '').trim() || null,
+      demand_id: req.query.demand_id || null,
+    });
+    res.json({ ok:true, rows, categories:voiceEstimates.CATEGORIES, category_colors:voiceEstimates.CATEGORY_COLORS });
+  } catch (e) { res.status(500).json({ ok:false, error:publicError(e) }); }
+});
+
+app.put('/api/demands/:id/voice-estimates', requireRole('editor'), async (req, res) => {
+  try {
+    await Promise.all([DEMANDS_READY, VOICE_ESTIMATES_READY]);
+    const id = positiveInt(req.params.id);
+    if (!id) return res.status(400).json({ ok:false, error:'invalid_demand_id' });
+    const [demands] = await pool.query('SELECT * FROM demands WHERE id=? LIMIT 1', [id]);
+    if (!demands.length) return res.status(404).json({ ok:false, error:'demand_not_found' });
+    const out = await voiceEstimates.saveDemandEstimates({
+      pool,
+      mcp: require('./cw_mcp_client'),
+      demand: demands[0],
+      rows: Array.isArray(req.body && req.body.rows) ? req.body.rows : [],
+      actor: req.auth.subject,
+    });
+    res.json({ ok:true, ...out });
+  } catch (e) {
+    const code = Number(e.statusCode) || (/locked|not_registered/.test(e.message) ? 409 : 500);
+    res.status(code).json({ ok:false, error:code < 500 ? e.message : publicError(e) });
+  }
+});
+
+// 台词锁节点调用：从每需求台词页按角色×语言统计实际句数，模糊匹配声优库后回填腾讯文档和镜像表。
+app.post('/api/voice-estimates/sync-actual', requireRole('admin'), async (req, res) => {
+  try {
+    await Promise.all([DEMANDS_READY, VOICE_ESTIMATES_READY]);
+    const cw = require('./cw_doc_executor');
+    const out = await voiceEstimates.syncActualLines({
+      pool,
+      mcp: require('./cw_mcp_client'),
+      readActualLinesForDemand: cw.readActualLinesForDemand,
+      release: String(req.body && req.body.release || '').trim() || null,
+      demandId: req.body && req.body.demand_id || null,
+      actor: req.auth.subject,
+    });
+    res.status(out.ok ? 200 : 207).json(out);
+  } catch (e) { res.status(500).json({ ok:false, error:publicError(e) }); }
 });
 
 // ---------- TAPD 快照导入：只更新TAPD权威字段，绝不覆盖人工字段 ----------

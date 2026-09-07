@@ -129,6 +129,13 @@ function dig(obj, ...keys) {
   }
   return undefined;
 }
+function digArray(obj, ...keys) {
+  for (const key of keys) {
+    const value = digOne(obj, key);
+    if (Array.isArray(value)) return value;
+  }
+  return [];
+}
 function digOne(obj, key) {
   if (obj == null) return undefined;
   if (typeof obj === 'object') {
@@ -164,8 +171,7 @@ async function createSmartSheet({ title, parent_id }) {
 async function listTables(file_id, cookie) {
   const r = await callTool('smartsheet.list_tables', { file_id }, cookie);
   const p = r.parsed || {};
-  let tables = dig(p, 'tables', 'sheets', 'data', 'list');
-  if (!Array.isArray(tables)) tables = [];
+  const tables = digArray(p, 'tables', 'sheets', 'list');
   return tables.map((t) => ({
     sheet_id: dig(t, 'sheet_id', 'sheetId', 'id'),
     title: dig(t, 'title', 'name'),
@@ -193,6 +199,31 @@ async function addFields(file_id, sheet_id, fields, cookie) {
 // 批量写记录（行）。records: [{ values: { '<字段标题>': <值>, ... } }, ...]
 async function addRecords(file_id, sheet_id, records, cookie) {
   const r = await callTool('smartsheet.add_records', { file_id, sheet_id, records }, cookie);
+  return r.parsed;
+}
+
+// 角色需求明细表增量同步：读取字段/记录，按 record_id 更新或删除。
+async function listFields(file_id, sheet_id, cookie) {
+  const r = await callTool('smartsheet.list_fields', { file_id, sheet_id, offset: 0, limit: 100 }, cookie);
+  const p = r.parsed || {};
+  return digArray(p, 'fields', 'list');
+}
+async function listRecords(file_id, sheet_id, options, cookie) {
+  const opts = options || {};
+  const r = await callTool('smartsheet.list_records', {
+    file_id, sheet_id,
+    offset: Number(opts.offset || 0),
+    limit: Math.min(100, Math.max(1, Number(opts.limit || 100))),
+    ...(Array.isArray(opts.field_titles) ? { field_titles: opts.field_titles } : {})
+  }, cookie);
+  return r.parsed || {};
+}
+async function updateRecords(file_id, sheet_id, records, cookie) {
+  const r = await callTool('smartsheet.update_records', { file_id, sheet_id, records }, cookie);
+  return r.parsed;
+}
+async function deleteRecords(file_id, sheet_id, record_ids, cookie) {
+  const r = await callTool('smartsheet.delete_records', { file_id, sheet_id, record_ids }, cookie);
   return r.parsed;
 }
 
@@ -464,8 +495,8 @@ async function removeAllConditionalFormat(file_id, sheet_id) {
 }
 
 module.exports = {
-  rawRequest, openSession, callTool, dig,
-  createSmartSheet, listTables, addTable, addFields, addRecords, deleteTable, setPrivilege, deleteFile,
+  rawRequest, openSession, callTool, dig, digArray,
+  createSmartSheet, listTables, addTable, addFields, addRecords, listFields, listRecords, updateRecords, deleteRecords, deleteTable, setPrivilege, deleteFile,
   createSheet, getSheetInfo, setRangeValue, setCellValue, setCellStyle, setFreeze, setDimensionSize, renameSheet, addSheet, mergeCells,
   uploadImage, insertImage,
   SHEET_MCP_URL, smcpCall, setRangeValueSmcp, addConditionalFormat, removeAllConditionalFormat,

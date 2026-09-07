@@ -75,52 +75,52 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .chip-num{opacity:.55;font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:2px}
 .chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
 .chip-prog i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
-/* ★ 状态芯片 · 工业战术色板（2026-07-24 排版整理：改用 .chip-status 独立类避开 .chip-filter.on 绿色覆盖）
-   待澄清=霓虹粉 / 文案ing=沙棕金 / 已交稿=紫灰 / Vo ing=青灰蓝 / Done=灰蓝 */
+/* ★ 状态芯片 · 声优库战术色板（2026-09-07）：
+   待澄清=指挥官 / 文案ing=干员 / 已交稿=Boss / Vo ing=AI系统音 / Done=NPC。
+   色点与描边坚持 CAT_COLORS 原色；暗色仅文字使用 CAT_INKS 提亮，保持深底可读。 */
 .chip-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-mute);border-radius:12px;font-size:11px;cursor:pointer;transition:all .12s;letter-spacing:.2px;font-weight:500}
 .chip-status i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:middle}
 
-.chip-status.chip-prog-pending{color:#C45D7A;border-color:rgba(232,125,160,.5)}
-.chip-status.chip-prog-pending:hover{color:#E87DA0;border-color:#C45D7A;background:rgba(232,125,160,.08)}
-.chip-status.chip-prog-pending.on{color:#E87DA0;border-color:#C45D7A;background:rgba(232,125,160,.12);box-shadow:inset 0 0 0 1px rgba(232,125,160,.35),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-pending i{background:#C45D7A;box-shadow:0 0 4px rgba(232,125,160,.6)}
+.chip-status.chip-prog-pending{color:#A8AD94;border-color:rgba(114,118,101,.55)}
+.chip-status.chip-prog-pending:hover{color:#A8AD94;border-color:#727665;background:rgba(114,118,101,.10)}
+.chip-status.chip-prog-pending.on{color:#A8AD94;border-color:#727665;background:rgba(114,118,101,.14);box-shadow:inset 0 0 0 1px rgba(114,118,101,.38),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-pending i{background:#727665;box-shadow:0 0 4px rgba(114,118,101,.55)}
 
-.chip-status.chip-prog-writing{color:#AA8443;border-color:rgba(212,165,84,.5)}
-.chip-status.chip-prog-writing:hover{color:#D4A554;border-color:#AA8443;background:rgba(212,165,84,.08)}
-.chip-status.chip-prog-writing.on{color:#D4A554;border-color:#AA8443;background:rgba(212,165,84,.12);box-shadow:inset 0 0 0 1px rgba(212,165,84,.35),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-writing i{background:#AA8443;box-shadow:0 0 4px rgba(212,165,84,.6)}
+.chip-status.chip-prog-writing{color:#CEA06C;border-color:rgba(206,160,108,.50)}
+.chip-status.chip-prog-writing:hover{color:#CEA06C;border-color:#CEA06C;background:rgba(206,160,108,.08)}
+.chip-status.chip-prog-writing.on{color:#CEA06C;border-color:#CEA06C;background:rgba(206,160,108,.12);box-shadow:inset 0 0 0 1px rgba(206,160,108,.35),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-writing i{background:#CEA06C;box-shadow:0 0 4px rgba(206,160,108,.50)}
 
-.chip-status.chip-prog-handover{color:#7A6FA8;border-color:rgba(159,143,207,.5)}
-.chip-status.chip-prog-handover:hover{color:#9F8FCF;border-color:#7A6FA8;background:rgba(159,143,207,.08)}
-.chip-status.chip-prog-handover.on{color:#9F8FCF;border-color:#7A6FA8;background:rgba(159,143,207,.12);box-shadow:inset 0 0 0 1px rgba(159,143,207,.35),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-handover i{background:#7A6FA8;box-shadow:0 0 4px rgba(159,143,207,.6)}
+.chip-status.chip-prog-handover{color:#E9E6DF;border-color:rgba(233,230,223,.45)}
+.chip-status.chip-prog-handover:hover{color:#E9E6DF;border-color:#E9E6DF;background:rgba(233,230,223,.07)}
+.chip-status.chip-prog-handover.on{color:#E9E6DF;border-color:#E9E6DF;background:rgba(233,230,223,.10);box-shadow:inset 0 0 0 1px rgba(233,230,223,.30),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-handover i{background:#E9E6DF;box-shadow:0 0 4px rgba(233,230,223,.42)}
 
-.chip-status.chip-prog-vo{color:#649999;border-color:rgba(125,191,191,.5)}
-.chip-status.chip-prog-vo:hover{color:#7DBFBF;border-color:#649999;background:rgba(125,191,191,.08)}
-.chip-status.chip-prog-vo.on{color:#7DBFBF;border-color:#649999;background:rgba(125,191,191,.12);box-shadow:inset 0 0 0 1px rgba(125,191,191,.35),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-vo i{background:#649999;box-shadow:0 0 4px rgba(125,191,191,.6)}
+.chip-status.chip-prog-vo{color:#7FB0A6;border-color:rgba(96,137,128,.55)}
+.chip-status.chip-prog-vo:hover{color:#7FB0A6;border-color:#608980;background:rgba(96,137,128,.10)}
+.chip-status.chip-prog-vo.on{color:#7FB0A6;border-color:#608980;background:rgba(96,137,128,.14);box-shadow:inset 0 0 0 1px rgba(96,137,128,.38),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-vo i{background:#608980;box-shadow:0 0 4px rgba(96,137,128,.55)}
 
-.chip-status.chip-prog-done{color:#7A8A96;border-color:rgba(122,138,150,.5)}
-.chip-status.chip-prog-done:hover{color:#9AA6B0;border-color:#7A8A96;background:rgba(122,138,150,.08)}
-.chip-status.chip-prog-done.on{color:#9AA6B0;border-color:#7A8A96;background:rgba(122,138,150,.12);box-shadow:inset 0 0 0 1px rgba(122,138,150,.35),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-done i{background:#7A8A96;box-shadow:0 0 4px rgba(122,138,150,.6)}
+.chip-status.chip-prog-done{color:#8B937E;border-color:rgba(71,76,64,.58)}
+.chip-status.chip-prog-done:hover{color:#8B937E;border-color:#474C40;background:rgba(71,76,64,.12)}
+.chip-status.chip-prog-done.on{color:#8B937E;border-color:#474C40;background:rgba(71,76,64,.16);box-shadow:inset 0 0 0 1px rgba(71,76,64,.42),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-done i{background:#474C40;box-shadow:0 0 4px rgba(71,76,64,.58)}
 /* ★ 状态 HUD · 玻璃军事风（2026-09-07 定稿：精简 A 方案，去掉色点+状态码，只保留文字）
-   5 态色系与顶部筛选芯片 / 行首状态灯一致：待澄清=霓虹粉 / 文案ing=沙棕金 / 已交稿=紫灰 / Vo ing=青灰蓝 / Done=灰蓝深沉 */
+   5 态统一复用声优库 CAT_COLORS / CAT_INKS，顶部筛选芯片、HUD 与行首状态灯保持同源。 */
 .va-hud{position:relative;display:inline-flex;align-items:center;justify-content:center}
-.va-hud[data-stage="待澄清"],.va-hud-opt[data-stage="待澄清"]{--hud-c:#E87DA0;--hud-bd:rgba(232,125,160,.5);--hud-bg:rgba(232,125,160,.12)}
-.va-hud[data-stage="文案ing"],.va-hud-opt[data-stage="文案ing"]{--hud-c:#D4A554;--hud-bd:rgba(212,165,84,.5);--hud-bg:rgba(212,165,84,.12)}
-.va-hud[data-stage="已交稿"],.va-hud-opt[data-stage="已交稿"]{--hud-c:#9F8FCF;--hud-bd:rgba(159,143,207,.5);--hud-bg:rgba(159,143,207,.12)}
-.va-hud[data-stage="Vo ing"],.va-hud-opt[data-stage="Vo ing"]{--hud-c:#7DBFBF;--hud-bd:rgba(125,191,191,.5);--hud-bg:rgba(125,191,191,.12)}
-.va-hud[data-stage="Done"],.va-hud-opt[data-stage="Done"]{--hud-c:#7A8A96;--hud-bd:rgba(75,90,105,.5);--hud-bg:rgba(45,58,72,.35)}
+.va-hud[data-stage="待澄清"],.va-hud-opt[data-stage="待澄清"]{--hud-c:#A8AD94;--hud-bd:rgba(114,118,101,.55);--hud-bg:rgba(114,118,101,.14)}
+.va-hud[data-stage="文案ing"],.va-hud-opt[data-stage="文案ing"]{--hud-c:#CEA06C;--hud-bd:rgba(206,160,108,.50);--hud-bg:rgba(206,160,108,.12)}
+.va-hud[data-stage="已交稿"],.va-hud-opt[data-stage="已交稿"]{--hud-c:#E9E6DF;--hud-bd:rgba(233,230,223,.45);--hud-bg:rgba(233,230,223,.10)}
+.va-hud[data-stage="Vo ing"],.va-hud-opt[data-stage="Vo ing"]{--hud-c:#7FB0A6;--hud-bd:rgba(96,137,128,.55);--hud-bg:rgba(96,137,128,.14)}
+.va-hud[data-stage="Done"],.va-hud-opt[data-stage="Done"]{--hud-c:#8B937E;--hud-bd:rgba(71,76,64,.58);--hud-bg:rgba(71,76,64,.16)}
 .va-hud-trigger{
   position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;
-  width:78px;max-width:100%;height:24px;padding:0 6px;
+  width:80px;max-width:100%;height:25px;padding:0 7px;
   background:rgba(20,30,36,.72);
   border:1px solid var(--hud-bd,var(--c-border));
-  border-radius:3px;
+  border-radius:4px;
   color:var(--hud-c,var(--c-text-mute));
-  font:700 10px/1 'JetBrains Mono',monospace;
-  letter-spacing:.04em;
+  font-weight:600;font-size:11px;line-height:1;font-family:inherit;
   cursor:pointer;
   box-shadow:0 0 0 1px rgba(15,247,150,.05),inset 0 1px 0 rgba(255,255,255,.04),0 4px 12px -6px rgba(0,0,0,.55);
   backdrop-filter:blur(20px) saturate(1.4);
@@ -314,12 +314,12 @@ tbody tr:nth-child(even){background:rgba(255,255,255,.022)}
 tbody tr:hover{background:var(--c-surface-2)}
 tbody tr td:first-child{position:relative}
 tbody tr td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c-primary);transition:all .15s}
-/* 行首状态灯 · 与"状态"列 5 态色系一致 */
-tbody tr[data-stage="待澄清"] td:first-child::before{background:#E87DA0;opacity:.55}
-tbody tr[data-stage="文案ing"] td:first-child::before{background:#D4A554}
-tbody tr[data-stage="已交稿"] td:first-child::before{background:#9F8FCF}
-tbody tr[data-stage="Vo ing"] td:first-child::before{background:#7DBFBF}
-tbody tr[data-stage="Done"] td:first-child::before{background:var(--c-primary);opacity:.6}
+/* 行首状态灯 · 与"状态"列 5 态色系一致（声优库 CAT_COLORS 原色） */
+tbody tr[data-stage="待澄清"] td:first-child::before{background:#727665;opacity:.75}
+tbody tr[data-stage="文案ing"] td:first-child::before{background:#CEA06C}
+tbody tr[data-stage="已交稿"] td:first-child::before{background:#E9E6DF}
+tbody tr[data-stage="Vo ing"] td:first-child::before{background:#608980}
+tbody tr[data-stage="Done"] td:first-child::before{background:#474C40;opacity:.85}
 /* Done 行：视觉沉底（降透明度，悬停恢复可读） */
 tbody tr[data-stage="Done"]{opacity:.42}
 tbody tr[data-stage="Done"]:hover{opacity:.9}
@@ -475,28 +475,53 @@ body.embed .mid{width:100%}
   .main .vs{font-size:13px}
   .main .person{font-size:13px;letter-spacing:0}
   .main .chip-filter{font-size:13px}
-  /* 声优预估：按声优库六大类拆成独立表格列 */
-  .th-ve-group{text-align:center!important;min-width:900px;border-left:1px solid rgba(15,247,150,.28)}
+  /* 声优预估：7 大类 + 每需求铅笔入口；未选择的大类严格空白 */
+  .th-ve-group{text-align:center!important;min-width:1104px;border-left:1px solid rgba(15,247,150,.28)}
+  .th-ve-edit,.col-ve-edit{width:54px;min-width:54px!important;max-width:54px;text-align:center!important;border-left:1px solid var(--c-hairline)}
   .th-ve-cat{width:150px;min-width:150px!important;max-width:150px;text-align:center!important;color:#6BD995!important;font-size:11px!important;line-height:1.15!important;letter-spacing:.1px!important;text-transform:none!important;border-left:1px solid var(--c-hairline);padding:7px 7px!important;white-space:nowrap!important}
   .th-ve-cat.sortable .sort-arrows{margin-left:3px;padding:1px 4px}
   .ve-cell{width:150px;min-width:150px;max-width:150px;padding:7px 7px;vertical-align:top;border-left:1px solid rgba(46,59,69,.55);overflow:hidden}
   .ve-stack{display:flex;flex-direction:column;gap:4px;max-height:76px;overflow:hidden;align-items:stretch}
-  .ve-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;background:rgba(15,23,28,.58);border:1px solid var(--c-hairline);border-radius:6px;padding:3px 7px;font-size:12px;color:var(--c-text);white-space:nowrap}
+  .ve-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;background:rgba(15,23,28,.58);border:1px solid var(--cat-color,var(--c-hairline));border-radius:6px;padding:3px 7px;font-size:12px;color:var(--c-text);white-space:nowrap;cursor:pointer}
+  .ve-chip:hover{background:rgba(15,247,150,.07)}
   .ve-role{overflow:hidden;text-overflow:ellipsis}
   .ve-chip .ve-x{color:var(--c-brand-yellow,#FFD24C);font-weight:600;flex-shrink:0}
-  .ve-empty{color:var(--c-text-dim);font-size:12px}
-  .ve-unsynced{color:var(--c-text-mute);font-size:12px;white-space:nowrap}
-  /* 表头内迷你按钮（声优预估↻同步） */
+  .ve-edit-btn{width:28px;height:28px;border:1px solid rgba(15,247,150,.38);border-radius:5px;background:rgba(15,247,150,.06);color:var(--c-primary);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+  .ve-edit-btn:hover{background:rgba(15,247,150,.14);border-color:var(--c-primary)}
+  .ve-edit-btn[disabled],.ve-edit-btn[data-readonly="1"]{color:var(--c-text-dim);border-color:var(--c-hairline);background:rgba(255,255,255,.02)}
+  .ve-edit-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}
+  .ve-editor-overlay{position:fixed;inset:0;z-index:6500;background:rgba(3,8,11,.68);display:none;align-items:center;justify-content:center;padding:28px}
+  .ve-editor-overlay.open{display:flex}
+  .ve-editor{width:min(1120px,96vw);height:min(820px,90vh);background:#0F171C;border:1px solid rgba(15,247,150,.45);border-radius:16px;box-shadow:0 24px 90px rgba(0,0,0,.58);display:flex;flex-direction:column;overflow:hidden}
+  .ve-editor-head{padding:18px 20px 14px;border-bottom:1px solid var(--c-hairline);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;background:#121D23}
+  .ve-editor-title{font-size:18px;font-weight:700;color:var(--c-text)}
+  .ve-editor-sub{font-size:12px;color:var(--c-text-mute);margin-top:5px}
+  .ve-editor-close{width:32px;height:32px;border:1px solid var(--c-hairline);border-radius:6px;background:transparent;color:var(--c-text-2);cursor:pointer;font-size:18px}
+  .ve-editor-tools{padding:12px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--c-hairline);background:#0F171C}
+  .ve-lang-tabs{display:flex;gap:6px}.ve-lang-tab{border:1px solid var(--c-hairline);background:transparent;color:var(--c-text-2);border-radius:999px;padding:5px 14px;cursor:pointer}.ve-lang-tab.on{color:#0F171C;background:var(--c-primary);border-color:var(--c-primary);font-weight:700}
+  .ve-editor-search{margin-left:auto;width:260px;background:#0B1216;border:1px solid var(--c-hairline);border-radius:6px;color:var(--c-text);padding:7px 10px}
+  .ve-editor-body{flex:1;min-height:0;overflow:auto;padding:14px 20px 20px}
+  .ve-cat-section{margin-bottom:18px}.ve-cat-head{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--cat-color);margin-bottom:8px}.ve-cat-dot{width:8px;height:8px;border-radius:2px;background:var(--cat-color)}
+  .ve-role-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .ve-role-row{height:42px;display:grid;grid-template-columns:minmax(0,1fr) 74px;align-items:center;gap:7px;border:1px solid var(--c-hairline);border-radius:7px;padding:0 9px;background:#111B20;color:var(--c-text-mute)}
+  .ve-role-row.filled{border-color:var(--cat-color);background:rgba(15,247,150,.055);color:var(--c-text)}
+  .ve-role-pick{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:7px;min-width:0;cursor:pointer}.ve-role-pick span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ve-role-row input[type=checkbox]{accent-color:var(--c-primary)}
+  .ve-role-row input[type=number]{width:100%;box-sizing:border-box;background:#0B1216;border:1px solid var(--c-hairline);border-radius:5px;color:var(--c-text);padding:5px 6px;text-align:right;font-variant-numeric:tabular-nums}
+  .ve-role-row:not(.filled) input[type=number]{opacity:.35;pointer-events:none}
+  .ve-editor-foot{padding:13px 20px;border-top:1px solid var(--c-hairline);display:flex;align-items:center;justify-content:space-between;background:#121D23}.ve-editor-note{font-size:12px;color:var(--c-text-mute)}.ve-editor-actions{display:flex;gap:8px}
+  .ve-editor-readonly{color:var(--c-brand-yellow);font-size:12px;font-weight:600}
+  /* 旧版表头同步按钮保留样式，兼容历史任务入口 */
   .mini-btn{margin-left:6px;vertical-align:middle;cursor:pointer;border:1px solid var(--c-hairline);background:rgba(15,242,150,.12);color:var(--c-primary);border-radius:5px;width:20px;height:20px;line-height:1;font-size:12px;padding:0}
   .mini-btn:hover{background:rgba(15,242,150,.28)}
-  /* 表格列宽：最小2190px，宽屏自动铺满；Story加宽至340px，声优预估六列各150px */
+  /* 表格列宽：宽屏自动铺满；Story 加宽至 340px，声优预估 7 类各 150px */
   .col-release{width:76px;min-width:76px!important;max-width:76px}
   .col-area{width:72px;min-width:72px!important;max-width:72px}
   .col-story{width:auto;min-width:340px!important;max-width:none}
   col.col-story-flex{width:auto}
   .col-creator{width:96px;min-width:96px!important;max-width:96px}
   .creator-cell{color:var(--c-text-mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
-  .col-status{width:138px;min-width:138px!important;max-width:138px}
+  .col-status{width:138px;min-width:138px!important;max-width:138px;text-align:center}
   .col-video{width:116px;min-width:116px!important;max-width:116px}
   .col-cw{width:220px;min-width:220px!important;max-width:220px}
   .col-ve{width:150px;min-width:150px!important;max-width:150px}
@@ -518,7 +543,7 @@ body.embed .mid{width:100%}
   .release-library-link{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:62px;height:25px;padding:0 7px;border:1px solid rgba(107,217,149,.38);border-radius:4px;color:#6BD995;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap}
   .release-library-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
   .release-library-link.pending{color:var(--c-text-dim);border-color:var(--c-hairline);border-style:dashed;cursor:default}
-  .col-status .va-hud-trigger{width:84px!important;padding:0 6px!important;font-size:10px}
+  .col-status .va-hud-trigger{width:88px!important;padding:0 7px!important;font-size:11px}
 
   /* ===== 不透明背景：修复透光 (2026-09-02) ===== */
   /* 侧栏 */
@@ -572,8 +597,9 @@ body.embed .mid{width:100%}
   table.demand-table col:nth-child(5){width:7%!important}
   table.demand-table col:nth-child(6){width:5%!important}
   table.demand-table col:nth-child(7){width:8.5%!important}
-  table.demand-table col:nth-child(n+8):nth-child(-n+13){width:4%!important}
-  table.demand-table col:nth-child(n+14){width:7.4%!important}
+  table.demand-table col:nth-child(8){width:3.5%!important}
+  table.demand-table col:nth-child(n+9):nth-child(-n+15){width:3.2%!important}
+  table.demand-table col:nth-child(n+16){width:8.8%!important}
   table.demand-table td,table.demand-table th{padding:4px 3px!important;min-width:0;overflow:hidden;text-overflow:ellipsis}
   table.demand-table th{font-size:9.5px!important;line-height:1.2!important;white-space:normal}
   table.demand-table th.sortable{padding-left:3px!important;padding-right:3px!important}
@@ -586,14 +612,15 @@ body.embed .mid{width:100%}
   .col-status{width:7%;min-width:0!important;max-width:none}
   .col-video{width:5%;min-width:0!important;max-width:none}
   .col-cw{width:8.5%;min-width:0!important;max-width:none}
-  .col-ve,.th-ve-cat,.ve-cell{width:4%;min-width:0!important;max-width:none}
+  .col-ve-edit,.th-ve-edit{width:3.5%;min-width:0!important;max-width:none}
+  .col-ve,.th-ve-cat,.ve-cell{width:3.2%;min-width:0!important;max-width:none}
   .ve-cell{padding:4px 2px!important;overflow:hidden}
   .ve-stack{max-height:64px;overflow:hidden;gap:2px!important}
   .ve-chip{display:flex!important;width:100%!important;max-width:100%!important;box-sizing:border-box;padding:2px 4px;font-size:11px;overflow:hidden}
   .ve-role{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .th-ve-group{min-width:0!important}
   .th-max-date,.col-max-date{width:7.4%;min-width:0!important;max-width:none}
-  .col-status .va-hud-trigger{width:100%!important;min-width:0;padding:0 5px!important;font-size:10px}
+  .col-status .va-hud-trigger{width:100%!important;min-width:0;padding:0 6px!important;font-size:11px}
   .story-title,.story-link,.creator-cell,.person,.max-date-cell,.release-summary-text{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ve-chip{max-width:100%;padding:2px 4px;font-size:11px}
   .ve-role{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -763,7 +790,7 @@ body.embed .mid{width:100%}
         <table class="demand-table">
           <colgroup>
             <col style="width:76px"><col style="width:72px"><col class="col-story-flex"><col style="width:96px"><col style="width:138px"><col style="width:116px"><col style="width:220px">
-            <col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px">
+            <col style="width:54px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px">
             <col style="width:116px"><col style="width:116px">
           </colgroup>
           <thead>
@@ -775,15 +802,17 @@ body.embed .mid{width:100%}
               <th rowspan="2" class="sortable col-status" data-sort="status" onclick="toggleSort('status',this)">状态<button class="header-filter-btn" onclick="openHeaderFilter(event,'status')" title="筛选状态"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th rowspan="2" class="sortable col-video" data-sort="video_sync" onclick="toggleSort('video_sync',this)">音画同步<button class="header-filter-btn" onclick="openHeaderFilter(event,'video_sync')" title="筛选音画同步"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th rowspan="2" class="sortable col-cw" data-sort="cn_lines_handler" onclick="toggleSort('cn_lines_handler',this)">ND<button class="header-filter-btn" onclick="openHeaderFilter(event,'cn_lines_handler')" title="筛选 Narrative Designer"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
-              <th colspan="6" class="sortable th-ve-group" data-sort="veCount" onclick="toggleSort('veCount',this)">声优预估<button id="veSyncBtn" class="mini-btn" title="提交声优预估任务；右键重试失败任务" onclick="event.stopPropagation();syncVoiceEstimates()" oncontextmenu="event.preventDefault();event.stopPropagation();retryFailedJobs('voice_estimates')">↻</button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
+              <th colspan="8" class="sortable th-ve-group" data-sort="veCount" onclick="toggleSort('veCount',this)">声优预估<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th colspan="2" class="th-max-group">Max（末次录制完成时间）</th>
             </tr>
             <tr class="ve-subheads">
+              <th class="th-ve-edit col-ve-edit">编辑</th>
               <th class="th-ve-cat col-ve sortable" data-sort="veCat:指挥官" onclick="toggleSort('veCat:指挥官',this)">指挥官<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th class="th-ve-cat col-ve sortable" data-sort="veCat:干员" onclick="toggleSort('veCat:干员',this)">干员<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th class="th-ve-cat col-ve sortable" data-sort="veCat:Boss" onclick="toggleSort('veCat:Boss',this)">Boss<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th class="th-ve-cat col-ve sortable" data-sort="veCat:AI兵" onclick="toggleSort('veCat:AI兵',this)">AI兵<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th class="th-ve-cat col-ve sortable" data-sort="veCat:NPC" onclick="toggleSort('veCat:NPC',this)">NPC<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
+              <th class="th-ve-cat col-ve sortable" data-sort="veCat:路人角色" onclick="toggleSort('veCat:路人角色',this)">路人角色<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th class="th-ve-cat col-ve sortable" data-sort="veCat:AI系统音" onclick="toggleSort('veCat:AI系统音',this)">AI系统音<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th class="th-max-date sortable" data-sort="maxDateCn" onclick="toggleSort('maxDateCn',this)">中<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th class="th-max-date sortable" data-sort="maxDateEn" onclick="toggleSort('maxDateEn',this)">英<span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
@@ -796,7 +825,24 @@ body.embed .mid{width:100%}
   </main>
 </div>
 
-
+<div class="ve-editor-overlay" id="veEditorOverlay" role="dialog" aria-modal="true" aria-labelledby="veEditorTitle" onclick="if(event.target===this)closeVeEditor()">
+  <section class="ve-editor" id="veEditorPanel" tabindex="-1">
+    <header class="ve-editor-head">
+      <div><div class="ve-editor-title" id="veEditorTitle">声优预估</div><div class="ve-editor-sub" id="veEditorSub">按声优库动态读取角色 · 需求×角色×语言唯一</div></div>
+      <button class="ve-editor-close" type="button" onclick="closeVeEditor()" aria-label="关闭声优预估面板">×</button>
+    </header>
+    <div class="ve-editor-tools">
+      <div class="ve-lang-tabs" role="tablist"><button class="ve-lang-tab on" type="button" data-ve-lang="cn" onclick="setVeEditorLang('cn')">中配</button><button class="ve-lang-tab" type="button" data-ve-lang="en" onclick="setVeEditorLang('en')">英配</button></div>
+      <span class="ve-editor-readonly" id="veEditorReadonly" hidden>当前状态只读</span>
+      <input class="ve-editor-search" id="veEditorSearch" type="search" placeholder="搜索游戏角色" oninput="renderVeEditorRoles()"/>
+    </div>
+    <div class="ve-editor-body" id="veEditorBody"></div>
+    <footer class="ve-editor-foot">
+      <span class="ve-editor-note" id="veEditorNote">已填写角色高亮；取消勾选会删除对应明细行</span>
+      <div class="ve-editor-actions"><button class="btn" type="button" onclick="closeVeEditor()">取消</button><button class="btn btn-primary" id="veEditorSave" type="button" onclick="saveVeEditor()">保存</button></div>
+    </footer>
+  </section>
+</div>
 
 <script src="assets/roster.js?v=20260815a"></script>
 <script src="assets/tapd-snapshot.js?v=20260730ck"></script>
@@ -833,6 +879,8 @@ function tapdStage(d){
 }
 
 let allDemands = [];
+let allVoiceEstimates = [];
+let VE_ROSTER = [];
 const RELEASE_SCOPE_START = 'Yang1.0';
 function releaseInScope(demand){
   const release = typeof demand === 'string' ? demand : (demand && demand.release_plan);
@@ -1390,65 +1438,103 @@ function vsBadge(v,id){
   const value = on ? '音画同步' : '无需视频';
   return `<span class="vs ${on?'vs-on':'vs-off'}" data-value="${value}" onclick="event.stopPropagation();cycleVs('${id}',this)" title="点击切换为${on?'无需视频':'音画同步'}">${value}</span>`;
 }
-// ============ 声优预估：与声优库一致拆成六个分类列 ============
-// voice_estimates 形状：[{role, category?, cn_va, en_va, est_lines}, ...]
-// 历史数据若无 category，则按 window.ROSTER 的 role_cn/role_en 实时补全。
-// 【显示规则】主体只显示游戏角色名，演员名（cn_va/en_va）仅放 title 溯源。
-const VE_CATEGORIES=['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
-function veNorm(v){ return String(v||'').toLowerCase().replace(/[\s·•\-（）()、【】\[\]]+/g,''); }
-const VE_ROSTER_BY_ROLE=(()=>{
-  const m=new Map();
-  (window.ROSTER||[]).forEach(r=>{
-    if(r.role_cn) m.set(veNorm(r.role_cn),r);
-    if(r.role_en) m.set(veNorm(r.role_en),r);
-  });
-  return m;
-})();
-function veList(d){ const v=(d&&d.voice_estimates)||[]; return Array.isArray(v)?v:[]; }
-function veRecord(r){
-  const role=(r&&r.role||'').trim();
-  const hit=VE_ROSTER_BY_ROLE.get(veNorm(role))||{};
-  return Object.assign({},r,{role:hit.role_cn||role,category:(r&&r.category||hit.category||'').trim()});
+// ============ 声优预估 v2：腾讯文档真源 + MySQL 查询镜像 ============
+// 一行 = 需求ID × 游戏角色名 × 语言；角色列表始终动态读取 /api/talents。
+const VE_CATEGORIES=['指挥官','干员','Boss','AI兵','NPC','路人角色','AI系统音'];
+const VE_CAT_COLORS={'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','路人角色':'#7A8A96','AI系统音':'#608980'};
+function veNorm(v){ return String(v||'').toLowerCase().replace(/[\s·•\-—_（）()、【】\[\]]+/g,''); }
+function veList(d){
+  if(d&&d._releaseSummary){const ids=new Set((d._releaseRows||[]).map(x=>String(x.id)));return allVoiceEstimates.filter(r=>ids.has(String(r.demand_id)));}
+  return allVoiceEstimates.filter(r=>String(r.demand_id)===String(d&&d.id));
 }
+function veRecord(r){ return Object.assign({},r,{role:r.role_name||r.role||'',est_lines:Number(r.estimated_lines??r.est_lines)||0,actual_lines:Number(r.actual_lines)||0}); }
 function veResolved(d){ return veList(d).map(veRecord); }
 function veActorCount(d){ return new Set(veResolved(d).map(r=>r.role).filter(Boolean)).size; }
 function veTotalLines(d){ return veResolved(d).reduce((s,r)=>s+(Number(r.est_lines)||0),0); }
 function veCategoryCount(d,cat){ return new Set(veResolved(d).filter(r=>r.category===cat).map(r=>r.role).filter(Boolean)).size; }
 function veCategoryLines(d,cat){ return veResolved(d).filter(r=>r.category===cat).reduce((s,r)=>s+(Number(r.est_lines)||0),0); }
+function veCanEdit(d){ return ['待澄清','文案ing'].includes(d&&d.manual_status||tapdStage(d)); }
 function veCell(d,cat){
-  // 长期规则（2026-09-01）：未关联台词表的需求不允许展示任何声优预估——
-  // 即使 db.voice_estimates 里有历史脏数据也必须屏蔽，让预估必须由文案上传台词表后再同步。
-  if(!d || !d.script_doc_url){
-    return '<span class="ve-unsynced" title="未关联台词表，无法展示声优预估">未关联</span>';
-  }
-  const raw=veList(d);
-  if(!raw.length) return '<span class="ve-unsynced">未同步</span>';
   const rows=veResolved(d).filter(r=>r.category===cat);
-  if(!rows.length) return '<span class="ve-empty">—</span>';
+  if(!rows.length) return '';
+  const color=VE_CAT_COLORS[cat]||'#7A8A96';
   const chips=rows.map(r=>{
-    const role=r.role||'(未指定角色)';
-    const cn=(r.cn_va||'').trim(), en=(r.en_va||'').trim();
-    const lines=Number(r.est_lines)||0;
-    const va=[]; if(cn) va.push('中:'+cn); if(en) va.push('英:'+en);
-    const title=cat+' · '+role+(va.length?' · '+va.join(' / '):'');
-    return `<span class="ve-chip" title="${esc(title)}"><span class="ve-role">${esc(role)}</span><b class="ve-x">×${lines}</b></span>`;
+    const lang=r.language==='en'?'英':'中';
+    if(d&&d._releaseSummary)return `<span class="ve-chip" style="--cat-color:${color};cursor:default"><span class="ve-role">${esc(r.role)}</span><b class="ve-x">${lang}${Number(r.est_lines)||0}</b></span>`;
+    return `<button type="button" class="ve-chip" style="--cat-color:${color}" onclick="event.stopPropagation();openVeEditor('${d.id}','${r.language||'cn'}')" aria-label="编辑 ${esc(r.role)} ${lang}配预估"><span class="ve-role">${esc(r.role)}</span><b class="ve-x">${lang}${Number(r.est_lines)||0}</b></button>`;
   }).join('');
   return `<div class="ve-stack">${chips}</div>`;
 }
-function veCells(d){ return VE_CATEGORIES.map(cat=>`<td class="ve-cell col-ve" data-ve-cat="${cat}">${veCell(d,cat)}</td>`).join(''); }
+function veActionCell(d){
+  if(d&&d._releaseSummary)return '<td class="col-ve-edit"></td>';
+  const editable=veCanEdit(d); const label=editable?'编辑声优预估':'查看声优预估（当前状态只读）';
+  return `<td class="col-ve-edit"><button type="button" class="ve-edit-btn" onclick="event.stopPropagation();openVeEditor('${d.id}')" ${editable?'':'data-readonly="1"'} aria-label="${label}"><svg viewBox="0 0 24 24"><path d="M4 20h4l11-11-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg></button></td>`;
+}
+function veCells(d){ return veActionCell(d)+VE_CATEGORIES.map(cat=>`<td class="ve-cell col-ve" data-ve-cat="${cat}">${veCell(d,cat)}</td>`).join(''); }
 function aggregateReleaseVoiceEstimates(rows){
-  const merged = new Map();
-  rows.forEach(d=>veResolved(d).forEach(r=>{
-    const role=(r.role||'').trim(); if(!role) return;
-    const key=(r.category||'')+'|'+role;
-    const old=merged.get(key)||{role,category:r.category||'',cn_va:r.cn_va||'',en_va:r.en_va||'',est_lines:0};
-    old.est_lines += Number(r.est_lines)||0;
-    if(!old.cn_va&&r.cn_va) old.cn_va=r.cn_va;
-    if(!old.en_va&&r.en_va) old.en_va=r.en_va;
-    merged.set(key,old);
-  }));
+  const ids=new Set(rows.map(d=>String(d.id))); const merged=new Map();
+  allVoiceEstimates.filter(r=>ids.has(String(r.demand_id))).forEach(raw=>{
+    const r=veRecord(raw), role=(r.role||'').trim(); if(!role)return;
+    const key=(r.category||'')+'|'+role+'|'+r.language;
+    const old=merged.get(key)||{role,category:r.category||'',language:r.language,est_lines:0,actual_lines:0};
+    old.est_lines+=Number(r.est_lines)||0; old.actual_lines+=Number(r.actual_lines)||0; merged.set(key,old);
+  });
   return [...merged.values()];
 }
+
+let VE_EDITOR={demand:null,lang:'cn',readonly:false,draft:new Map()};
+async function ensureVeRoster(){
+  if(VE_ROSTER.length) return VE_ROSTER;
+  const r=await fetch('/api/talents',{cache:'no-store'}); if(!r.ok) throw new Error('声优库读取失败');
+  const j=await r.json(); VE_ROSTER=(Array.isArray(j)?j:(j.data||[])).filter(x=>!x.is_deleted&&x.role_cn);
+  return VE_ROSTER;
+}
+function veDraftKey(lang,role){ return lang+'|'+role; }
+async function openVeEditor(demandId,lang){
+  const d=allDemands.find(x=>String(x.id)===String(demandId)); if(!d)return;
+  try{await ensureVeRoster();}catch(e){flashErr(e.message);return;}
+  VE_EDITOR={demand:d,lang:lang==='en'?'en':'cn',readonly:!veCanEdit(d),draft:new Map()};
+  veResolved(d).forEach(r=>VE_EDITOR.draft.set(veDraftKey(r.language||'cn',r.role),{role_name:r.role,role_id:r.role_id,category:r.category,language:r.language||'cn',estimated_lines:Number(r.est_lines)||0,actual_lines:Number(r.actual_lines)||0}));
+  document.getElementById('veEditorTitle').textContent='声优预估 · '+(d.task_name||'需求');
+  document.getElementById('veEditorReadonly').hidden=!VE_EDITOR.readonly;
+  document.getElementById('veEditorSave').hidden=VE_EDITOR.readonly;
+  document.getElementById('veEditorSearch').value='';
+  document.getElementById('veEditorOverlay').classList.add('open');
+  document.querySelectorAll('[data-ve-lang]').forEach(b=>b.classList.toggle('on',b.dataset.veLang===VE_EDITOR.lang));
+  renderVeEditorRoles();
+  document.getElementById('veEditorPanel').focus({preventScroll:true});
+}
+function closeVeEditor(){document.getElementById('veEditorOverlay').classList.remove('open');VE_EDITOR.demand=null;}
+function setVeEditorLang(lang){VE_EDITOR.lang=lang==='en'?'en':'cn';document.querySelectorAll('[data-ve-lang]').forEach(b=>b.classList.toggle('on',b.dataset.veLang===VE_EDITOR.lang));renderVeEditorRoles();}
+function veToggleRole(input){
+  if(VE_EDITOR.readonly)return; const role=input.dataset.role,cat=input.dataset.cat,key=veDraftKey(VE_EDITOR.lang,role);
+  if(input.checked) VE_EDITOR.draft.set(key,{role_name:role,role_id:Number(input.dataset.roleId)||null,category:cat,language:VE_EDITOR.lang,estimated_lines:0,actual_lines:0});
+  else VE_EDITOR.draft.delete(key); renderVeEditorRoles();
+}
+function veChangeLines(input){const key=veDraftKey(VE_EDITOR.lang,input.dataset.role),r=VE_EDITOR.draft.get(key);if(r)r.estimated_lines=Math.max(0,Math.floor(Number(input.value)||0));const row=input.closest('.ve-role-row');if(row)row.classList.toggle('filled',!!r);}
+function renderVeEditorRoles(){
+  const body=document.getElementById('veEditorBody'); if(!body||!VE_EDITOR.demand)return;
+  const q=veNorm(document.getElementById('veEditorSearch').value); const disabled=VE_EDITOR.readonly?' disabled':'';
+  body.innerHTML=VE_CATEGORIES.map(cat=>{
+    const color=VE_CAT_COLORS[cat],roles=VE_ROSTER.filter(r=>(r.module||r.category)===cat&&(!q||veNorm(r.role_cn).includes(q)||veNorm(r.role_en).includes(q)));
+    if(!roles.length)return '';
+    return `<section class="ve-cat-section" style="--cat-color:${color}"><div class="ve-cat-head"><span class="ve-cat-dot"></span>${cat}<span style="opacity:.55">${roles.length}</span></div><div class="ve-role-grid">${roles.map(r=>{
+      const key=veDraftKey(VE_EDITOR.lang,r.role_cn),picked=VE_EDITOR.draft.get(key);return `<div class="ve-role-row${picked?' filled':''}"><label class="ve-role-pick"><input type="checkbox" data-role="${esc(r.role_cn)}" data-role-id="${r.id||''}" data-cat="${cat}" onchange="veToggleRole(this)" ${picked?'checked':''}${disabled}/><span>${esc(r.role_cn)}</span></label><input type="number" min="0" max="999999" value="${picked?Number(picked.estimated_lines)||0:0}" data-role="${esc(r.role_cn)}" oninput="veChangeLines(this)" aria-label="${esc(r.role_cn)}预估句数"${disabled}/></div>`;
+    }).join('')}</div></section>`;
+  }).join('')||'<div class="ve-editor-note">没有匹配角色</div>';
+}
+async function saveVeEditor(){
+  if(!VE_EDITOR.demand||VE_EDITOR.readonly)return;
+  const btn=document.getElementById('veEditorSave');btn.disabled=true;btn.textContent='保存中…';
+  try{
+    const rows=[...VE_EDITOR.draft.values()];
+    const r=await fetch(`/api/demands/${encodeURIComponent(VE_EDITOR.demand.id)}/voice-estimates`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows})});
+    const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error==='release_library_not_registered'?'请先生成当前版本台词库':(j.error||'保存失败'));
+    allVoiceEstimates=allVoiceEstimates.filter(x=>String(x.demand_id)!==String(VE_EDITOR.demand.id)).concat(j.rows||[]);
+    closeVeEditor();renderRows();flashOk(`声优预估已保存：新增 ${j.changes.added} · 更新 ${j.changes.updated} · 删除 ${j.changes.deleted}`);
+  }catch(e){flashErr(e.message||'声优预估保存失败');}finally{btn.disabled=false;btn.textContent='保存';}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('veEditorOverlay').classList.contains('open'))closeVeEditor();});
 function releaseMaxDate(rows,lang){
   let max='';
   rows.forEach(d=>demandScheduleKeys(d).forEach(k=>{ const rec=recordingMaxByDemand[k]; const v=rec&&rec[lang]; if(v&&(!max||v>max)) max=v; }));
@@ -1649,10 +1735,10 @@ function renderRows(){
   const bodyHTML = summaryRows.map(releaseSummaryRowHTML).join('') + rows.map(rowHTML).join('');
   tb.innerHTML = bodyHTML
     ? bodyHTML
-    : `<tr>      <td colspan="15" style="text-align:center;padding:36px;color:var(--c-text-mute)">
+    : `<tr>      <td colspan="17" style="text-align:center;padding:36px;color:var(--c-text-mute)">
         ${allDemands.length===0?'加载中...或后端暂无音频需求':'当前筛选下无数据'}
       </td></tr>`;
-  // colspan=16：发布计划/AREA/Story/创建人/状态/台词表/音画同步/文案策划 + 声优预估6分类 + Max中/英
+  // colspan=17：发布计划/AREA/Story/创建人/状态/音画同步/文案策划 + 声优预估编辑入口+7分类 + Max中/英
   updateResultBar(rows.length, allDemands.length);
   updateHeaderFilterState();
   // 兼容旧引用（隐藏元素，保持存在）
@@ -2120,8 +2206,14 @@ async function saveField(id, field, val){
     if(!r.ok || data.ok===false) throw new Error(data.error || `HTTP ${r.status}`);
     clearOfflineDraft(id, field);
     if(d) d._offlineDraft = false;
-    flashOk('已保存到服务器');
-    return {local:true, server:true};
+    if(data.actual_sync && data.actual_sync.ok === false){
+      flashErr('状态已保存，但实际句数回填失败；请在台词锁时重试同步');
+    }else if(data.actual_sync && data.actual_sync.processed){
+      flashOk('状态已保存，实际句数已回填');
+    }else{
+      flashOk('已保存到服务器');
+    }
+    return {local:true, server:true, actual_sync:data.actual_sync||null};
   }catch(e){
     if(d) d._offlineDraft = true;
     flashLocal(`仅本地草稿 · 服务器同步失败${e&&e.message?`（${e.message}）`:''}`);
@@ -2284,6 +2376,11 @@ async function loadDemands(){
     allDemands = applyOfflineDrafts(TAPD_SNAPSHOT.slice()).filter(releaseInScope);
     setSyncStatus('offline-snapshot', TAPD_SNAPSHOT_AT);
   }
+  try{
+    const veResp=await fetch('/api/voice-estimates',{cache:'no-store'});
+    const veJson=await veResp.json();
+    allVoiceEstimates=veResp.ok&&veJson&&Array.isArray(veJson.rows)?veJson.rows:[];
+  }catch(_){allVoiceEstimates=[];}
   await loadRecordingMax();
   normalizeCopywriters();
   updateKPI();

@@ -74,32 +74,37 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 /* filter chip 圆点样式（替代 emoji） */
 .chip-num{opacity:.55;font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:2px}
 .chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
-/* ★ 状态芯片 · 声优库战术色板（2026-09-07）：
+/* ★ 状态芯片 · C 方案「战术状态导轨」（2026-09-07）：
    待澄清=指挥官 / 文案ing=干员 / 已交稿=AI兵 / Vo ing=AI系统音 / Done=NPC。
-   顶部筛选不再使用圆点，状态仅由文字、描边与选中底色表达；暗色文字使用 CAT_INKS 提亮。 */
-.chip-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-mute);border-radius:12px;font-size:11px;cursor:pointer;transition:all .12s;letter-spacing:.2px;font-weight:500}
+   与行内 HUD 同语言：左 2px 状态色导轨 + 底部金属细线，无外框；
+   hover 底线转品牌绿；选中底线回到状态色；暗色文字使用 CAT_INKS 提亮。 */
+.chip-status{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;background:rgba(255,255,255,.035);border:none;border-bottom:1px solid rgba(190,205,195,.25);color:var(--c-text-mute);border-radius:0;font-size:11px;cursor:pointer;transition:all .12s;letter-spacing:.2px;font-weight:500}
+.chip-status::before{content:'';width:2px;height:11px;background:currentColor;flex:0 0 auto;opacity:.85}
+.chip-status:hover{border-bottom-color:rgba(15,247,150,.55)}
 
-.chip-status.chip-prog-pending{color:#A8AD94;border-color:rgba(114,118,101,.55)}
-.chip-status.chip-prog-pending:hover{color:#A8AD94;border-color:#727665;background:rgba(114,118,101,.10)}
-.chip-status.chip-prog-pending.on{color:#A8AD94;border-color:#727665;background:rgba(114,118,101,.14);box-shadow:inset 0 0 0 1px rgba(114,118,101,.38),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-pending{color:#A8AD94}
+.chip-status.chip-prog-pending:hover{background:rgba(114,118,101,.10)}
+.chip-status.chip-prog-pending.on{background:rgba(114,118,101,.14);border-bottom-color:#A8AD94}
 
-.chip-status.chip-prog-writing{color:#CEA06C;border-color:rgba(206,160,108,.50)}
-.chip-status.chip-prog-writing:hover{color:#CEA06C;border-color:#CEA06C;background:rgba(206,160,108,.08)}
-.chip-status.chip-prog-writing.on{color:#CEA06C;border-color:#CEA06C;background:rgba(206,160,108,.12);box-shadow:inset 0 0 0 1px rgba(206,160,108,.35),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-writing{color:#CEA06C}
+.chip-status.chip-prog-writing:hover{background:rgba(206,160,108,.08)}
+.chip-status.chip-prog-writing.on{background:rgba(206,160,108,.12);border-bottom-color:#CEA06C}
 
-.chip-status.chip-prog-handover{color:#D3DFDD;border-color:rgba(211,223,221,.45)}
-.chip-status.chip-prog-handover:hover{color:#D3DFDD;border-color:#D3DFDD;background:rgba(211,223,221,.07)}
-.chip-status.chip-prog-handover.on{color:#D3DFDD;border-color:#D3DFDD;background:rgba(211,223,221,.10);box-shadow:inset 0 0 0 1px rgba(211,223,221,.30),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-handover{color:#D3DFDD}
+.chip-status.chip-prog-handover:hover{background:rgba(211,223,221,.07)}
+.chip-status.chip-prog-handover.on{background:rgba(211,223,221,.10);border-bottom-color:#D3DFDD}
 
-.chip-status.chip-prog-vo{color:#7FB0A6;border-color:rgba(96,137,128,.55)}
-.chip-status.chip-prog-vo:hover{color:#7FB0A6;border-color:#608980;background:rgba(96,137,128,.10)}
-.chip-status.chip-prog-vo.on{color:#7FB0A6;border-color:#608980;background:rgba(96,137,128,.14);box-shadow:inset 0 0 0 1px rgba(96,137,128,.38),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-vo{color:#7FB0A6}
+.chip-status.chip-prog-vo:hover{background:rgba(96,137,128,.10)}
+.chip-status.chip-prog-vo.on{background:rgba(96,137,128,.14);border-bottom-color:#7FB0A6}
 
-.chip-status.chip-prog-done{color:#8B937E;border-color:rgba(71,76,64,.58)}
-.chip-status.chip-prog-done:hover{color:#8B937E;border-color:#474C40;background:rgba(71,76,64,.12)}
-.chip-status.chip-prog-done.on{color:#8B937E;border-color:#474C40;background:rgba(71,76,64,.16);box-shadow:inset 0 0 0 1px rgba(71,76,64,.42),inset 0 -2px 0 currentColor}
-/* ★ 状态 HUD · 玻璃军事风（2026-09-07 定稿：精简 A 方案，去掉色点+状态码，只保留文字）
-   5 态统一复用声优库 CAT_COLORS / CAT_INKS，顶部筛选芯片、HUD 与行首状态灯保持同源。 */
+.chip-status.chip-prog-done{color:#8B937E}
+.chip-status.chip-prog-done:hover{background:rgba(71,76,64,.12)}
+.chip-status.chip-prog-done.on{background:rgba(71,76,64,.16);border-bottom-color:#8B937E}
+/* ★ 状态 HUD · C 方案「战术状态导轨」（2026-09-07 定稿）：
+   去外框，左侧 2px 状态色导轨 + 底部 1px 金属细线，文字左对齐、箭头靠右；
+   hover 底线转品牌绿。5 态统一复用声优库 CAT_COLORS / CAT_INKS，
+   顶部筛选芯片、HUD 与行首状态灯保持同源。 */
 .va-hud{position:relative;display:inline-flex;align-items:center;justify-content:center}
 .va-hud[data-stage="待澄清"],.va-hud-opt[data-stage="待澄清"]{--hud-c:#A8AD94;--hud-bd:rgba(114,118,101,.55);--hud-bg:rgba(114,118,101,.14)}
 .va-hud[data-stage="文案ing"],.va-hud-opt[data-stage="文案ing"]{--hud-c:#CEA06C;--hud-bd:rgba(206,160,108,.50);--hud-bg:rgba(206,160,108,.12)}
@@ -107,23 +112,22 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .va-hud[data-stage="Vo ing"],.va-hud-opt[data-stage="Vo ing"]{--hud-c:#7FB0A6;--hud-bd:rgba(96,137,128,.55);--hud-bg:rgba(96,137,128,.14)}
 .va-hud[data-stage="Done"],.va-hud-opt[data-stage="Done"]{--hud-c:#8B937E;--hud-bd:rgba(71,76,64,.58);--hud-bg:rgba(71,76,64,.16)}
 .va-hud-trigger{
-  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;
-  width:80px;max-width:100%;height:25px;padding:0 7px;
-  background:rgba(20,30,36,.72);
-  border:1px solid var(--hud-bd,var(--c-border));
-  border-radius:4px;
+  position:relative;display:inline-flex;align-items:center;justify-content:flex-start;gap:4px;
+  width:80px;max-width:100%;height:25px;padding:0 7px 0 10px;
+  background:rgba(255,255,255,.035);
+  border:none;border-bottom:1px solid rgba(190,205,195,.22);
+  border-radius:0;
   color:var(--hud-c,var(--c-text-mute));
   font-weight:600;font-size:11px;line-height:1;font-family:inherit;
   cursor:pointer;
-  box-shadow:0 0 0 1px rgba(15,247,150,.05),inset 0 1px 0 rgba(255,255,255,.04),0 4px 12px -6px rgba(0,0,0,.55);
-  backdrop-filter:blur(20px) saturate(1.4);
-  -webkit-backdrop-filter:blur(20px) saturate(1.4);
   transition:border-color .12s,background .12s;
 }
-.va-hud-trigger:hover{background:rgba(30,42,50,.78);border-color:var(--hud-c,var(--c-primary))}
-/* 2026-09-07 精简 HUD：去掉色点 + 缩小框（触发器 color 仍由 --hud-c 驱动，caret + 文字本身承担颜色锚点） */
+.va-hud-trigger::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:2px;background:currentColor;opacity:.85;transition:opacity .12s}
+.va-hud-trigger:hover{background:rgba(255,255,255,.055);border-bottom-color:rgba(15,247,150,.60)}
+.va-hud-trigger:hover::before{opacity:1}
+/* 2026-09-07 C 导轨：文字左对齐、箭头贴右（导轨 + 文字本身承担颜色锚点） */
 .va-hud-label{flex:0 0 auto}
-.va-hud-caret{font:400 9px/1 'JetBrains Mono',monospace;color:var(--hud-c,var(--c-text-dim));flex:0 0 auto}
+.va-hud-caret{font:400 9px/1 'JetBrains Mono',monospace;color:var(--hud-c,var(--c-text-dim));flex:0 0 auto;margin-left:auto}
 .va-hud-trigger.va-manual::after{content:'🔒';position:absolute;right:-5px;top:-7px;font-size:8px;line-height:1;opacity:.85;filter:grayscale(.2);pointer-events:none}
 /* 文案策划就地可编辑（提示态） */
 .person.editable{cursor:text;border-bottom:1px dashed transparent;transition:border-color .12s,background .12s;padding:1px 4px;border-radius:3px}
@@ -417,7 +421,7 @@ body.embed .mid{width:100%}
   .clarify-cell b{color:var(--c-text-2);font-weight:600}
   .clarify-input{width:42px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-2);border-radius:4px;padding:4px 5px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center}
   .clarify-input:focus{border-color:var(--c-primary);outline:none}
-  /* 状态 HUD 下拉面板（body 追加 · 玻璃军事风 · 2026-09-07 A 玻璃 HUD） */
+  /* 状态 HUD 下拉面板（body 追加 · C 导轨选中态 · 2026-09-07） */
   .va-hud-pop{
     position:absolute;z-index:9998;
     min-width:172px;
@@ -436,12 +440,12 @@ body.embed .mid{width:100%}
     letter-spacing:.06em;
     color:var(--hud-c,var(--c-text-2));
     background:transparent;
-    border:1px solid transparent;
-    border-radius:4px;
+    border:none;border-left:2px solid transparent;
+    border-radius:0;
     cursor:pointer;text-align:left;
   }
   .va-hud-opt:hover{background:rgba(15,247,150,.07)}
-  .va-hud-opt.on{background:rgba(15,247,150,.10);border-color:rgba(15,247,150,.22)}
+  .va-hud-opt.on{background:rgba(15,247,150,.10);border-left-color:var(--c-primary)}
   .va-hud-opt.on .va-hud-label{color:var(--c-primary)}
 
   /* ============================================================
@@ -476,9 +480,15 @@ body.embed .mid{width:100%}
   .ve-cell:not(.is-summary):hover,.ve-cell:focus-visible{background:rgba(15,247,150,.055);box-shadow:inset 0 0 0 1px rgba(15,247,150,.22);outline:none}
   .ve-cell:not(.is-summary):empty::after{content:'＋';display:block;text-align:center;color:var(--c-text-dim);opacity:0;transition:opacity .12s}
   .ve-cell:not(.is-summary):empty:hover::after,.ve-cell:not(.is-summary):empty:focus-visible::after{opacity:.72}
-  .ve-stack{display:flex;flex-direction:column;gap:4px;max-height:76px;overflow-y:auto;overflow-x:hidden;align-items:stretch;scrollbar-width:thin}
+  .ve-stack{display:flex;flex-direction:column;gap:4px;max-height:76px;overflow-y:auto;overflow-x:hidden;align-items:stretch;scrollbar-width:thin;scrollbar-color:var(--cat-color,#608980) #0B1216}
+  /* 声优预估滚动条：窄型战术导轨，去掉系统箭头与圆润滑块 */
+  .ve-stack::-webkit-scrollbar{width:5px;height:5px}
+  .ve-stack::-webkit-scrollbar-track{background:#0B1216;border-left:1px solid rgba(255,255,255,.055)}
+  .ve-stack::-webkit-scrollbar-thumb{background:var(--cat-color,#608980);border:1px solid #0B1216;border-radius:1px;min-height:18px}
+  .ve-stack::-webkit-scrollbar-thumb:hover{background:var(--cat-ink,var(--c-primary))}
+  .ve-stack::-webkit-scrollbar-button{display:none;width:0;height:0}
   .ve-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;background:rgba(15,23,28,.58);border:1px solid var(--cat-color,var(--c-hairline));border-radius:6px;padding:3px 7px;font-size:12px;color:var(--c-text);white-space:nowrap}
-  .ve-role{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .ve-role{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--c-text-mute);letter-spacing:.5px}
   .ve-chip .ve-x{color:var(--c-brand-yellow,#FFD24C);font-weight:600;flex-shrink:0}
   .ve-category-popover{position:fixed;z-index:6500;width:min(520px,calc(100vw - 20px));max-height:min(480px,calc(100vh - 20px));display:none;flex-direction:column;background:rgba(15,23,28,.98);border:1px solid var(--cat-color,var(--c-primary));border-radius:12px;box-shadow:0 18px 54px rgba(0,0,0,.55);overflow:hidden;outline:none}
   .ve-category-popover.open{display:flex}
@@ -490,18 +500,34 @@ body.embed .mid{width:100%}
   .ve-category-tools{padding:9px 14px;border-bottom:1px solid var(--c-hairline);display:flex;align-items:center;gap:10px}
   .ve-category-search{width:100%;background:#0B1216;border:1px solid var(--c-hairline);border-radius:6px;color:var(--c-text);padding:7px 10px}
   .ve-category-readonly{color:var(--c-brand-yellow);font-size:11px;font-weight:600;white-space:nowrap}
-  .ve-category-scroll{min-height:88px;max-height:310px;overflow-y:auto;overflow-x:hidden;padding:10px 14px;scrollbar-width:thin}
+  .ve-category-scroll{min-height:88px;max-height:310px;overflow-y:auto;overflow-x:hidden;padding:10px 14px;scrollbar-width:thin;scrollbar-color:var(--cat-color,#608980) #0B1216;scrollbar-gutter:stable}
+  .ve-category-scroll::-webkit-scrollbar{width:7px}
+  .ve-category-scroll::-webkit-scrollbar-track{background:#0B1216;border-left:1px solid var(--c-hairline)}
+  .ve-category-scroll::-webkit-scrollbar-thumb{background:var(--cat-color,#608980);border:2px solid #0B1216;border-radius:1px;min-height:32px}
+  .ve-category-scroll::-webkit-scrollbar-thumb:hover{background:var(--cat-ink,var(--c-primary))}
+  .ve-category-scroll::-webkit-scrollbar-button{display:none;width:0;height:0}
   .ve-role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-  .ve-role-row{height:42px;display:grid;grid-template-columns:minmax(0,1fr) 82px;align-items:center;gap:8px;border:1px solid var(--c-hairline);border-radius:7px;padding:0 9px;background:#111B20;color:var(--c-text-mute)}
+  .ve-role-row{height:42px;display:grid;grid-template-columns:minmax(0,1fr) 82px;align-items:center;gap:8px;border:1px solid var(--c-hairline);border-radius:7px;padding:0 9px;background:#111B20;color:var(--c-text-mute);contain:layout paint}
   .ve-role-row.filled{border-color:var(--cat-color);background:rgba(15,247,150,.055);color:var(--c-text)}
   .ve-role-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ve-role-row input[type=number]{width:100%;box-sizing:border-box;background:#0B1216;border:1px solid var(--c-hairline);border-radius:5px;color:var(--c-text);padding:5px 6px;text-align:right;font-variant-numeric:tabular-nums}
+  .ve-role-row input[type=number]{width:100%;box-sizing:border-box;background:#0B1216;border:1px solid var(--c-hairline);border-radius:5px;color:var(--c-text);padding:5px 6px;text-align:right;font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
+  .ve-role-row input[type=number]::-webkit-inner-spin-button,.ve-role-row input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
   .ve-role-row input[type=number]:focus{outline:none;border-color:var(--cat-color)}
+  .ve-category-popover[data-saving="1"] .ve-category-scroll{pointer-events:none;opacity:.72}
   .ve-category-empty{padding:24px;text-align:center;color:var(--c-text-mute);font-size:12px}
   .ve-category-foot{padding:10px 14px;border-top:1px solid var(--c-hairline);display:flex;align-items:center;justify-content:space-between;gap:10px;background:#121D23}
   .ve-category-note{font-size:11px;color:var(--c-text-mute)}
-  .ve-category-actions{display:flex;gap:8px}
-  @media(max-width:720px){.ve-role-grid{grid-template-columns:1fr}.ve-category-popover{left:10px!important;right:10px!important;width:auto}}
+  /* 底部操作：低对比撤销 + 品牌黄确认，统一切角装甲轮廓 */
+  .ve-category-actions{display:flex;gap:9px;align-items:center}
+  .ve-category-actions .btn{position:relative;min-width:72px;height:34px;justify-content:center;padding:0 15px;border-radius:0;font-size:12px;font-weight:700;letter-spacing:1px;line-height:1;clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);transform:none;box-shadow:none}
+  .ve-category-actions .btn:not(.btn-primary){background:#111B20;color:var(--c-text-mute);border:1px solid #475660}
+  .ve-category-actions .btn:not(.btn-primary):hover{background:#18242B;color:var(--c-text);border-color:#71808A}
+  .ve-category-actions .btn-primary{background:rgba(255,210,76,.055);color:var(--c-warning);border:1px solid var(--c-warning);box-shadow:inset 0 -2px 0 rgba(255,210,76,.22)}
+  .ve-category-actions .btn-primary:hover{background:rgba(255,210,76,.13);color:#FFE083;border-color:#FFE083;transform:none;box-shadow:inset 0 -2px 0 rgba(255,224,131,.34)}
+  .ve-category-actions .btn:focus-visible{outline:1px solid var(--c-primary);outline-offset:3px}
+  .ve-category-actions .btn:disabled{cursor:not-allowed;opacity:.52}
+  @media(max-width:720px){.ve-role-grid{grid-template-columns:1fr}.ve-category-popover{left:10px!important;right:10px!important;width:auto}.ve-category-note{max-width:58%}.ve-category-actions .btn{min-width:64px;padding:0 11px}}
+
   /* 旧版表头同步按钮保留样式，兼容历史任务入口 */
   .mini-btn{margin-left:6px;vertical-align:middle;cursor:pointer;border:1px solid var(--c-hairline);background:rgba(15,242,150,.12);color:var(--c-primary);border-radius:5px;width:20px;height:20px;line-height:1;font-size:12px;padding:0}
   .mini-btn:hover{background:rgba(15,242,150,.28)}
@@ -534,7 +560,7 @@ body.embed .mid{width:100%}
   .release-library-link{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:62px;height:25px;padding:0 7px;border:1px solid rgba(107,217,149,.38);border-radius:4px;color:#6BD995;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap}
   .release-library-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
   .release-library-link.pending{color:var(--c-text-dim);border-color:var(--c-hairline);border-style:dashed;cursor:default}
-  .col-status .va-hud-trigger{width:88px!important;padding:0 7px!important;font-size:11px}
+  .col-status .va-hud-trigger{width:88px!important;padding:0 6px 0 10px!important;font-size:11px}
 
   /* ===== 不透明背景：修复透光 (2026-09-02) ===== */
   /* 侧栏 */
@@ -606,10 +632,10 @@ body.embed .mid{width:100%}
   .ve-cell{padding:4px 2px!important;overflow:hidden}
   .ve-stack{max-height:64px;overflow:hidden;gap:2px!important}
   .ve-chip{display:flex!important;width:100%!important;max-width:100%!important;box-sizing:border-box;padding:2px 4px;font-size:11px;overflow:hidden}
-  .ve-role{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ve-role{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
   .th-ve-group{min-width:0!important}
   .th-max-date,.col-max-date{width:7.4%;min-width:0!important;max-width:none}
-  .col-status .va-hud-trigger{width:100%!important;min-width:0;padding:0 6px!important;font-size:11px}
+  .col-status .va-hud-trigger{width:100%!important;min-width:0;padding:0 6px 0 10px!important;font-size:11px}
   .story-title,.story-link,.creator-cell,.person,.max-date-cell,.release-summary-text{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ve-chip{max-width:100%;padding:2px 4px;font-size:11px}
   .ve-role{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -819,11 +845,11 @@ body.embed .mid{width:100%}
   </header>
   <div class="ve-category-tools">
     <span class="ve-category-readonly" id="veCategoryReadonly" hidden>当前状态只读</span>
-    <input class="ve-category-search" id="veCategorySearch" type="search" placeholder="搜索当前大类角色" oninput="renderVeCategoryRoles()"/>
+    <input class="ve-category-search" id="veCategorySearch" type="search" placeholder="搜索当前大类角色" oninput="queueVeCategorySearch()"/>
   </div>
   <div class="ve-category-scroll" id="veCategoryScroll"></div>
   <footer class="ve-category-foot">
-    <span class="ve-category-note">填写 0 或留空即移除；角色较多时可在框内滚动</span>
+    <span class="ve-category-note">Enter 下一位 · Ctrl+Enter 保存 · 0/空白移除</span>
     <div class="ve-category-actions"><button class="btn" type="button" onclick="closeVeCategory()">取消</button><button class="btn btn-primary" id="veCategorySave" type="button" onclick="saveVeCategory()">保存</button></div>
   </footer>
 </section>
@@ -1427,21 +1453,44 @@ function vsBadge(v,id){
 const VE_CATEGORIES=['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
 const VE_CAT_COLORS={'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','AI系统音':'#608980'};
 const VE_CAT_INKS={'指挥官':'#A8AD94','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#8B937E','AI系统音':'#7FB0A6'};
+const VE_ESTIMATE_INDEX=new Map(),VE_UNIFIED_CACHE=new Map();
+let VE_ROSTER_BY_CAT=new Map(),VE_SEARCH_RAF=0;
 function veNorm(v){ return String(v||'').toLowerCase().replace(/[\s·•\-—_（）()、【】\[\]]+/g,''); }
+function rebuildVeEstimateIndex(){
+  VE_ESTIMATE_INDEX.clear();VE_UNIFIED_CACHE.clear();
+  allVoiceEstimates.forEach(r=>{const k=String(r.demand_id);if(!VE_ESTIMATE_INDEX.has(k))VE_ESTIMATE_INDEX.set(k,[]);VE_ESTIMATE_INDEX.get(k).push(r);});
+}
+function rebuildVeRosterIndex(){
+  VE_ROSTER_BY_CAT=new Map(VE_CATEGORIES.map(cat=>[cat,[]]));
+  VE_ROSTER.forEach(r=>{const cat=r.module||r.category;if(VE_ROSTER_BY_CAT.has(cat))VE_ROSTER_BY_CAT.get(cat).push(r);});
+}
 function veList(d){
-  if(d&&d._releaseSummary){const ids=new Set((d._releaseRows||[]).map(x=>String(x.id)));return allVoiceEstimates.filter(r=>ids.has(String(r.demand_id)));}
-  return allVoiceEstimates.filter(r=>String(r.demand_id)===String(d&&d.id));
+  if(d&&d._releaseSummary)return (d._releaseRows||[]).flatMap(x=>VE_ESTIMATE_INDEX.get(String(x.id))||[]);
+  return VE_ESTIMATE_INDEX.get(String(d&&d.id))||[];
 }
 function veRecord(r){ return Object.assign({},r,{role:r.role_name||r.role||'',est_lines:Number(r.estimated_lines??r.est_lines)||0,actual_lines:Number(r.actual_lines)||0}); }
 function veResolved(d){ return veList(d).map(veRecord); }
 function veUnified(d){
-  const merged=new Map();
+  const isReleaseSummary=!!(d&&d._releaseSummary);
+  const cacheKey=isReleaseSummary?'release|'+(d._releaseRows||[]).map(x=>x.id).join(','):'demand|'+String(d&&d.id);
+  if(VE_UNIFIED_CACHE.has(cacheKey))return VE_UNIFIED_CACHE.get(cacheKey);
+  const perDemand=new Map();
   veResolved(d).forEach(r=>{
     if(!VE_CATEGORIES.includes(r.category)||!r.role)return;
-    const key=r.category+'|'+r.role,old=merged.get(key)||{role:r.role,role_id:r.role_id,category:r.category,language:'cn',est_lines:0,actual_lines:0};
-    old.est_lines=Math.max(old.est_lines,Number(r.est_lines)||0);old.actual_lines=Math.max(old.actual_lines,Number(r.actual_lines)||0);merged.set(key,old);
+    const demandId=String(r.demand_id??(d&&d.id)??''),key=demandId+'|'+r.category+'|'+r.role;
+    const old=perDemand.get(key)||{role:r.role,role_id:r.role_id,category:r.category,language:'cn',est_lines:0,actual_lines:0};
+    old.est_lines=Math.max(old.est_lines,Number(r.est_lines)||0);old.actual_lines=Math.max(old.actual_lines,Number(r.actual_lines)||0);perDemand.set(key,old);
   });
-  return [...merged.values()];
+  let out=[...perDemand.values()];
+  if(isReleaseSummary){
+    const totals=new Map();
+    out.forEach(r=>{
+      const key=r.category+'|'+r.role,old=totals.get(key)||{role:r.role,role_id:r.role_id,category:r.category,language:'cn',est_lines:0,actual_lines:0};
+      old.est_lines+=Number(r.est_lines)||0;old.actual_lines+=Number(r.actual_lines)||0;totals.set(key,old);
+    });
+    out=[...totals.values()];
+  }
+  VE_UNIFIED_CACHE.set(cacheKey,out);return out;
 }
 function veActorCount(d){ return new Set(veUnified(d).map(r=>r.role).filter(Boolean)).size; }
 function veTotalLines(d){ return veUnified(d).reduce((s,r)=>s+(Number(r.est_lines)||0),0); }
@@ -1462,20 +1511,14 @@ function veCells(d){
   }).join('');
 }
 function aggregateReleaseVoiceEstimates(rows){
-  const ids=new Set(rows.map(d=>String(d.id))),merged=new Map();
-  allVoiceEstimates.filter(r=>ids.has(String(r.demand_id))).forEach(raw=>{
-    const r=veRecord(raw),role=(r.role||'').trim();if(!role||!VE_CATEGORIES.includes(r.category))return;
-    const key=(r.category||'')+'|'+role,old=merged.get(key)||{role,category:r.category||'',language:'cn',est_lines:0,actual_lines:0};
-    old.est_lines+=Number(r.est_lines)||0;old.actual_lines+=Number(r.actual_lines)||0;merged.set(key,old);
-  });
-  return [...merged.values()];
+  return veUnified({_releaseSummary:true,_releaseRows:rows||[]});
 }
 
-let VE_CATEGORY={demand:null,cat:'',readonly:false,draft:new Map(),anchor:null};
+let VE_CATEGORY={demand:null,cat:'',readonly:false,draft:new Map(),anchor:null,saving:false};
 async function ensureVeRoster(){
   if(VE_ROSTER.length) return VE_ROSTER;
   const r=await fetch('/api/talents',{cache:'no-store'});if(!r.ok)throw new Error('声优库读取失败');
-  const j=await r.json();VE_ROSTER=(Array.isArray(j)?j:(j.data||[])).filter(x=>!x.is_deleted&&x.role_cn);
+  const j=await r.json();VE_ROSTER=(Array.isArray(j)?j:(j.data||[])).filter(x=>!x.is_deleted&&x.role_cn);rebuildVeRosterIndex();
   return VE_ROSTER;
 }
 function veDraftKey(role){return String(role||'').trim();}
@@ -1490,7 +1533,7 @@ async function openVeCategory(demandId,cat,anchor){
   const d=allDemands.find(x=>String(x.id)===String(demandId));if(!d||!VE_CATEGORIES.includes(cat))return;
   try{await ensureVeRoster();}catch(e){flashErr(e.message);return;}
   closeVeCategory();
-  VE_CATEGORY={demand:d,cat,readonly:!veCanEdit(d),draft:new Map(),anchor};
+  VE_CATEGORY={demand:d,cat,readonly:!veCanEdit(d),draft:new Map(),anchor,saving:false};
   veUnified(d).forEach(r=>VE_CATEGORY.draft.set(veDraftKey(r.role),{role_name:r.role,role_id:r.role_id,category:r.category,language:'cn',estimated_lines:Number(r.est_lines)||0,actual_lines:Number(r.actual_lines)||0}));
   const pop=document.getElementById('veCategoryPopover'),color=VE_CAT_COLORS[cat],ink=VE_CAT_INKS[cat]||color;
   pop.style.setProperty('--cat-color',color);pop.style.setProperty('--cat-ink',ink);
@@ -1502,38 +1545,54 @@ async function openVeCategory(demandId,cat,anchor){
   pop.classList.add('open');anchor.setAttribute('aria-expanded','true');renderVeCategoryRoles();
   requestAnimationFrame(()=>{positionVeCategory(anchor);pop.focus({preventScroll:true});});
 }
-function closeVeCategory(){
-  const pop=document.getElementById('veCategoryPopover');if(pop)pop.classList.remove('open');
+function closeVeCategory(force){
+  if(VE_CATEGORY.saving&&!force)return;
+  const pop=document.getElementById('veCategoryPopover');if(pop){pop.classList.remove('open');pop.removeAttribute('data-saving');}
   if(VE_CATEGORY.anchor)VE_CATEGORY.anchor.setAttribute('aria-expanded','false');
-  VE_CATEGORY.demand=null;VE_CATEGORY.anchor=null;
+  VE_CATEGORY.demand=null;VE_CATEGORY.anchor=null;VE_CATEGORY.saving=false;
 }
 function veChangeLines(input){
-  if(VE_CATEGORY.readonly)return;
-  const role=input.dataset.role,key=veDraftKey(role),value=Math.max(0,Math.floor(Number(input.value)||0));
-  if(value>0)VE_CATEGORY.draft.set(key,{role_name:role,role_id:Number(input.dataset.roleId)||null,category:VE_CATEGORY.cat,language:'cn',estimated_lines:value,actual_lines:Number(input.dataset.actual)||0});
-  else VE_CATEGORY.draft.delete(key);
-  const row=input.closest('.ve-role-row');if(row)row.classList.toggle('filled',value>0);
+  if(VE_CATEGORY.readonly||VE_CATEGORY.saving)return;
+  const role=input.dataset.role,key=veDraftKey(role),value=Math.max(0,Math.floor(Number(input.value)||0)),old=VE_CATEGORY.draft.get(key);
+  if(value>0){
+    if(old)old.estimated_lines=value;
+    else VE_CATEGORY.draft.set(key,{role_name:role,role_id:Number(input.dataset.roleId)||null,category:VE_CATEGORY.cat,language:'cn',estimated_lines:value,actual_lines:Number(input.dataset.actual)||0});
+  }else if(old)VE_CATEGORY.draft.delete(key);
+  const row=input.closest('.ve-role-row');if(row&&row.classList.contains('filled')!==(value>0))row.classList.toggle('filled',value>0);
+}
+function veLineKeydown(event,input){
+  if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();saveVeCategory();return;}
+  if(event.key!=='Enter')return;
+  event.preventDefault();
+  const inputs=[...document.querySelectorAll('#veCategoryScroll input[type="number"]:not(:disabled)')],index=inputs.indexOf(input),next=inputs[index+1];
+  if(next){next.focus({preventScroll:true});next.select();next.scrollIntoView({block:'nearest'});}
+  else document.getElementById('veCategorySave')?.focus({preventScroll:true});
+}
+function queueVeCategorySearch(){
+  if(VE_SEARCH_RAF)cancelAnimationFrame(VE_SEARCH_RAF);
+  VE_SEARCH_RAF=requestAnimationFrame(()=>{VE_SEARCH_RAF=0;renderVeCategoryRoles();});
 }
 function renderVeCategoryRoles(){
   const body=document.getElementById('veCategoryScroll');if(!body||!VE_CATEGORY.demand)return;
   const q=veNorm(document.getElementById('veCategorySearch').value),disabled=VE_CATEGORY.readonly?' disabled':'',cat=VE_CATEGORY.cat;
-  const roles=VE_ROSTER.filter(r=>(r.module||r.category)===cat&&(!q||veNorm(r.role_cn).includes(q)||veNorm(r.role_en).includes(q)));
+  const source=VE_ROSTER_BY_CAT.get(cat)||[],roles=q?source.filter(r=>veNorm(r.role_cn).includes(q)||veNorm(r.role_en).includes(q)):source;
   if(!roles.length){body.innerHTML=`<div class="ve-category-empty">声优库暂无${esc(cat)}角色</div>`;return;}
   body.innerHTML=`<div class="ve-role-grid">${roles.map(r=>{
     const picked=VE_CATEGORY.draft.get(veDraftKey(r.role_cn)),value=picked?Number(picked.estimated_lines)||0:'';
-    return `<div class="ve-role-row${value>0?' filled':''}"><span class="ve-role-name">${esc(r.role_cn)}</span><input data-role="${esc(r.role_cn)}" data-role-id="${r.id||''}" data-actual="${picked?Number(picked.actual_lines)||0:0}" type="number" min="0" max="999999" inputmode="numeric" value="${value}" placeholder="句数" oninput="veChangeLines(this)" aria-label="${esc(r.role_cn)}预估句数"${disabled}/></div>`;
+    return `<div class="ve-role-row${value>0?' filled':''}"><span class="ve-role-name">${esc(r.role_cn)}</span><input data-role="${esc(r.role_cn)}" data-role-id="${r.id||''}" data-actual="${picked?Number(picked.actual_lines)||0:0}" type="number" min="0" max="999999" inputmode="numeric" value="${value}" placeholder="句数" oninput="veChangeLines(this)" onfocus="this.select()" onkeydown="veLineKeydown(event,this)" aria-label="${esc(r.role_cn)}预估句数"${disabled}/></div>`;
   }).join('')}</div>`;
 }
 async function saveVeCategory(){
-  if(!VE_CATEGORY.demand||VE_CATEGORY.readonly)return;
-  const btn=document.getElementById('veCategorySave');btn.disabled=true;btn.textContent='保存中…';
+  if(!VE_CATEGORY.demand||VE_CATEGORY.readonly||VE_CATEGORY.saving)return;
+  const demand=VE_CATEGORY.demand,demandId=String(demand.id),rows=[...VE_CATEGORY.draft.values()].filter(r=>VE_CATEGORIES.includes(r.category));
+  const btn=document.getElementById('veCategorySave'),note=document.querySelector('.ve-category-note'),oldNote=note?note.textContent:'';
+  VE_CATEGORY.saving=true;document.getElementById('veCategoryPopover')?.setAttribute('data-saving','1');btn.disabled=true;btn.textContent='同步中…';if(note)note.textContent='正在同步腾讯文档，请稍候';
   try{
-    const rows=[...VE_CATEGORY.draft.values()].filter(r=>VE_CATEGORIES.includes(r.category));
-    const r=await fetch(`/api/demands/${encodeURIComponent(VE_CATEGORY.demand.id)}/voice-estimates`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows})});
+    const r=await fetch(`/api/demands/${encodeURIComponent(demandId)}/voice-estimates`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows})});
     const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error==='release_library_not_registered'?'请先生成当前版本台词库':(j.error||'保存失败'));
-    allVoiceEstimates=allVoiceEstimates.filter(x=>String(x.demand_id)!==String(VE_CATEGORY.demand.id)).concat(j.rows||[]);
-    closeVeCategory();renderRows();flashOk(`声优预估已保存：新增 ${j.changes.added} · 更新 ${j.changes.updated} · 删除 ${j.changes.deleted}`);
-  }catch(e){flashErr(e.message||'声优预估保存失败');}finally{btn.disabled=false;btn.textContent='保存';}
+    allVoiceEstimates=allVoiceEstimates.filter(x=>String(x.demand_id)!==demandId).concat(j.rows||[]);rebuildVeEstimateIndex();
+    closeVeCategory(true);requestAnimationFrame(()=>renderRows());flashOk(`声优预估已保存：新增 ${j.changes.added} · 更新 ${j.changes.updated} · 删除 ${j.changes.deleted}`);
+  }catch(e){VE_CATEGORY.saving=false;document.getElementById('veCategoryPopover')?.removeAttribute('data-saving');flashErr(e.message||'声优预估保存失败');}finally{btn.disabled=false;btn.textContent='保存';if(note)note.textContent=oldNote;}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('veCategoryPopover').classList.contains('open'))closeVeCategory();});
 document.addEventListener('click',e=>{const pop=document.getElementById('veCategoryPopover');if(pop&&pop.classList.contains('open')&&!pop.contains(e.target)&&e.target!==VE_CATEGORY.anchor)closeVeCategory();});
@@ -2384,10 +2443,14 @@ async function loadDemands(){
     const veJson=await veResp.json();
     allVoiceEstimates=veResp.ok&&veJson&&Array.isArray(veJson.rows)?veJson.rows:[];
   }catch(_){allVoiceEstimates=[];}
+  rebuildVeEstimateIndex();
   await loadRecordingMax();
   normalizeCopywriters();
   updateKPI();
   renderRows();
+  // 空闲时预载声优库，避免首次点击大类再等待网络。
+  const warmRoster=()=>ensureVeRoster().catch(()=>{});
+  if('requestIdleCallback' in window)requestIdleCallback(warmRoster,{timeout:1500});else setTimeout(warmRoster,0);
   pollCwJobs();          // 拉取已有生成任务状态（已生成的链接 / 进行中）
   pushAssignments();     // 推送策划分配映射到后端（供 /sync 一键生成 + 常驻自动补齐）
 }

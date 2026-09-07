@@ -42,14 +42,15 @@ test('2. 标签云 CSS 必备类（cat-band / cardB / cardB-tag / col-body）', 
   assert.match(css, /\.cardB-req \.cardB-tags\{[^}]*padding-left:0/, '需求视图应去掉头像左 padding');
 });
 
-test('3. JS · 需求视图保留标签云聚合，声优视图改为独立角色卡列表', () => {
+test('3. JS · 声优视图与需求视图共用标签云聚合', () => {
   const js = read(SRC);
   assert.match(js, /function buildCardBList\(viewType, arr\)\{[\s\S]*?viewType === 'role' \? \(r\.role \|\| ''\) : \(r\.story \|\| ''\)[\s\S]*?\}/,
-    '需求视图标签云仍需保留 buildCardBList 聚合');
-  assert.match(js, /function renderActorRoleTable\(\)\{\s*return\s*renderRoleEstimateCards\(\);?\s*\}/,
-    '声优视图必须切换到角色预估卡列表');
-  assert.match(js, /CAT_ORDER\s*=\s*\['指挥官','干员','Boss','AI兵','NPC','路人角色','AI系统音'\]/,
-    '固定大类顺序必须包含路人角色共 7 类');
+    '两种视图都必须保留 buildCardBList 聚合');
+  assert.match(js, /function renderActorRoleTable\(\)\{\s*return\s*renderActorSixBoard\('role'\);?\s*\}/,
+    '声优视图必须恢复为六板标签云');
+  assert.match(js, /CAT_ORDER\s*=\s*\['指挥官','干员','Boss','AI兵','NPC','AI系统音'\]/,
+    '声优视图固定使用声优库 6 类顺序');
+  assert.doesNotMatch(js, /role-estimate-card/, '不得残留独立角色卡片视图');
 });
 
 test('4. JS · boardHtml 渲染模板使用 cardB，不再用 lbe', () => {

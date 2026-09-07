@@ -14,6 +14,24 @@ const DETAIL_FIELDS = [
   ['预估句数','number'], ['实际句数','number'], ['角色校验','text'],
   ['原始角色名','text'], ['需求状态','text'], ['更新人','text'], ['更新时间','text']
 ];
+// 腾讯文档 MCP 每次调用有全局 1600ms 节流。缓存已验证的子表定位与记录快照，
+// 让同一进程内的连续编辑只产生真正需要的远程写调用；文档仍先于 MySQL 落盘。
+const DETAIL_CACHE_TTL_MS = 5 * 60 * 1000;
+const DETAIL_CACHE = new WeakMap();
+const DETAIL_LOCKS = new WeakMap();
+function detailCacheOf(mcp){
+  let cache=DETAIL_CACHE.get(mcp);
+  if(!cache){cache=new Map();DETAIL_CACHE.set(mcp,cache);}
+  return cache;
+}
+async function withDetailLock(mcp,file_id,work){
+  let locks=DETAIL_LOCKS.get(mcp);
+  if(!locks){locks=new Map();DETAIL_LOCKS.set(mcp,locks);}
+  const previous=(locks.get(file_id)||Promise.resolve()).catch(()=>{});
+  const current=previous.then(work);
+  locks.set(file_id,current);
+  try{return await current;}finally{if(locks.get(file_id)===current)locks.delete(file_id);}
+}
 
 function norm(v){
   return String(v == null ? '' : v).trim().toLowerCase().replace(/[\s·•\-—_（）()、【】\[\]]+/g, '');
@@ -50,19 +68,27 @@ function normalizeEstimateRows(demandId, release, rows){
   return [...out.values()];
 }
 
+function estimateRowChanged(old,row){
+  const textFields=['release_plan','language','category','role_name','match_status','source_role_name','story','demand_status'];
+  if(textFields.some(k=>String(old&&old[k]||'')!==String(row&&row[k]||'')))return true;
+  return Number(old&&old.estimated_lines||0)!==Number(row&&row.estimated_lines||0)
+    || Number(old&&old.actual_lines||0)!==Number(row&&row.actual_lines||0);
+}
 function buildUpsertPlan(existing, incoming){
   const oldMap = new Map((existing || []).map(r => [keyOf(r), r]));
   const newMap = new Map((incoming || []).map(r => [keyOf(r), r]));
   const toAdd = [], toUpdate = [], toDelete = [];
+  let unchanged=0;
   for(const [key, row] of newMap){
     const old = oldMap.get(key);
-    if(old) toUpdate.push(Object.assign({}, row, {record_id:old.record_id || old.id}));
-    else toAdd.push(row);
+    if(!old) toAdd.push(row);
+    else if(estimateRowChanged(old,row)) toUpdate.push(Object.assign({}, row, {record_id:old.record_id || old.id}));
+    else unchanged++;
   }
   for(const [key, row] of oldMap){
     if(!newMap.has(key) && (row.record_id || row.id)) toDelete.push(row.record_id || row.id);
   }
-  return {toAdd, toUpdate, toDelete};
+  return {toAdd, toUpdate, toDelete, unchanged};
 }
 
 function aggregateActualLineRows(rows, options){
@@ -174,9 +200,9 @@ function docRecordToRow(record){
   const f=fieldsObject(record);
   return {
     record_id:record.record_id||record.id,
-    demand_id:f['需求ID'], release_plan:f['发布计划'], language:f['语言'], category:f['大类'],
+    demand_id:f['需求ID'], release_plan:f['发布计划'], story:f['Story'], language:f['语言'], category:f['大类'],
     role_name:f['游戏角色名'], estimated_lines:Number(f['预估句数'])||0, actual_lines:Number(f['实际句数'])||0,
-    match_status:f['角色校验']||'exact', source_role_name:f['原始角色名']||null
+    match_status:f['角色校验']||'exact', source_role_name:f['原始角色名']||null, demand_status:f['需求状态']
   };
 }
 
@@ -258,8 +284,9 @@ function extractRecords(payload){
 }
 async function listAllRecords(mcp,file_id,sheet_id,cookie){
   const out=[]; let offset=0;
+  const field_titles=['唯一键','需求ID','发布计划','语言','大类','游戏角色名','预估句数','实际句数','角色校验','原始角色名'];
   for(let page=0;page<100;page++){
-    const payload=await mcp.listRecords(file_id,sheet_id,{offset,limit:100},cookie);
+    const payload=await mcp.listRecords(file_id,sheet_id,{offset,limit:100,field_titles},cookie);
     const part=extractRecords(payload); out.push(...part);
     if(part.length<100) break;
     offset+=part.length;
@@ -267,14 +294,51 @@ async function listAllRecords(mcp,file_id,sheet_id,cookie){
   return out;
 }
 
-async function upsertRoleDetailRecords(mcp, target, demand, rows, actor){
-  const all=await listAllRecords(mcp,target.file_id,target.sheet_id,target.cookie);
+async function roleDetailTargetHint(pool,file_id,release){
+  try{
+    const [rows]=await pool.query(`SELECT doc_table_id FROM voice_estimate_roles
+      WHERE doc_file_id=? AND release_plan=? AND doc_table_id IS NOT NULL AND doc_table_id<>'' LIMIT 1`,[file_id,release]);
+    return rows.length&&rows[0].doc_table_id ? String(rows[0].doc_table_id) : '';
+  }catch(_){return '';}
+}
+async function loadRoleDetailState(mcp,file_id,sheetHint){
+  const cache=detailCacheOf(mcp),now=Date.now(),hit=cache.get(file_id);
+  if(hit&&hit.expires_at>now&&Array.isArray(hit.records))return Object.assign({},hit,{cache_hit:true});
+  let target;
+  if(hit&&hit.expires_at>now&&hit.target)target=hit.target;
+  else if(sheetHint)target={file_id,sheet_id:sheetHint,cookie:await mcp.openSession()};
+  else target=await ensureRoleDetailTable(mcp,file_id);
+  const records=await listAllRecords(mcp,target.file_id,target.sheet_id,target.cookie);
+  const state={target,records,expires_at:Date.now()+DETAIL_CACHE_TTL_MS};
+  cache.set(file_id,state);
+  return Object.assign({},state,{cache_hit:false});
+}
+function storeRoleDetailState(mcp,file_id,target,records){
+  detailCacheOf(mcp).set(file_id,{target,records,expires_at:Date.now()+DETAIL_CACHE_TTL_MS});
+}
+function mutationRecord(row,demand,actor,record_id){
+  return {record_id,field_values:recordFields(row,demand,actor)};
+}
+async function upsertRoleDetailRecords(mcp, target, demand, rows, actor, knownRecords){
+  const all=Array.isArray(knownRecords)?knownRecords:await listAllRecords(mcp,target.file_id,target.sheet_id,target.cookie);
   const existing=all.map(docRecordToRow).filter(r=>String(r.demand_id)===String(demand.id));
-  const plan=buildUpsertPlan(existing,rows);
-  if(plan.toUpdate.length) await mcp.updateRecords(target.file_id,target.sheet_id,plan.toUpdate.map(r=>({record_id:r.record_id,field_values:recordFields(r,demand,actor)})),target.cookie);
-  if(plan.toAdd.length) await mcp.addRecords(target.file_id,target.sheet_id,plan.toAdd.map(r=>({field_values:recordFields(r,demand,actor)})),target.cookie);
+  const planRows=rows.map(r=>Object.assign({},r,{story:String(demand&&demand.task_name||''),demand_status:effectiveStatus(demand)}));
+  const plan=buildUpsertPlan(existing,planRows);
+  if(plan.toUpdate.length) await mcp.updateRecords(target.file_id,target.sheet_id,plan.toUpdate.map(r=>mutationRecord(r,demand,actor,r.record_id)),target.cookie);
+  let addedPayload=null;
+  if(plan.toAdd.length) addedPayload=await mcp.addRecords(target.file_id,target.sheet_id,plan.toAdd.map(r=>({field_values:recordFields(r,demand,actor)})),target.cookie);
   if(plan.toDelete.length) await mcp.deleteRecords(target.file_id,target.sheet_id,plan.toDelete,target.cookie);
-  return plan;
+
+  const deleted=new Set(plan.toDelete.map(String));
+  const updatedById=new Map(plan.toUpdate.map(r=>[String(r.record_id),mutationRecord(r,demand,actor,r.record_id)]));
+  let nextRecords=all.filter(r=>!deleted.has(String(r.record_id||r.id))).map(r=>updatedById.get(String(r.record_id||r.id))||r);
+  if(plan.toAdd.length){
+    const added=extractRecords(addedPayload);
+    if(added.length===plan.toAdd.length&&added.every(r=>r.record_id||r.id)){
+      nextRecords=nextRecords.concat(plan.toAdd.map((r,i)=>mutationRecord(r,demand,actor,added[i].record_id||added[i].id)));
+    }else nextRecords=null;
+  }
+  return Object.assign(plan,{nextRecords});
 }
 
 async function mirrorRows(pool,demand,rows,target,actor){
@@ -287,12 +351,15 @@ async function mirrorRows(pool,demand,rows,target,actor){
       const vals=[]; rows.forEach(r=>vals.push(r.role_name,r.language));
       await conn.query(`DELETE FROM voice_estimate_roles WHERE demand_id=? AND NOT (${clauses})`,[demand.id,...vals]);
     }else await conn.query('DELETE FROM voice_estimate_roles WHERE demand_id=?',[demand.id]);
-    for(const r of rows){
+    if(rows.length){
+      const tuple='(?,?,?,?,?,?,?,?,?,?,?,?,?)';
+      const placeholders=rows.map(()=>tuple).join(',');
+      const values=[];
+      rows.forEach(r=>values.push(r.demand_id,r.release_plan,r.language,r.category,r.role_name,r.role_id,r.estimated_lines,r.actual_lines,r.match_status,r.source_role_name,target.file_id,target.sheet_id,actor));
       await conn.query(`INSERT INTO voice_estimate_roles
         (demand_id,release_plan,language,category,role_name,role_id,estimated_lines,actual_lines,match_status,source_role_name,doc_file_id,doc_table_id,updated_by)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-        ON DUPLICATE KEY UPDATE release_plan=VALUES(release_plan),category=VALUES(category),role_id=VALUES(role_id),estimated_lines=VALUES(estimated_lines),actual_lines=VALUES(actual_lines),match_status=VALUES(match_status),source_role_name=VALUES(source_role_name),doc_file_id=VALUES(doc_file_id),doc_table_id=VALUES(doc_table_id),updated_by=VALUES(updated_by),revision=revision+1`,
-        [r.demand_id,r.release_plan,r.language,r.category,r.role_name,r.role_id,r.estimated_lines,r.actual_lines,r.match_status,r.source_role_name,target.file_id,target.sheet_id,actor]);
+        VALUES ${placeholders}
+        ON DUPLICATE KEY UPDATE release_plan=VALUES(release_plan),category=VALUES(category),role_id=VALUES(role_id),estimated_lines=VALUES(estimated_lines),actual_lines=VALUES(actual_lines),match_status=VALUES(match_status),source_role_name=VALUES(source_role_name),doc_file_id=VALUES(doc_file_id),doc_table_id=VALUES(doc_table_id),updated_by=VALUES(updated_by),revision=revision+1`,values);
     }
     const legacy=rows.map(r=>({role:r.role_name,category:r.category,language:r.language,est_lines:r.estimated_lines,actual_lines:r.actual_lines,match_status:r.match_status}));
     await conn.query('UPDATE demands SET voice_estimates=? WHERE id=?',[JSON.stringify(legacy),demand.id]);
@@ -301,6 +368,7 @@ async function mirrorRows(pool,demand,rows,target,actor){
 }
 
 async function saveDemandEstimates({pool,mcp,demand,rows,actor}){
+  const started=Date.now();
   await ensureTable(pool);
   const status=effectiveStatus(demand);
   if(!canEditEstimate(status)){ const e=new Error('estimate_locked'); e.statusCode=409; throw e; }
@@ -310,10 +378,20 @@ async function saveDemandEstimates({pool,mcp,demand,rows,actor}){
   normalized.forEach(r=>{const hit=byName.get(norm(r.role_name));if(!hit){const e=new Error('role_not_in_roster:'+r.role_name);e.statusCode=400;throw e;}r.role_id=hit.id;r.role_name=hit.role_cn;r.category=hit.module||r.category;r.match_status='exact';});
   const doc=await libraryDocForRelease(pool,demand.release_plan);
   if(!doc){const e=new Error('release_library_not_registered');e.statusCode=409;throw e;}
-  const target=await ensureRoleDetailTable(mcp,doc.file_id);
-  const plan=await upsertRoleDetailRecords(mcp,target,demand,normalized,actor);
-  await mirrorRows(pool,demand,normalized,target,actor);
-  return {rows:normalized,document:{file_id:target.file_id,sheet_id:target.sheet_id,url:doc.url},changes:{added:plan.toAdd.length,updated:plan.toUpdate.length,deleted:plan.toDelete.length}};
+  const sheetHint=await roleDetailTargetHint(pool,doc.file_id,demand.release_plan);
+  return withDetailLock(mcp,doc.file_id,async()=>{
+    const docStarted=Date.now();
+    const state=await loadRoleDetailState(mcp,doc.file_id,sheetHint);
+    const target=state.target;
+    const plan=await upsertRoleDetailRecords(mcp,target,demand,normalized,actor,state.records);
+    if(Array.isArray(plan.nextRecords))storeRoleDetailState(mcp,doc.file_id,target,plan.nextRecords);
+    else detailCacheOf(mcp).set(doc.file_id,{target,records:null,expires_at:Date.now()+DETAIL_CACHE_TTL_MS});
+    const docMs=Date.now()-docStarted;
+    const dbStarted=Date.now();
+    await mirrorRows(pool,demand,normalized,target,actor);
+    const dbMs=Date.now()-dbStarted;
+    return {rows:normalized,document:{file_id:target.file_id,sheet_id:target.sheet_id,url:doc.url},changes:{added:plan.toAdd.length,updated:plan.toUpdate.length,deleted:plan.toDelete.length,unchanged:plan.unchanged||0},timing:{total_ms:Date.now()-started,doc_ms:docMs,db_ms:dbMs,cache_hit:state.cache_hit}};
+  });
 }
 
 async function listEstimates(pool,filters){
@@ -383,6 +461,6 @@ function aggregateRoleCards(rows,demands){
 module.exports={
   CATEGORIES,CATEGORY_COLORS,DETAIL_TABLE_TITLE,DETAIL_FIELDS,canEditEstimate,isDelivered,effectiveStatus,
   normalizeEstimateRows,buildUpsertPlan,aggregateActualLineRows,deviationState,matchRoleName,aggregateRoleCards,
-  ensureTable,libraryDocForRelease,ensureRoleDetailTable,upsertRoleDetailRecords,saveDemandEstimates,listEstimates,syncActualLines,
+  ensureTable,libraryDocForRelease,ensureRoleDetailTable,upsertRoleDetailRecords,mirrorRows,saveDemandEstimates,listEstimates,syncActualLines,
   textValue,recordFields,docRecordToRow,norm,normRelease
 };

@@ -14,6 +14,18 @@ const templateSrc = fs.readFileSync(path.join(__dirname, '..', 'src', 'script_ta
 const mod = require('../src/voice_estimates');
 const mcpClient = require('../src/cw_mcp_client');
 
+function extractNamedFunction(source, name){
+  const start = source.indexOf(`function ${name}(`);
+  assert.notEqual(start, -1, `缺少函数 ${name}`);
+  const brace = source.indexOf('{', start);
+  let depth = 0;
+  for(let i=brace;i<source.length;i++){
+    if(source[i]==='{') depth++;
+    else if(source[i]==='}' && --depth===0) return source.slice(start,i+1);
+  }
+  throw new Error(`函数 ${name} 花括号不闭合`);
+}
+
 test('声优预估固定使用 7 大类并包含路人角色冷灰色', () => {
   assert.deepEqual(mod.CATEGORIES, ['指挥官','干员','Boss','AI兵','NPC','路人角色','AI系统音']);
   assert.equal(mod.CATEGORY_COLORS['路人角色'], '#7A8A96');
@@ -54,6 +66,68 @@ test('文档 upsert 计划区分新增、更新与删除', () => {
   assert.deepEqual(plan.toUpdate.map(x=>x.record_id), ['r1']);
   assert.deepEqual(plan.toAdd.map(x=>x.role_name), ['露娜']);
   assert.deepEqual(plan.toDelete, ['r2']);
+});
+
+test('文档 upsert 计划跳过完全未变化的角色，避免重复远程写入', () => {
+  const existing = [
+    { record_id:'r1', demand_id:'42', release_plan:'Yang1.0', role_name:'牧羊人', language:'cn', category:'干员', estimated_lines:16, actual_lines:3, match_status:'exact', source_role_name:null },
+  ];
+  const incoming = [
+    { demand_id:42, release_plan:'Yang1.0', role_name:'牧羊人', language:'cn', category:'干员', estimated_lines:16, actual_lines:3, match_status:'exact', source_role_name:null },
+  ];
+  const plan = mod.buildUpsertPlan(existing, incoming);
+  assert.equal(plan.toUpdate.length, 0);
+  assert.equal(plan.unchanged, 1);
+});
+
+test('同一文档连续保存复用角色明细定位与记录快照，只发送变更行', async () => {
+  const calls = {open:0,tables:0,fields:0,list:0,update:0,add:0,del:0};
+  let docRows = [{record_id:'r1',field_values:{
+    '唯一键':'42|牧羊人|cn','需求ID':'42','发布计划':'Yang1.0','Story':'测试需求','语言':'cn','大类':'干员','游戏角色名':'牧羊人','预估句数':10,'实际句数':0,'角色校验':'exact','原始角色名':'','需求状态':'文案ing','更新人':'tester','更新时间':'2026-09-07T00:00:00.000Z'
+  }}];
+  const conn = {async beginTransaction(){},async query(){return [[],[]];},async commit(){},async rollback(){},release(){}};
+  const pool = {
+    async query(sql){
+      if(/CREATE TABLE/.test(sql)) return [[],[]];
+      if(/FROM voice_roles/.test(sql)) return [[{id:1,module:'干员',role_cn:'牧羊人',role_en:'Shepherd'}],[]];
+      if(/FROM kv_store/.test(sql)) return [[{v:JSON.stringify({'Yang1.0':{file_id:'doc1',url:'https://docs.qq.com/smartsheet/doc1'}})}],[]];
+      if(/FROM voice_estimate_roles/.test(sql)&&/doc_table_id/.test(sql)) return [[{doc_table_id:'sheet1'}],[]];
+      throw new Error('unexpected query: '+sql);
+    },
+    async getConnection(){return conn;}
+  };
+  const mcp = {
+    async openSession(){calls.open++;return 'cookie';},
+    async listTables(){calls.tables++;return [{sheet_id:'sheet1',title:'角色需求明细'}];},
+    async listFields(){calls.fields++;return mod.DETAIL_FIELDS.map(([field_title])=>({field_title}));},
+    async listRecords(){calls.list++;return {records:docRows};},
+    async updateRecords(_f,_s,records){calls.update++;docRows=docRows.map(old=>{const hit=records.find(r=>r.record_id===old.record_id);return hit?{record_id:old.record_id,field_values:hit.field_values}:old;});return {ok:true};},
+    async addRecords(){calls.add++;return {records:[]};},
+    async deleteRecords(){calls.del++;return {ok:true};}
+  };
+  const demand={id:42,release_plan:'Yang1.0',manual_status:'文案ing',task_name:'测试需求'};
+  const first=await mod.saveDemandEstimates({pool,mcp,demand,rows:[{role_name:'牧羊人',category:'干员',language:'cn',estimated_lines:11}],actor:'tester'});
+  const second=await mod.saveDemandEstimates({pool,mcp,demand,rows:[{role_name:'牧羊人',category:'干员',language:'cn',estimated_lines:12}],actor:'tester'});
+  assert.equal(first.timing.cache_hit,false);
+  assert.equal(second.timing.cache_hit,true);
+  assert.deepEqual(calls,{open:1,tables:0,fields:0,list:1,update:2,add:0,del:0});
+});
+
+test('MySQL 镜像使用单次批量 upsert，角色多时不逐行等待', async () => {
+  const sqls=[];
+  const conn={
+    async beginTransaction(){},
+    async query(sql,params){sqls.push({sql,params});return [[],[]];},
+    async commit(){},
+    async rollback(){},
+    release(){}
+  };
+  const pool={async getConnection(){return conn;}};
+  const rows=['牧羊人','蜂医','红狼'].map((role_name,i)=>({demand_id:42,release_plan:'Yang1.0',language:'cn',category:'干员',role_name,role_id:i+1,estimated_lines:10+i,actual_lines:0,match_status:'exact',source_role_name:null}));
+  await mod.mirrorRows(pool,{id:42},rows,{file_id:'doc1',sheet_id:'sheet1'},'tester');
+  const inserts=sqls.filter(x=>/INSERT INTO voice_estimate_roles/.test(x.sql));
+  assert.equal(inserts.length,1);
+  assert.equal((inserts[0].sql.match(/\(\?,\?,\?,\?,\?,\?,\?,\?,\?,\?,\?,\?,\?\)/g)||[]).length,3);
 });
 
 test('偏差状态覆盖待交稿、未预估、超30%、负数和正常范围', () => {
@@ -144,6 +218,23 @@ test('腾讯文档写入失败时不得提前提交 MySQL 镜像', async () => {
   assert.equal(mirrored, false);
 });
 
+test('版本汇总同角色跨需求按合计显示，单需求历史中英记录仍只取较大值', () => {
+  const source = ['veList','veRecord','veResolved','veUnified'].map(name=>extractNamedFunction(demandHtml,name)).join('\n');
+  const VE_CATEGORIES=['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
+  const VE_ESTIMATE_INDEX=new Map([
+    ['d1',[{demand_id:'d1',category:'AI系统音',role_name:'CC（赛季）',language:'cn',estimated_lines:50}]],
+    ['d2',[{demand_id:'d2',category:'AI系统音',role_name:'CC（赛季）',language:'cn',estimated_lines:20}]],
+    ['d3',[
+      {demand_id:'d3',category:'AI系统音',role_name:'CC（赛季）',language:'cn',estimated_lines:50},
+      {demand_id:'d3',category:'AI系统音',role_name:'CC（赛季）',language:'en',estimated_lines:20},
+    ]],
+  ]);
+  const VE_UNIFIED_CACHE=new Map();
+  const {veUnified}=new Function('VE_CATEGORIES','VE_ESTIMATE_INDEX','VE_UNIFIED_CACHE',`${source};return {veUnified};`)(VE_CATEGORIES,VE_ESTIMATE_INDEX,VE_UNIFIED_CACHE);
+  assert.equal(veUnified({_releaseSummary:true,_releaseRows:[{id:'d1'},{id:'d2'}]})[0].est_lines,70);
+  assert.equal(veUnified({id:'d3'})[0].est_lines,50);
+});
+
 test('需求汇总声优预估大类与声优库一致且取消路人角色与编辑列', () => {
   const demandCats = demandHtml.match(/const VE_CATEGORIES=\[([^\]]+)\]/)?.[1].match(/'[^']+'/g)?.map(x=>x.slice(1,-1));
   const rosterCats = rosterHtml.match(/const order = \[([^\]]+)\]/)?.[1].match(/'[^']+'/g)?.map(x=>x.slice(1,-1));
@@ -166,14 +257,36 @@ test('点击大类单元格打开该类角色句数框且不区分中英', () =>
   assert.match(demandHtml, /data\.actual_sync\.ok\s*===\s*false/);
 });
 
-test('录制档期声优视图使用角色卡展示预估、实际、偏差与独立预约状态', () => {
-  assert.match(schedHtml, /role-estimate-card/);
-  assert.match(schedHtml, /预估/);
-  assert.match(schedHtml, /实际/);
-  assert.match(schedHtml, /未预估/);
-  assert.match(schedHtml, /待交稿/);
-  assert.match(schedHtml, /deviationState/);
-  assert.match(schedHtml, /'路人角色'/);
-  assert.match(schedHtml, /#7A8A96/);
+test('声优预估填写使用索引缓存、搜索帧合并与连续录入快捷键', () => {
+  assert.match(demandHtml, /const VE_ESTIMATE_INDEX=new Map\(\),VE_UNIFIED_CACHE=new Map\(\)/);
+  assert.match(demandHtml, /function rebuildVeEstimateIndex\(/);
+  assert.match(demandHtml, /function queueVeCategorySearch\(/);
+  assert.match(demandHtml, /requestAnimationFrame\(\(\)=>\{VE_SEARCH_RAF=0;renderVeCategoryRoles\(\);\}\)/);
+  assert.match(demandHtml, /function veLineKeydown\(event,input\)/);
+  assert.match(demandHtml, /event\.key==='Enter'/);
+  assert.match(demandHtml, /onfocus="this\.select\(\)"/);
+  assert.match(demandHtml, /onkeydown="veLineKeydown\(event,this\)"/);
+  assert.match(demandHtml, /VE_CATEGORY\.saving/);
+});
+
+test('声优预估滚动条与操作按钮使用战术风格且不显示系统箭头', () => {
+  assert.match(demandHtml, /\.ve-category-scroll::-webkit-scrollbar\{width:7px\}/);
+  assert.match(demandHtml, /\.ve-category-scroll::-webkit-scrollbar-button\{display:none;width:0;height:0\}/);
+  assert.match(demandHtml, /\.ve-stack::-webkit-scrollbar-button\{display:none;width:0;height:0\}/);
+  assert.match(demandHtml, /scrollbar-color:var\(--cat-color,#608980\) #0B1216/);
+  assert.match(demandHtml, /\.ve-category-actions \.btn\{[^}]*clip-path:polygon/);
+  assert.match(demandHtml, /\.ve-category-actions \.btn:not\(\.btn-primary\)\{background:#111B20/);
+  assert.match(demandHtml, /\.ve-category-actions \.btn-primary\{background:rgba\(255,210,76,\.055\)/);
+});
+
+test('录制档期声优视图回退为六板标签云但继续使用真实预估接口', () => {
+  assert.match(schedHtml, /function renderActorRoleTable\(\)\{\s*return\s*renderActorSixBoard\('role'\);?\s*\}/);
+  assert.match(schedHtml, /中文声优/);
+  assert.match(schedHtml, /英文声优/);
+  assert.match(schedHtml, /待预约/);
+  assert.match(schedHtml, /部分已约/);
+  assert.match(schedHtml, /已约完/);
+  assert.match(schedHtml, /cardB-tag/);
+  assert.doesNotMatch(schedHtml, /role-estimate-card/);
   assert.match(schedHtml, /\/api\/voice-estimates/);
 });

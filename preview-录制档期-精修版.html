@@ -599,16 +599,6 @@ body.embed .main{width:100%}
 .actor-btn.secondary{border-color:var(--c-hairline);color:var(--c-text-2)}
 .actor-btn.secondary:hover{background:var(--c-hairline);color:var(--c-text)}
 .actor-empty{padding:60px 20px;text-align:center;color:var(--c-text-mute);font-size:13px;line-height:1.8}
-/* 声优视图 v2：按角色×语言聚合的卡片列表；偏差只在卡片汇总行展示 */
-.role-estimate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;padding:12px}
-.role-estimate-card{position:relative;background:#111B20;border:1px solid var(--c-hairline);border-radius:10px;padding:14px;overflow:hidden}
-.role-estimate-card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--cat-color,#7A8A96)}
-.rec-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}.rec-role{font-size:15px;font-weight:700;color:var(--c-text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rec-lang{padding:2px 7px;border:1px solid var(--c-hairline);border-radius:3px;color:var(--c-text-2);font-size:10px}.rec-cat{margin-left:auto;color:var(--cat-color,#7A8A96);font-size:11px;font-weight:600}
-.rec-metrics{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:6px}.rec-metric{background:#0B1216;border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:8px}.rec-metric .k{display:block;color:var(--c-text-mute);font-size:10px;margin-bottom:4px}.rec-metric .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--c-text)}.rec-metric .u{font-size:10px;color:var(--c-text-dim);margin-left:2px}
-.rec-delta .v.normal{color:var(--c-primary)}.rec-delta .v.over{color:#D699BE}.rec-delta .v.negative,.rec-delta .v.unestimated,.rec-delta .v.waiting{color:var(--c-text-mute);font-size:13px}
-.rec-foot{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.07)}.rec-demand-count{font-size:11px;color:var(--c-text-mute)}.rec-booking{margin-left:auto;font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid var(--c-hairline)}.rec-booking.pending{color:var(--c-brand-yellow);border-color:rgba(255,210,76,.35)}.rec-booking.booked{color:var(--c-primary);border-color:rgba(15,247,150,.35)}
-.rec-unmatched{margin-top:8px;color:var(--c-brand-yellow);font-size:11px}
-
 /* ============ 字体系统 · 全站统一收敛（录制档期） ============ */
 /* 数字/时间/编号 → 等宽（JetBrains Mono）；中文正文 → Inter+YaHei，不混排 */
 :root{
@@ -944,8 +934,8 @@ function actorEsc(s){ return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&
 // 声优视图按「所属大类」(category/module) 聚合；需求视图按「AREA」(demand.area) 聚合。
 // 大类顺序沿用 CAT_ORDER；配色改用声优库 v13.2 真源（与 preview-声优库-精修版.html 完全一致）。
 // 指挥官 #727665 / 干员 #CEA06C / Boss #E9E6DF / AI兵 #D3DFDD / NPC #474C40 / AI系统音 #608980
-const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'路人角色':6,'AI系统音':7};
-const CAT_COLORS = {'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','路人角色':'#7A8A96','AI系统音':'#608980','未匹配':'#7A8A96'};
+const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'AI系统音':6};
+const CAT_COLORS = {'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','AI系统音':'#608980','未匹配':'#7A8A96'};
 const ROLE_CATEGORY_MAP = new Map(); // role_cn -> category
 const ROLE_META_MAP = new Map();
 function setRoleCategoryMap(rows){
@@ -1136,9 +1126,9 @@ function renderFilterBar(){
   } else {
     /* 角色视图：大类维度（按数据动态统计角色去重数，2026-09-07 用户定稿） */
     var rows = ACTOR_STATE.estimates || [];
-    var seenByCat = {'指挥官':{}, '干员':{}, 'Boss':{}, 'AI兵':{}, 'NPC':{}, '路人角色':{}, 'AI系统音':{}};
+    var seenByCat = {'指挥官':{}, '干员':{}, 'Boss':{}, 'AI兵':{}, 'NPC':{}, 'AI系统音':{}};
     var seenAll = {};
-    var catCnt = {'指挥官':0, '干员':0, 'Boss':0, 'AI兵':0, 'NPC':0, '路人角色':0, 'AI系统音':0};
+    var catCnt = {'指挥官':0, '干员':0, 'Boss':0, 'AI兵':0, 'NPC':0, 'AI系统音':0};
     var total = 0;
     rows.forEach(function(r){
       var role = String(r.role_name || r.role || '').trim();
@@ -1155,7 +1145,7 @@ function renderFilterBar(){
     });
     var label = '<span class="tb-label">大类</span>';
     var pills = '<button class="tb-btn'+(ACTOR_STATE.cat==='all'?' on':'')+'" data-cat="all" onclick="setActorCat(\'all\',this)">全部 <span class="dim-count">'+total+'</span></button>';
-    ['指挥官','干员','Boss','AI兵','NPC','路人角色','AI系统音'].forEach(function(c){
+    ['指挥官','干员','Boss','AI兵','NPC','AI系统音'].forEach(function(c){
       var isOn = ACTOR_STATE.cat === c;
       pills += '<button class="tb-btn'+(isOn?' on':'')+'" data-cat="'+c+'" onclick="setActorCat(\''+c+'\',this)">'+c+' <span class="dim-count">'+catCnt[c]+'</span></button>';
     });
@@ -1757,7 +1747,7 @@ function renderActorRollup(){
       const cp = catPendingStats;
       if(areasEl){
         // 预设大类顺序（与侧栏 tab 顺序一致），非预设项追加在末
-        const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','路人角色','AI系统音'];
+        const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
         const extras = Object.keys(cp.cnt).filter(c => CAT_ORDER.indexOf(c) < 0);
         const order = CAT_ORDER.concat(extras).filter(c => (cp.cnt[c]||0) > 0);
         if(order.length){
@@ -2045,7 +2035,7 @@ function renderActorSixBoard(viewType){
       card.totalCount++;
     });
     // 固定 6 类声优大类（保留原守卫测试字面量）· 仅 role 视图使用
-    const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','路人角色','AI系统音'];
+    const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
     // AREA 流程优先级（需求视图使用）：从 SOL 战斗玩法，到剧情/多人协作，到商业化
     const AREA_ORDER = ['SOL','大战场','撤离','系统','剧情','多人','商业化'];
     const ORDER = viewType === 'role' ? CAT_ORDER : AREA_ORDER;
@@ -2091,39 +2081,8 @@ function renderActorSixBoard(viewType){
       : '');
 }
 
-// 声优视图：角色卡列表。偏差仅在卡片汇总行展示；预约状态与预估/实际独立。
-function renderRoleEstimateCards(){
-  const grid=document.getElementById('actorRoleTbody'),empty=document.getElementById('actorRoleEmpty');if(!grid||!empty)return;
-  const q=(document.getElementById('actorSearch')?.value||'').trim().toLowerCase();
-  let list=aggregateActors(ACTOR_STATE.demands,ACTOR_STATE.release).filter(r=>{
-    if(ACTOR_STATE.lang!=='all'&&r.lang!==ACTOR_STATE.lang)return false;
-    if(ACTOR_STATE.cat!=='all'&&r.category!==ACTOR_STATE.cat)return false;
-    if(ACTOR_STATE.status!=='all'&&r.status!==ACTOR_STATE.status)return false;
-    if(ACTOR_STATE.pendingOnly&&r.status!=='pending')return false;
-    if(ACTOR_STATE.gender!=='all'){
-      const g=String(r.gender||genderOf(r.role)||'').toLowerCase();
-      if(ACTOR_STATE.gender==='male'&&!['m','male','男'].includes(g))return false;
-      if(ACTOR_STATE.gender==='female'&&!['f','female','女'].includes(g))return false;
-    }
-    return !q||(r.role+' '+r.actor+' '+r.covers.map(x=>x.story).join(' ')).toLowerCase().includes(q);
-  });
-  if(!list.length){grid.innerHTML='';empty.style.display='block';empty.innerHTML=ACTOR_STATE.estimates.length?'当前筛选下暂无角色。':'当前版本还没有声优预估记录。';return;}
-  empty.style.display='none';grid.className='role-estimate-grid';
-  grid.innerHTML=list.map(r=>{
-    const d=r.deviation||deviationState(r.total,r.actual,{delivered:r.delivered,total:r.demandTotal});
-    const actual=r.delivered===0?'—':r.actual;
-    const booking=r.status==='booked'?'已预约':'待预约';
-    const progress=r.delivered>0&&r.delivered<r.demandTotal?`实际为已交稿 ${r.delivered}/${r.demandTotal} 需求`:(r.delivered===r.demandTotal?'全部已交稿':'全部待交稿');
-    return `<article class="role-estimate-card" style="--cat-color:${CAT_COLORS[r.category]||'#7A8A96'}">
-      <div class="rec-head"><span class="rec-role">${escHtmlSafe(r.role)}</span><span class="rec-lang">${r.lang==='en'?'英配':'中配'}</span><span class="rec-cat">${escHtmlSafe(r.category||'未匹配')}</span></div>
-      <div class="rec-metrics"><div class="rec-metric"><span class="k">预估</span><span class="v">${r.total}<span class="u">句</span></span></div><div class="rec-metric"><span class="k">实际</span><span class="v">${actual}${actual==='—'?'':'<span class="u">句</span>'}</span></div><div class="rec-metric rec-delta"><span class="k">偏差</span><span class="v ${d.kind}">${d.label}</span></div></div>
-      <div class="rec-foot"><span class="rec-demand-count" data-tip="${escHtmlSafe(progress)}">${r.demandTotal} 个需求 · ${escHtmlSafe(r.actor||'未绑定声优')}</span><span class="rec-booking ${r.status}">${booking}</span></div>
-      ${r.unmatched?`<div class="rec-unmatched">${r.unmatched} 条角色名未匹配，请检查台词库</div>`:''}
-    </article>`;
-  }).join('');
-}
-
-function renderActorRoleTable(){ return renderRoleEstimateCards(); }
+// 薄包装：声优视图恢复为与需求视图同构的 6 板标签云。
+function renderActorRoleTable(){ return renderActorSixBoard('role'); }
 function renderActorDemandTable(){ return renderActorSixBoard('demand'); }
 
 function setActorView(mode, btn, evt){

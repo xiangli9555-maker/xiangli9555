@@ -49,12 +49,12 @@ test('即将录制零数据时显示当月无安排提示', () => {
   assert.match(SRC, /月暂无待录制安排/, '空月提示文案应保留');
 });
 
-// ---------- 3. 声优视图角色卡（2026-09-07：只展示角色明细表中有记录的角色） ----------
-test('声优视图无预估记录时为空态，有记录时走角色卡列表', () => {
-  assert.match(SRC, /function renderRoleEstimateCards\(/, '应存在角色预估卡渲染入口');
-  assert.match(SRC, /function renderActorRoleTable\(\)\{\s*return\s*renderRoleEstimateCards\(\);?\s*\}/, '声优视图应切换到角色卡列表');
-  assert.match(SRC, /当前版本还没有声优预估记录/, '没有任何需求选中角色时应显示明确空态，不生成虚构角色卡');
-  assert.match(SRC, /role-estimate-card/, '有记录时应输出角色卡');
+// ---------- 3. 声优视图骨架（2026-09-07：回退到与需求视图同构的 6 板标签云） ----------
+test('声优视图使用 6 板标签云并保留零数据骨架', () => {
+  assert.match(SRC, /function renderActorSixBoard\(/, '应存在共用 6 板入口');
+  assert.match(SRC, /function renderActorRoleTable\(\)\{\s*return\s*renderActorSixBoard\('role'\);?\s*\}/, '声优视图应恢复为 role 六板薄包装');
+  assert.match(SRC, /lbe-skel|lb-skeleton|待录入声优预估/, '应给出与需求视图一致的骨架语义');
+  assert.doesNotMatch(SRC, /role-estimate-card/, '不得残留独立角色卡片视图');
 });
 
 // ---------- 4. 不得引入虚构数据 ----------

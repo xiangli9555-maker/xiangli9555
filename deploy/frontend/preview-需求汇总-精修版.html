@@ -74,43 +74,36 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 /* filter chip 圆点样式（替代 emoji） */
 .chip-num{opacity:.55;font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:2px}
 .chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
-.chip-prog i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
 /* ★ 状态芯片 · 声优库战术色板（2026-09-07）：
-   待澄清=指挥官 / 文案ing=干员 / 已交稿=Boss / Vo ing=AI系统音 / Done=NPC。
-   色点与描边坚持 CAT_COLORS 原色；暗色仅文字使用 CAT_INKS 提亮，保持深底可读。 */
+   待澄清=指挥官 / 文案ing=干员 / 已交稿=AI兵 / Vo ing=AI系统音 / Done=NPC。
+   顶部筛选不再使用圆点，状态仅由文字、描边与选中底色表达；暗色文字使用 CAT_INKS 提亮。 */
 .chip-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-mute);border-radius:12px;font-size:11px;cursor:pointer;transition:all .12s;letter-spacing:.2px;font-weight:500}
-.chip-status i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:middle}
 
 .chip-status.chip-prog-pending{color:#A8AD94;border-color:rgba(114,118,101,.55)}
 .chip-status.chip-prog-pending:hover{color:#A8AD94;border-color:#727665;background:rgba(114,118,101,.10)}
 .chip-status.chip-prog-pending.on{color:#A8AD94;border-color:#727665;background:rgba(114,118,101,.14);box-shadow:inset 0 0 0 1px rgba(114,118,101,.38),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-pending i{background:#727665;box-shadow:0 0 4px rgba(114,118,101,.55)}
 
 .chip-status.chip-prog-writing{color:#CEA06C;border-color:rgba(206,160,108,.50)}
 .chip-status.chip-prog-writing:hover{color:#CEA06C;border-color:#CEA06C;background:rgba(206,160,108,.08)}
 .chip-status.chip-prog-writing.on{color:#CEA06C;border-color:#CEA06C;background:rgba(206,160,108,.12);box-shadow:inset 0 0 0 1px rgba(206,160,108,.35),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-writing i{background:#CEA06C;box-shadow:0 0 4px rgba(206,160,108,.50)}
 
-.chip-status.chip-prog-handover{color:#E9E6DF;border-color:rgba(233,230,223,.45)}
-.chip-status.chip-prog-handover:hover{color:#E9E6DF;border-color:#E9E6DF;background:rgba(233,230,223,.07)}
-.chip-status.chip-prog-handover.on{color:#E9E6DF;border-color:#E9E6DF;background:rgba(233,230,223,.10);box-shadow:inset 0 0 0 1px rgba(233,230,223,.30),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-handover i{background:#E9E6DF;box-shadow:0 0 4px rgba(233,230,223,.42)}
+.chip-status.chip-prog-handover{color:#D3DFDD;border-color:rgba(211,223,221,.45)}
+.chip-status.chip-prog-handover:hover{color:#D3DFDD;border-color:#D3DFDD;background:rgba(211,223,221,.07)}
+.chip-status.chip-prog-handover.on{color:#D3DFDD;border-color:#D3DFDD;background:rgba(211,223,221,.10);box-shadow:inset 0 0 0 1px rgba(211,223,221,.30),inset 0 -2px 0 currentColor}
 
 .chip-status.chip-prog-vo{color:#7FB0A6;border-color:rgba(96,137,128,.55)}
 .chip-status.chip-prog-vo:hover{color:#7FB0A6;border-color:#608980;background:rgba(96,137,128,.10)}
 .chip-status.chip-prog-vo.on{color:#7FB0A6;border-color:#608980;background:rgba(96,137,128,.14);box-shadow:inset 0 0 0 1px rgba(96,137,128,.38),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-vo i{background:#608980;box-shadow:0 0 4px rgba(96,137,128,.55)}
 
 .chip-status.chip-prog-done{color:#8B937E;border-color:rgba(71,76,64,.58)}
 .chip-status.chip-prog-done:hover{color:#8B937E;border-color:#474C40;background:rgba(71,76,64,.12)}
 .chip-status.chip-prog-done.on{color:#8B937E;border-color:#474C40;background:rgba(71,76,64,.16);box-shadow:inset 0 0 0 1px rgba(71,76,64,.42),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-done i{background:#474C40;box-shadow:0 0 4px rgba(71,76,64,.58)}
 /* ★ 状态 HUD · 玻璃军事风（2026-09-07 定稿：精简 A 方案，去掉色点+状态码，只保留文字）
    5 态统一复用声优库 CAT_COLORS / CAT_INKS，顶部筛选芯片、HUD 与行首状态灯保持同源。 */
 .va-hud{position:relative;display:inline-flex;align-items:center;justify-content:center}
 .va-hud[data-stage="待澄清"],.va-hud-opt[data-stage="待澄清"]{--hud-c:#A8AD94;--hud-bd:rgba(114,118,101,.55);--hud-bg:rgba(114,118,101,.14)}
 .va-hud[data-stage="文案ing"],.va-hud-opt[data-stage="文案ing"]{--hud-c:#CEA06C;--hud-bd:rgba(206,160,108,.50);--hud-bg:rgba(206,160,108,.12)}
-.va-hud[data-stage="已交稿"],.va-hud-opt[data-stage="已交稿"]{--hud-c:#E9E6DF;--hud-bd:rgba(233,230,223,.45);--hud-bg:rgba(233,230,223,.10)}
+.va-hud[data-stage="已交稿"],.va-hud-opt[data-stage="已交稿"]{--hud-c:#D3DFDD;--hud-bd:rgba(211,223,221,.45);--hud-bg:rgba(211,223,221,.10)}
 .va-hud[data-stage="Vo ing"],.va-hud-opt[data-stage="Vo ing"]{--hud-c:#7FB0A6;--hud-bd:rgba(96,137,128,.55);--hud-bg:rgba(96,137,128,.14)}
 .va-hud[data-stage="Done"],.va-hud-opt[data-stage="Done"]{--hud-c:#8B937E;--hud-bd:rgba(71,76,64,.58);--hud-bg:rgba(71,76,64,.16)}
 .va-hud-trigger{
@@ -317,7 +310,7 @@ tbody tr td:first-child::before{content:'';position:absolute;left:0;top:0;bottom
 /* 行首状态灯 · 与"状态"列 5 态色系一致（声优库 CAT_COLORS 原色） */
 tbody tr[data-stage="待澄清"] td:first-child::before{background:#727665;opacity:.75}
 tbody tr[data-stage="文案ing"] td:first-child::before{background:#CEA06C}
-tbody tr[data-stage="已交稿"] td:first-child::before{background:#E9E6DF}
+tbody tr[data-stage="已交稿"] td:first-child::before{background:#D3DFDD}
 tbody tr[data-stage="Vo ing"] td:first-child::before{background:#608980}
 tbody tr[data-stage="Done"] td:first-child::before{background:#474C40;opacity:.85}
 /* Done 行：视觉沉底（降透明度，悬停恢复可读） */
@@ -753,15 +746,15 @@ body.embed .mid{width:100%}
 
     <!-- 筛选区（三行分组：状态 / 分类 / 文案策划）· 2026-07-24 排版整理 -->
     <div class="filter-groups">
-      <!-- 状态：4 态色板对齐 -->
+      <!-- 状态：5 态声优库色板，无前置圆点 -->
       <div class="filter-row status-row" id="statusRow">
         <span class="flabel">STATUS</span>
         <div class="chip-filter on" data-fk="status" data-fv="">全部<span class="chip-num" id="cnt-status-all">—</span></div>
-        <div class="chip-status chip-prog chip-prog-pending"  data-fk="status" data-fv="待澄清"><i></i>待澄清<span class="chip-num" id="cnt-pending">—</span></div>
-        <div class="chip-status chip-prog chip-prog-writing"  data-fk="status" data-fv="文案ing"><i></i>文案ing<span class="chip-num" id="cnt-writing">—</span></div>
-        <div class="chip-status chip-prog chip-prog-handover" data-fk="status" data-fv="已交稿"><i></i>已交稿<span class="chip-num" id="cnt-handover">—</span></div>
-        <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="Vo ing"><i></i>Vo ing<span class="chip-num" id="cnt-vo">—</span></div>
-        <div class="chip-status chip-prog chip-prog-done"     data-fk="status" data-fv="Done"><i></i>Done<span class="chip-num" id="cnt-done">—</span></div>
+        <div class="chip-status chip-prog chip-prog-pending"  data-fk="status" data-fv="待澄清">待澄清<span class="chip-num" id="cnt-pending">—</span></div>
+        <div class="chip-status chip-prog chip-prog-writing"  data-fk="status" data-fv="文案ing">文案ing<span class="chip-num" id="cnt-writing">—</span></div>
+        <div class="chip-status chip-prog chip-prog-handover" data-fk="status" data-fv="已交稿">已交稿<span class="chip-num" id="cnt-handover">—</span></div>
+        <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="Vo ing">Vo ing<span class="chip-num" id="cnt-vo">—</span></div>
+        <div class="chip-status chip-prog chip-prog-done"     data-fk="status" data-fv="Done">Done<span class="chip-num" id="cnt-done">—</span></div>
       </div>
       <!-- 历史归档：STATUS 行整行 → 动态 RELEASE chip 行（2026-09-04 方案 A；仅 filterRelease==='__archive__' 时显示） -->
       <div class="filter-row release-row" id="releaseRow" style="display:none">

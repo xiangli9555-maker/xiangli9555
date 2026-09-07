@@ -479,7 +479,7 @@ test('1470×956 版本节点三类时间表只纵向滚动并取消固定最小�
     assert.match(page, /\.yc-scroll\{[^}]*overflow-y:auto;overflow-x:hidden/);
     assert.match(page, /\.yc-table,\.wk-table,\.day-table\{min-width:0!important;width:100%;table-layout:fixed\}/);
     assert.match(page, /\.yc-table col:nth-child\(n\+3\):not\(:last-child\)\{width:auto!important\}/, '窄屏必须覆盖年历脚本注入的固定周列宽');
-    assert.match(page, /\.right-panel\{width:176px/);
+    assert.match(page, /\.right-panel\{width:216px/);
   });
 });
 

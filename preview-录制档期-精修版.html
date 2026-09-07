@@ -330,10 +330,31 @@ body.embed .main{width:100%}
 .actor-toolbar .tb-btn.tb-icon.on[data-gender="male"]{background:#60A5FA;border-color:#60A5FA;box-shadow:0 0 8px rgba(96,165,250,.40)}
 .actor-toolbar .tb-btn.tb-icon.on[data-gender="female"]{background:#F0ABFC;border-color:#F0ABFC;box-shadow:0 0 8px rgba(240,171,252,.40)}
 .actor-toolbar .tb-btn.tb-icon.on[data-gender] .g-icon{color:#0F171C}
+
+/* 搜索历史下拉（2026-09-07 谷歌风格 + 玻璃绿 UI + 5 条内 + 紧凑） */
+.search-host{position:relative;display:inline-block;flex:0 0 auto}
+.search-history{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(15,23,28,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(15,247,150,.32);border-radius:10px;padding:6px 6px 4px;z-index:6100;box-shadow:0 8px 24px rgba(0,0,0,.45);outline:none;font-family:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif}
+.search-history::before{content:"";position:absolute;left:18px;top:-5px;width:8px;height:8px;background:rgba(15,23,28,.92);border-left:1px solid rgba(15,247,150,.32);border-top:1px solid rgba(15,247,150,.32);transform:rotate(45deg)}
+.sh-head{font-size:10.5px;color:var(--c-text-dim);letter-spacing:.8px;padding:4px 8px 6px;text-transform:uppercase;font-weight:500;font-family:var(--font-ui)}
+.sh-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:1px}
+.sh-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--c-text);transition:background .12s;font-weight:400}
+.sh-item:hover,.sh-item.active{background:rgba(15,247,150,.08);color:#fff}
+.sh-item .ico{flex-shrink:0;width:14px;height:14px;color:var(--c-text-dim);opacity:.65}
+.sh-item.hit .label{color:var(--c-primary)}
+.sh-item .label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif}
+.sh-item .del{flex-shrink:0;width:18px;height:18px;border:0;background:transparent;color:var(--c-text-dim);cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;opacity:0;transition:opacity .12s, background .12s, color .12s;font-family:inherit;padding:0}
+.sh-item:hover .del{opacity:.7}
+.sh-item .del:hover{background:rgba(214,153,190,.18);color:var(--c-danger);opacity:1}
+.sh-empty{font-size:12px;color:var(--c-text-dim);padding:10px 8px;text-align:center;font-style:normal}
+.sh-clear{margin-top:4px;padding:6px 8px;border:0;background:transparent;color:var(--c-primary);font-size:11px;cursor:pointer;border-radius:6px;width:100%;font-family:inherit;letter-spacing:.3px;transition:background .12s}
+.sh-clear:hover{background:rgba(15,247,150,.08)}
 /* 状态图标 */
 /* 风险公告（替换原 4 张统计卡） */
 /* 风险公告 v2 · 与主表 3 级字体音阶对齐 */
-.risk-banner{display:flex;align-items:center;gap:20px;padding:14px 18px;background:linear-gradient(90deg,rgba(255,210,76,.04) 0%,rgba(255,210,76,.012) 60%,transparent 100%);border:1px solid rgba(255,210,76,.28);border-radius:8px;margin:18px 0 16px;position:relative;flex-shrink:0;min-height:0}
+.risk-row{display:flex;align-items:stretch;gap:12px;margin:18px 0 16px;flex-shrink:0;min-width:0}
+.risk-row .risk-banner{flex:1 1 auto;min-width:0;margin:0}
+.risk-row .risk-stats{flex:0 0 auto;display:flex;gap:10px;align-items:stretch}
+.risk-banner{display:flex;align-items:center;gap:20px;padding:14px 18px;background:linear-gradient(90deg,rgba(255,210,76,.04) 0%,rgba(255,210,76,.012) 60%,transparent 100%);border:1px solid rgba(255,210,76,.28);border-radius:8px;position:relative;flex-shrink:0;min-height:0}
 .risk-icon{margin-top:1px}
 .risk-banner::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFD24C}
 .risk-banner.calm{background:linear-gradient(90deg,rgba(15,247,150,.08) 0%,rgba(15,247,150,.02) 60%,transparent 100%);border-color:rgba(15,247,150,.28)}
@@ -346,8 +367,14 @@ body.embed .main{width:100%}
 .risk-title{font-size:14px;font-weight:700;color:#FFD24C;letter-spacing:.3px;line-height:1.3;font-family:'Inter','Microsoft YaHei UI',sans-serif}
 /* L2 副标题：12/500 灰 */
 .risk-sub{font-size:12px;color:var(--c-text-mute);font-family:'Inter','Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif;line-height:1.4;font-weight:400;letter-spacing:.2px}
-.risk-stats{display:flex;align-items:center;gap:28px;flex-shrink:0}
-.risk-stats .risk-stat{display:flex;flex-direction:column;align-items:flex-end;gap:4px;line-height:1.1}
+/* 独立 stat 卡片 · 2026-09-07 卡片分离改造：
+   从 banner 内抽出，作为 .risk-row 的兄弟。两张 stat 卡片本身有独立背景+边框+圆角，
+   视觉上与 banner「各司其职」——banner 谈「谁没约」、stat 谈「影响多大」。 */
+.risk-stats .risk-stat{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;line-height:1.1;min-width:118px;padding:10px 14px;background:rgba(20,30,36,.62);border:1px solid var(--c-hairline);border-radius:8px;position:relative}
+.risk-stats .risk-stat::after{content:"";position:absolute;left:0;top:8px;bottom:8px;width:2px;border-radius:2px;background:var(--c-text-dim);opacity:.55}
+.risk-stats .risk-stat.warn::after{background:#FFD24C;opacity:.85}
+.risk-stats .risk-stat.ok::after{background:var(--c-primary);opacity:.85}
+.risk-stats .risk-stat.ok::after{background:var(--c-primary);opacity:.85}
 /* L3 标签：10.5/500，跟大类分节对齐 */
 .risk-stats .risk-stat .k{font-size:10.5px;letter-spacing:1px;color:var(--c-text-dim);font-family:var(--font-ui);text-transform:uppercase;font-weight:500}
 /* L1 数值：18/700，等宽数字 */
@@ -613,19 +640,14 @@ body.embed .main{width:100%}
   .day{font-size:13px}
 }
 
-/* 2026-08-31: 风险预警右侧 stats（受影响需求 / 距 VO 资源交付） · 放大填满框
- * 值 18→28px，标签 10.5→12.5px，单位 10.5→13px，行距 4→6，两组间隔 28→36
- * banner 主轴 align-items 从 flex-start → center，让 stats 组在整个 banner 高度里垂直居中 */
-.risk-banner{align-items:center !important}
-.risk-stats{gap:36px !important;align-self:center !important}
-.risk-stats .risk-stat{gap:6px !important}
-.risk-stats .risk-stat .k{font-size:12.5px !important;letter-spacing:1.2px !important;font-weight:600 !important}
-.risk-stats .risk-stat .v{font-size:28px !important;letter-spacing:.5px !important;gap:5px !important}
-/* 2026-08-31: 数字统一灰色（用户觉得黄+白太花哨），warn/ok 状态色都收敛到 text-2 */
-.risk-stats .risk-stat .v,
-.risk-stats .risk-stat .v.warn,
-.risk-stats .risk-stat .v.ok{color:var(--c-text-2) !important;opacity:1 !important}
-.risk-stats .risk-stat .v .unit{font-size:13px !important;letter-spacing:.8px !important}
+/* 2026-09-07 卡片分离改造：banner 内不再有 stats，stats 已成为独立卡片（最小 118px），
+   紧凑屏（≤1500px）下 stats 卡片可隐藏其一避免挤压；banner 自身保留 9px 紧凑 padding */
+.risk-row{gap:10px !important;margin:14px 0 12px !important}
+.risk-row .risk-stats{gap:8px !important}
+.risk-row .risk-stats .risk-stat{min-width:96px;padding:8px 10px !important}
+.risk-row .risk-stats .risk-stat .k{font-size:9.5px !important;letter-spacing:.8px !important}
+.risk-row .risk-stats .risk-stat .v{font-size:18px !important;letter-spacing:.3px !important}
+.risk-row .risk-stats .risk-stat .v .unit{font-size:10px !important;letter-spacing:.6px !important}
 
 /* ============================================================
  * ★ 字体系统 · 最终统一覆盖层（2026-08-31 v2 · 截图调档）★
@@ -744,17 +766,23 @@ body.embed .main{width:100%}
 
     <!-- 视图切换已并入演员汇总的 toolbar（"按角色 / 按需求"） -->
 
-    <!-- 页面级风险预警横幅（跨「需求视图 / 声优视图」共享，置于两 tab 上方） -->
-    <div class="risk-banner" id="riskBanner">
-      <div class="risk-icon">⚠</div>
-      <div class="risk-body">
-        <div class="risk-title" id="riskTitle">计算中…</div>
-        <!-- AREA 圆框 pill 列表：默认隐藏，banner 计算后填充（calm 态也显示但用主色）；位于 title 与 sub 之间 -->
-        <div class="risk-areas" id="riskAreas" hidden></div>
-        <div class="risk-sub" id="riskSub">正在汇总当前版本的中英配预约状态。</div>
+    <!-- 页面级风险预警横幅（跨「需求视图 / 声优视图」共享，置于两 tab 上方）
+         2026-09-07 卡片分离改造：banner 专注「谁没约」（title + AREA/cat 胶囊行），
+         统计卡片（受影响需求 / 距 VO 资源交付）从 banner 内抽出来作为 .risk-row 的兄弟，
+         由 .risk-row 容器统一做三块 flex 自适应 -->
+    <div class="risk-row" id="riskRow">
+      <div class="risk-banner" id="riskBanner">
+        <div class="risk-icon">⚠</div>
+        <div class="risk-body">
+          <div class="risk-title" id="riskTitle">计算中…</div>
+          <!-- AREA 圆框 pill 列表：默认隐藏，banner 计算后填充（calm 态也显示但用主色）；位于 title 与 sub 之间 -->
+          <div class="risk-areas" id="riskAreas" hidden></div>
+          <div class="risk-sub" id="riskSub">正在汇总当前版本的中英配预约状态。</div>
+        </div>
+        <!-- 风险预警快捷筛选（2026-09-03 加回）：跨视图共享，置于 banner 最右 -->
+        <button id="riskAction" class="risk-action" type="button" aria-pressed="false" data-tip="只显示尚未预约档期的项">仅看未预约</button>
       </div>
-      <!-- 风险预警快捷筛选（2026-09-03 加回）：跨视图共享，置于 body 与 stats 之间 -->
-      <button id="riskAction" class="risk-action" type="button" aria-pressed="false" data-tip="只显示尚未预约档期的项">仅看未预约</button>
+      <!-- 统计卡片：两个独立 stat 卡片（玻璃深底 + hairline 边框），从 banner 物理分离 -->
       <div class="risk-stats" id="riskStats"></div>
     </div>
 
@@ -775,7 +803,14 @@ body.embed .main{width:100%}
           <!-- 动态渲染：角色视图=大类 pill / 需求视图=AREA pill（含数量） -->
         </div>
         <div class="tb-group" style="margin-left:auto">
-          <input id="actorSearch" placeholder="搜索游戏角色 / story" oninput="actorSearchDebounce()" style="background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:6px 10px;border-radius:4px;font-size:12px;min-width:200px"/>
+          <div class="search-host" data-search-host data-search-page="schedule">
+            <input id="actorSearch" placeholder="搜索游戏角色 / story" oninput="actorSearchDebounce()" style="background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:6px 10px;border-radius:4px;font-size:12px;min-width:200px"/>
+            <div class="search-history" data-search-history role="listbox" tabindex="-1" hidden aria-label="搜索历史">
+              <div class="sh-head">最近搜索</div>
+              <ul class="sh-list" role="presentation"></ul>
+              <button class="sh-clear" type="button">清除全部记录</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -898,9 +933,10 @@ function actorEsc(s){ return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&
 
 // ===== 大类 / AREA 聚合维度 =====
 // 声优视图按「所属大类」(category/module) 聚合；需求视图按「AREA」(demand.area) 聚合。
-// 大类顺序与配色复用声优库页 CAT_COLORS，保证跨页一致。
+// 大类顺序沿用 CAT_ORDER；配色改用声优库 v13.2 真源（与 preview-声优库-精修版.html 完全一致）。
+// 指挥官 #727665 / 干员 #CEA06C / Boss #E9E6DF / AI兵 #D3DFDD / NPC #474C40 / AI系统音 #608980
 const CAT_ORDER = {'指挥官':1,'干员':2,'Boss':3,'AI兵':4,'NPC':5,'AI系统音':6};
-const CAT_COLORS = {'指挥官':'#60A5FA','干员':'#F59E0B','Boss':'#EF4444','AI兵':'#0FF796','NPC':'#D4DDE3','AI系统音':'#3D4C57'};
+const CAT_COLORS = {'指挥官':'#727665','干员':'#CEA06C','Boss':'#E9E6DF','AI兵':'#D3DFDD','NPC':'#474C40','AI系统音':'#608980'};
 const ROLE_CATEGORY_MAP = new Map(); // role_cn -> category
 function setRoleCategoryMap(rows){
   ROLE_CATEGORY_MAP.clear();
@@ -1085,18 +1121,34 @@ function renderFilterBar(){
     });
     g.innerHTML = label + pills;
   } else {
-    /* 角色视图：大类维度（原始静态结构） */
-    g.innerHTML =
-      '<span class="tb-label">大类</span>' +
-      '<button class="tb-btn'+(ACTOR_STATE.cat==='all'?' on':'')+'" data-cat="all" onclick="setActorCat(\'all\',this)">全部</button>' +
-      '<button class="tb-btn'+(ACTOR_STATE.cat==='指挥官'?' on':'')+'" data-cat="指挥官" onclick="setActorCat(\'指挥官\',this)">指挥官</button>' +
-      '<button class="tb-btn'+(ACTOR_STATE.cat==='干员'?' on':'')+'" data-cat="干员" onclick="setActorCat(\'干员\',this)">干员</button>' +
-      '<button class="tb-btn'+(ACTOR_STATE.cat==='Boss'?' on':'')+'" data-cat="Boss" onclick="setActorCat(\'Boss\',this)">Boss</button>' +
-      '<button class="tb-btn'+(ACTOR_STATE.cat==='AI兵'?' on':'')+'" data-cat="AI兵" onclick="setActorCat(\'AI兵\',this)">AI兵</button>' +
-      '<button class="tb-btn'+(ACTOR_STATE.cat==='NPC'?' on':'')+'" data-cat="NPC" onclick="setActorCat(\'NPC\',this)">NPC</button>' +
-      '<button class="tb-btn'+(ACTOR_STATE.cat==='AI系统音'?' on':'')+'" data-cat="AI系统音" onclick="setActorCat(\'AI系统音\',this)">AI系统音</button>' +
-      '<button class="tb-btn tb-icon'+(ACTOR_STATE.gender==='male'?' on':'')+'" data-gender="male" onclick="setActorGender(\'male\',this)" title="仅看男声"><span class="g-icon g-male">♂</span></button>' +
-      '<button class="tb-btn tb-icon'+(ACTOR_STATE.gender==='female'?' on':'')+'" data-gender="female" onclick="setActorGender(\'female\',this)" title="仅看女声"><span class="g-icon g-female">♀</span></button>';
+    /* 角色视图：大类维度（按数据动态统计角色去重数，2026-09-07 用户定稿） */
+    var rows = ACTOR_STATE.demands || [];
+    var seenByCat = {'指挥官':{}, '干员':{}, 'Boss':{}, 'AI兵':{}, 'NPC':{}, 'AI系统音':{}};
+    var seenAll = {};
+    var catCnt = {'指挥官':0, '干员':0, 'Boss':0, 'AI兵':0, 'NPC':0, 'AI系统音':0};
+    var total = 0;
+    rows.forEach(function(r){
+      var role = String(r.role || '').trim();
+      var cat = String(r.category || '').trim();
+      if(!role) return;
+      if(cat && catCnt.hasOwnProperty(cat) && !seenByCat[cat][role]){
+        seenByCat[cat][role] = 1;
+        catCnt[cat]++;
+      }
+      if(!seenAll[role]){
+        seenAll[role] = 1;
+        total++;
+      }
+    });
+    var label = '<span class="tb-label">大类</span>';
+    var pills = '<button class="tb-btn'+(ACTOR_STATE.cat==='all'?' on':'')+'" data-cat="all" onclick="setActorCat(\'all\',this)">全部 <span class="dim-count">'+total+'</span></button>';
+    ['指挥官','干员','Boss','AI兵','NPC','AI系统音'].forEach(function(c){
+      var isOn = ACTOR_STATE.cat === c;
+      pills += '<button class="tb-btn'+(isOn?' on':'')+'" data-cat="'+c+'" onclick="setActorCat(\''+c+'\',this)">'+c+' <span class="dim-count">'+catCnt[c]+'</span></button>';
+    });
+    pills += '<button class="tb-btn tb-icon'+(ACTOR_STATE.gender==='male'?' on':'')+'" data-gender="male" onclick="setActorGender(\'male\',this)" title="仅看男声"><span class="g-icon g-male">♂</span></button>' +
+             '<button class="tb-btn tb-icon'+(ACTOR_STATE.gender==='female'?' on':'')+'" data-gender="female" onclick="setActorGender(\'female\',this)" title="仅看女声"><span class="g-icon g-female">♀</span></button>';
+    g.innerHTML = label + pills;
   }
 }
 
@@ -1652,8 +1704,11 @@ function renderActorRollup(){
       title.textContent = '全部声优档期已确认';
       sub.innerHTML = `当前版本共 ${cnTotal+enTotal} 位应约的中英配档期均已排期完成。`;
     }
+    // 独立 stat 卡片（2026-09-07 卡片分离）：banner 谈「谁没约」，stat 卡片谈「影响多大」
+    // 卡片自身带 warn/ok 类决定左边竖条颜色（黄=有影响 / 绿=已无虞），不再依赖 banner 的 calm 态联级
+    const affectedCls = pendingN > 0 ? 'warn' : 'ok';
     stats.innerHTML = `
-      <div class="risk-stat"><div class="k">受影响需求</div><div class="v ${pendingN>0?'warn':'ok'}">${affectedDemands}<span class="unit">个</span></div></div>
+      <div class="risk-stat ${affectedCls}"><div class="k">受影响需求</div><div class="v">${affectedDemands}<span class="unit">个</span></div></div>
       <div class="risk-stat"><div class="k">距 VO 资源交付</div><div class="v">${deliveryHtml}<span class="unit">工作日</span></div></div>
     `;
   }
@@ -1790,6 +1845,19 @@ function renderActorSixBoard(viewType){
     ? [ACTOR_STATE.lang]
     : (shellLang !== 'all' ? [shellLang] : ['cn', 'en']);
 
+  // 需求视图 · AREA → 颜色（参考声优 CAT_COLORS 6 色调色板，按 AREA 出现顺序循环分配）
+  // · 不引入新真源，复用 v13.2 声优视图色板的视觉节奏
+  // · 若未来想"AREA 固定绑色"，把这里换成 AREA_COLORS = { 'SOL': '#0FF796', ... } 即可
+  const areaColorMap = (function(){
+    if (viewType !== 'demand' || !list.length) return null;
+    const AREA_PALETTE = ['#0FF796','#CEA06C','#E9E6DF','#D3DFDD','#608980','#727665'];
+    const seen = [];
+    list.forEach(r => { const a = (r.area||'未分类').trim(); if (a && seen.indexOf(a) < 0) seen.push(a); });
+    const m = {};
+    seen.forEach((a, i) => { m[a] = AREA_PALETTE[i % AREA_PALETTE.length]; });
+    return m;
+  })();
+
   const boardHtml = (kind, label, arr, skeleton) => {
     const ico = kind === 'pend' ? '⚠' : (kind === 'up' ? '◆' : '✓');
     let body;
@@ -1798,10 +1866,12 @@ function renderActorSixBoard(viewType){
     } else if(!arr.length){
       body = `<div class="col-empty">—</div>`;
     } else {
-      // 二次聚合：role 视图按 role 分组，demand 视图按 story 分组（2026-09-04 用户定稿）
+      // 二次聚合：role 视图按 role 分组，demand 视图按 AREA 分组（外层 cat-band），内层 card 按 story 聚合（2026-09-07 用户定稿）
       const groups = buildCardBList(viewType, arr);
       body = groups.map(g => {
-        const color = (typeof CAT_COLORS !== 'undefined' && CAT_COLORS[g.cat]) || '#6B7A85';
+        const color = areaColorMap
+          ? (areaColorMap[g.cat] || '#6B7A85')
+          : ((typeof CAT_COLORS !== 'undefined' && CAT_COLORS[g.cat]) || '#6B7A85');
         const isDone = kind === 'done';
         const catNeed = isDone
           ? `<span class="cat-need ok">✓ 已约齐</span>`
@@ -1874,32 +1944,51 @@ function renderActorSixBoard(viewType){
   };
 
   // 标签云二次聚合（2026-09-04）：role 视图按 role 分组，demand 视图按 story 分组
+  // · 2026-09-07 第 4 轮：需求视图的外层 cat-band 改为按 AREA（不是声优大类），
+  //   仍走声优库 6 色调色板（AREA_PALETTE），保持视觉节奏与声优视图一致
+  // · 内层 card 仍按 story 聚合，每张 cardB = 一条需求；tag 内仍展示「角色 · 声优大类」
   function buildCardBList(viewType, arr){
     const map = new Map();
     arr.forEach(r => {
       const key = viewType === 'role' ? (r.role || '') : (r.story || '');
       if(!key) return;
       if(!map.has(key)){
-        map.set(key, { key, name: key, cat: r.category || '', totalEst: 0, tags: [], bookedCount: 0, totalCount: 0 });
+        map.set(key, {
+          key, name: key,
+          // 分组键：role 视图 = 声优大类（保持原口径）；demand 视图 = AREA
+          cat: viewType === 'role' ? (r.category || '') : ((r.area || '未分类').trim()),
+          area: (r.area || '未分类').trim(),
+          totalEst: 0, tags: [], bookedCount: 0, totalCount: 0
+        });
       }
       const card = map.get(key);
-      if(!card.cat && r.category) card.cat = r.category;
+      // role 视图保留 CAT_ORDER 用作声优大类分组；demand 视图不再混用
+      if(viewType === 'role' && !card.cat && r.category) card.cat = r.category;
       card.totalEst += (r.est || 0);
       const isBooked = r.status === 'booked';
       card.tags.push({ label: viewType === 'role' ? (r.story || '') : (r.role || ''), est: r.est || 0, isBooked, cat: r.category || '' });
       if(isBooked) card.bookedCount++;
       card.totalCount++;
     });
-    // 按 cat 分组（cat 顺序：固定 6 类）
+    // 固定 6 类声优大类（保留原守卫测试字面量）· 仅 role 视图使用
     const CAT_ORDER = ['指挥官','干员','Boss','AI兵','NPC','AI系统音'];
+    // AREA 流程优先级（需求视图使用）：从 SOL 战斗玩法，到剧情/多人协作，到商业化
+    const AREA_ORDER = ['SOL','大战场','撤离','系统','剧情','多人','商业化'];
+    const ORDER = viewType === 'role' ? CAT_ORDER : AREA_ORDER;
+    const groupKey = viewType === 'role' ? 'cat' : 'area';
     const grouped = new Map();
-    map.forEach(card => { const c = card.cat || '未分类'; if(!grouped.has(c)) grouped.set(c, []); grouped.get(c).push(card); });
-    // 每个 cat 内按 totalEst 倒序
+    map.forEach(card => {
+      const c = (card[groupKey] || '未分类').trim();
+      if(!grouped.has(c)) grouped.set(c, []);
+      grouped.get(c).push(card);
+    });
+    // 每个组内按 totalEst 倒序
     grouped.forEach(list => list.sort((a,b) => b.totalEst - a.totalEst));
-    // 按 CAT_ORDER 输出，未分类最后
-    return CAT_ORDER.filter(c => grouped.has(c))
-      .concat([...grouped.keys()].filter(c => !CAT_ORDER.includes(c)))
-      .map(c => ({ cat: c, cards: grouped.get(c) }));
+    // 按预设顺序输出，未在预设内的 key 追加在最后
+    const allKeys = [...grouped.keys()];
+    const orderedKeys = ORDER.filter(c => grouped.has(c))
+      .concat(allKeys.filter(c => !ORDER.includes(c)));
+    return orderedKeys.map(c => ({ cat: c, cards: grouped.get(c) }));
   }
 
   grid.innerHTML = LANG_GROUPS.filter(g => visibleLangs.indexOf(g.lang) >= 0).map(grp => {
@@ -2910,6 +2999,138 @@ function bookActor(role, lang){
 (function(){
   var el = document.querySelector('.eyebrow-release');
   if(el) el.textContent = (window.__INIT_RELEASE__ || 'Yang1.0');
+})();
+
+/* 搜索历史下拉（2026-09-07 用户指令：谷歌风格 + 玻璃绿 UI + 5 条内 + 紧凑） */
+(function(){
+  const HISTORY_LIMIT = 5;
+  const HISTORY_VER = 'v1';
+  const KEY_OF = (host) => 'vo_search_history_' + HISTORY_VER + '::' + (host.dataset.searchPage || 'default');
+  function load(host){
+    try{ const raw = localStorage.getItem(KEY_OF(host)); const list = raw ? JSON.parse(raw) : []; return Array.isArray(list) ? list.slice(0, HISTORY_LIMIT) : []; }catch(_){ return []; }
+  }
+  function save(host, list){
+    try{ localStorage.setItem(KEY_OF(host), JSON.stringify(list.slice(0, HISTORY_LIMIT))); }catch(_){}
+  }
+  function push(host, term){
+    term = (term||'').trim();
+    if(!term || term.length < 2) return;
+    const list = load(host).filter(t => t !== term);
+    list.unshift(term);
+    save(host, list);
+  }
+  function render(host){
+    const pop = host.querySelector('[data-search-history]');
+    if(!pop) return;
+    const ul = pop.querySelector('.sh-list');
+    const clearBtn = pop.querySelector('.sh-clear');
+    const list = load(host);
+    if(!list.length){
+      ul.innerHTML = '<div class="sh-empty">暂无搜索记录</div>';
+      clearBtn.style.display = 'none';
+      return;
+    }
+    clearBtn.style.display = '';
+    const input = host.querySelector('input');
+    const cur = (input.value||'').trim().toLowerCase();
+    ul.innerHTML = list.map((t, i) =>
+      '<li class="sh-item" data-idx="' + i + '" role="option">' +
+        '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<circle cx="12" cy="12" r="9"/>' +
+          '<polyline points="12 7 12 12 15.5 14"/>' +
+        '</svg>' +
+        '<span class="label"></span>' +
+        '<button class="del" type="button" aria-label="删除此条历史" data-tip="删除">×</button>' +
+      '</li>'
+    ).join('');
+    ul.querySelectorAll('.sh-item').forEach(li => {
+      const i = parseInt(li.dataset.idx, 10);
+      const label = li.querySelector('.label');
+      label.textContent = list[i];
+      if(cur && list[i].toLowerCase().includes(cur)) li.classList.add('hit');
+    });
+    ul.querySelectorAll('.sh-item').forEach(li => {
+      const i = parseInt(li.dataset.idx, 10);
+      li.addEventListener('mousedown', (e) => {
+        if(e.target.closest('.del')) return;
+        e.preventDefault();
+        input.value = list[i];
+        input.dispatchEvent(new Event('input', {bubbles:true}));
+        pop.hidden = true;
+        input.focus();
+      });
+    });
+    ul.querySelectorAll('.del').forEach(btn => {
+      btn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const cur2 = load(host);
+        cur2.splice(parseInt(btn.closest('.sh-item').dataset.idx, 10), 1);
+        save(host, cur2);
+        render(host);
+      });
+    });
+  }
+  function open(host){
+    const pop = host.querySelector('[data-search-history]');
+    if(!pop || !pop.hidden) return;
+    render(host);
+    pop.hidden = false;
+  }
+  function close(host){
+    const pop = host.querySelector('[data-search-history]');
+    if(pop) pop.hidden = true;
+  }
+  function wire(host){
+    const input = host.querySelector('input');
+    const pop = host.querySelector('[data-search-history]');
+    const clearBtn = pop && pop.querySelector('.sh-clear');
+    if(!input || !pop) return;
+    input.addEventListener('focus', () => {
+      if(!(input.value||'').trim()) open(host);
+      else close(host);
+    });
+    input.addEventListener('input', () => {
+      if((input.value||'').trim()) close(host);
+    });
+    input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        if((input.value||'').trim()) push(host, input.value);
+        close(host);
+      } else if(e.key === 'Escape'){
+        if(!pop.hidden){ close(host); e.preventDefault(); }
+      }
+    });
+    input.addEventListener('blur', () => {
+      setTimeout(() => { if(!host.contains(document.activeElement)) close(host); }, 120);
+    });
+    if(clearBtn){
+      clearBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        save(host, []);
+        render(host);
+        input.focus();
+      });
+    }
+  }
+  function init(){
+    document.querySelectorAll('[data-search-host]').forEach(wire);
+    document.addEventListener('mousedown', (e) => {
+      document.querySelectorAll('[data-search-host]').forEach(host => {
+        const pop = host.querySelector('[data-search-history]');
+        if(pop && !pop.hidden && !host.contains(e.target)) pop.hidden = true;
+      });
+    });
+    document.addEventListener('keydown', (e) => {
+      if(e.key !== 'Escape') return;
+      document.querySelectorAll('[data-search-host]').forEach(host => {
+        const pop = host.querySelector('[data-search-history]');
+        if(pop && !pop.hidden) pop.hidden = true;
+      });
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 

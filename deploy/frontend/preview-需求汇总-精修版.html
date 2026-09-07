@@ -55,7 +55,8 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:inline-flex;align-items:baseline;gap:14px;margin:0}
 .title-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.title-row .search-input{width:220px;margin-left:auto}
+.title-row .search-host{margin-left:auto;position:relative;display:inline-block;flex:0 0 auto}
+.title-row .search-input{width:220px}
 .title-count{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums;display:inline-flex;align-items:baseline}
 .title-count .unit{font-size:12px;color:var(--c-text-mute);margin-left:8px;font-weight:500;font-family:'Inter',sans-serif;letter-spacing:.2px}
 .title-kpis{display:inline-flex;gap:10px;margin-left:12px;align-items:center}
@@ -98,14 +99,34 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .chip-status.chip-prog-done:hover{color:#B5C0AE;border-color:#7B8B76;background:rgba(123,139,118,.08)}
 .chip-status.chip-prog-done.on{color:#B5C0AE;border-color:#7B8B76;background:rgba(123,139,118,.12);box-shadow:inset 0 0 0 1px rgba(123,139,118,.35),inset 0 -2px 0 currentColor}
 .chip-status.chip-prog-done i{background:#7B8B76;box-shadow:0 0 4px rgba(123,139,118,.6)}
-/* 状态 select 底色 */
-/* 状态 select 底色（对齐工业战术色板 · 2026-07-23 定稿；2026-09-04 状态收敛为 待澄清/已入库/录音中/已完成）
-   与顶部筛选芯片同色系：待澄清=BLACKPINK霓虹粉 / 已入库=沙棕金 / 录音中=青灰蓝 / 已完成=灰蓝深沉 */
-.va-status         {width:92px;text-align:center;text-align-last:center}    /* 4 态 select 完全等宽（含 select 下拉箭头） */
-.va-status.s-none   {color:#E87DA0;border-color:rgba(232,125,160,.5);background:rgba(232,125,160,.12)}
-.va-status.s-writing{color:#D4A554;border-color:rgba(212,165,84,.5);background:rgba(212,165,84,.12)}
-.va-status.s-vo     {color:#7DBFBF;border-color:rgba(125,191,191,.5);background:rgba(125,191,191,.12)}
-.va-status.s-done   {color:#7A8A96;border-color:rgba(75,90,105,.5);background:rgba(45,58,72,.35)}
+/* ★ 状态 HUD · 玻璃军事风（2026-09-07 定稿：A 玻璃 HUD 方案）
+   深玻璃 + 细边 + 等宽触发器 + 状态码 [PEND/INGT/RECD/CMPL]。
+   4 态色系与顶部筛选芯片 / 行首状态灯一致：待澄清=霓虹粉 / 已入库=沙棕金 / 录音中=青灰蓝 / 已完成=灰蓝深沉 */
+.va-hud{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.va-hud[data-stage="待澄清"],.va-hud-opt[data-stage="待澄清"]{--hud-c:#E87DA0;--hud-bd:rgba(232,125,160,.5);--hud-bg:rgba(232,125,160,.12)}
+.va-hud[data-stage="已入库"],.va-hud-opt[data-stage="已入库"]{--hud-c:#D4A554;--hud-bd:rgba(212,165,84,.5);--hud-bg:rgba(212,165,84,.12)}
+.va-hud[data-stage="录音中"],.va-hud-opt[data-stage="录音中"]{--hud-c:#7DBFBF;--hud-bd:rgba(125,191,191,.5);--hud-bg:rgba(125,191,191,.12)}
+.va-hud[data-stage="已完成"],.va-hud-opt[data-stage="已完成"]{--hud-c:#7A8A96;--hud-bd:rgba(75,90,105,.5);--hud-bg:rgba(45,58,72,.35)}
+.va-hud-trigger{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  width:92px;max-width:100%;height:28px;padding:0 9px;
+  background:rgba(20,30,36,.72);
+  border:1px solid var(--hud-bd,var(--c-border));
+  border-radius:4px;
+  color:var(--hud-c,var(--c-text-mute));
+  font:700 11px/1 'JetBrains Mono',monospace;
+  letter-spacing:.06em;
+  cursor:pointer;
+  box-shadow:0 0 0 1px rgba(15,247,150,.05),inset 0 1px 0 rgba(255,255,255,.04),0 6px 16px -6px rgba(0,0,0,.55);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  transition:border-color .12s,background .12s;
+}
+.va-hud-trigger:hover{background:rgba(30,42,50,.78);border-color:var(--hud-c,var(--c-primary))}
+.va-hud-dot{width:7px;height:7px;border-radius:50%;background:var(--hud-c,var(--c-text-dim));box-shadow:0 0 8px var(--hud-c,transparent);flex:0 0 auto}
+.va-hud-label{flex:0 0 auto}
+.va-hud-caret{font:400 9px/1 'JetBrains Mono',monospace;color:var(--c-text-dim);flex:0 0 auto}
+.va-hud-trigger.va-manual::after{content:'🔒';position:absolute;right:-5px;top:-7px;font-size:8px;line-height:1;opacity:.85;filter:grayscale(.2);pointer-events:none}
 /* 文案策划就地可编辑（提示态） */
 .person.editable{cursor:text;border-bottom:1px dashed transparent;transition:border-color .12s,background .12s;padding:1px 4px;border-radius:3px}
 .person.editable:hover{border-bottom-color:var(--c-border);background:rgba(255,255,255,.03)}
@@ -204,6 +225,24 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .filter-row .grow{flex:1}
 /* 搜索框（位于标题栏 title-bar 内） */
 .search-input{background:var(--c-bg-0);border:1px solid var(--c-border);color:#fff;padding:6px 10px 6px 30px;border-radius:4px;font-size:12px;width:200px;font-family:inherit;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23A1B1BC' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:8px center}
+/* 搜索历史下拉（2026-09-07 谷歌风格 + 玻璃绿 UI + 5 条内 + 紧凑） */
+.search-host{position:relative;display:inline-block}
+.search-history{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(15,23,28,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(15,247,150,.32);border-radius:10px;padding:6px 6px 4px;z-index:6100;box-shadow:0 8px 24px rgba(0,0,0,.45);outline:none;font-family:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif}
+.search-history::before{content:"";position:absolute;left:18px;top:-5px;width:8px;height:8px;background:rgba(15,23,28,.92);border-left:1px solid rgba(15,247,150,.32);border-top:1px solid rgba(15,247,150,.32);transform:rotate(45deg)}
+.sh-head{font-size:10.5px;color:var(--c-text-dim);letter-spacing:.8px;padding:4px 8px 6px;text-transform:uppercase;font-weight:500;font-family:var(--font-ui)}
+.sh-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:1px}
+.sh-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--c-text);transition:background .12s;font-weight:400}
+.sh-item:hover,.sh-item.active{background:rgba(15,247,150,.08);color:#fff}
+.sh-item .ico{flex-shrink:0;width:14px;height:14px;color:var(--c-text-dim);opacity:.65}
+.sh-item.hit .label{color:var(--c-primary)}
+.sh-item .label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif}
+.sh-item .del{flex-shrink:0;width:18px;height:18px;border:0;background:transparent;color:var(--c-text-dim);cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;opacity:0;transition:opacity .12s, background .12s, color .12s;font-family:inherit;padding:0}
+.sh-item:hover .del{opacity:.7}
+.sh-item .del:hover{background:rgba(214,153,190,.18);color:var(--c-danger);opacity:1}
+.sh-empty{font-size:12px;color:var(--c-text-dim);padding:10px 8px;text-align:center;font-style:normal}
+.sh-clear{margin-top:4px;padding:6px 8px;border:0;background:transparent;color:var(--c-primary);font-size:11px;cursor:pointer;border-radius:6px;width:100%;font-family:inherit;letter-spacing:.3px;transition:background .12s}
+.sh-clear:hover{background:rgba(15,247,150,.08)}
+.search-host.collapsed .search-history{display:none}
 .search-input:focus{border-color:var(--c-primary)}
 
 /* Card & Table */
@@ -382,18 +421,33 @@ body.embed .mid{width:100%}
   .clarify-cell b{color:var(--c-text-2);font-weight:600}
   .clarify-input{width:42px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-2);border-radius:4px;padding:4px 5px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center}
   .clarify-input:focus{border-color:var(--c-primary);outline:none}
-  .va-status{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;border-radius:14px;padding:6px 12px;border:1px solid var(--c-border);background:var(--c-bg-0);color:var(--c-text-mute);cursor:pointer}
-  /* 状态角标视觉规则（PM 定稿 2026-07-24 · 15:30 版）：
-     - 待澄清/已入库/录音中 一律带左粗边 + 右上角🔒角标（PM 视觉锚点：这行还在推进中）
-     - 已完成不带角标（终态归档，无需强调）
-     - 4 态框宽永远 92px 不变（box-shadow inset 和 ::before absolute 都不占内容宽）
-     - 与 PM 手动/TAPD 自动无关，仅按当前 stage 决定 */
-  .va-status{position:relative;box-shadow:inset 3px 0 0 currentColor}
-  .va-status::before{content:'🔒';position:absolute;right:-4px;top:-6px;font-size:8px;line-height:1;opacity:.85;filter:grayscale(.3);pointer-events:none;background:var(--c-bg);padding:1px 2px;border-radius:3px}
-  /* 已完成：完全等同去角标态（沉底归档） */
-  .va-status.s-done{box-shadow:none}
-  .va-status.s-done::before{content:none}
-  /* 旧规则已删除，改用文件上方 .va-status.s-* 4 色工业战术色板（2026-07-23 定稿） */
+  /* 状态 HUD 下拉面板（body 追加 · 玻璃军事风 · 2026-09-07 A 玻璃 HUD） */
+  .va-hud-pop{
+    position:absolute;z-index:9998;
+    min-width:172px;
+    background:rgba(20,30,36,.85);
+    border:1px solid rgba(15,247,150,.55);
+    border-radius:6px;
+    padding:5px;
+    box-shadow:0 16px 36px -8px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.03);
+    backdrop-filter:blur(20px) saturate(1.4);
+    -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  }
+  .va-hud-opt{
+    display:flex;align-items:center;gap:9px;width:100%;
+    padding:8px 11px;
+    font:600 11px/1 'JetBrains Mono',monospace;
+    letter-spacing:.06em;
+    color:var(--hud-c,var(--c-text-2));
+    background:transparent;
+    border:1px solid transparent;
+    border-radius:4px;
+    cursor:pointer;text-align:left;
+  }
+  .va-hud-opt:hover{background:rgba(15,247,150,.07)}
+  .va-hud-opt .va-hud-code{margin-left:auto;font:500 9px/1 'JetBrains Mono',monospace;color:var(--c-text-mute);letter-spacing:.1em}
+  .va-hud-opt.on{background:rgba(15,247,150,.10);border-color:rgba(15,247,150,.22)}
+  .va-hud-opt.on .va-hud-label{color:var(--c-primary)}
 
   /* ============================================================
    * 详情区字体统一（2026-07-24 · 与左侧栏 .nav-item 同规格）
@@ -404,7 +458,7 @@ body.embed .mid{width:100%}
   .main .rp-tag, .main .story-title, .main .story-link,
   .main .task-name, .main .clarify, .main .vs,
   .main .area, .main .person, .main .chip-filter,
-  .main .clarify-cell, .main .clarify-input, .main .va-status,
+  .main .clarify-cell, .main .clarify-input, .main .va-hud-trigger, .main .va-hud-label, .main .va-hud-code,
   .main .cva-item .l, .main .cva-item .v small,
   .main input[type=text], .main select, .main textarea{
     font-family:'Inter','JetBrains Mono',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
@@ -462,7 +516,7 @@ body.embed .mid{width:100%}
   .release-library-link{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:62px;height:25px;padding:0 7px;border:1px solid rgba(107,217,149,.38);border-radius:4px;color:#6BD995;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap}
   .release-library-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
   .release-library-link.pending{color:var(--c-text-dim);border-color:var(--c-hairline);border-style:dashed;cursor:default}
-  .col-status .va-status{width:108px!important;padding:5px 8px!important}
+  .col-status .va-hud-trigger{width:108px!important;padding:0 8px!important}
 
   /* ===== 不透明背景：修复透光 (2026-09-02) ===== */
   /* 侧栏 */
@@ -537,7 +591,7 @@ body.embed .mid{width:100%}
   .ve-role{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .th-ve-group{min-width:0!important}
   .th-max-date,.col-max-date{width:7.4%;min-width:0!important;max-width:none}
-  .col-status .va-status{width:100%!important;min-width:0;padding:4px 3px!important;font-size:11px}
+  .col-status .va-hud-trigger{width:100%!important;min-width:0;padding:0 3px!important;font-size:11px}
   .story-title,.story-link,.creator-cell,.person,.max-date-cell,.release-summary-text{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ve-chip{max-width:100%;padding:2px 4px;font-size:11px}
   .ve-role{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -614,7 +668,14 @@ body.embed .mid{width:100%}
         <div class="eyebrow"><span class="sig"></span>MISSION OPERATIONS<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <div class="title-row">
           <h1 class="page-title">需求汇总<span class="deadline-meta" id="snapChip" hidden>Tapd 数据拉取时间<span class="deadline-date" id="snapChipDate">—</span></span></h1>
-          <input class="search-input" id="searchInput" placeholder="搜索任务名 / Narrative Designer..."/>
+          <div class="search-host" data-search-host data-search-page="demands">
+            <input class="search-input" id="searchInput" placeholder="搜索任务名 / Narrative Designer..."/>
+            <div class="search-history" data-search-history role="listbox" tabindex="-1" hidden aria-label="搜索历史">
+              <div class="sh-head">最近搜索</div>
+              <ul class="sh-list" role="presentation"></ul>
+              <button class="sh-clear" type="button">清除全部记录</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="actions">
@@ -1042,7 +1103,7 @@ function isBlankAreaClick(el){
   if(tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return false;
   if(tag === 'SVG' || tag === 'PATH' || tag === 'LINE' || tag === 'RECT' || tag === 'CIRCLE' || tag === 'POLYLINE' || tag === 'POLYGON' || tag === 'G') return false;
   // 交互元素 → 不算空白（按钮/输入/链接/表头/筛选芯片/cw浮层/排序箭头/台词表图标）
-  if(t.closest('button, input, select, textarea, a, th, thead, .chip-filter, .chip-status, .chip-cw, .filter-groups, .cw-pick, .vs, [data-fk], [data-rel], [onclick], #cwPop, .cw-pop, .popover, .sort-arrows, .header-filter-pop, .header-filter-btn, .brand-bar, .sidebar, .nav-item, .nav-sub-item, .vomi-tip-host-pop')) return false;
+  if(t.closest('button, input, select, textarea, a, th, thead, .chip-filter, .chip-status, .chip-cw, .filter-groups, .cw-pick, .vs, [data-fk], [data-rel], [onclick], #cwPop, .cw-pop, .popover, .sort-arrows, .header-filter-pop, .header-filter-btn, .va-hud-pop, .va-hud-trigger, .brand-bar, .sidebar, .nav-item, .nav-sub-item, .vomi-tip-host-pop')) return false;
   // 表格内容区(tr/td/tbody/table/.table-wrap) → 也不算空白，避免点行内误复位
   if(t.closest('tr, td, tbody, table, .table-wrap')) return false;
   return true;
@@ -1055,7 +1116,7 @@ document.addEventListener('click', (e)=>{ if(isBlankAreaClick(e.target)) clearAl
   const tb = document.getElementById('demandBody');
   if(!tb) return;
   tb.addEventListener('click', (e)=>{
-    if(e.target.closest('select, a, .cw-pick, .va-status, [contenteditable], .vs, svg, button')) return;
+    if(e.target.closest('select, a, .cw-pick, .va-hud-trigger, [contenteditable], .vs, svg, button')) return;
     const tr = e.target.closest('tr');
     if(!tr || !tr.dataset.id) return;
     const was = tr.classList.contains('selected');
@@ -1207,6 +1268,49 @@ function pickCw(id, val){
   closeCwPop();
   saveField(id, 'cn_lines_handler', val).then(()=>renderRows());
 }
+/* 状态 HUD 下拉：body 追加玻璃面板（2026-09-07 A 玻璃 HUD） */
+let __statusPop = null, __statusOpenTrigger = null;
+function closeStatusPop(){
+  if(__statusPop){ __statusPop.remove(); __statusPop = null; }
+  if(__statusOpenTrigger){ __statusOpenTrigger.setAttribute('aria-expanded','false'); __statusOpenTrigger = null; }
+}
+function toggleStatusPop(btn, ev){
+  if(ev){ ev.stopPropagation(); ev.preventDefault(); }
+  if(__statusPop && __statusOpenTrigger === btn){ closeStatusPop(); return; }
+  openStatusPop(btn);
+}
+function openStatusPop(btn){
+  closeStatusPop();
+  const hud = btn.closest('.va-hud');
+  const id = hud ? hud.dataset.id : btn.dataset.id;
+  const d = allDemands.find(x=>String(x.id)===String(id));
+  const cur = (d && (d.manual_status || tapdStage(d))) || '待澄清';
+  const pop = document.createElement('div');
+  pop.className = 'va-hud-pop';
+  pop.innerHTML = STATUS_LIST.map(s=>{
+    const on = s===cur ? ' on' : '';
+    return `<button type="button" class="va-hud-opt${on}" data-stage="${esc(s)}" data-val="${esc(s)}" onclick="pickStatus('${esc(id)}','${esc(s)}',this,event)">`+
+      `<span class="va-hud-dot"></span><span class="va-hud-label">${esc(s)}</span><span class="va-hud-code">[${STATUS_CODE[s]||''}]</span>`+
+      `</button>`;
+  }).join('');
+  pop.onclick = (e)=>e.stopPropagation();
+  document.body.appendChild(pop);
+  __statusPop = pop; __statusOpenTrigger = btn;
+  btn.setAttribute('aria-expanded','true');
+  const r = btn.getBoundingClientRect();
+  const sx = window.scrollX || 0, sy = window.scrollY || 0;
+  pop.style.left = Math.min(r.left + sx, sx + window.innerWidth - pop.offsetWidth - 8) + 'px';
+  pop.style.top = Math.min(r.bottom + sy + 6, sy + window.innerHeight - pop.offsetHeight - 8) + 'px';
+}
+function pickStatus(id, val, opt, ev){
+  ev.stopPropagation();
+  const hud = (__statusOpenTrigger && __statusOpenTrigger.closest('.va-hud'));
+  closeStatusPop();
+  saveClarify(id, 'status', val, hud ? hud.querySelector('.va-hud-trigger') : null);
+}
+document.addEventListener('click', (e)=>{ if(__statusPop && !e.target.closest('.va-hud-trigger,.va-hud-pop')) closeStatusPop(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeStatusPop(); });
+document.addEventListener('scroll', ()=>closeStatusPop(), true);
 document.addEventListener('click', ()=>{ if(__cwOpenEl) closeCwPop(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && __cwOpenEl) closeCwPop(); });
 function releaseLibraryRecord(release){
@@ -1394,7 +1498,6 @@ function rowHTML(d){
   const storyTitle = fmtStoryTitle(d.task_name);
   // MySQL manual_status 优先；为空时回退初始「待澄清」。离线草稿已由applyOfflineDrafts叠加。
   const effectiveStage = d.manual_status || tapdStage(d);
-  const stCls = CLARIFY_STATUS[effectiveStage] || 's-none';
   const isManual = !!d.manual_status;
   const manualCls = isManual ? ' va-manual' : '';
   const manualTitle = isManual
@@ -1406,9 +1509,11 @@ function rowHTML(d){
     <td class="col-story"><div class="story-cell">${storyUrl?`<a class="story-title" href="${esc(storyUrl)}" target="_blank" rel="noopener" title="点击打开该 Story 的 TAPD 父需求：${esc(d.task_name||'')}">${storyTitle||'—'}</a>`:`<span class="story-title" title="该 Story 暂无父需求链接">${storyTitle||'—'}</span>`}</div></td>
     <td class="col-creator creator-cell" title="TAPD 创建人：${esc((d.creator||'').replace(/;+$/,''))}">${esc(fmtCreator(d.creator))}</td>
     <td class="col-status" oncontextmenu="return clearManualStage('${d.id}',event)">
-      <select class="va-status${manualCls} ${stCls}" style="${STATUS_STYLE[effectiveStage]||STATUS_STYLE['待澄清']}" onchange="saveClarify('${d.id}','status',this.value,this)" title="${manualTitle}">
-        ${STATUS_LIST.map(s=>`<option value="${s}" ${effectiveStage===s?'selected':''}>${s}</option>`).join('')}
-      </select>
+      <span class="va-hud" data-id="${d.id}" data-stage="${esc(effectiveStage)}">
+        <button type="button" class="va-hud-trigger${manualCls}" data-id="${d.id}" onclick="toggleStatusPop(this,event)" title="${manualTitle}" aria-haspopup="listbox" aria-expanded="false">
+          <span class="va-hud-dot"></span><span class="va-hud-label">${esc(effectiveStage)}</span><span class="va-hud-caret">▾</span>
+        </button>
+      </span>
     </td>
     <td class="col-video">${vsBadge(d.video_sync||'无需视频',d.id)}</td>
     <td class="col-cw"><span class="cw-pick" data-id="${d.id}" onclick="event.stopPropagation();toggleCwPop(this)" title="Narrative Designer：点击选择（固定名单）">${cwBadge((d.cn_lines_handler||'').trim())}</span></td>
@@ -1673,8 +1778,8 @@ async function kvPull(key){
 const CLARIFY_KEY = 'vo_clarify_v1';
 const CLARIFY_SCHEMA_KEY = 'vo_clarify_schema_v2';
 // 规则 6（用户定稿 2026-07-23；2026-09-04 状态收敛为纯人工维护）：状态选项 = 待澄清 / 已入库 / 录音中 / 已完成
-const CLARIFY_STATUS = {'待澄清':'s-none','已入库':'s-writing','录音中':'s-vo','已完成':'s-done'};
 const STATUS_LIST = ['待澄清','已入库','录音中','已完成'];
+const STATUS_CODE = {'待澄清':'PEND','已入库':'INGT','录音中':'RECD','已完成':'CMPL'};
 // 老状态只做等价映射；任何已有有效状态均按人工值保留，禁止再根据“待澄清”字面值猜测并清除。
 const LEGACY_STATUS_MAP = {'未澄清':'待澄清','有变更':'待澄清','已澄清':'已入库','文案ING':'已入库','Vo ING':'录音中'};
 function normalizeClarifyStore(store){
@@ -1707,13 +1812,6 @@ try{
     localStorage.setItem(CLARIFY_SCHEMA_KEY, '2');
   }
 }catch(e){ CLARIFY = {}; }
-// 状态内联色（与上方 .va-status.s-* 同色板 · 双保险：下拉框切换时实时着色，不依赖 CSS 级联）
-const STATUS_STYLE = {
-  '待澄清':'color:#E87DA0;border-color:rgba(232,125,160,.55);background:rgba(232,125,160,.12)',
-  '已入库':'color:#D4A554;border-color:rgba(212,165,84,.55);background:rgba(212,165,84,.12)',
-  '录音中':'color:#7DBFBF;border-color:rgba(125,191,191,.55);background:rgba(125,191,191,.12)',
-  '已完成':'color:#7A8A96;border-color:rgba(75,90,105,.55);background:rgba(45,58,72,.35)'
-};
 function migrateStatus(v){ return LEGACY_STATUS_MAP[v] || (STATUS_LIST.includes(v) ? v : '待澄清'); }
 function clarifyOf(id, create=false){
   const key = String(id);
@@ -1748,8 +1846,13 @@ async function saveClarify(id, field, val, el){
     const d = allDemands.find(x=>String(x.id)===String(id));
     if(d) d.manual_status = nextStatus;
     if(el){
-      el.className = 'va-status va-manual ' + (CLARIFY_STATUS[nextStatus] || 's-none');
-      el.style.cssText = STATUS_STYLE[nextStatus] || STATUS_STYLE['待澄清'];
+      const hud = el.closest('.va-hud');
+      if(hud){
+        hud.setAttribute('data-stage', nextStatus);
+        const lbl = hud.querySelector('.va-hud-label');
+        if(lbl) lbl.textContent = nextStatus;
+      }
+      el.classList.add('va-manual');
       el.title = '状态：已保存（MySQL）· 右键清除后回到「待澄清」';
       const tr = el.closest('tr'); if(tr){ tr.setAttribute('data-stage',nextStatus); tr.setAttribute('data-manual','1'); }
     }
@@ -1759,10 +1862,6 @@ async function saveClarify(id, field, val, el){
   }
   const c = clarifyOf(id, true);
   if(field==='cn' || field==='en' || field==='lines') c[field] = Math.max(0, parseInt(val || '0',10)||0);
-  else if(field==='status'){
-    c.status=migrateStatus(val); c._manual=true; c._manual_at=Date.now(); c._status_source='manual';
-    if(el){ el.className='va-status va-manual '+(CLARIFY_STATUS[c.status]||'s-none'); el.style.cssText=STATUS_STYLE[c.status]||STATUS_STYLE['待澄清']; }
-  }
   try{ localStorage.setItem(CLARIFY_KEY, JSON.stringify(CLARIFY)); }catch(e){ flashErr('本地草稿保存失败'); return; }
   const cloudSaved = await kvPush(CLARIFY_KEY);
   if(cloudSaved) flashOk('汇总状态已保存');
@@ -2250,6 +2349,143 @@ async function kvInitDemandPage(){
   }catch(_){}
 }
 (async ()=>{ await loadReleasePlans(); await loadHolidaysAuto(); await kvInitDemandPage(); loadDemands(); })();
+
+/* 搜索历史下拉（2026-09-07 用户指令：谷歌风格 + 玻璃绿 UI + 5 条内 + 紧凑） */
+(function(){
+  const HISTORY_LIMIT = 5;
+  const HISTORY_VER = 'v1';
+  const KEY_OF = (host) => 'vo_search_history_' + HISTORY_VER + '::' + (host.dataset.searchPage || 'default');
+  function load(host){
+    try{ const raw = localStorage.getItem(KEY_OF(host)); const list = raw ? JSON.parse(raw) : []; return Array.isArray(list) ? list.slice(0, HISTORY_LIMIT) : []; }catch(_){ return []; }
+  }
+  function save(host, list){
+    try{ localStorage.setItem(KEY_OF(host), JSON.stringify(list.slice(0, HISTORY_LIMIT))); }catch(_){}
+  }
+  function push(host, term){
+    term = (term||'').trim();
+    if(!term || term.length < 2) return;
+    const list = load(host).filter(t => t !== term);
+    list.unshift(term);
+    save(host, list);
+  }
+
+  function render(host){
+    const pop = host.querySelector('[data-search-history]');
+    if(!pop) return;
+    const ul = pop.querySelector('.sh-list');
+    const clearBtn = pop.querySelector('.sh-clear');
+    const list = load(host);
+    if(!list.length){
+      ul.innerHTML = '<div class="sh-empty">暂无搜索记录</div>';
+      clearBtn.style.display = 'none';
+      return;
+    }
+    clearBtn.style.display = '';
+    const input = host.querySelector('input');
+    const cur = (input.value||'').trim().toLowerCase();
+    ul.innerHTML = list.map((t, i) =>
+      '<li class="sh-item" data-idx="' + i + '" role="option">' +
+        '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<circle cx="12" cy="12" r="9"/>' +
+          '<polyline points="12 7 12 12 15.5 14"/>' +
+        '</svg>' +
+        '<span class="label"></span>' +
+        '<button class="del" type="button" aria-label="删除此条历史" data-tip="删除">×</button>' +
+      '</li>'
+    ).join('');
+    ul.querySelectorAll('.sh-item').forEach(li => {
+      const i = parseInt(li.dataset.idx, 10);
+      const label = li.querySelector('.label');
+      label.textContent = list[i];
+      if(cur && list[i].toLowerCase().includes(cur)) li.classList.add('hit');
+    });
+    ul.querySelectorAll('.sh-item').forEach(li => {
+      const i = parseInt(li.dataset.idx, 10);
+      li.addEventListener('mousedown', (e) => {
+        if(e.target.closest('.del')) return;
+        e.preventDefault();
+        input.value = list[i];
+        input.dispatchEvent(new Event('input', {bubbles:true}));
+        pop.hidden = true;
+        input.focus();
+      });
+    });
+    ul.querySelectorAll('.del').forEach(btn => {
+      btn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const cur2 = load(host);
+        cur2.splice(parseInt(btn.closest('.sh-item').dataset.idx, 10), 1);
+        save(host, cur2);
+        render(host);
+      });
+    });
+  }
+
+  function open(host){
+    const pop = host.querySelector('[data-search-history]');
+    if(!pop || !pop.hidden) return;
+    render(host);
+    pop.hidden = false;
+  }
+  function close(host){
+    const pop = host.querySelector('[data-search-history]');
+    if(pop) pop.hidden = true;
+  }
+
+  function wire(host){
+    const input = host.querySelector('input');
+    const pop = host.querySelector('[data-search-history]');
+    const clearBtn = pop && pop.querySelector('.sh-clear');
+    if(!input || !pop) return;
+    input.addEventListener('focus', () => {
+      if(!(input.value||'').trim()) open(host);
+      else close(host);
+    });
+    input.addEventListener('input', () => {
+      if((input.value||'').trim()) close(host);
+    });
+    input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        if((input.value||'').trim()) push(host, input.value);
+        close(host);
+      } else if(e.key === 'Escape'){
+        if(!pop.hidden){ close(host); e.preventDefault(); }
+      }
+    });
+    input.addEventListener('blur', () => {
+      setTimeout(() => { if(!host.contains(document.activeElement)) close(host); }, 120);
+    });
+    if(clearBtn){
+      clearBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        save(host, []);
+        render(host);
+        input.focus();
+      });
+    }
+  }
+
+  function init(){
+    document.querySelectorAll('[data-search-host]').forEach(wire);
+    document.addEventListener('mousedown', (e) => {
+      document.querySelectorAll('[data-search-host]').forEach(host => {
+        const pop = host.querySelector('[data-search-history]');
+        if(pop && !pop.hidden && !host.contains(e.target)) pop.hidden = true;
+      });
+    });
+    document.addEventListener('keydown', (e) => {
+      if(e.key !== 'Escape') return;
+      document.querySelectorAll('[data-search-host]').forEach(host => {
+        const pop = host.querySelector('[data-search-history]');
+        if(pop && !pop.hidden) pop.hidden = true;
+      });
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 </script>
 
 <!-- 保存状态提示 -->

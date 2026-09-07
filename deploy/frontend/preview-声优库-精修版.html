@@ -124,6 +124,24 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .actions .tb-search{min-width:200px;border-radius:999px;padding:7px 14px}
 @media (max-width:1600px){ .actions .tb-search{min-width:150px} }
 
+/* 搜索历史下拉（2026-09-07 谷歌风格 + 玻璃绿 UI + 5 条内 + 紧凑） */
+.search-host{position:relative;display:inline-block;flex:0 0 auto}
+.search-history{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(15,23,28,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(15,247,150,.32);border-radius:10px;padding:6px 6px 4px;z-index:6100;box-shadow:0 8px 24px rgba(0,0,0,.45);outline:none;font-family:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif}
+.search-history::before{content:"";position:absolute;left:18px;top:-5px;width:8px;height:8px;background:rgba(15,23,28,.92);border-left:1px solid rgba(15,247,150,.32);border-top:1px solid rgba(15,247,150,.32);transform:rotate(45deg)}
+.sh-head{font-size:10.5px;color:var(--c-text-dim);letter-spacing:.8px;padding:4px 8px 6px;text-transform:uppercase;font-weight:500;font-family:var(--font-ui)}
+.sh-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:1px}
+.sh-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--c-text);transition:background .12s;font-weight:400}
+.sh-item:hover,.sh-item.active{background:rgba(15,247,150,.08);color:#fff}
+.sh-item .ico{flex-shrink:0;width:14px;height:14px;color:var(--c-text-dim);opacity:.65}
+.sh-item.hit .label{color:var(--c-primary)}
+.sh-item .label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif}
+.sh-item .del{flex-shrink:0;width:18px;height:18px;border:0;background:transparent;color:var(--c-text-dim);cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;opacity:0;transition:opacity .12s, background .12s, color .12s;font-family:inherit;padding:0}
+.sh-item:hover .del{opacity:.7}
+.sh-item .del:hover{background:rgba(214,153,190,.18);color:var(--c-danger);opacity:1}
+.sh-empty{font-size:12px;color:var(--c-text-dim);padding:10px 8px;text-align:center;font-style:normal}
+.sh-clear{margin-top:4px;padding:6px 8px;border:0;background:transparent;color:var(--c-primary);font-size:11px;cursor:pointer;border-radius:6px;width:100%;font-family:inherit;letter-spacing:.3px;transition:background .12s}
+.sh-clear:hover{background:rgba(15,247,150,.08)}
+
 /* 卡片 & 表格 */
 .card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0}
 
@@ -529,7 +547,14 @@ body.embed .mid{width:100%}
         </div>
       </div>
       <div class="actions">
-        <input id="rosterSearch" class="tb-search" placeholder="搜索：角色 / 声优 / 录音棚" oninput="renderRoster()"/>
+        <div class="search-host" data-search-host data-search-page="roster">
+          <input id="rosterSearch" class="tb-search" placeholder="搜索：角色 / 声优 / 录音棚" oninput="renderRoster()"/>
+          <div class="search-history" data-search-history role="listbox" tabindex="-1" hidden aria-label="搜索历史">
+            <div class="sh-head">最近搜索</div>
+            <ul class="sh-list" role="presentation"></ul>
+            <button class="sh-clear" type="button">清除全部记录</button>
+          </div>
+        </div>
         <button class="tool-btn tb-gender" data-gender="男" onclick="setRosterGender('男',this)" data-tip="只看男性"><span class="g-male">♂</span></button>
         <button class="tool-btn tb-gender" data-gender="女" onclick="setRosterGender('女',this)" data-tip="只看女性"><span class="g-female">♀</span></button>
         <button class="btn btn-primary" onclick="openAddVA()">
@@ -2837,6 +2862,138 @@ loadRoster();
 (function(){
   var el = document.querySelector('.eyebrow-release');
   if(el) el.textContent = (window.__INIT_RELEASE__ || 'Yang1.0');
+})();
+
+/* 搜索历史下拉（2026-09-07 用户指令：谷歌风格 + 玻璃绿 UI + 5 条内 + 紧凑） */
+(function(){
+  const HISTORY_LIMIT = 5;
+  const HISTORY_VER = 'v1';
+  const KEY_OF = (host) => 'vo_search_history_' + HISTORY_VER + '::' + (host.dataset.searchPage || 'default');
+  function load(host){
+    try{ const raw = localStorage.getItem(KEY_OF(host)); const list = raw ? JSON.parse(raw) : []; return Array.isArray(list) ? list.slice(0, HISTORY_LIMIT) : []; }catch(_){ return []; }
+  }
+  function save(host, list){
+    try{ localStorage.setItem(KEY_OF(host), JSON.stringify(list.slice(0, HISTORY_LIMIT))); }catch(_){}
+  }
+  function push(host, term){
+    term = (term||'').trim();
+    if(!term || term.length < 2) return;
+    const list = load(host).filter(t => t !== term);
+    list.unshift(term);
+    save(host, list);
+  }
+  function render(host){
+    const pop = host.querySelector('[data-search-history]');
+    if(!pop) return;
+    const ul = pop.querySelector('.sh-list');
+    const clearBtn = pop.querySelector('.sh-clear');
+    const list = load(host);
+    if(!list.length){
+      ul.innerHTML = '<div class="sh-empty">暂无搜索记录</div>';
+      clearBtn.style.display = 'none';
+      return;
+    }
+    clearBtn.style.display = '';
+    const input = host.querySelector('input');
+    const cur = (input.value||'').trim().toLowerCase();
+    ul.innerHTML = list.map((t, i) =>
+      '<li class="sh-item" data-idx="' + i + '" role="option">' +
+        '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<circle cx="12" cy="12" r="9"/>' +
+          '<polyline points="12 7 12 12 15.5 14"/>' +
+        '</svg>' +
+        '<span class="label"></span>' +
+        '<button class="del" type="button" aria-label="删除此条历史" data-tip="删除">×</button>' +
+      '</li>'
+    ).join('');
+    ul.querySelectorAll('.sh-item').forEach(li => {
+      const i = parseInt(li.dataset.idx, 10);
+      const label = li.querySelector('.label');
+      label.textContent = list[i];
+      if(cur && list[i].toLowerCase().includes(cur)) li.classList.add('hit');
+    });
+    ul.querySelectorAll('.sh-item').forEach(li => {
+      const i = parseInt(li.dataset.idx, 10);
+      li.addEventListener('mousedown', (e) => {
+        if(e.target.closest('.del')) return;
+        e.preventDefault();
+        input.value = list[i];
+        input.dispatchEvent(new Event('input', {bubbles:true}));
+        pop.hidden = true;
+        input.focus();
+      });
+    });
+    ul.querySelectorAll('.del').forEach(btn => {
+      btn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const cur2 = load(host);
+        cur2.splice(parseInt(btn.closest('.sh-item').dataset.idx, 10), 1);
+        save(host, cur2);
+        render(host);
+      });
+    });
+  }
+  function open(host){
+    const pop = host.querySelector('[data-search-history]');
+    if(!pop || !pop.hidden) return;
+    render(host);
+    pop.hidden = false;
+  }
+  function close(host){
+    const pop = host.querySelector('[data-search-history]');
+    if(pop) pop.hidden = true;
+  }
+  function wire(host){
+    const input = host.querySelector('input');
+    const pop = host.querySelector('[data-search-history]');
+    const clearBtn = pop && pop.querySelector('.sh-clear');
+    if(!input || !pop) return;
+    input.addEventListener('focus', () => {
+      if(!(input.value||'').trim()) open(host);
+      else close(host);
+    });
+    input.addEventListener('input', () => {
+      if((input.value||'').trim()) close(host);
+    });
+    input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        if((input.value||'').trim()) push(host, input.value);
+        close(host);
+      } else if(e.key === 'Escape'){
+        if(!pop.hidden){ close(host); e.preventDefault(); }
+      }
+    });
+    input.addEventListener('blur', () => {
+      setTimeout(() => { if(!host.contains(document.activeElement)) close(host); }, 120);
+    });
+    if(clearBtn){
+      clearBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        save(host, []);
+        render(host);
+        input.focus();
+      });
+    }
+  }
+  function init(){
+    document.querySelectorAll('[data-search-host]').forEach(wire);
+    document.addEventListener('mousedown', (e) => {
+      document.querySelectorAll('[data-search-host]').forEach(host => {
+        const pop = host.querySelector('[data-search-history]');
+        if(pop && !pop.hidden && !host.contains(e.target)) pop.hidden = true;
+      });
+    });
+    document.addEventListener('keydown', (e) => {
+      if(e.key !== 'Escape') return;
+      document.querySelectorAll('[data-search-host]').forEach(host => {
+        const pop = host.querySelector('[data-search-history]');
+        if(pop && !pop.hidden) pop.hidden = true;
+      });
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 

@@ -213,20 +213,12 @@ for (const [index, page] of demandPages.entries()) {
     assert.equal(/const now = new Date\(\);[\s\S]{0,180}updatedTime/.test(page), false, '仍使用页面加载时间冒充数据时间');
   });
 
-  test(`需求汇总页 ${index + 1} 标题右侧「Tapd 数据拉取时间 X月X号」灰色小字（2026-09-04 由 snap-chip 胶囊改 deadline-meta，复用录制档期同款样式）`, () => {
-    assert.equal(/id="snapChip"/.test(page), true, '缺少 #snapChip 元素');
-    assert.equal(/id="snapChipDate"/.test(page), true, '缺少 #snapChipDate 元素');
-    assert.equal(/\.page-title \.deadline-meta/.test(page), true, '缺少 .page-title .deadline-meta CSS');
-    assert.equal(/Tapd 数据拉取时间/.test(page), true, '缺少「Tapd 数据拉取时间」文案');
-    // setVisibleDataTime 应当把数据时间的月日写入到 snapChipDate（不含时分秒）
-    assert.equal(/d\.getMonth\(\)\+1\)\s*\+\s*'月'\s*\+\s*d\.getDate\(\)\s*\+\s*'号'/.test(page), true,
-      'setVisibleDataTime 应把数据时间的月日（不带时分秒）写入到 snapChipDate');
-    // 旧的 title-sub 计数占位 UI 已移除
-    assert.equal(/id="updatedTime"/.test(page), false, '不应再保留 #updatedTime 元素');
-    assert.equal(/id="kpiStories"/.test(page), false, 'title-sub 计数占位 #kpiStories 已随 old title-sub 一并迁移到 KPI dash，不应再出现');
-    // 搜索框应与 page-title 同行显示在 .title-row 内；不应再独立成行
-    assert.equal(/<div class="title-row">[\s\S]{0,500}id="searchInput"[\s\S]{0,500}<\/div>/.test(page), true, '#searchInput 未与 page-title 同行显示');
-    assert.equal(/<div class="title-bar">[\s\S]{0,500}id="searchInput"[\s\S]{0,500}<\/div>/.test(page), false, '搜索框仍位于独立 title-bar 行（应同行）');
+  test(`需求汇总页 ${index + 1} 标题旁「Tapd 数据拉取时间」灰色小字已移除（2026-09-07 反馈：用户不要）`, () => {
+    assert.equal(/id="snapChip"/.test(page), false, '不应再保留 #snapChip 元素');
+    assert.equal(/id="snapChipDate"/.test(page), false, '不应再保留 #snapChipDate 元素');
+    assert.equal(/class="deadline-meta"/.test(page), false, '不应再保留 .deadline-meta span');
+    assert.equal(/Tapd 数据拉取时间/.test(page), false, '不应再保留「Tapd 数据拉取时间」文案');
+    assert.equal(/\.page-title \.deadline-meta/.test(page), false, '不应再保留 .page-title .deadline-meta CSS');
   });
 
   test(`需求汇总页 ${index + 1} 空数据行只跨越真实 15 列，让 Story 吸收剩余宽度`, () => {

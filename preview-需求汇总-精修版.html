@@ -113,33 +113,30 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .va-hud[data-stage="Vo ing"],.va-hud-opt[data-stage="Vo ing"]{--hud-c:#7DBFBF;--hud-bd:rgba(125,191,191,.5);--hud-bg:rgba(125,191,191,.12)}
 .va-hud[data-stage="Done"],.va-hud-opt[data-stage="Done"]{--hud-c:#7A8A96;--hud-bd:rgba(75,90,105,.5);--hud-bg:rgba(45,58,72,.35)}
 .va-hud-trigger{
-  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  width:92px;max-width:100%;height:28px;padding:0 9px;
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  width:78px;max-width:100%;height:24px;padding:0 6px;
   background:rgba(20,30,36,.72);
   border:1px solid var(--hud-bd,var(--c-border));
-  border-radius:4px;
+  border-radius:3px;
   color:var(--hud-c,var(--c-text-mute));
-  font:700 11px/1 'JetBrains Mono',monospace;
-  letter-spacing:.06em;
+  font:700 10px/1 'JetBrains Mono',monospace;
+  letter-spacing:.04em;
   cursor:pointer;
-  box-shadow:0 0 0 1px rgba(15,247,150,.05),inset 0 1px 0 rgba(255,255,255,.04),0 6px 16px -6px rgba(0,0,0,.55);
+  box-shadow:0 0 0 1px rgba(15,247,150,.05),inset 0 1px 0 rgba(255,255,255,.04),0 4px 12px -6px rgba(0,0,0,.55);
   backdrop-filter:blur(20px) saturate(1.4);
   -webkit-backdrop-filter:blur(20px) saturate(1.4);
   transition:border-color .12s,background .12s;
 }
 .va-hud-trigger:hover{background:rgba(30,42,50,.78);border-color:var(--hud-c,var(--c-primary))}
-.va-hud-dot{width:7px;height:7px;border-radius:50%;background:var(--hud-c,var(--c-text-dim));box-shadow:0 0 8px var(--hud-c,transparent);flex:0 0 auto}
+/* 2026-09-07 精简 HUD：去掉色点 + 缩小框（触发器 color 仍由 --hud-c 驱动，caret + 文字本身承担颜色锚点） */
 .va-hud-label{flex:0 0 auto}
-.va-hud-caret{font:400 9px/1 'JetBrains Mono',monospace;color:var(--c-text-dim);flex:0 0 auto}
+.va-hud-caret{font:400 9px/1 'JetBrains Mono',monospace;color:var(--hud-c,var(--c-text-dim));flex:0 0 auto}
 .va-hud-trigger.va-manual::after{content:'🔒';position:absolute;right:-5px;top:-7px;font-size:8px;line-height:1;opacity:.85;filter:grayscale(.2);pointer-events:none}
 /* 文案策划就地可编辑（提示态） */
 .person.editable{cursor:text;border-bottom:1px dashed transparent;transition:border-color .12s,background .12s;padding:1px 4px;border-radius:3px}
 .person.editable:hover{border-bottom-color:var(--c-border);background:rgba(255,255,255,.03)}
 .person.editable:focus{outline:none;border-bottom-color:var(--c-primary);background:rgba(15,247,150,.06)}
 .page-title .code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
-/* 标题旁的「Tapd 数据拉取时间 X月X号」灰色小字（2026-09-04 由 snap-chip 改 deadline-meta，复用录制档期同款样式） */
-.page-title .deadline-meta{display:inline-block;font-family:'Inter','Microsoft YaHei UI',sans-serif;font-size:12.5px;font-weight:400;color:var(--c-text-2);letter-spacing:.2px;line-height:1;vertical-align:middle;margin-left:4px;white-space:nowrap}
-.page-title .deadline-meta .deadline-date{font-family:var(--font-ui);font-weight:600;color:var(--c-text-2);letter-spacing:.4px;font-variant-numeric:tabular-nums;margin-left:4px}
 .subtitle{font-size:12.5px;color:var(--c-text-mute);line-height:1.5;max-width:640px}
 .actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .btn{border:none;font-family:inherit;cursor:pointer;font-size:12.5px;font-weight:600;border-radius:5px;padding:8px 14px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.3px}
@@ -521,7 +518,7 @@ body.embed .mid{width:100%}
   .release-library-link{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:62px;height:25px;padding:0 7px;border:1px solid rgba(107,217,149,.38);border-radius:4px;color:#6BD995;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap}
   .release-library-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
   .release-library-link.pending{color:var(--c-text-dim);border-color:var(--c-hairline);border-style:dashed;cursor:default}
-  .col-status .va-hud-trigger{width:108px!important;padding:0 8px!important}
+  .col-status .va-hud-trigger{width:84px!important;padding:0 6px!important;font-size:10px}
 
   /* ===== 不透明背景：修复透光 (2026-09-02) ===== */
   /* 侧栏 */
@@ -596,7 +593,7 @@ body.embed .mid{width:100%}
   .ve-role{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .th-ve-group{min-width:0!important}
   .th-max-date,.col-max-date{width:7.4%;min-width:0!important;max-width:none}
-  .col-status .va-hud-trigger{width:100%!important;min-width:0;padding:0 3px!important;font-size:11px}
+  .col-status .va-hud-trigger{width:100%!important;min-width:0;padding:0 5px!important;font-size:10px}
   .story-title,.story-link,.creator-cell,.person,.max-date-cell,.release-summary-text{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ve-chip{max-width:100%;padding:2px 4px;font-size:11px}
   .ve-role{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -672,7 +669,7 @@ body.embed .mid{width:100%}
       <div class="title-block">
         <div class="eyebrow"><span class="sig"></span>MISSION OPERATIONS<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <div class="title-row">
-          <h1 class="page-title">需求汇总<span class="deadline-meta" id="snapChip" hidden>Tapd 数据拉取时间<span class="deadline-date" id="snapChipDate">—</span></span></h1>
+          <h1 class="page-title">需求汇总</h1>
           <div class="search-host" data-search-host data-search-page="demands">
             <input class="search-input" id="searchInput" placeholder="搜索任务名 / Narrative Designer..."/>
             <div class="search-history" data-search-history role="listbox" tabindex="-1" hidden aria-label="搜索历史">
@@ -1517,7 +1514,7 @@ function rowHTML(d){
     <td class="col-status" oncontextmenu="return clearManualStage('${d.id}',event)">
       <span class="va-hud" data-id="${d.id}" data-stage="${esc(effectiveStage)}">
         <button type="button" class="va-hud-trigger${manualCls}" data-id="${d.id}" onclick="toggleStatusPop(this,event)" title="${manualTitle}" aria-haspopup="listbox" aria-expanded="false">
-          <span class="va-hud-dot"></span><span class="va-hud-label">${esc(effectiveStage)}</span><span class="va-hud-caret">▾</span>
+          <span class="va-hud-label">${esc(effectiveStage)}</span><span class="va-hud-caret">▾</span>
         </button>
       </span>
     </td>
@@ -2181,17 +2178,6 @@ function setVisibleDataTime(source, atIso){
   const d = parseDataMoment(atIso);
   window.__DEMAND_DATA_SOURCE__ = source || '';
   window.__DEMAND_DATA_AT__ = d ? d.toISOString() : null;
-  // 标题右侧「Tapd 数据拉取时间 X月X号」灰色小字（2026-09-04 由 snap-chip 胶囊改 deadline-meta 灰色小字，复用录制档期同款样式）
-  const snapChip = document.getElementById('snapChip');
-  const snapDate = document.getElementById('snapChipDate');
-  if(snapChip && snapDate){
-    if(d){
-      snapDate.textContent = (d.getMonth()+1) + '月' + d.getDate() + '号';
-      snapChip.hidden = false;
-    } else {
-      snapChip.hidden = true;
-    }
-  }
   const note = document.getElementById('snapshotTimeNote');
   if(note){
     if(d){

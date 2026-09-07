@@ -76,7 +76,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
 .chip-prog i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
 /* ★ 状态芯片 · 工业战术色板（2026-07-24 排版整理：改用 .chip-status 独立类避开 .chip-filter.on 绿色覆盖）
-   待澄清=BLACKPINK霓虹粉 / 已入库=沙棕金 / 录音中=青灰蓝 / 已完成=军橄榄 */
+   待澄清=霓虹粉 / 文案ing=沙棕金 / 已交稿=紫灰 / Vo ing=青灰蓝 / Done=灰蓝 */
 .chip-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-mute);border-radius:12px;font-size:11px;cursor:pointer;transition:all .12s;letter-spacing:.2px;font-weight:500}
 .chip-status i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:middle}
 
@@ -90,23 +90,28 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .chip-status.chip-prog-writing.on{color:#D4A554;border-color:#AA8443;background:rgba(212,165,84,.12);box-shadow:inset 0 0 0 1px rgba(212,165,84,.35),inset 0 -2px 0 currentColor}
 .chip-status.chip-prog-writing i{background:#AA8443;box-shadow:0 0 4px rgba(212,165,84,.6)}
 
+.chip-status.chip-prog-handover{color:#7A6FA8;border-color:rgba(159,143,207,.5)}
+.chip-status.chip-prog-handover:hover{color:#9F8FCF;border-color:#7A6FA8;background:rgba(159,143,207,.08)}
+.chip-status.chip-prog-handover.on{color:#9F8FCF;border-color:#7A6FA8;background:rgba(159,143,207,.12);box-shadow:inset 0 0 0 1px rgba(159,143,207,.35),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-handover i{background:#7A6FA8;box-shadow:0 0 4px rgba(159,143,207,.6)}
+
 .chip-status.chip-prog-vo{color:#649999;border-color:rgba(125,191,191,.5)}
 .chip-status.chip-prog-vo:hover{color:#7DBFBF;border-color:#649999;background:rgba(125,191,191,.08)}
 .chip-status.chip-prog-vo.on{color:#7DBFBF;border-color:#649999;background:rgba(125,191,191,.12);box-shadow:inset 0 0 0 1px rgba(125,191,191,.35),inset 0 -2px 0 currentColor}
 .chip-status.chip-prog-vo i{background:#649999;box-shadow:0 0 4px rgba(125,191,191,.6)}
 
-.chip-status.chip-prog-done{color:#9BA895;border-color:rgba(123,139,118,.5)}
-.chip-status.chip-prog-done:hover{color:#B5C0AE;border-color:#7B8B76;background:rgba(123,139,118,.08)}
-.chip-status.chip-prog-done.on{color:#B5C0AE;border-color:#7B8B76;background:rgba(123,139,118,.12);box-shadow:inset 0 0 0 1px rgba(123,139,118,.35),inset 0 -2px 0 currentColor}
-.chip-status.chip-prog-done i{background:#7B8B76;box-shadow:0 0 4px rgba(123,139,118,.6)}
-/* ★ 状态 HUD · 玻璃军事风（2026-09-07 定稿：A 玻璃 HUD 方案）
-   深玻璃 + 细边 + 等宽触发器 + 状态码 [PEND/INGT/RECD/CMPL]。
-   4 态色系与顶部筛选芯片 / 行首状态灯一致：待澄清=霓虹粉 / 已入库=沙棕金 / 录音中=青灰蓝 / 已完成=灰蓝深沉 */
+.chip-status.chip-prog-done{color:#7A8A96;border-color:rgba(122,138,150,.5)}
+.chip-status.chip-prog-done:hover{color:#9AA6B0;border-color:#7A8A96;background:rgba(122,138,150,.08)}
+.chip-status.chip-prog-done.on{color:#9AA6B0;border-color:#7A8A96;background:rgba(122,138,150,.12);box-shadow:inset 0 0 0 1px rgba(122,138,150,.35),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-done i{background:#7A8A96;box-shadow:0 0 4px rgba(122,138,150,.6)}
+/* ★ 状态 HUD · 玻璃军事风（2026-09-07 定稿：精简 A 方案，去掉色点+状态码，只保留文字）
+   5 态色系与顶部筛选芯片 / 行首状态灯一致：待澄清=霓虹粉 / 文案ing=沙棕金 / 已交稿=紫灰 / Vo ing=青灰蓝 / Done=灰蓝深沉 */
 .va-hud{position:relative;display:inline-flex;align-items:center;justify-content:center}
 .va-hud[data-stage="待澄清"],.va-hud-opt[data-stage="待澄清"]{--hud-c:#E87DA0;--hud-bd:rgba(232,125,160,.5);--hud-bg:rgba(232,125,160,.12)}
-.va-hud[data-stage="已入库"],.va-hud-opt[data-stage="已入库"]{--hud-c:#D4A554;--hud-bd:rgba(212,165,84,.5);--hud-bg:rgba(212,165,84,.12)}
-.va-hud[data-stage="录音中"],.va-hud-opt[data-stage="录音中"]{--hud-c:#7DBFBF;--hud-bd:rgba(125,191,191,.5);--hud-bg:rgba(125,191,191,.12)}
-.va-hud[data-stage="已完成"],.va-hud-opt[data-stage="已完成"]{--hud-c:#7A8A96;--hud-bd:rgba(75,90,105,.5);--hud-bg:rgba(45,58,72,.35)}
+.va-hud[data-stage="文案ing"],.va-hud-opt[data-stage="文案ing"]{--hud-c:#D4A554;--hud-bd:rgba(212,165,84,.5);--hud-bg:rgba(212,165,84,.12)}
+.va-hud[data-stage="已交稿"],.va-hud-opt[data-stage="已交稿"]{--hud-c:#9F8FCF;--hud-bd:rgba(159,143,207,.5);--hud-bg:rgba(159,143,207,.12)}
+.va-hud[data-stage="Vo ing"],.va-hud-opt[data-stage="Vo ing"]{--hud-c:#7DBFBF;--hud-bd:rgba(125,191,191,.5);--hud-bg:rgba(125,191,191,.12)}
+.va-hud[data-stage="Done"],.va-hud-opt[data-stage="Done"]{--hud-c:#7A8A96;--hud-bd:rgba(75,90,105,.5);--hud-bg:rgba(45,58,72,.35)}
 .va-hud-trigger{
   position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;
   width:92px;max-width:100%;height:28px;padding:0 9px;
@@ -312,14 +317,15 @@ tbody tr:nth-child(even){background:rgba(255,255,255,.022)}
 tbody tr:hover{background:var(--c-surface-2)}
 tbody tr td:first-child{position:relative}
 tbody tr td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c-primary);transition:all .15s}
-/* 行首状态灯 · 与"状态"列 4 态色系一致 */
+/* 行首状态灯 · 与"状态"列 5 态色系一致 */
 tbody tr[data-stage="待澄清"] td:first-child::before{background:#E87DA0;opacity:.55}
-tbody tr[data-stage="已入库"] td:first-child::before{background:#D4A554}
-tbody tr[data-stage="录音中"] td:first-child::before{background:#7DBFBF}
-tbody tr[data-stage="已完成"] td:first-child::before{background:var(--c-primary);opacity:.6}
-/* 已完成行：视觉沉底（降透明度，悬停恢复可读） */
-tbody tr[data-stage="已完成"]{opacity:.42}
-tbody tr[data-stage="已完成"]:hover{opacity:.9}
+tbody tr[data-stage="文案ing"] td:first-child::before{background:#D4A554}
+tbody tr[data-stage="已交稿"] td:first-child::before{background:#9F8FCF}
+tbody tr[data-stage="Vo ing"] td:first-child::before{background:#7DBFBF}
+tbody tr[data-stage="Done"] td:first-child::before{background:var(--c-primary);opacity:.6}
+/* Done 行：视觉沉底（降透明度，悬停恢复可读） */
+tbody tr[data-stage="Done"]{opacity:.42}
+tbody tr[data-stage="Done"]:hover{opacity:.9}
 /* PM 手动锁定行：左侧色条加粗发光 + 整行微染，一眼可辨（右键单元格可清除锁定） */
 tbody tr[data-manual="1"] td:first-child::before{width:3px;box-shadow:0 0 8px rgba(15,247,150,.65)}
 tbody tr[data-manual="1"]{background:linear-gradient(90deg,rgba(15,247,150,.07),transparent 45%)}
@@ -348,7 +354,7 @@ tbody tr.selected{background:linear-gradient(90deg,rgba(15,247,150,.12),transpar
 .vs-on{background:rgba(255,210,76,0.12);color:var(--c-warning)}
 .vs-off{color:var(--c-text-dim)}
 
-/* 4 小方块（progress-4/p-cell）已废弃 2026-07-24：改为需求粒度的"状态"列 · 纯人工维护（待澄清/已入库/录音中/已完成）*/
+/* 4 小方块（progress-4/p-cell）已废弃 2026-07-24：改为需求粒度的"状态"列 · 纯人工维护（待澄清/文案ing/已交稿/Vo ing/Done）*/
 
 
 .person{color:var(--c-text-mute);font-size:13px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;font-weight:500}
@@ -445,7 +451,6 @@ body.embed .mid{width:100%}
     cursor:pointer;text-align:left;
   }
   .va-hud-opt:hover{background:rgba(15,247,150,.07)}
-  .va-hud-opt .va-hud-code{margin-left:auto;font:500 9px/1 'JetBrains Mono',monospace;color:var(--c-text-mute);letter-spacing:.1em}
   .va-hud-opt.on{background:rgba(15,247,150,.10);border-color:rgba(15,247,150,.22)}
   .va-hud-opt.on .va-hud-label{color:var(--c-primary)}
 
@@ -458,7 +463,7 @@ body.embed .mid{width:100%}
   .main .rp-tag, .main .story-title, .main .story-link,
   .main .task-name, .main .clarify, .main .vs,
   .main .area, .main .person, .main .chip-filter,
-  .main .clarify-cell, .main .clarify-input, .main .va-hud-trigger, .main .va-hud-label, .main .va-hud-code,
+  .main .clarify-cell, .main .clarify-input, .main .va-hud-trigger, .main .va-hud-label,
   .main .cva-item .l, .main .cva-item .v small,
   .main input[type=text], .main select, .main textarea{
     font-family:'Inter','JetBrains Mono',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
@@ -729,9 +734,10 @@ body.embed .mid{width:100%}
         <span class="flabel">STATUS</span>
         <div class="chip-filter on" data-fk="status" data-fv="">全部<span class="chip-num" id="cnt-status-all">—</span></div>
         <div class="chip-status chip-prog chip-prog-pending"  data-fk="status" data-fv="待澄清"><i></i>待澄清<span class="chip-num" id="cnt-pending">—</span></div>
-        <div class="chip-status chip-prog chip-prog-writing"  data-fk="status" data-fv="已入库"><i></i>已入库<span class="chip-num" id="cnt-writing">—</span></div>
-        <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="录音中"><i></i>录音中<span class="chip-num" id="cnt-vo">—</span></div>
-        <div class="chip-status chip-prog chip-prog-done"     data-fk="status" data-fv="已完成"><i></i>已完成<span class="chip-num" id="cnt-done">—</span></div>
+        <div class="chip-status chip-prog chip-prog-writing"  data-fk="status" data-fv="文案ing"><i></i>文案ing<span class="chip-num" id="cnt-writing">—</span></div>
+        <div class="chip-status chip-prog chip-prog-handover" data-fk="status" data-fv="已交稿"><i></i>已交稿<span class="chip-num" id="cnt-handover">—</span></div>
+        <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="Vo ing"><i></i>Vo ing<span class="chip-num" id="cnt-vo">—</span></div>
+        <div class="chip-status chip-prog chip-prog-done"     data-fk="status" data-fv="Done"><i></i>Done<span class="chip-num" id="cnt-done">—</span></div>
       </div>
       <!-- 历史归档：STATUS 行整行 → 动态 RELEASE chip 行（2026-09-04 方案 A；仅 filterRelease==='__archive__' 时显示） -->
       <div class="filter-row release-row" id="releaseRow" style="display:none">
@@ -824,7 +830,7 @@ const AREA_CLASS = {'AI':'AI','SOL':'SOL','大战场':'BF','系统':'SYS','干�
 const VS_OPTS = ['音画同步','无需视频'];
 
 // PM 定稿 2026-09-04：需求状态不再由 TAPD 状态自动映射驱动，改为纯人工维护。
-// 初始值恒为「待澄清」；文案只需推到「已入库」，之后的 录音中/已完成 由 VO Manager 维护。
+// 初始值恒为「待澄清」；文案推到「文案ing」后由 VO Manager 维护「已交稿 → Vo ing → Done」。
 function tapdStage(d){
   return '待澄清';
 }
@@ -1020,7 +1026,7 @@ try{ _f0 = JSON.parse(localStorage.getItem(FILTERS_KEY)||'{}') || {}; }catch(_){
 let filterArea = _f0.area || '';       // '' = 全部
 let filterCw = _f0.cw || '';           // '' = 全部文案策划；'__none__' = 未分配
 let filterRelease = (window.__INIT_RELEASE__ !== undefined ? window.__INIT_RELEASE__ : (_f0.release || '')); // '' = 全部发布计划；外壳 URL ?release= 优先
-let filterStatus = _f0.status || '';   // '' = 全部；待澄清/已入库/录音中/已完成
+let filterStatus = _f0.status || '';   // '' = 全部；待澄清/文案ing/已交稿/Vo ing/Done
 let archiveSubRelease = (filterRelease === '__archive__') ? (_f0.archiveRelease || '') : ''; // 历史归档内的发布计划子筛选（'' = 全部归档版本）
 let searchTxt = _f0.search || '';
 let recordingMaxByDemand = {};
@@ -1159,7 +1165,7 @@ function cleanTaskName(n){
   return t || '—';
 }
 // isDone / tacStatus / progCell — 已废弃 2026-07-24（4 小方块删除）
-// 需求粒度状态改为纯人工维护（2026-09-04）：初始「待澄清」，文案推「已入库」，后续 录音中/已完成 由 VO Manager 维护
+// 需求粒度状态改为纯人工维护（2026-09-07 收敛为 5 态）：待澄清 → 文案ing → 已交稿 → Vo ing → Done
 // 文案策划固定可选名单（PM 指定 2026-07-23）
 const COPYWRITERS = [
   {id:'bojackgguan',  name:'关学院'},
@@ -1290,7 +1296,7 @@ function openStatusPop(btn){
   pop.innerHTML = STATUS_LIST.map(s=>{
     const on = s===cur ? ' on' : '';
     return `<button type="button" class="va-hud-opt${on}" data-stage="${esc(s)}" data-val="${esc(s)}" onclick="pickStatus('${esc(id)}','${esc(s)}',this,event)">`+
-      `<span class="va-hud-dot"></span><span class="va-hud-label">${esc(s)}</span><span class="va-hud-code">[${STATUS_CODE[s]||''}]</span>`+
+      `<span class="va-hud-label">${esc(s)}</span>`+
       `</button>`;
   }).join('');
   pop.onclick = (e)=>e.stopPropagation();
@@ -1502,7 +1508,7 @@ function rowHTML(d){
   const manualCls = isManual ? ' va-manual' : '';
   const manualTitle = isManual
     ? '状态：🔒 已锁定（PM 手动定值）· 右键单元格清除后回到「待澄清」'
-    : '状态：初始「待澄清」；文案推到「已入库」后，录音中/已完成 由 VO Manager 维护';
+    : '状态：初始「待澄清」；文案推到「文案ing → 已交稿」后，Vo ing / Done 由 VO Manager 维护';
   return `<tr data-stage="${esc(effectiveStage)}" data-id="${d.id}" data-area="${esc(d.area||'')}"${isManual?' data-manual="1"':''}${d._offlineDraft?' data-offline-draft="1"':''}>
     <td class="col-release"><span class="rp-tag">${esc(d.release_plan||'—')}</span></td>
     <td class="col-area"><span class="area">${esc(d.area||'—')}</span></td>
@@ -1581,8 +1587,8 @@ function matchFilter(d){
   }
   return true;
 }
-// 状态排序权重：待澄清 → 已入库 → 录音中 → 已完成（已完成沉底）
-const STAGE_ORDER = {'待澄清':0,'已入库':1,'录音中':2,'已完成':3};
+// 状态排序权重：待澄清 → 文案ing → 已交稿 → Vo ing → Done（Done 沉底）
+const STAGE_ORDER = {'待澄清':0,'文案ing':1,'已交稿':2,'Vo ing':3,'Done':4};
 function stageOf(d){
   const raw = d.manual_status || tapdStage(d);
   return (typeof migrateStatus==='function') ? migrateStatus(raw) : raw;
@@ -1690,7 +1696,7 @@ function updateResultBar(shown, total){
 
 // 状态芯片计数：按当前 area / release 筛选范围统计（点芯片时同步刷新，避免数量与表格脱节）
 function updateChipCounts(){
-  let stPending=0, stWriting=0, stVo=0, stDone=0;
+  let stPending=0, stWriting=0, stHandover=0, stVo=0, stDone=0;
   allDemands.forEach(d=>{
     if(filterArea   && d.area        !== filterArea)   return;
     if(filterRelease){
@@ -1702,15 +1708,17 @@ function updateChipCounts(){
     // PM 手动值优先，否则回退初始「待澄清」
     const raw = d.manual_status || tapdStage(d);
     const s = (typeof migrateStatus==='function') ? migrateStatus(raw) : raw;
-    if(s==='已完成') stDone++;
-    else if(s==='已入库') stWriting++;
-    else if(s==='录音中') stVo++;
+    if(s==='Done') stDone++;
+    else if(s==='Vo ing') stVo++;
+    else if(s==='已交稿') stHandover++;
+    else if(s==='文案ing') stWriting++;
     else stPending++;
   });
-  const ep=document.getElementById('cnt-pending'); if(ep) ep.textContent=fmt(stPending);
-  const ew=document.getElementById('cnt-writing'); if(ew) ew.textContent=fmt(stWriting);
-  const ev=document.getElementById('cnt-vo');      if(ev) ev.textContent=fmt(stVo);
-  const ed=document.getElementById('cnt-done');    if(ed) ed.textContent=fmt(stDone);
+  const ep=document.getElementById('cnt-pending');  if(ep) ep.textContent=fmt(stPending);
+  const ew=document.getElementById('cnt-writing');  if(ew) ew.textContent=fmt(stWriting);
+  const eh=document.getElementById('cnt-handover'); if(eh) eh.textContent=fmt(stHandover);
+  const ev=document.getElementById('cnt-vo');       if(ev) ev.textContent=fmt(stVo);
+  const ed=document.getElementById('cnt-done');     if(ed) ed.textContent=fmt(stDone);
 }
 // 历史归档：STATUS 行 ↔ RELEASE chip 行切换 + 动态渲染发布计划芯片（2026-09-04 方案 A）
 function renderReleaseChips(){
@@ -1777,11 +1785,16 @@ async function kvPull(key){
 // ============ Step 3A · 澄清会 / 粗估看板 ============
 const CLARIFY_KEY = 'vo_clarify_v1';
 const CLARIFY_SCHEMA_KEY = 'vo_clarify_schema_v2';
-// 规则 6（用户定稿 2026-07-23；2026-09-04 状态收敛为纯人工维护）：状态选项 = 待澄清 / 已入库 / 录音中 / 已完成
-const STATUS_LIST = ['待澄清','已入库','录音中','已完成'];
-const STATUS_CODE = {'待澄清':'PEND','已入库':'INGT','录音中':'RECD','已完成':'CMPL'};
-// 老状态只做等价映射；任何已有有效状态均按人工值保留，禁止再根据“待澄清”字面值猜测并清除。
-const LEGACY_STATUS_MAP = {'未澄清':'待澄清','有变更':'待澄清','已澄清':'已入库','文案ING':'已入库','Vo ING':'录音中'};
+// 规则 6（用户定稿 2026-07-23；2026-09-07 状态收敛为 5 态纯人工维护）：状态选项 = 待澄清 / 文案ing / 已交稿 / Vo ing / Done
+const STATUS_LIST = ['待澄清','文案ing','已交稿','Vo ing','Done'];
+// 老状态只做等价映射；任何已有有效状态均按人工值保留，禁止再根据"待澄清"字面值猜测并清除。
+const LEGACY_STATUS_MAP = {
+  '未澄清':'待澄清','有变更':'待澄清',
+  '已澄清':'文案ing','文案ING':'文案ing',
+  '已入库':'文案ing','已交稿':'已交稿',
+  '录音中':'Vo ing','Vo ING':'Vo ing',
+  '已完成':'Done','完成':'Done'
+};
 function normalizeClarifyStore(store){
   let dirty = false;
   const src = (store && typeof store==='object') ? store : {};
@@ -1884,7 +1897,7 @@ function renderClarifyBoard(){
     plans[rp].en += (c.en||0);
     plans[rp].lines += (c.lines||0);
     plans[rp].n += 1;
-    const done = stageOf(d)==='已完成';
+    const done = stageOf(d)==='Done';
     if(done) plans[rp].done += 1;
     totalCn += (c.cn||0); totalEn += (c.en||0); totalLines += (c.lines||0);
     allCnt += 1; if(done) doneCnt += 1;
@@ -1906,7 +1919,7 @@ function renderClarifyBoard(){
   const sumCard = card('__sum__', {cn:totalCn,en:totalEn,lines:totalLines,n:allCnt}, true);
   board.innerHTML = planCards + sumCard;
   const dc = document.getElementById('clarifyDoneCount');
-  if(dc) dc.textContent = `${doneCnt} / ${allCnt} 已完成`;
+  if(dc) dc.textContent = `${doneCnt} / ${allCnt} Done`;
 }
 function toggleClarify(){
   const b = document.getElementById('clarifyBody');
@@ -1919,18 +1932,19 @@ function updateKPI(){
   const copywriters = new Set(allDemands.map(d=>d.cn_lines_handler).filter(Boolean).map(s=>s.trim()));
   // 台词表 KPI 按需求真实 script_doc_url 统计，不再按“策划硬编码表”推测。
   const docsDone = allDemands.filter(d=>(d.script_doc_url||'').trim()).length;
-  // 进度 · 需求粒度 4 态计数（纯人工维护：manual_status 优先，缺省待澄清）
-  let cPend=0, cWrite=0, cVo=0, cDone=0;
+  // 进度 · 需求粒度 5 态计数（纯人工维护：manual_status 优先，缺省待澄清）
+  let cPend=0, cWrite=0, cHandover=0, cVo=0, cDone=0;
   allDemands.forEach(d=>{
-    const s = d.manual_status || tapdStage(d);
-    if(s==='已完成') cDone++;
-    else if(s==='录音中') cVo++;
-    else if(s==='已入库') cWrite++;
+    const s = (typeof migrateStatus==='function') ? migrateStatus(d.manual_status || tapdStage(d)) : (d.manual_status || tapdStage(d));
+    if(s==='Done') cDone++;
+    else if(s==='Vo ing') cVo++;
+    else if(s==='已交稿') cHandover++;
+    else if(s==='文案ing') cWrite++;
     else cPend++;
   });
   const totalC = total || 1;
   const pct = Math.round(cDone*100/totalC);
-  const warnCnt = cWrite + cVo;   // "进行中"合计（已入库 + 录音中）
+  const warnCnt = cWrite + cHandover + cVo;   // "进行中"合计（文案ing + 已交稿 + Vo ing）
 
   const ks = document.getElementById('kpiStories');
   if(ks) ks.textContent = fmt(total);
@@ -1947,7 +1961,7 @@ function updateKPI(){
   document.getElementById('kpiDocsMain').textContent = fmt(docsDone);
   document.getElementById('kpiDocsMetaMain').textContent = `已生成 ${docsDone} · 待生成 ${Math.max(0,total-docsDone)}`;
   document.getElementById('kpiPctMain').textContent = fmt(pct);
-  document.getElementById('kpiProgMetaMain').textContent = `${cPend}待澄清 · ${cWrite}文案 · ${cVo}Vo · ${cDone}完成`;
+  document.getElementById('kpiProgMetaMain').textContent = `${cPend}待澄清 · ${cWrite}文案ing · ${cHandover}已交稿 · ${cVo}Vo ing · ${cDone}Done`;
 
   // 双 DDL 与版本节点同源：台词终锁定周四 / VO资源交付周五，按工作日倒数。
   renderDualDdl(rel);
@@ -1956,7 +1970,7 @@ function updateKPI(){
   document.getElementById('kpiStoriesMeta').textContent = `${areas.size} AREA · ${copywriters.size} Narrative Designer`;
   document.getElementById('kpiDocs').textContent = `${docsDone}/${total}`;
   document.getElementById('kpiDocsMeta').textContent = `已生成 ${docsDone} · 待生成 ${Math.max(0,total-docsDone)} · 共 ${total} 条需求`;
-  document.getElementById('kpiProgMeta').textContent = `${cPend} 待澄清 · ${cWrite} 文案 · ${cVo} Vo · ${cDone} 完`;
+  document.getElementById('kpiProgMeta').textContent = `${cPend} 待澄清 · ${cWrite} 文案ing · ${cHandover} 已交稿 · ${cVo} Vo ing · ${cDone} Done`;
   document.getElementById('kpiDdlMeta').innerHTML = `<span class="delta-down">进行中未完成</span> · 需关注`;
   // 状态芯片计数（4 态分别统计，随当前 area/release 筛选动态更新）
   updateChipCounts();

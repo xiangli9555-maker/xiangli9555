@@ -130,8 +130,8 @@ const DEMANDS_READY = (async () => {
     const [rows] = await pool.query('SELECT v FROM kv_store WHERE k=?', ['vo_clarify_v1']);
     if (rows[0] && rows[0].v) {
       const legacy = JSON.parse(rows[0].v) || {};
-      const map = {'未澄清':'待澄清','有变更':'待澄清','已澄清':'已入库','文案ING':'已入库','Vo ING':'录音中'};
-      const valid = new Set(['待澄清','已入库','录音中','已完成']);
+      const map = {'未澄清':'待澄清','有变更':'待澄清','已澄清':'文案ing','文案ING':'文案ing','已入库':'文案ing','录音中':'Vo ing','Vo ING':'Vo ing','已完成':'Done','完成':'Done'};
+      const valid = new Set(['待澄清','文案ing','已交稿','Vo ing','Done']);
       for (const [id, rec] of Object.entries(legacy)) {
         if (!/^\d+$/.test(id) || !rec || !rec.status) continue;
         const status = map[rec.status] || rec.status;
@@ -604,7 +604,7 @@ app.patch('/api/demands/:id', async (req, res) => {
   const rejected = Object.keys(req.body || {}).filter((f) => !MANUAL_DEMAND_FIELDS.includes(f));
   if (rejected.length) return res.status(400).json({ ok:false, error:'TAPD权威字段不可人工修改', rejected });
   if ('manual_status' in (req.body||{})) {
-    const valid = ['待澄清','已入库','录音中','已完成',null,''];
+    const valid = ['待澄清','文案ing','已交稿','Vo ing','Done',null,''];
     if (!valid.includes(req.body.manual_status)) return res.status(400).json({ok:false,error:'invalid_manual_status'});
   }
   await DEMANDS_READY;
@@ -612,7 +612,7 @@ app.patch('/api/demands/:id', async (req, res) => {
     if (f in req.body) {
       let v = req.body[f];
       if (f === 'manual_status') {
-        const valid = ['待澄清','已入库','录音中','已完成'];
+        const valid = ['待澄清','文案ing','已交稿','Vo ing','Done'];
         if (v !== null && v !== '' && !valid.includes(v)) return;
         v = v || null;
       }

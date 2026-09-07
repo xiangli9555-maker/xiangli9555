@@ -628,7 +628,7 @@ html.embed .layout{padding-left:0}
         <!-- 版本按钮由 buildFilterButtons() 动态注入 -->
       </div>
       <div class="tb-group" id="roleGroup"><span class="tb-label">角色</span>
-        <button class="tb-btn" id="roleCn" onclick="setRoleFilter('cn')">文案关注</button>
+        <button class="tb-btn" id="roleCn" onclick="setRoleFilter('cn')">ND 关注</button>
         <button class="tb-btn" id="roleAudio" onclick="setRoleFilter('audio')">音频关注</button>
       </div>
       <div class="tb-group" style="display:none"><span class="tb-label">数据源</span>
@@ -654,7 +654,7 @@ html.embed .layout{padding-left:0}
         <div class="li"><span class="sw" style="background:rgba(244,207,103,0.12);border:1px solid #F4CF67"></span> 冻结</div>
         <div class="li"><span class="sw" style="background:#1B2526;border:1px solid #656668"></span> 启动周</div>
         <span style="flex:1"></span>
-        <div class="li"><span class="role-chip" style="background:var(--c-info)"></span> 文案策划</div>
+        <div class="li"><span class="role-chip" style="background:var(--c-info)"></span> Narrative Designer</div>
         <div class="li"><span class="role-chip" style="background:var(--c-primary)"></span> 音频策划</div>
         <div class="li"><span class="role-chip" style="background:var(--c-warning)"></span> PM</div>
         <span style="flex:1"></span>
@@ -2049,7 +2049,7 @@ function renderDayView(){
 
       // Row 2/3/4: 文案 / 音频 / PM
       const roles = [
-        { key:'cn',    label:'文案', cls:'role-cn' },
+        { key:'cn',    label:'ND', cls:'role-cn' },
         { key:'audio', label:'音频', cls:'role-audio' },
         { key:'pm',    label:'PM',   cls:'role-pm' },
       ];

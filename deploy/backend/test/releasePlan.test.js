@@ -209,7 +209,7 @@ for (const [index, page] of demandPages.entries()) {
   test(`需求汇总页 ${index + 1} 使用真实数据时间并展示快照时间`, () => {
     assert.equal(/id="snapshotTimeNote"/.test(page), true, '缺少可见快照时间节点');
     assert.equal(/window\.TAPD_SNAPSHOT_AT/.test(page), true, '未读取静态快照时间元数据');
-    assert.equal(/【快照时间：/.test(page), true, '缺少快照时间文案');
+    assert.equal(/Tapd 数据上次拉取/.test(page), true, '缺少 Tapd 上次拉取时间文案');
     assert.equal(/const now = new Date\(\);[\s\S]{0,180}updatedTime/.test(page), false, '仍使用页面加载时间冒充数据时间');
   });
 
@@ -229,9 +229,9 @@ for (const [index, page] of demandPages.entries()) {
     assert.equal(/<div class="title-bar">[\s\S]{0,500}id="searchInput"[\s\S]{0,500}<\/div>/.test(page), false, '搜索框仍位于独立 title-bar 行（应同行）');
   });
 
-  test(`需求汇总页 ${index + 1} 空数据行只跨越真实 16 列，让 Story 吸收剩余宽度`, () => {
-    assert.equal(/<td colspan="16"[^>]*>[\s\S]{0,160}当前筛选下无数据/.test(page), true, '空数据行未使用真实 16 列');
-    assert.equal(/colspan="17"/.test(page), false, '多余的第 17 列会在表头右侧制造空隙');
+  test(`需求汇总页 ${index + 1} 空数据行只跨越真实 15 列，让 Story 吸收剩余宽度`, () => {
+    assert.equal(/<td colspan="15"[^>]*>[\s\S]{0,160}当前筛选下无数据/.test(page), true, '空数据行未使用真实 15 列');
+    assert.equal(/colspan="16"/.test(page), false, '多余的第 16 列会在表头右侧制造空隙');
   });
 
   test(`需求汇总页 ${index + 1} 「从 TAPD 刷新」为实时拉取（放开 dfai_live 源 + 去「导入」文案）`, () => {
@@ -457,16 +457,16 @@ test('1470×956 外壳为子页面释放宽度且锁住根级水平溢出', () =
   });
 });
 
-test('1470×956 需求汇总保留 16 列并禁止宽表横向滚动', () => {
+test('1470×956 需求汇总保留 15 列并禁止宽表横向滚动', () => {
   demandPages.forEach((page, index) => {
     assert.equal(page.includes('1470 compact: no horizontal scroll'), true, `需求汇总 ${index + 1} 缺少紧凑模式标记`);
     assert.match(page, /\.table-wrap\{overflow-y:auto;overflow-x:hidden/);
     assert.match(page, /table\.demand-table\{width:100%;min-width:0!important;table-layout:fixed/);
     assert.match(page, /\.th-ve-group\{min-width:0!important/);
     assert.match(page, /table\.demand-table col:nth-child\(1\)\{width:5\.2%!important\}/, '窄屏必须覆盖 colgroup 的内联像素宽度');
-    assert.match(page, /table\.demand-table col:nth-child\(n\+9\):nth-child\(-n\+14\)\{width:4%!important\}/, '六个声优预估 col 必须按百分比收缩');
+    assert.match(page, /table\.demand-table col:nth-child\(n\+8\):nth-child\(-n\+13\)\{width:4%!important\}/, '六个声优预估 col 必须按百分比收缩');
     assert.doesNotMatch(page, /table\.demand-table\{font-size:(?:11\.5|10\.5)px;min-width:(?:1050|900)px\}/);
-    assert.equal((page.match(/<th\b/g) || []).length >= 16, true, '需求汇总必须继续保留全部表头');
+    assert.equal((page.match(/<th\b/g) || []).length >= 15, true, '需求汇总必须继续保留全部表头');
   });
 });
 

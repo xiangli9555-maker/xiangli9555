@@ -75,7 +75,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
 .chip-prog i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
 /* ★ 状态芯片 · 工业战术色板（2026-07-24 排版整理：改用 .chip-status 独立类避开 .chip-filter.on 绿色覆盖）
-   待澄清=BLACKPINK霓虹粉 / 文案ING=沙棕金 / Vo ING=青灰蓝 / 已完成=军橄榄 */
+   待澄清=BLACKPINK霓虹粉 / 已入库=沙棕金 / 录音中=青灰蓝 / 已完成=军橄榄 */
 .chip-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-mute);border-radius:12px;font-size:11px;cursor:pointer;transition:all .12s;letter-spacing:.2px;font-weight:500}
 .chip-status i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:middle}
 
@@ -99,8 +99,8 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .chip-status.chip-prog-done.on{color:#B5C0AE;border-color:#7B8B76;background:rgba(123,139,118,.12);box-shadow:inset 0 0 0 1px rgba(123,139,118,.35),inset 0 -2px 0 currentColor}
 .chip-status.chip-prog-done i{background:#7B8B76;box-shadow:0 0 4px rgba(123,139,118,.6)}
 /* 状态 select 底色 */
-/* 状态 select 底色（对齐工业战术色板 · 2026-07-23 定稿；2026-07-24 已完成改灰蓝深色沉底）
-   与顶部筛选芯片同色系：待澄清=BLACKPINK霓虹粉 / 文案ING=沙棕金 / Vo ING=青灰蓝 / 已完成=灰蓝深沉 */
+/* 状态 select 底色（对齐工业战术色板 · 2026-07-23 定稿；2026-09-04 状态收敛为 待澄清/已入库/录音中/已完成）
+   与顶部筛选芯片同色系：待澄清=BLACKPINK霓虹粉 / 已入库=沙棕金 / 录音中=青灰蓝 / 已完成=灰蓝深沉 */
 .va-status         {width:92px;text-align:center;text-align-last:center}    /* 4 态 select 完全等宽（含 select 下拉箭头） */
 .va-status.s-none   {color:#E87DA0;border-color:rgba(232,125,160,.5);background:rgba(232,125,160,.12)}
 .va-status.s-writing{color:#D4A554;border-color:rgba(212,165,84,.5);background:rgba(212,165,84,.12)}
@@ -143,7 +143,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .kpi.kpi-warn::before{background:var(--c-warning)}
 .kpi.kpi-danger::before{background:var(--c-danger)}
 .kpi-label{font-size:10.5px;color:var(--c-text-mute);letter-spacing:1.5px;font-weight:600;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:6px}
-.kpi-label .ddl-release-context{font-family:var(--font-ui);font-size:11px;font-weight:500;letter-spacing:.2px;text-transform:none;color:var(--c-text-dim);margin-left:7px}
+.ddl-release-context{font-family:var(--font-ui);font-size:11px;font-weight:500;letter-spacing:.2px;text-transform:none;color:var(--c-text-dim);margin-left:7px}
 .kpi-value{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:8px}
 .kpi-value .unit{font-size:12px;color:var(--c-text-mute);font-weight:500}
 .kpi-meta{font-size:11px;color:var(--c-text-mute);margin-top:8px;display:flex;align-items:center;gap:6px}
@@ -221,7 +221,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .result-summary .rb-clear{margin-left:2px;color:var(--c-text-dim);cursor:pointer;border:none;background:transparent;font-size:11px;text-decoration:underline}
 .result-summary .rb-clear:hover{color:var(--c-danger)}
 .table-wrap{overflow:auto;flex:1;scrollbar-gutter:stable}
-table.demand-table{width:100%;min-width:2284px;table-layout:fixed;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+table.demand-table{width:100%;min-width:2190px;table-layout:fixed;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
 table.demand-table th{font-size:12px!important;font-weight:600!important;letter-spacing:.35px!important;padding:9px 8px!important;text-shadow:none!important;text-align:center!important}
 table.demand-table td{font-size:13px!important;height:48px;padding-left:8px;padding-right:8px}
 thead{position:sticky;top:0;background:#0F171C;z-index:5}
@@ -275,8 +275,8 @@ tbody tr td:first-child{position:relative}
 tbody tr td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c-primary);transition:all .15s}
 /* 行首状态灯 · 与"状态"列 4 态色系一致 */
 tbody tr[data-stage="待澄清"] td:first-child::before{background:#E87DA0;opacity:.55}
-tbody tr[data-stage="文案ING"] td:first-child::before{background:#D4A554}
-tbody tr[data-stage="Vo ING"] td:first-child::before{background:#7DBFBF}
+tbody tr[data-stage="已入库"] td:first-child::before{background:#D4A554}
+tbody tr[data-stage="录音中"] td:first-child::before{background:#7DBFBF}
 tbody tr[data-stage="已完成"] td:first-child::before{background:var(--c-primary);opacity:.6}
 /* 已完成行：视觉沉底（降透明度，悬停恢复可读） */
 tbody tr[data-stage="已完成"]{opacity:.42}
@@ -309,22 +309,7 @@ tbody tr.selected{background:linear-gradient(90deg,rgba(15,247,150,.12),transpar
 .vs-on{background:rgba(255,210,76,0.12);color:var(--c-warning)}
 .vs-off{color:var(--c-text-dim)}
 
-/* 4 小方块（progress-4/p-cell）已废弃 2026-07-24：改为需求粒度的"状态"列 · 由 TAPD 语音-中子单状态自动映射（待澄清/文案ING/Vo ING/已完成）*/
-
-/* 台词表图标 */
-.doc-icon{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:5px;cursor:pointer;transition:all .15s;border:1px solid transparent;flex-shrink:0}
-.doc-icon svg{width:14px;height:14px}
-.doc-cell{display:inline-flex;align-items:center;gap:3px}
-.doc-icon.has-doc{background:rgba(15,247,150,0.10);border-color:rgba(15,247,150,0.25);color:var(--c-primary)}
-.doc-icon.has-doc:hover{background:rgba(15,247,150,0.20);border-color:var(--c-primary);transform:scale(1.08)}
-.doc-icon.locked{background:rgba(214,153,190,0.13);border-color:rgba(214,153,190,0.35);color:#D699BE}
-.doc-icon.locked:hover{background:rgba(214,153,190,0.20);border-color:#D699BE;transform:scale(1.05)}
-.doc-icon.locked.is-empty{opacity:.72;cursor:default;transform:none!important}
-.doc-icon.no-doc{background:var(--c-surface);border-color:var(--c-border);color:var(--c-text-dim)}
-.doc-icon.job-busy{background:rgba(96,165,250,0.10);border-color:rgba(96,165,250,0.32);color:var(--c-info);position:relative}
-.doc-icon.job-busy .busy-tip{position:absolute;left:50%;top:-7px;transform:translate(-50%,-100%);white-space:nowrap;font-size:10px;font-style:normal;background:var(--c-surface-2);border:1px solid var(--c-hairline);padding:2px 6px;border-radius:4px;color:var(--c-info);pointer-events:none}
-.doc-icon.job-fail{background:rgba(232,125,160,0.10);border-color:rgba(232,125,160,0.32);color:var(--c-danger)}
-.doc-icon.no-doc:hover{background:var(--c-surface-2);color:var(--c-text-mute)}
+/* 4 小方块（progress-4/p-cell）已废弃 2026-07-24：改为需求粒度的"状态"列 · 纯人工维护（待澄清/已入库/录音中/已完成）*/
 
 
 .person{color:var(--c-text-mute);font-size:13px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;font-weight:500}
@@ -399,7 +384,7 @@ body.embed .mid{width:100%}
   .clarify-input:focus{border-color:var(--c-primary);outline:none}
   .va-status{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;border-radius:14px;padding:6px 12px;border:1px solid var(--c-border);background:var(--c-bg-0);color:var(--c-text-mute);cursor:pointer}
   /* 状态角标视觉规则（PM 定稿 2026-07-24 · 15:30 版）：
-     - 待澄清/文案ING/Vo ING 一律带左粗边 + 右上角🔒角标（PM 视觉锚点：这行还在推进中）
+     - 待澄清/已入库/录音中 一律带左粗边 + 右上角🔒角标（PM 视觉锚点：这行还在推进中）
      - 已完成不带角标（终态归档，无需强调）
      - 4 态框宽永远 92px 不变（box-shadow inset 和 ::before absolute 都不占内容宽）
      - 与 PM 手动/TAPD 自动无关，仅按当前 stage 决定 */
@@ -448,7 +433,7 @@ body.embed .mid{width:100%}
   /* 表头内迷你按钮（声优预估↻同步） */
   .mini-btn{margin-left:6px;vertical-align:middle;cursor:pointer;border:1px solid var(--c-hairline);background:rgba(15,242,150,.12);color:var(--c-primary);border-radius:5px;width:20px;height:20px;line-height:1;font-size:12px;padding:0}
   .mini-btn:hover{background:rgba(15,242,150,.28)}
-  /* 表格列宽：最小2284px，宽屏自动铺满；Story加宽至340px，声优预估六列各150px */
+  /* 表格列宽：最小2190px，宽屏自动铺满；Story加宽至340px，声优预估六列各150px */
   .col-release{width:76px;min-width:76px!important;max-width:76px}
   .col-area{width:72px;min-width:72px!important;max-width:72px}
   .col-story{width:auto;min-width:340px!important;max-width:none}
@@ -456,7 +441,6 @@ body.embed .mid{width:100%}
   .col-creator{width:96px;min-width:96px!important;max-width:96px}
   .creator-cell{color:var(--c-text-mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
   .col-status{width:138px;min-width:138px!important;max-width:138px}
-  .col-doc{width:94px;min-width:94px!important;max-width:94px}
   .col-video{width:116px;min-width:116px!important;max-width:116px}
   .col-cw{width:220px;min-width:220px!important;max-width:220px}
   .col-ve{width:150px;min-width:150px!important;max-width:150px}
@@ -479,7 +463,7 @@ body.embed .mid{width:100%}
   .release-library-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
   .release-library-link.pending{color:var(--c-text-dim);border-color:var(--c-hairline);border-style:dashed;cursor:default}
   .col-status .va-status{width:108px!important;padding:5px 8px!important}
-  th.col-doc,td.col-doc{padding-left:4px!important;padding-right:4px!important}
+  .summary-status-cell{display:flex;flex-direction:column;align-items:center;gap:6px}
 
   /* ===== 不透明背景：修复透光 (2026-09-02) ===== */
   /* 侧栏 */
@@ -501,7 +485,7 @@ body.embed .mid{width:100%}
 
 /* ================================================================
    响应式断点（2026-08-31）
-   compact: ≤1500px（1470×956）——保留全部 16 列，按比例压缩且禁止横向滚动
+   compact: ≤1500px（1470×956）——保留全部 15 列，按比例压缩且禁止横向滚动
    wide-4k: ≥2401px（4K）——Story 列拉宽吸收富余屏宽，UI 字号 +1 档
    ================================================================ */
 @media (max-width: 1500px){
@@ -531,11 +515,10 @@ body.embed .mid{width:100%}
   table.demand-table col:nth-child(3){width:20.8%!important}
   table.demand-table col:nth-child(4){width:5.5%!important}
   table.demand-table col:nth-child(5){width:7%!important}
-  table.demand-table col:nth-child(6){width:4.5%!important}
-  table.demand-table col:nth-child(7){width:5%!important}
-  table.demand-table col:nth-child(8){width:8.5%!important}
-  table.demand-table col:nth-child(n+9):nth-child(-n+14){width:4%!important}
-  table.demand-table col:nth-child(n+15){width:7.4%!important}
+  table.demand-table col:nth-child(6){width:5%!important}
+  table.demand-table col:nth-child(7){width:8.5%!important}
+  table.demand-table col:nth-child(n+8):nth-child(-n+13){width:4%!important}
+  table.demand-table col:nth-child(n+14){width:7.4%!important}
   table.demand-table td,table.demand-table th{padding:4px 3px!important;min-width:0;overflow:hidden;text-overflow:ellipsis}
   table.demand-table th{font-size:9.5px!important;line-height:1.2!important;white-space:normal}
   table.demand-table th.sortable{padding-left:3px!important;padding-right:3px!important}
@@ -546,7 +529,6 @@ body.embed .mid{width:100%}
   col.col-story-flex{width:20.8%}
   .col-creator{width:5.5%;min-width:0!important;max-width:none}
   .col-status{width:7%;min-width:0!important;max-width:none}
-  .col-doc{width:4.5%;min-width:0!important;max-width:none}
   .col-video{width:5%;min-width:0!important;max-width:none}
   .col-cw{width:8.5%;min-width:0!important;max-width:none}
   .col-ve,.th-ve-cat,.ve-cell{width:4%;min-width:0!important;max-width:none}
@@ -633,14 +615,14 @@ body.embed .mid{width:100%}
         <div class="eyebrow"><span class="sig"></span>MISSION OPERATIONS<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
         <div class="title-row">
           <h1 class="page-title">需求汇总<span class="deadline-meta" id="snapChip" hidden>Tapd 数据拉取时间<span class="deadline-date" id="snapChipDate">—</span></span></h1>
-          <input class="search-input" id="searchInput" placeholder="搜索任务名 / 文案策划..."/>
+          <input class="search-input" id="searchInput" placeholder="搜索任务名 / Narrative Designer..."/>
         </div>
       </div>
       <div class="actions">
         <span id="syncStatus" class="sync-pill"><span class="dot-live offline"></span>未同步</span>
         <div class="refresh-action">
           <button id="btnRefresh" class="btn btn-primary" onclick="importLatestSnapshot()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span class="refresh-label">从 TAPD 刷新</span></button>
-          <span id="snapshotTimeNote" class="auto-sync-note snapshot-time-note" hidden>【快照时间：未知】</span>
+          <span id="snapshotTimeNote" class="ddl-release-context" hidden>· Tapd 数据上次拉取 —</span>
         </div>
       </div>
     </div>
@@ -687,8 +669,8 @@ body.embed .mid{width:100%}
         <span class="flabel">STATUS</span>
         <div class="chip-filter on" data-fk="status" data-fv="">全部<span class="chip-num" id="cnt-status-all">—</span></div>
         <div class="chip-status chip-prog chip-prog-pending"  data-fk="status" data-fv="待澄清"><i></i>待澄清<span class="chip-num" id="cnt-pending">—</span></div>
-        <div class="chip-status chip-prog chip-prog-writing"  data-fk="status" data-fv="文案ING"><i></i>文案ING<span class="chip-num" id="cnt-writing">—</span></div>
-        <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="Vo ING"><i></i>Vo ING<span class="chip-num" id="cnt-vo">—</span></div>
+        <div class="chip-status chip-prog chip-prog-writing"  data-fk="status" data-fv="已入库"><i></i>已入库<span class="chip-num" id="cnt-writing">—</span></div>
+        <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="录音中"><i></i>录音中<span class="chip-num" id="cnt-vo">—</span></div>
         <div class="chip-status chip-prog chip-prog-done"     data-fk="status" data-fv="已完成"><i></i>已完成<span class="chip-num" id="cnt-done">—</span></div>
       </div>
       <!-- 历史归档：STATUS 行整行 → 动态 RELEASE chip 行（2026-09-04 方案 A；仅 filterRelease==='__archive__' 时显示） -->
@@ -705,7 +687,7 @@ body.embed .mid{width:100%}
       </div>
       <!-- 文案策划：独立一行，8 人固定名单 -->
       <div class="filter-row cw-row" id="cwRow">
-        <span class="flabel">文案策划</span>
+        <span class="flabel">ND</span>
         <div class="chip-filter on" data-fk="cw" data-fv="">全部<span class="chip-num" id="cnt-cw-all">—</span></div>
         <span id="cwChips"></span>
       </div>
@@ -717,7 +699,7 @@ body.embed .mid{width:100%}
       <div class="table-wrap">
         <table class="demand-table">
           <colgroup>
-            <col style="width:76px"><col style="width:72px"><col class="col-story-flex"><col style="width:96px"><col style="width:138px"><col style="width:94px"><col style="width:116px"><col style="width:220px">
+            <col style="width:76px"><col style="width:72px"><col class="col-story-flex"><col style="width:96px"><col style="width:138px"><col style="width:116px"><col style="width:220px">
             <col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px"><col style="width:150px">
             <col style="width:116px"><col style="width:116px">
           </colgroup>
@@ -728,9 +710,8 @@ body.embed .mid{width:100%}
               <th rowspan="2" class="col-story">Story</th>
               <th rowspan="2" class="sortable col-creator" data-sort="creator" onclick="toggleSort('creator',this)">创建人<button class="header-filter-btn" onclick="openHeaderFilter(event,'creator')" title="筛选创建人"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th rowspan="2" class="sortable col-status" data-sort="status" onclick="toggleSort('status',this)">状态<button class="header-filter-btn" onclick="openHeaderFilter(event,'status')" title="筛选状态"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
-              <th rowspan="2" class="th-doc col-doc" style="text-align:center!important;white-space:nowrap">台词表</th>
               <th rowspan="2" class="sortable col-video" data-sort="video_sync" onclick="toggleSort('video_sync',this)">音画同步<button class="header-filter-btn" onclick="openHeaderFilter(event,'video_sync')" title="筛选音画同步"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
-              <th rowspan="2" class="sortable col-cw" data-sort="cn_lines_handler" onclick="toggleSort('cn_lines_handler',this)">文案策划<button class="header-filter-btn" onclick="openHeaderFilter(event,'cn_lines_handler')" title="筛选文案策划"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
+              <th rowspan="2" class="sortable col-cw" data-sort="cn_lines_handler" onclick="toggleSort('cn_lines_handler',this)">ND<button class="header-filter-btn" onclick="openHeaderFilter(event,'cn_lines_handler')" title="筛选 Narrative Designer"><svg viewBox="0 0 16 16"><path d="M2 3h12L9.5 8v4l-3 1V8z"/></svg></button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th colspan="6" class="sortable th-ve-group" data-sort="veCount" onclick="toggleSort('veCount',this)">声优预估<button id="veSyncBtn" class="mini-btn" title="提交声优预估任务；右键重试失败任务" onclick="event.stopPropagation();syncVoiceEstimates()" oncontextmenu="event.preventDefault();event.stopPropagation();retryFailedJobs('voice_estimates')">↻</button><span class="sort-arrows"><svg class="arr-up" viewBox="0 0 12 12"><path d="M6 8V3M4 5l2-2 2 2"/></svg><svg class="arr-down" viewBox="0 0 12 12"><path d="M6 4v5M4 7l2 2 2-2"/></svg></span></th>
               <th colspan="2" class="th-max-group">Max（末次录制完成时间）</th>
             </tr>
@@ -773,27 +754,18 @@ body.embed .mid{width:100%}
   }catch(e){}
 })();
 
+// 文案策划中英文：完整版用于标签/tooltip/弹层/筛选下拉；短版 ND 用于窄列/芯片/标签
+const CW_LABEL_FULL = 'Narrative Designer';
+const CW_LABEL_SHORT = 'ND';
+function cwLabel(compact){ return compact ? CW_LABEL_SHORT : CW_LABEL_FULL; }
+
 // ============ 真数据接入 · 需求汇总 ============
 const AREA_CLASS = {'AI':'AI','SOL':'SOL','大战场':'BF','系统':'SYS','干员':'OP','NPC':'AI','MP':'SOL','战斗':'BF','商业化':'SYS'};
 const VS_OPTS = ['音画同步','无需视频'];
 
-// PM 定稿 2026-07-24：需求粒度 4 态映射
-// 数据源：语音-中子单在 TAPD 的状态（服务端 progOf 已把 8+ 种 TAPD 状态压成 未开始/进行中/已完成）
-// 由于 progOf 已合并"验收中/合入中/已实现"到"已完成"，且"规划中/实现中/测试中"到"进行中"，
-// 前端需要区分"规划中(文案ING)" vs "实现中(Vo ING)"，因此改读 d._voice_cn_raw（服务端新增字段，见 dfai-live-server.js）
-// 兼容旧快照：若无 _voice_cn_raw，用 progress_voice_cn（3 态）粗略映射：未开始→待澄清，进行中→文案ING（保守），已完成→已完成
+// PM 定稿 2026-09-04：需求状态不再由 TAPD 状态自动映射驱动，改为纯人工维护。
+// 初始值恒为「待澄清」；文案只需推到「已入库」，之后的 录音中/已完成 由 VO Manager 维护。
 function tapdStage(d){
-  const raw = String(d._voice_cn_raw || '').trim();
-  if(raw){
-    if(['未开始','new','status_1'].includes(raw)) return '待澄清';
-    if(['规划中','planning'].includes(raw)) return '文案ING';
-    if(['实现中','in_progress','测试中','testing'].includes(raw)) return 'Vo ING';
-    if(['验收中','audited','合入中','已实现','已发布','closed','resolved','product_experience'].includes(raw)) return '已完成';
-  }
-  // 兼容路径（无 raw 字段的旧快照）
-  const compact = String(d.progress_voice_cn || '未开始');
-  if(compact === '已完成') return '已完成';
-  if(compact === '进行中') return '文案ING';   // 无法区分，取保守
   return '待澄清';
 }
 
@@ -988,7 +960,7 @@ try{ _f0 = JSON.parse(localStorage.getItem(FILTERS_KEY)||'{}') || {}; }catch(_){
 let filterArea = _f0.area || '';       // '' = 全部
 let filterCw = _f0.cw || '';           // '' = 全部文案策划；'__none__' = 未分配
 let filterRelease = (window.__INIT_RELEASE__ !== undefined ? window.__INIT_RELEASE__ : (_f0.release || '')); // '' = 全部发布计划；外壳 URL ?release= 优先
-let filterStatus = _f0.status || '';   // '' = 全部；待澄清/文案ING/Vo ING/已完成
+let filterStatus = _f0.status || '';   // '' = 全部；待澄清/已入库/录音中/已完成
 let archiveSubRelease = (filterRelease === '__archive__') ? (_f0.archiveRelease || '') : ''; // 历史归档内的发布计划子筛选（'' = 全部归档版本）
 let searchTxt = _f0.search || '';
 let recordingMaxByDemand = {};
@@ -998,7 +970,7 @@ function saveFilters(){
     area:filterArea, cw:filterCw, release:filterRelease, status:filterStatus, search:searchTxt, headers:headerFilters, archiveRelease:archiveSubRelease
   })); }catch(_){}
 }
-const HEADER_FILTER_NAMES={release_plan:'发布计划',area:'AREA',creator:'创建人',status:'状态',video_sync:'音画同步',cn_lines_handler:'文案策划'};
+const HEADER_FILTER_NAMES={release_plan:'发布计划',area:'AREA',creator:'创建人',status:'状态',video_sync:'音画同步',cn_lines_handler:'Narrative Designer'};
 let __headerFilterPop=null;
 function headerFilterValue(d,key){
   if(key==='status') return stageOf(d);
@@ -1084,7 +1056,7 @@ document.addEventListener('click', (e)=>{ if(isBlankAreaClick(e.target)) clearAl
   const tb = document.getElementById('demandBody');
   if(!tb) return;
   tb.addEventListener('click', (e)=>{
-    if(e.target.closest('select, a, .cw-pick, .doc-icon, .va-status, [contenteditable], .vs, svg, button')) return;
+    if(e.target.closest('select, a, .cw-pick, .va-status, [contenteditable], .vs, svg, button')) return;
     const tr = e.target.closest('tr');
     if(!tr || !tr.dataset.id) return;
     const was = tr.classList.contains('selected');
@@ -1127,12 +1099,7 @@ function cleanTaskName(n){
   return t || '—';
 }
 // isDone / tacStatus / progCell — 已废弃 2026-07-24（4 小方块删除）
-// 需求粒度状态改为 tapdStage(d) 自动映射（见上方）+ CLARIFY 手动覆盖
-// 台词表图标：只认需求数据 `script_doc_url`（唯一真源）；无链接即空态。
-// 禁止使用按策划硬编码的文档链接，避免把示例/旧表误显示成当前需求的台词表。
-// 台词表生成任务队列状态（来自 /api/cw-doc/jobs，按 demand_id 取最新一条）
-// 取值优先级：pending/running（生成中）→ demands.script_doc_url（唯一真源）→ 失败/空态
-let CW_JOB_MAP = {};
+// 需求粒度状态改为纯人工维护（2026-09-04）：初始「待澄清」，文案推「已入库」，后续 录音中/已完成 由 VO Manager 维护
 // 文案策划固定可选名单（PM 指定 2026-07-23）
 const COPYWRITERS = [
   {id:'bojackgguan',  name:'关学院'},
@@ -1167,7 +1134,7 @@ function cwAvatarStyle(id){
 function cwBadge(cur){
   const c = cwInfo(cur);
   if(!c){
-    return `<span class="cw-ava cw-unassigned" title="未分派，点击选择文案策划">?</span>`+
+    return `<span class="cw-ava cw-unassigned" title="未分派，点击选择 Narrative Designer">?</span>`+
            `<i class="cw-caret">▾</i>`;
   }
   const hasAvatar = AVATAR_SET && AVATAR_SET.has(c.id);
@@ -1197,7 +1164,7 @@ function openCwPop(el){
   const id = el.dataset.id;
   const cur = (allDemands.find(d=>String(d.id)===String(id))||{}).cn_lines_handler || '';
   const p = __cwPop();
-  let html = `<div class="cw-pop-h">文案策划 · 选择</div>`;
+  let html = `<div class="cw-pop-h">Narrative Designer · 选择</div>`;
   html += `<div class="cw-opt${!cur?' cw-opt-on':''}" onclick="pickCw('${id}','')"><span class="cw-ava cw-unassigned">?</span><span class="cw-name">未分配</span></div>`;
   html += COPYWRITERS.map(c=>{
     const on = (c.id===cur) ? ' cw-opt-on' : '';
@@ -1243,47 +1210,6 @@ function pickCw(id, val){
 }
 document.addEventListener('click', ()=>{ if(__cwOpenEl) closeCwPop(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && __cwOpenEl) closeCwPop(); });
-function docCell(id, copywriter){
-  const svgDoc = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="15" y1="12" x2="15" y2="12.01"/></svg>`;
-  const svgEmpty = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`;
-  const svgLock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 1 1 8 0v3"/></svg>`;
-  const cw = (copywriter||'').trim();
-  // 统一Jobs模型：台词表任务按 type=script_table + demand_id 定位
-  const job = CW_JOB_MAP['demand-' + id] || null;
-  const rclick = '';   // v6：不再支持右键弹粘贴框（"每策划 1 doc" 已废弃，改为每需求 1 doc）
-  // 2) 只读取该需求数据库中的真实 script_doc_url（唯一真源）
-  const demand = allDemands.find(d=>String(d.id)===String(id)) || {};
-  const persistedUrl = (demand.script_doc_url||'').trim();
-  const release = (demand.release_plan||'').trim();
-
-  // 台词锁后：图标改锁头 + 提示固定；若有链接则可只读打开
-  if(isScriptLocked(release)){
-    const tip='分表已锁定，修改找 Vomi';
-    if(persistedUrl){
-      return `<span class="doc-cell"><a class="doc-icon locked" href="${esc(persistedUrl)}" target="_blank" rel="noopener" ${rclick}
-        title="${tip}（只读打开）">${svgLock}</a></span>`;
-    }
-    return `<span class="doc-icon locked is-empty" title="${tip}">${svgLock}</span>`;
-  }
-
-  // 1) 排队中 / 生成中
-  if(job && (job.status==='pending' || job.status==='running')){
-    const tip = job.status==='pending' ? '⏳ 排队中' : '🔄 生成中';
-    return `<span class="doc-icon job-busy" title="${tip}（后台自动建表中，刷新后状态保持）">${svgDoc}<i class="busy-tip">${tip}</i></span>`;
-  }
-  if(persistedUrl){
-    return `<span class="doc-cell"><a class="doc-icon has-doc" href="${esc(persistedUrl)}" target="_blank" rel="noopener" ${rclick}
-      title="点击打开该需求台词表">${svgDoc}</a></span>`;
-  }
-  if(job && job.status==='failed'){
-    const retryable = Number(job.attempt||0) < Number(job.max_attempts||3);
-    return `<button class="doc-icon job-fail" onclick="event.stopPropagation();retryDemandJob('${esc(job.id)}')"
-      title="生成失败：${esc(job.error||'未知错误')} · ${retryable?'点击重试':'已达到最大重试次数'}" ${retryable?'':'disabled'}>${svgEmpty}</button>`;
-  }
-  // 3) 空态 → 可点击生成
-  return `<button class="doc-icon no-doc" onclick="event.stopPropagation();createDemandScriptJob('${esc(id)}')"
-    title="点击自动生成该需求台词表">${svgEmpty}</button>`;
-}
 function releaseLibraryRecord(release){
   const direct = RELEASE_LIBRARY_DOCS[release];
   if(direct) return direct;
@@ -1295,7 +1221,7 @@ function releaseLibraryDocCell(release){
   const url = typeof rec==='string' ? rec : ((rec&&rec.url)||(rec&&rec.doc_url)||'');
   const svg = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18M15 9v12"/></svg>`;
   if(url) return `<a class="release-library-link" href="${esc(url)}" target="_blank" rel="noopener" title="打开 ${esc(release)} 汇总智能台词库">${svg}<span>台词库</span></a>`;
-  return `<span class="release-library-link pending" title="已停用一键汇总生成功能">${svg}<span>待汇总</span></span>`;
+  return `<span class="release-library-link pending" title="该版本台词总表尚未登记">${svg}<span>待汇总</span></span>`;
 }
 // [已废弃 2026-08-14] 原"策划头像右键→为该策划每需求各建一份台词表"入口已删。
 // [已停用 2026-08-25] 顶部闪电一键汇总生成功能已移除。
@@ -1313,51 +1239,17 @@ async function retryFailedJobs(type){
     flashInfo(`已重试 ${ok}/${retryable.length} 条失败任务`); pollCwJobs();
   }catch(e){ flashErr('批量重试失败：'+e.message); }
 }
-async function retryDemandJob(jobId){
-  try{
-    const r=await fetch(`/api/cw-doc/jobs/${encodeURIComponent(jobId)}/retry`,{method:'POST'});
-    const j=await r.json().catch(()=>({}));
-    if(!r.ok||j.ok===false) throw new Error(j.error||`HTTP ${r.status}`);
-    flashInfo(`已重试任务：${j.job.type==='voice_estimates'?'声优预估':'台词表'}`);
-    pollCwJobs();
-  }catch(e){ flashErr('重试失败：'+e.message); }
-}
-// 单需求生成台词表（v6 · 每需求一份 doc）
-async function createDemandScriptJob(demandId){
-  const demand = allDemands.find(d=>String(d.id)===String(demandId)) || {};
-  const name = demand.story || demand.name || demandId;
-  try{
-    flashInfo(`⏳ 正在为「${name}」创建台词表…`);
-    const r = await fetch('/api/cw-doc/jobs', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ type:'script_table', demand_id: String(demandId) })
-    });
-    const j = await r.json().catch(()=>({}));
-    if(!r.ok || j.ok===false) throw new Error(j.error || `HTTP ${r.status}`);
-    flashInfo(`✅「${name}」台词表任务已提交，后台建表中…（刷新查看进度）`);
-    pollCwJobs();
-    renderRows();
-  }catch(e){
-    flashErr('生成失败：'+(e.message||'未知错误'));
-  }
-}
 async function pollCwJobs(){
   try{
     const r = await fetch('/api/cw-doc/jobs', {cache:'no-store'});
     if(!r.ok) return;
     const data = await r.json();
-    const map = {};
     let refreshEstimates=false;
     (data.jobs||[]).forEach(j=>{
-      if(j.type==='script_table'){
-        const key='demand-'+j.demand_id;
-        if(!map[key] || j.created_at > map[key].created_at) map[key]=j;
-      }
       if(j.type==='voice_estimates' && j.status==='done' && !VE_DONE_SEEN.has(j.id)){
         VE_DONE_SEEN.add(j.id); refreshEstimates=true;
       }
     });
-    CW_JOB_MAP = map;
     const countsByType={script_table:{pending:0,running:0,done:0,failed:0},voice_estimates:{pending:0,running:0,done:0,failed:0}};
     (data.jobs||[]).forEach(j=>{ if(countsByType[j.type] && j.status in countsByType[j.type]) countsByType[j.type][j.status]++; });
     const veBtn=document.getElementById('veSyncBtn');
@@ -1366,11 +1258,6 @@ async function pollCwJobs(){
       const dr=await fetch('/api/demands',{cache:'no-store'});
       if(dr.ok){ allDemands=applyOfflineDrafts(await dr.json()).filter(releaseInScope); updateKPI(); renderRows(); }
     }
-    document.querySelectorAll('[data-doccell="1"]').forEach(td=>{
-      const id = td.dataset.id;
-      const cw = ((allDemands.find(d=>String(d.id)===String(id))||{}).cn_lines_handler||'').trim();
-      td.innerHTML = docCell(id, cw);
-    });
     const active = (data.jobs||[]).some(j=>j.status==='pending'||j.status==='running');
     if(active){ if(!_cwPollTimer) _cwPollTimer = setInterval(pollCwJobs, 4000); }
     else if(_cwPollTimer){ clearInterval(_cwPollTimer); _cwPollTimer=null; }
@@ -1487,8 +1374,7 @@ function releaseSummaryRowHTML(d){
     <td class="col-area"><span class="area">ALL</span></td>
     <td class="col-story"><div class="release-summary-story">${(() => { const u = releaseSummaryUrl(d.release_plan); return u ? `<a class="release-summary-link" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(d.task_name)}</a>` : esc(d.task_name); })()} · ${rows.length} 条需求</div></td>
     <td class="col-creator creator-cell" title="汇总负责人">Vomi</td>
-    <td class="col-status" oncontextmenu="return clearManualStage('${esc(d.id)}',event)"><select class="va-status${manualCls} ${stCls}" style="${STATUS_STYLE[effectiveStage]||STATUS_STYLE['待澄清']}" onchange="saveClarify('${esc(d.id)}','status',this.value,this)" title="版本汇总状态：可手动选择">${STATUS_LIST.map(s=>`<option value="${s}" ${effectiveStage===s?'selected':''}>${s}</option>`).join('')}</select></td>
-    <td class="col-doc" style="text-align:center!important">${releaseLibraryDocCell(d.release_plan)}</td>
+    <td class="col-status" oncontextmenu="return clearManualStage('${esc(d.id)}',event)"><div class="summary-status-cell"><select class="va-status${manualCls} ${stCls}" style="${STATUS_STYLE[effectiveStage]||STATUS_STYLE['待澄清']}" onchange="saveClarify('${esc(d.id)}','status',this.value,this)" title="版本汇总状态：可手动选择">${STATUS_LIST.map(s=>`<option value="${s}" ${effectiveStage===s?'selected':''}>${s}</option>`).join('')}</select>${releaseLibraryDocCell(d.release_plan)}</div></td>
     <td class="col-video"><span class="release-summary-text">${esc(d.video_sync)} 音画</span></td>
     <td class="col-cw"><span class="release-summary-text">${esc(d.cn_lines_handler)}</span></td>
     ${veCells(d)}
@@ -1496,29 +1382,39 @@ function releaseSummaryRowHTML(d){
     <td class="col-max-date max-date-cell${d._max_en==='—'?' empty':''}">${d._max_en}</td>
   </tr>`;
 }
+// 需求名去【】美化：保留首个【…】原样，后续【】只留段内文字，空格分隔
+function fmtStoryTitle(name){
+  if(!name) return '';
+  const parts = String(name).split('】');
+  if(parts.length<=1) return esc(name);
+  return parts.map((p,i)=>{
+    const inner = p.replace(/^【/,'');
+    return i===0 ? `【${esc(inner)}】` : esc(inner);
+  }).join(' ').replace(/\s+/g,' ').trim();
+}
 function rowHTML(d){
   const storyUrl = parentStoryUrl(d);
-  // MySQL manual_status 优先；为空时回退TAPD自动映射。离线草稿已由applyOfflineDrafts叠加。
+  const storyTitle = fmtStoryTitle(d.task_name);
+  // MySQL manual_status 优先；为空时回退初始「待澄清」。离线草稿已由applyOfflineDrafts叠加。
   const effectiveStage = d.manual_status || tapdStage(d);
   const stCls = CLARIFY_STATUS[effectiveStage] || 's-none';
   const isManual = !!d.manual_status;
   const manualCls = isManual ? ' va-manual' : '';
   const manualTitle = isManual
-    ? '状态：🔒 已锁定（PM 手动定值，TAPD 状态推进不会覆盖）· 右键单元格清除锁定回自动'
-    : '状态：默认 TAPD 自动映射（未开始→待澄清/规划中→文案ING/实现中→Vo ING/验收中|合入中|已实现→已完成）；此处 PM 手动改会覆盖并保存';
+    ? '状态：🔒 已锁定（PM 手动定值）· 右键单元格清除后回到「待澄清」'
+    : '状态：初始「待澄清」；文案推到「已入库」后，录音中/已完成 由 VO Manager 维护';
   return `<tr data-stage="${esc(effectiveStage)}" data-id="${d.id}" data-area="${esc(d.area||'')}"${isManual?' data-manual="1"':''}${d._offlineDraft?' data-offline-draft="1"':''}>
     <td class="col-release"><span class="rp-tag">${esc(d.release_plan||'—')}</span></td>
     <td class="col-area"><span class="area">${esc(d.area||'—')}</span></td>
-    <td class="col-story"><div class="story-cell">${storyUrl?`<a class="story-title" href="${esc(storyUrl)}" target="_blank" rel="noopener" title="点击打开该 Story 的 TAPD 父需求：${esc(d.task_name||'')}">${esc(d.task_name||'—')}</a>`:`<span class="story-title" title="该 Story 暂无父需求链接">${esc(d.task_name||'—')}</span>`}</div></td>
+    <td class="col-story"><div class="story-cell">${storyUrl?`<a class="story-title" href="${esc(storyUrl)}" target="_blank" rel="noopener" title="点击打开该 Story 的 TAPD 父需求：${esc(d.task_name||'')}">${storyTitle||'—'}</a>`:`<span class="story-title" title="该 Story 暂无父需求链接">${storyTitle||'—'}</span>`}</div></td>
     <td class="col-creator creator-cell" title="TAPD 创建人：${esc((d.creator||'').replace(/;+$/,''))}">${esc(fmtCreator(d.creator))}</td>
     <td class="col-status" oncontextmenu="return clearManualStage('${d.id}',event)">
       <select class="va-status${manualCls} ${stCls}" style="${STATUS_STYLE[effectiveStage]||STATUS_STYLE['待澄清']}" onchange="saveClarify('${d.id}','status',this.value,this)" title="${manualTitle}">
         ${STATUS_LIST.map(s=>`<option value="${s}" ${effectiveStage===s?'selected':''}>${s}</option>`).join('')}
       </select>
     </td>
-    <td class="col-doc" data-doccell="1" data-id="${d.id}" style="text-align:center!important">${docCell(d.id,d.cn_lines_handler)}</td>
     <td class="col-video">${vsBadge(d.video_sync||'无需视频',d.id)}</td>
-    <td class="col-cw"><span class="cw-pick" data-id="${d.id}" onclick="event.stopPropagation();toggleCwPop(this)" title="文案策划：点击选择（固定名单）">${cwBadge((d.cn_lines_handler||'').trim())}</span></td>
+    <td class="col-cw"><span class="cw-pick" data-id="${d.id}" onclick="event.stopPropagation();toggleCwPop(this)" title="Narrative Designer：点击选择（固定名单）">${cwBadge((d.cn_lines_handler||'').trim())}</span></td>
     ${veCells(d)}
     <td class="col-max-date max-date-cell${scheduleMax(d,'cn')==='—'?' empty':''}" title="中文末次录制完成时间">${scheduleMax(d,'cn')}</td>
     <td class="col-max-date max-date-cell${scheduleMax(d,'en')==='—'?' empty':''}" title="英文末次录制完成时间">${scheduleMax(d,'en')}</td>
@@ -1571,7 +1467,7 @@ function matchFilter(d){
     }
   }
   if(filterStatus){
-    // PM 手动值优先，否则用 TAPD 自动映射
+    // PM 手动值优先，否则回退初始「待澄清」
     const raw = d.manual_status || tapdStage(d);
     const st = migrateStatus(raw);
     if(st !== filterStatus) return false;
@@ -1583,8 +1479,8 @@ function matchFilter(d){
   }
   return true;
 }
-// 状态排序权重：待澄清 → 文案ING → Vo ING → 已完成（已完成沉底）
-const STAGE_ORDER = {'待澄清':0,'文案ING':1,'Vo ING':2,'已完成':3};
+// 状态排序权重：待澄清 → 已入库 → 录音中 → 已完成（已完成沉底）
+const STAGE_ORDER = {'待澄清':0,'已入库':1,'录音中':2,'已完成':3};
 function stageOf(d){
   const raw = d.manual_status || tapdStage(d);
   return (typeof migrateStatus==='function') ? migrateStatus(raw) : raw;
@@ -1648,7 +1544,7 @@ function renderRows(){
   const bodyHTML = summaryRows.map(releaseSummaryRowHTML).join('') + rows.map(rowHTML).join('');
   tb.innerHTML = bodyHTML
     ? bodyHTML
-    : `<tr>      <td colspan="16" style="text-align:center;padding:36px;color:var(--c-text-mute)">
+    : `<tr>      <td colspan="15" style="text-align:center;padding:36px;color:var(--c-text-mute)">
         ${allDemands.length===0?'加载中...或后端暂无音频需求':'当前筛选下无数据'}
       </td></tr>`;
   // colspan=16：发布计划/AREA/Story/创建人/状态/台词表/音画同步/文案策划 + 声优预估6分类 + Max中/英
@@ -1672,13 +1568,13 @@ function updateResultBar(shown, total){
   if(filterArea)    tags.push(['AREA', filterArea]);
   if(filterCw){
     const cw = filterCw==='__none__' ? '未分配' : ((cwInfo(filterCw)||{}).name||filterCw);
-    tags.push(['文案策划', cw]);
+    tags.push(['ND', cw]);
   }
   if(filterStatus)  tags.push(['状态', filterStatus]);
   if(searchTxt)     tags.push(['搜索', '“'+searchTxt+'”']);
   if(sortStack.length){
     const arrow = d => d===1?'↑':'↓';
-    const nameMap = {release_plan:'发布计划',area:'AREA',creator:'创建人',video_sync:'音画同步',cn_lines_handler:'文案策划',veCount:'声优预估',status:'状态',maxDateCn:'Max中',maxDateEn:'Max英'};
+    const nameMap = {release_plan:'发布计划',area:'AREA',creator:'创建人',video_sync:'音画同步',cn_lines_handler:'Narrative Designer',veCount:'声优预估',status:'状态',maxDateCn:'Max中',maxDateEn:'Max英'};
     const sortName = key => key.startsWith('veCat:') ? key.slice('veCat:'.length) : (nameMap[key]||key);
     tags.push(['排序', sortStack.map(s=>sortName(s.key)+arrow(s.dir)).join(' · ')]);
   }
@@ -1701,12 +1597,12 @@ function updateChipCounts(){
         if(cur && normRelease(d.release_plan)===normRelease(cur)) return;
       }else if(normRelease(d.release_plan) !== normRelease(filterRelease)) return;
     }
-    // PM 手动值优先，否则 TAPD 自动映射
+    // PM 手动值优先，否则回退初始「待澄清」
     const raw = d.manual_status || tapdStage(d);
     const s = (typeof migrateStatus==='function') ? migrateStatus(raw) : raw;
     if(s==='已完成') stDone++;
-    else if(s==='文案ING') stWriting++;
-    else if(s==='Vo ING') stVo++;
+    else if(s==='已入库') stWriting++;
+    else if(s==='录音中') stVo++;
     else stPending++;
   });
   const ep=document.getElementById('cnt-pending'); if(ep) ep.textContent=fmt(stPending);
@@ -1779,11 +1675,11 @@ async function kvPull(key){
 // ============ Step 3A · 澄清会 / 粗估看板 ============
 const CLARIFY_KEY = 'vo_clarify_v1';
 const CLARIFY_SCHEMA_KEY = 'vo_clarify_schema_v2';
-// 规则 6（用户定稿 2026-07-23）：状态选项 = 待澄清 / 文案ING / Vo ING / 已完成
-const CLARIFY_STATUS = {'待澄清':'s-none','文案ING':'s-writing','Vo ING':'s-vo','已完成':'s-done'};
-const STATUS_LIST = ['待澄清','文案ING','Vo ING','已完成'];
+// 规则 6（用户定稿 2026-07-23；2026-09-04 状态收敛为纯人工维护）：状态选项 = 待澄清 / 已入库 / 录音中 / 已完成
+const CLARIFY_STATUS = {'待澄清':'s-none','已入库':'s-writing','录音中':'s-vo','已完成':'s-done'};
+const STATUS_LIST = ['待澄清','已入库','录音中','已完成'];
 // 老状态只做等价映射；任何已有有效状态均按人工值保留，禁止再根据“待澄清”字面值猜测并清除。
-const LEGACY_STATUS_MAP = {'未澄清':'待澄清','有变更':'待澄清','已澄清':'文案ING'};
+const LEGACY_STATUS_MAP = {'未澄清':'待澄清','有变更':'待澄清','已澄清':'已入库','文案ING':'已入库','Vo ING':'录音中'};
 function normalizeClarifyStore(store){
   let dirty = false;
   const src = (store && typeof store==='object') ? store : {};
@@ -1817,8 +1713,8 @@ try{
 // 状态内联色（与上方 .va-status.s-* 同色板 · 双保险：下拉框切换时实时着色，不依赖 CSS 级联）
 const STATUS_STYLE = {
   '待澄清':'color:#E87DA0;border-color:rgba(232,125,160,.55);background:rgba(232,125,160,.12)',
-  '文案ING':'color:#D4A554;border-color:rgba(212,165,84,.55);background:rgba(212,165,84,.12)',
-  'Vo ING':'color:#7DBFBF;border-color:rgba(125,191,191,.55);background:rgba(125,191,191,.12)',
+  '已入库':'color:#D4A554;border-color:rgba(212,165,84,.55);background:rgba(212,165,84,.12)',
+  '录音中':'color:#7DBFBF;border-color:rgba(125,191,191,.55);background:rgba(125,191,191,.12)',
   '已完成':'color:#7A8A96;border-color:rgba(75,90,105,.55);background:rgba(45,58,72,.35)'
 };
 function migrateStatus(v){ return LEGACY_STATUS_MAP[v] || (STATUS_LIST.includes(v) ? v : '待澄清'); }
@@ -1833,7 +1729,7 @@ function isReleaseSummaryId(id){ return String(id).startsWith('release-summary:'
 // 普通需求人工状态存MySQL；版本虚拟汇总行无数据库实体，继续通过带revision的KV保存。
 async function clearManualStage(id, ev){
   if(ev) ev.preventDefault();
-  if(!confirm('清除该行的手动状态锁定？之后会跟随 TAPD 自动映射。')) return false;
+  if(!confirm('清除该行的手动状态？之后回到「待澄清」初始值。')) return false;
   if(isReleaseSummaryId(id)){
     const c = CLARIFY[String(id)];
     if(!c || !c.status) return false;
@@ -1857,7 +1753,7 @@ async function saveClarify(id, field, val, el){
     if(el){
       el.className = 'va-status va-manual ' + (CLARIFY_STATUS[nextStatus] || 's-none');
       el.style.cssText = STATUS_STYLE[nextStatus] || STATUS_STYLE['待澄清'];
-      el.title = '状态：MySQL人工状态优先 · 右键清除后回到TAPD自动映射';
+      el.title = '状态：已保存（MySQL）· 右键清除后回到「待澄清」';
       const tr = el.closest('tr'); if(tr){ tr.setAttribute('data-stage',nextStatus); tr.setAttribute('data-manual','1'); }
     }
     const result = await saveField(id, 'manual_status', nextStatus);
@@ -1927,18 +1823,18 @@ function updateKPI(){
   const copywriters = new Set(allDemands.map(d=>d.cn_lines_handler).filter(Boolean).map(s=>s.trim()));
   // 台词表 KPI 按需求真实 script_doc_url 统计，不再按“策划硬编码表”推测。
   const docsDone = allDemands.filter(d=>(d.script_doc_url||'').trim()).length;
-  // 进度 · 需求粒度 4 态计数（tapdStage 自动映射 + CLARIFY 手动覆盖）
+  // 进度 · 需求粒度 4 态计数（纯人工维护：manual_status 优先，缺省待澄清）
   let cPend=0, cWrite=0, cVo=0, cDone=0;
   allDemands.forEach(d=>{
     const s = d.manual_status || tapdStage(d);
     if(s==='已完成') cDone++;
-    else if(s==='Vo ING') cVo++;
-    else if(s==='文案ING') cWrite++;
+    else if(s==='录音中') cVo++;
+    else if(s==='已入库') cWrite++;
     else cPend++;
   });
   const totalC = total || 1;
   const pct = Math.round(cDone*100/totalC);
-  const warnCnt = cWrite + cVo;   // "进行中"合计（文案ING + Vo ING）
+  const warnCnt = cWrite + cVo;   // "进行中"合计（已入库 + 录音中）
 
   const ks = document.getElementById('kpiStories');
   if(ks) ks.textContent = fmt(total);
@@ -1951,7 +1847,7 @@ function updateKPI(){
   const ddlRelEl = document.getElementById('kpiDdlRelease');
   if(ddlRelEl) ddlRelEl.textContent = `· 距离 ${rel}`;
   document.getElementById('kpiStoriesMain').textContent = fmt(total);
-  document.getElementById('kpiStoriesMetaMain').textContent = `${areas.size} AREA · ${copywriters.size} 文案策划`;
+  document.getElementById('kpiStoriesMetaMain').textContent = `${areas.size} AREA · ${copywriters.size} Narrative Designer`;
   document.getElementById('kpiDocsMain').textContent = fmt(docsDone);
   document.getElementById('kpiDocsMetaMain').textContent = `已生成 ${docsDone} · 待生成 ${Math.max(0,total-docsDone)}`;
   document.getElementById('kpiPctMain').textContent = fmt(pct);
@@ -1961,7 +1857,7 @@ function updateKPI(){
   renderDualDdl(rel);
 
   // ── 隐藏旧元素（兼容）──
-  document.getElementById('kpiStoriesMeta').textContent = `${areas.size} AREA · ${copywriters.size} 文案策划`;
+  document.getElementById('kpiStoriesMeta').textContent = `${areas.size} AREA · ${copywriters.size} Narrative Designer`;
   document.getElementById('kpiDocs').textContent = `${docsDone}/${total}`;
   document.getElementById('kpiDocsMeta').textContent = `已生成 ${docsDone} · 待生成 ${Math.max(0,total-docsDone)} · 共 ${total} 条需求`;
   document.getElementById('kpiProgMeta').textContent = `${cPend} 待澄清 · ${cWrite} 文案 · ${cVo} Vo · ${cDone} 完`;
@@ -2002,7 +1898,7 @@ function updateKPI(){
   // 头像图标 chip · 只显示彩色首字圆点，横向排列，hover 显示姓名+数量
   const unassignedCnt = cntByCw[''] || 0;
   const unassignedChip = `<div class="chip-cw-ico chip-cw-unassigned${filterCw==='__none__'?' on':''}" data-fk="cw" data-fv="__none__"
-              title="未分配文案策划 · ${unassignedCnt} 条">
+              title="未分配 ND · ${unassignedCnt} 条">
               <span class="cw-ava cw-unassigned">?</span>
               <span class="chip-cw-num">${unassignedCnt}</span>
             </div>`;
@@ -2171,11 +2067,6 @@ function dataClock(atIso){
   const d = parseDataMoment(atIso);
   return d ? String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : '—:—';
 }
-function snapshotMoment(atIso){
-  const d = parseDataMoment(atIso);
-  if(!d) return '【快照时间：未知】';
-  return '【快照时间：'+(d.getMonth()+1)+'/'+d.getDate()+' '+dataClock(atIso)+'】';
-}
 function setVisibleDataTime(source, atIso){
   const d = parseDataMoment(atIso);
   window.__DEMAND_DATA_SOURCE__ = source || '';
@@ -2193,9 +2084,12 @@ function setVisibleDataTime(source, atIso){
   }
   const note = document.getElementById('snapshotTimeNote');
   if(note){
-    const isSnapshot = String(source||'').includes('snapshot');
-    note.hidden = !isSnapshot;
-    if(isSnapshot) note.textContent = snapshotMoment(atIso);
+    if(d){
+      note.textContent = '· Tapd 数据上次拉取 ' + (d.getMonth()+1) + '月' + d.getDate() + '号';
+      note.hidden = false;
+    } else {
+      note.hidden = true;
+    }
   }
 }
 

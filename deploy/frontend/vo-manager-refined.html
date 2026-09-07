@@ -502,7 +502,7 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
     </section>
   </div>
 
-<div class="brand-user" id="brandUser" title="点击切换预览身份（PM / 文案 Writer）" onclick="cycleUser()">
+<div class="brand-user" id="brandUser" title="点击切换预览身份（PM / ND）" onclick="cycleUser()">
     <div class="av" id="buAvatar">L</div>
     <div>
       <div class="name" id="buName">lycheelli</div>
@@ -574,7 +574,7 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
 <script src="assets/holiday-calendar.js?v=20260901a"></script>
 <script src="assets/release-calendar.js?v=20260901b"></script>
 <script>
-const __BUILD__ = '202609071131';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202609071413';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -1583,7 +1583,7 @@ function sharePickerContacts(){
   }));
   const groups = [
     { id:'g-vomi-pm',       kind:'group', name:'VO PM 主群',     initial:'V' },
-    { id:'g-vomi-writers',  kind:'group', name:'文案策划群',     initial:'文' },
+    { id:'g-vomi-writers',  kind:'group', name:'Narrative Designer Group',     initial:'N' },
     { id:'g-vomi-audio',    kind:'group', name:'音频同学群',     initial:'音' },
     { id:'g-vomi-cw-pm',    kind:'group', name:'文案 PM 群',     initial:'P' },
   ];

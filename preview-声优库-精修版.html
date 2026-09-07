@@ -1999,7 +1999,7 @@ function enqueueRosterDelete(roleCn, rid){
     const truncated = hasContent && noteLen > 300;
     const footHint = truncated
       ? '内容较长已折叠 · 双击下载完整资料'
-      : (hasContent ? '← 双击下载选角资料' : (pending ? '资料待文案补充' : ''));
+      : (hasContent ? '← 双击下载选角资料' : (pending ? '资料待 ND 补充' : ''));
 
     // 角色名
     const roleHtml = rcn
@@ -2022,7 +2022,7 @@ function enqueueRosterDelete(roleCn, rid){
       quoteHtml = `<div class="ct-quote is-warn">${escHtml(remark)}</div>`;
     } else {
       const tip = pending
-        ? '文案策划补充中：基础信息 + 人设 + 试音台词 到期后由 Vomi 自动生成详细选角 Word'
+        ? 'Narrative Designer 补充中：基础信息 + 人设 + 试音台词 到期后由 Vomi 自动生成详细选角 Word'
         : '老演员数据：声优已确认（历史录音库），详细选角资料待后期更新';
       quoteHtml = `<div class="ct-quote is-empty">${tip}</div>`;
     }
@@ -2147,7 +2147,7 @@ function downloadCastingNote(rid){
   if(!row) return;
   const note = row.casting_note || '';
   if(!note){
-    alert('该角色暂无选角资料，请等待文案策划补充完整后再下载。');
+    alert('该角色暂无选角资料，请等待 Narrative Designer 补充完整后再下载。');
     return;
   }
   // 拆解 note 里的段落（每段以【标题】开头），生成 Word 友好的 HTML

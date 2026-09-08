@@ -1388,14 +1388,18 @@ function renderTimeline(){
             hideLabel = (pos === ' pos-mid');
           }
           const tip = ev.range?fmtShort(ev.range[0])+'→'+fmtShort(ev.range[1]):fmtShort(ev.date)+'(周'+'日一二三四五六'[ev.date.getDay()]+')';
-          // 会议类（声优锁 / 台词锁 / 台词需求分配会）悬浮改写为「会议时间：X号XX点」；其余保留 full+tip
+          // 会议类（声优锁 / 台词锁 / 台词需求分配会）悬浮显示「版本+节点名称+会议时间」；其余保留 full+tip
           const isMeetingTip = (ev.tag === 'm-estimate' || ev.tag === 'm-script' || ev.tag === 's-thu-alloc');
           const tipText = isMeetingTip
             ? (function(){
                 const dd = ev.date.getDate();
                 const mm = String(ev.full).match(/(\d{1,2}):(\d{2})/);
                 const hh = mm ? +mm[1] : 11;
-                return `会议时间：${dd}号${hh}点`;
+                const parts = String(ev.full).split(' · ');
+                const verName = (parts[0]||'').replace(/\.0$/, '');
+                const nodeName = parts[1] || '';
+                const prefix = (verName || nodeName) ? `${verName}${verName && nodeName ? ' ' : ''}${nodeName} · ` : '';
+                return `${prefix}会议时间：${dd}号${hh}点`;
               })()
             : (ev.full + ' · ' + tip);
           const label = hideLabel ? '' : ev.short.replace(/^→/,'');
@@ -2125,7 +2129,11 @@ function renderDayView(){
                     const dd = e.date.getDate();
                     const mm = String(e.full).match(/(\d{1,2}):(\d{2})/);
                     const hh = mm ? +mm[1] : 11;
-                    return `会议时间：${dd}号${hh}点`;
+                    const parts = String(e.full).split(' · ');
+                    const verName = (parts[0]||'').replace(/\.0$/, '');
+                    const nodeName = parts[1] || '';
+                    const prefix = (verName || nodeName) ? `${verName}${verName && nodeName ? ' ' : ''}${nodeName} · ` : '';
+                    return `${prefix}会议时间：${dd}号${hh}点`;
                   })()
                 : e.full;
               const tipEsc = tipText.replace(/"/g,'&quot;');

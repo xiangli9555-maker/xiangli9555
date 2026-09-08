@@ -81,7 +81,7 @@ app.get('/api/schedule-from-sheet', (req, res) => {
   const release = String(req.query.release || 'Yang1.0');
   const path = require('path');
   const fs = require('fs');
-  const file = path.resolve(__dirname, '..', 'data', 'schedule_from_sheet.json');
+  const file = path.resolve(__dirname, '..', 'schedule_from_sheet.json');
   fs.readFile(file, 'utf8', (err, txt) => {
     if (err) {
       return res.status(404).json({ ok: false, error: 'schedule_snapshot_missing', release });

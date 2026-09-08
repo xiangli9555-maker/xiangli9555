@@ -9,7 +9,7 @@ RUN if [ -f /app/package-lock.json ]; then npm ci --omit=dev --ignore-scripts --
 
 COPY --chown=node:node src ./src
 COPY --chown=node:node cw_doc_recipe_v6.js ./
-COPY --chown=node:node data ./data
+COPY --chown=node:node schedule_from_sheet.json ./
 
 RUN mkdir -p /data/audio && chown -R node:node /app /data/audio
 

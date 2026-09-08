@@ -94,6 +94,13 @@ function safeEqual(actual, expected) {
 function apiAuth(req, res, next) {
   // ★ 2026-08-21 用户拍板：完全放开 /api/（不再校验令牌）。
   // 任何请求都视为 admin 身份放行；写接口不再需要 token。风险：内网可用，勿公开 IP。
+  // ★ 2026-09-08 追加 guest 分享模式：请求头 X-Vomi-Role: guest 时降为 viewer，
+  //   methodRbac 会自动把 POST/PUT/PATCH/DELETE 拒 403（requireRole('editor'/'admin') 均不满足）。
+  const guestHeader = String(req.headers['x-vomi-role'] || '').toLowerCase();
+  if (guestHeader === 'guest') {
+    req.auth = { subject: 'guest', role: 'viewer' };
+    return next();
+  }
   req.auth = { subject: 'open-access', role: 'admin' };
   return next();
   // ↓ 原鉴权逻辑保留（已短路） ↓

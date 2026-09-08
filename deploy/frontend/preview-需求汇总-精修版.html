@@ -889,6 +889,12 @@ function releaseInScope(demand){
   return !!(window.VOMI_RELEASE_CALENDAR && window.VOMI_RELEASE_CALENDAR.isAtOrAfterCached(release, RELEASE_SCOPE_START));
 }
 const RELEASE_LIBRARY_KEY = 'release_script_libraries_v1';
+// 内置默认表格链路：Vomi 拥有的 release 实例台词库（母版 + 派生实例双层模型的实例层）。
+// 优先级：内置默认 > kv 远端 > localStorage。这样团队所有浏览器都能看到最新链接，
+// 不受个人 localStorage 旧值影响；用户想私有覆写时再登记到 kv 即可。
+const RELEASE_LIBRARY_DEFAULTS = {
+  'Yang1.0': 'https://doc.weixin.qq.com/sheet/e3_ADIABnivAPACNvqm90kNtQyOgdAut_a?scode=AJEAIQdfAAoUmKmxUPADIABnivAPA'
+};
 let RELEASE_LIBRARY_DOCS = {};
 try{ RELEASE_LIBRARY_DOCS = JSON.parse(localStorage.getItem(RELEASE_LIBRARY_KEY)||'{}')||{}; }catch(_){ RELEASE_LIBRARY_DOCS = {}; }
 let RELEASE_PLANS = [];
@@ -1325,9 +1331,13 @@ function pickCw(id, val){
 document.addEventListener('click', ()=>{ if(__cwOpenEl) closeCwPop(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && __cwOpenEl) closeCwPop(); });
 function releaseLibraryRecord(release){
+  // 内置默认永远优先（保证团队所有浏览器都能看到最新 Vomi 派生实例链接）
+  const norm = normRelease(release);
+  const defKey = Object.keys(RELEASE_LIBRARY_DEFAULTS).find(k=>normRelease(k)===norm);
+  if(defKey) return RELEASE_LIBRARY_DEFAULTS[defKey];
   const direct = RELEASE_LIBRARY_DOCS[release];
   if(direct) return direct;
-  const key = Object.keys(RELEASE_LIBRARY_DOCS).find(k=>normRelease(k)===normRelease(release));
+  const key = Object.keys(RELEASE_LIBRARY_DOCS).find(k=>normRelease(k)===norm);
   return key ? RELEASE_LIBRARY_DOCS[key] : null;
 }
 function releaseLibraryDocCell(release){

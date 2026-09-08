@@ -1283,6 +1283,11 @@ async function loadActorData(){
   ACTOR_STATE.loaded = true;
   renderFilterBar();
   renderActorRollup();
+  // sheet 快照加载完成后，同步刷新侧栏（预约进度/录制日历/即将录制）——
+  // 侧栏一开始只监听 /api/schedules（正式发布），台词库回填链路依赖 ACTOR_STATE.sheetSchedule 就绪后重绘。
+  if(typeof window.renderSched === 'function'){
+    try{ window.renderSched(); }catch(_){}
+  }
 }
 
 // ===== 验收用虚拟数据（用户验收后删除）=====
@@ -2522,11 +2527,60 @@ function bookActor(role, lang){
       };
     }).filter(function(r){ return !!parseYMD(r.date); });
   }
+  // 从台词库表格快照（`ACTOR_STATE.sheetSchedule`）派生侧栏 panel 行——用户 2026-09-08 定稿：
+  //   web 端本地/正式档期草稿为空时，侧栏也应显示 sheet 里 21 行数据（预约进度/日历/即将录制）。
+  //   数据源结构：{category, role_cn, va_cn, va_en, status_cn, status_en, date_cn, date_en, location}
+  //   为让「中/英配」双语种统计同源，每条 sheet 记录派生 cn + en 两行；无日期则仅计入总数，不占日历。
+  function buildMidPanelRowsFromSheet(){
+    var actorState = (typeof ACTOR_STATE !== 'undefined') ? ACTOR_STATE : (window.ACTOR_STATE || {});
+    var recs = (actorState && actorState.sheetSchedule) || [];
+    if(!Array.isArray(recs) || !recs.length) return [];
+    var cur = String(SCHED_STATE.currentRelease || detectCurrentReleaseFromDemands() || 'Yang1').trim() || 'Yang1';
+    var demandByRole = {};
+    (actorState.demands || []).forEach(function(d){
+      var did = String(d.id||'');
+      var ves = (actorState.estimates || []).filter(function(v){ return String(v.demand_id||'') === did; });
+      ves.forEach(function(v){
+        var rn = String(v.role_name||'').trim();
+        if(rn && !demandByRole[rn]) demandByRole[rn] = { id: did, title: String(d.task_name||'').trim() || ('需求 '+did) };
+      });
+    });
+    var out = [];
+    recs.forEach(function(r){
+      var role = String(r.role_cn||'').trim(); if(!role) return;
+      var meta = demandByRole[role] || { id:'', title:'' };
+      var loc = String(r.location||'').trim();
+      var noteTitle = String(r.note||'').replace(/^Story:\s*/,'').trim();
+      // cn 行
+      out.push({
+        date: String(r.date_cn||'').trim(),
+        slot:'', start_time:'', end_time:'', studio: loc,
+        lang:'cn', role: role,
+        demandId: meta.id, plan: cur,
+        title: meta.title || noteTitle || '未关联需求'
+      });
+      // en 行（若 va_en 有值才派生，避免全空占位）
+      var vaEn = String(r.va_en||'').trim();
+      if(vaEn && vaEn !== 'N/A'){
+        out.push({
+          date: String(r.date_en||'').trim(),
+          slot:'', start_time:'', end_time:'', studio: loc,
+          lang:'en', role: role + '（英）',
+          demandId: meta.id, plan: cur,
+          title: meta.title || noteTitle || '未关联需求'
+        });
+      }
+    });
+    return out;
+  }
   function withMidPanelFallback(rows){
     var list = Array.isArray(rows) ? rows.slice() : [];
     var hasDated = list.some(function(r){ return !!parseYMD(r.date); });
-    // 中间栏样例兜底：仅 file:// 本地预览；线上保持真实数据（空则空态）2026-08-31
     if(list.length && hasDated) return list;
+    // 优先用台词库表格快照（Vomi 派生实例）填充侧栏——线上真实数据链路
+    var fromSheet = buildMidPanelRowsFromSheet();
+    if(fromSheet.length) return fromSheet;
+    // 中间栏样例兜底：仅 file:// 本地预览；线上保持真实数据（空则空态）2026-08-31
     return window.FORCE_SCHED_MOCK ? buildMidPanelMockRows() : [];
   }
   function renderMidPanel(rows){
@@ -3069,7 +3123,7 @@ function bookActor(role, lang){
       +  '<div style="position:absolute;left:0;top:12px;bottom:10px;width:3px;background:var(--c-primary);opacity:.85"></div>'
       +  '<div style="padding-left:8px">'
       +    '<div style="font-size:13px;font-weight:600;color:var(--c-text);letter-spacing:.3px">台词库表格 · 3.录制档期 · '+(data.release||'—')+'</div>'
-      +    '<div style="font-size:11px;color:#8B9199;margin-top:4px"><span style="color:var(--c-primary);opacity:.7">&gt;</span> '+records.length+' 条 · 快照 '+((data.fetched_at||'').replace(\'T\',\' \'))+'</div>'
+      +    '<div style="font-size:11px;color:#8B9199;margin-top:4px"><span style="color:var(--c-primary);opacity:.7">&gt;</span> '+records.length+' 条 · 快照 '+String(data.fetched_at||'').replace('T',' ')+'</div>'
       +  '</div>'
       +  '<button onclick="document.getElementById(\'sheetSchedulePreview\').remove()" style="width:26px;height:26px;border:1px solid var(--c-hairline);background:transparent;color:var(--c-text-2);cursor:pointer;font-size:16px;line-height:1;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)">×</button>'
       +'</div>'

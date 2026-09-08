@@ -270,13 +270,13 @@ test('声优预估填写使用索引缓存、搜索帧合并与连续录入快�
 });
 
 test('声优预估滚动条与操作按钮使用战术风格且不显示系统箭头', () => {
-  assert.match(demandHtml, /\.ve-category-scroll::-webkit-scrollbar\{width:7px\}/);
+  assert.match(demandHtml, /\.ve-category-scroll::-webkit-scrollbar\{width:8px\}/);
   assert.match(demandHtml, /\.ve-category-scroll::-webkit-scrollbar-button\{display:none;width:0;height:0\}/);
   assert.match(demandHtml, /\.ve-stack::-webkit-scrollbar-button\{display:none;width:0;height:0\}/);
-  assert.match(demandHtml, /scrollbar-color:var\(--cat-color,#608980\) #0B1216/);
+  assert.match(demandHtml, /scrollbar-color:var\(--c-hairline\) transparent/);
   assert.match(demandHtml, /\.ve-category-actions \.btn\{[^}]*clip-path:polygon/);
-  assert.match(demandHtml, /\.ve-category-actions \.btn:not\(\.btn-primary\)\{background:#111B20/);
-  assert.match(demandHtml, /\.ve-category-actions \.btn-primary\{background:rgba\(255,210,76,\.055\)/);
+  assert.match(demandHtml, /\.ve-category-actions \.btn:not\(\.btn-primary\)\{background:transparent;color:var\(--c-text-mute\);border:1px solid var\(--c-border\)\}/);
+  assert.match(demandHtml, /\.ve-category-actions \.btn-primary\{background:var\(--c-brand-yellow,#FFD24C\);color:#0A1015/);
 });
 
 test('录制档期声优视图回退为六板标签云但继续使用真实预估接口', () => {

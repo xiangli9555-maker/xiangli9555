@@ -104,7 +104,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .chip-status.chip-prog-done.on{color:#B5C0AE;border-color:#7B8B76;background:rgba(123,139,118,.12);box-shadow:inset 0 0 0 1px rgba(123,139,118,.35),inset 0 -2px 0 currentColor}
 .chip-status.chip-prog-done i{background:#7B8B76;box-shadow:0 0 4px rgba(123,139,118,.6)}
 /* ★ 行内状态 · 原生 select 药丸（2026-09-07 回退 9.4/9.5 格式 · 保留 5 态选项） */
-.va-status{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;border-radius:14px;padding:6px 12px;border:1px solid var(--c-border);background:var(--c-bg-0);color:var(--c-text-mute);cursor:pointer}
+.va-status{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;border-radius:14px;padding:6px 12px;border:1px solid var(--c-border);background:var(--c-bg-0);color:var(--c-text-mute);cursor:pointer;text-align:center;text-align-last:center;-moz-text-align-last:center}
 /* 状态角标视觉规则（PM 定稿 2026-07-24 · 15:30 版）：
    - 待澄清/文案ing/已交稿/Vo ing 一律带左粗边 + 右上角🔒角标（PM 视觉锚点：这行还在推进中）
    - Done 不带角标（终态归档，无需强调）
@@ -452,9 +452,9 @@ body.embed .mid{width:100%}
   .ve-stack::-webkit-scrollbar-thumb{background:var(--cat-color,#608980);border:1px solid #0B1216;border-radius:1px;min-height:18px}
   .ve-stack::-webkit-scrollbar-thumb:hover{background:var(--cat-ink,var(--c-primary))}
   .ve-stack::-webkit-scrollbar-button{display:none;width:0;height:0}
-  .ve-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;background:rgba(15,23,28,.58);border:1px solid var(--cat-color,var(--c-hairline));border-radius:6px;padding:3px 7px;font-size:12px;color:var(--c-text);white-space:nowrap}
-  .ve-role{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:inherit;font-size:inherit;font-weight:500;color:var(--c-text-mute);letter-spacing:.5px}
-  .ve-chip .ve-x{color:var(--c-text-mute);font-weight:500;flex-shrink:0;font-variant-numeric:tabular-nums}
+  .ve-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;background:rgba(15,23,28,.58);border:1px solid var(--c-hairline);border-radius:6px;padding:3px 7px;font-size:12px;color:var(--c-text);white-space:nowrap}
+  .ve-role{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:inherit;font-size:inherit;font-weight:400;color:var(--c-text);letter-spacing:0}
+  .ve-chip .ve-x{color:var(--c-brand-yellow,#FFD24C);font-weight:600;flex-shrink:0;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace}
   .ve-category-popover{position:fixed;z-index:6500;width:min(520px,calc(100vw - 20px));max-height:min(480px,calc(100vh - 20px));display:none;flex-direction:column;background:rgba(15,23,28,.98);border:1px solid var(--cat-color,var(--c-primary));border-radius:12px;box-shadow:0 18px 54px rgba(0,0,0,.55);overflow:hidden;outline:none}
   .ve-category-popover.open{display:flex}
   .ve-category-head{padding:13px 14px 10px;border-bottom:1px solid var(--c-hairline);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:#121D23}
@@ -472,8 +472,14 @@ body.embed .mid{width:100%}
   .ve-category-scroll::-webkit-scrollbar-thumb:hover{background:var(--cat-ink,var(--c-primary))}
   .ve-category-scroll::-webkit-scrollbar-button{display:none;width:0;height:0}
   .ve-role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-  .ve-role-row{height:42px;display:grid;grid-template-columns:minmax(0,1fr) 82px;align-items:center;gap:8px;border:1px solid var(--c-hairline);border-radius:7px;padding:0 9px;background:#111B20;color:var(--c-text-mute);contain:layout paint}
+  .ve-role-row{height:42px;display:grid;grid-template-columns:22px minmax(0,1fr) 82px;align-items:center;gap:8px;border:1px solid var(--c-hairline);border-radius:7px;padding:0 9px;background:#111B20;color:var(--c-text-mute);contain:layout paint;cursor:pointer;transition:border-color .12s,background .12s}
+  .ve-role-row:hover{border-color:rgba(15,247,150,.28)}
   .ve-role-row.filled{border-color:var(--cat-color);background:rgba(15,247,150,.055);color:var(--c-text)}
+  .ve-role-pick{width:14px;height:14px;position:relative;display:inline-block;cursor:pointer}
+  .ve-role-pick input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+  .ve-role-pick .ve-pick-box{position:absolute;inset:0;border:1.5px solid var(--c-hairline);border-radius:3px;background:transparent;transition:border-color .12s,background .12s}
+  .ve-role-row.filled .ve-role-pick .ve-pick-box{border-color:var(--cat-color);background:var(--cat-color)}
+  .ve-role-row.filled .ve-role-pick .ve-pick-box::after{content:'';position:absolute;left:3px;top:0;width:5px;height:9px;border:solid #0A1015;border-width:0 1.6px 1.6px 0;transform:rotate(45deg)}
   .ve-role-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ve-role-row input[type=number]{width:100%;box-sizing:border-box;background:#0B1216;border:1px solid var(--c-hairline);border-radius:5px;color:var(--c-text);padding:5px 6px;text-align:right;font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
   .ve-role-row input[type=number]::-webkit-inner-spin-button,.ve-role-row input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
@@ -1424,7 +1430,7 @@ function veCell(d,cat){
   const rows=veUnified(d).filter(r=>r.category===cat);
   if(!rows.length) return '';
   const color=VE_CAT_COLORS[cat]||'#7A8A96';
-  return `<div class="ve-stack">${rows.map(r=>`<span class="ve-chip" style="--cat-color:${color}"><span class="ve-role">${esc(r.role)}</span><b class="ve-x">${Number(r.est_lines)||0}</b></span>`).join('')}</div>`;
+  return `<div class="ve-stack">${rows.map(r=>`<span class="ve-chip"><span class="ve-role">${esc(r.role)}</span><b class="ve-x">×${Number(r.est_lines)||0}</b></span>`).join('')}</div>`;
 }
 function veCells(d){
   return VE_CATEGORIES.map(cat=>{
@@ -1481,7 +1487,30 @@ function veChangeLines(input){
     if(old)old.estimated_lines=value;
     else VE_CATEGORY.draft.set(key,{role_name:role,role_id:Number(input.dataset.roleId)||null,category:VE_CATEGORY.cat,language:'cn',estimated_lines:value,actual_lines:Number(input.dataset.actual)||0});
   }else if(old)VE_CATEGORY.draft.delete(key);
-  const row=input.closest('.ve-role-row');if(row&&row.classList.contains('filled')!==(value>0))row.classList.toggle('filled',value>0);
+  const row=input.closest('.ve-role-row');
+  if(row){
+    if(row.classList.contains('filled')!==(value>0))row.classList.toggle('filled',value>0);
+    const cb=row.querySelector('.ve-role-pick input[type="checkbox"]');if(cb)cb.checked=value>0;
+  }
+}
+function vePickRole(cb){
+  if(VE_CATEGORY.readonly||VE_CATEGORY.saving){cb.checked=!cb.checked;return;}
+  const row=cb.closest('.ve-role-row');if(!row)return;
+  const numInput=row.querySelector('input[type="number"]');
+  if(cb.checked){
+    if(!numInput.value||Number(numInput.value)<=0)numInput.value='1';
+    veChangeLines(numInput);
+    requestAnimationFrame(()=>{numInput.focus({preventScroll:true});numInput.select();});
+  }else{
+    numInput.value='';
+    veChangeLines(numInput);
+  }
+}
+function veRowClick(ev,row){
+  if(VE_CATEGORY.readonly||VE_CATEGORY.saving)return;
+  if(ev.target.closest('input,label'))return;
+  const numInput=row.querySelector('input[type="number"]');if(!numInput)return;
+  numInput.focus({preventScroll:true});numInput.select();
 }
 function veLineKeydown(event,input){
   if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();saveVeCategory();return;}
@@ -1501,8 +1530,8 @@ function renderVeCategoryRoles(){
   const source=VE_ROSTER_BY_CAT.get(cat)||[],roles=q?source.filter(r=>veNorm(r.role_cn).includes(q)||veNorm(r.role_en).includes(q)):source;
   if(!roles.length){body.innerHTML=`<div class="ve-category-empty">声优库暂无${esc(cat)}角色</div>`;return;}
   body.innerHTML=`<div class="ve-role-grid">${roles.map(r=>{
-    const picked=VE_CATEGORY.draft.get(veDraftKey(r.role_cn)),value=picked?Number(picked.estimated_lines)||0:'';
-    return `<div class="ve-role-row${value>0?' filled':''}"><span class="ve-role-name">${esc(r.role_cn)}</span><input data-role="${esc(r.role_cn)}" data-role-id="${r.id||''}" data-actual="${picked?Number(picked.actual_lines)||0:0}" type="number" min="0" max="999999" inputmode="numeric" value="${value}" placeholder="句数" oninput="veChangeLines(this)" onfocus="this.select()" onkeydown="veLineKeydown(event,this)" aria-label="${esc(r.role_cn)}预估句数"${disabled}/></div>`;
+    const picked=VE_CATEGORY.draft.get(veDraftKey(r.role_cn)),value=picked?Number(picked.estimated_lines)||0:'',isOn=value>0;
+    return `<div class="ve-role-row${isOn?' filled':''}" onclick="veRowClick(event,this)"><label class="ve-role-pick" onclick="event.stopPropagation()"><input type="checkbox" data-role="${esc(r.role_cn)}" data-role-id="${r.id||''}" ${isOn?'checked':''} onchange="vePickRole(this)" aria-label="${esc(r.role_cn)}选中"${disabled}/><span class="ve-pick-box"></span></label><span class="ve-role-name">${esc(r.role_cn)}</span><input data-role="${esc(r.role_cn)}" data-role-id="${r.id||''}" data-actual="${picked?Number(picked.actual_lines)||0:0}" type="number" min="0" max="999999" inputmode="numeric" value="${value}" placeholder="句数" oninput="veChangeLines(this)" onclick="event.stopPropagation()" onfocus="this.select()" onkeydown="veLineKeydown(event,this)" aria-label="${esc(r.role_cn)}预估句数"${disabled}/></div>`;
   }).join('')}</div>`;
 }
 async function saveVeCategory(){

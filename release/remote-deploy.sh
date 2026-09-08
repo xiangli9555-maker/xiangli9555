@@ -59,7 +59,7 @@ printf '%s\n' "$COMMIT" > "$BACKUP/target-commit.txt"
 mkdir -p "$DEPLOY/frontend" "$DEPLOY/backend/src" "$DEPLOY/nginx"
 cp -a "$STAGE/deploy/frontend/." "$DEPLOY/frontend/"
 cp -a "$STAGE/deploy/backend/src/." "$DEPLOY/backend/src/"
-for f in Dockerfile package.json package-lock.json cw_doc_recipe_v6.js build_cw_doc.js roster.json tapd-snapshot.js .env.example; do
+for f in Dockerfile package.json package-lock.json cw_doc_recipe_v6.js build_cw_doc.js roster.json tapd-snapshot.js schedule_from_sheet.json .env.example; do
   [[ -f "$STAGE/deploy/backend/$f" ]] && cp -a "$STAGE/deploy/backend/$f" "$DEPLOY/backend/$f"
 done
 [[ -f "$STAGE/deploy/docker-compose.yml" ]] && cp -a "$STAGE/deploy/docker-compose.yml" "$DEPLOY/docker-compose.yml"

@@ -1838,7 +1838,9 @@ function renderTimeline60(){
   };
   const evs = EVENTS.filter(e => {
     if(!eventVisibleTimeline(e)) return false;
-    if(e.range){ return e.range[0] <= end && e.range[1] >= TODAY; }
+    // 未来 60 天 = 事项必须在 [今天, 今天+59] 内开始；已经在进行中（起点早于今天）的过程项不属于「未来」。
+    // 结束日期允许延伸到窗口外——真实呈现工期长度更实用；筛选口径以「开始日」为准。
+    if(e.range){ return e.range[0] >= TODAY && e.range[0] <= end; }
     return e.date >= TODAY && e.date <= end;
   }).sort((a,b)=>(a.date||a.range[0])-(b.date||b.range[0]));
   if(!evs.length){ box.innerHTML = '<div class="rp-empty">未来 60 天无事项</div>'; return; }

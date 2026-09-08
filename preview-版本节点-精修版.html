@@ -1394,12 +1394,12 @@ function renderTimeline(){
             ? (function(){
                 const dd = ev.date.getDate();
                 const mm = String(ev.full).match(/(\d{1,2}):(\d{2})/);
-                const hh = mm ? +mm[1] : 11;
+                const timeStr = mm ? `${mm[1]}:${mm[2]}` : '11:30';
                 const parts = String(ev.full).split(' · ');
                 const verName = (parts[0]||'').replace(/\.0$/, '');
                 const nodeName = parts[1] || '';
                 const prefix = (verName || nodeName) ? `${verName}${verName && nodeName ? ' ' : ''}${nodeName} · ` : '';
-                return `${prefix}会议时间：${dd}号${hh}点`;
+                return `${prefix}会议时间：${dd}号${timeStr}`;
               })()
             : (ev.full + ' · ' + tip);
           const label = hideLabel ? '' : ev.short.replace(/^→/,'');
@@ -2128,12 +2128,12 @@ function renderDayView(){
                 ? (function(){
                     const dd = e.date.getDate();
                     const mm = String(e.full).match(/(\d{1,2}):(\d{2})/);
-                    const hh = mm ? +mm[1] : 11;
+                    const timeStr = mm ? `${mm[1]}:${mm[2]}` : '11:30';
                     const parts = String(e.full).split(' · ');
                     const verName = (parts[0]||'').replace(/\.0$/, '');
                     const nodeName = parts[1] || '';
                     const prefix = (verName || nodeName) ? `${verName}${verName && nodeName ? ' ' : ''}${nodeName} · ` : '';
-                    return `${prefix}会议时间：${dd}号${hh}点`;
+                    return `${prefix}会议时间：${dd}号${timeStr}`;
                   })()
                 : e.full;
               const tipEsc = tipText.replace(/"/g,'&quot;');

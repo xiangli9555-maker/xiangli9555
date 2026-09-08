@@ -759,6 +759,7 @@ body.embed .main{width:100%}
         <h1 class="page-title">录制档期 <span class="deadline-meta" id="schedDeadlinePill" hidden><span class="deadline-slash">//</span><span class="deadline-dates" id="schedDeadlineRange">--.-- → --.--</span><span class="deadline-sep">·</span><span class="deadline-rel" id="schedDeadlineRel">--</span> 录制定档期<span class="deadline-calm" id="schedDeadlineCalm" hidden>· 已完成</span></span></h1>
       </div>
       <div class="actions">
+        <button id="loadFromSheetBtn" class="btn" onclick="loadScheduleFromSheet()" style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--c-primary);color:var(--c-primary);padding:0 14px;height:32px;font-family:inherit;font-size:12px;font-weight:600;border-radius:0;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);transition:all .12s"><svg viewBox="0 0 24 24" width="16" height="16" style="stroke:currentColor;fill:none;stroke-width:2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>从台词库表格加载</button>
         <button id="syncFromSummaryBtn" class="btn btn-primary" onclick="syncFromVersionSummary()"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>从 Vo 版本汇总表同步</button>
         <div class="sync-hint"><span class="sync-dot"></span>固定同步刷新时间：每日 10:30</div>
       </div>
@@ -2964,6 +2965,77 @@ function bookActor(role, lang){
       if(btn){ btn.disabled=false; if(btn.dataset.label) btn.innerHTML=btn.dataset.label; }
     });
   };
+  // ============================================================
+  // 「从台词库表格加载」（2026-09-08 POC）
+  // 端点：GET /api/schedule-from-sheet?release=Yang1.0
+  //   → 后端读 deploy/backend/data/schedule_from_sheet.json（Vomi 表格快照）
+  //   → 弹窗展示 21 条虚拟档期，验证「表格档期真源」链路
+  // ============================================================
+  window.loadScheduleFromSheet=function(){
+    var btn=document.getElementById('loadFromSheetBtn');
+    if(btn){ btn.disabled=true; btn.dataset.label=btn.dataset.label||btn.innerHTML; btn.innerHTML='<span class="sync-spinner"></span>加载中…'; }
+    var release=(window.__INIT_RELEASE__||document.querySelector('.eyebrow-release')&&document.querySelector('.eyebrow-release').textContent||'Yang1.0').trim();
+    fetch('/api/schedule-from-sheet?release='+encodeURIComponent(release))
+      .then(function(r){ return r.json().then(function(j){ return {status:r.status, body:j}; }); })
+      .then(function(x){
+        if(btn){ btn.disabled=false; if(btn.dataset.label) btn.innerHTML=btn.dataset.label; }
+        if(!x.body.ok){
+          toast('表格数据未就绪：'+(x.body.error||'unknown')+'（快照未生成或 release 不匹配）', true);
+          return;
+        }
+        renderSheetSchedulePreview(x.body);
+      })
+      .catch(function(e){
+        if(btn){ btn.disabled=false; if(btn.dataset.label) btn.innerHTML=btn.dataset.label; }
+        toast('拉取失败：'+(e&&e.message||e), true);
+      });
+  };
+  function renderSheetSchedulePreview(data){
+    var host=document.getElementById('sheetSchedulePreview');
+    if(!host){
+      host=document.createElement('div');
+      host.id='sheetSchedulePreview';
+      host.style.cssText='position:fixed;top:60px;right:20px;bottom:20px;width:min(720px,calc(100vw - 40px));z-index:9200;background:rgba(11,17,22,.98);border:1px solid rgba(15,247,150,.4);box-shadow:0 18px 54px rgba(0,0,0,.7);clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);display:flex;flex-direction:column;font-family:"Microsoft YaHei UI","PingFang SC",sans-serif';
+      document.body.appendChild(host);
+    }
+    var records=data.records||[];
+    var rowsHtml=records.map(function(r,i){
+      var st=(r.status_cn||'')+(r.status_en&&r.status_en!==r.status_cn?' / '+r.status_en:'');
+      var stCls=(r.status_cn==='已完成'?'#0FF796':(r.status_cn==='已排期'?'#FFD24C':'#B3BBC1'));
+      return '<tr style="border-bottom:1px solid rgba(255,255,255,.05)">'
+        +'<td style="padding:6px 10px;color:#8B9199;font-size:11px;font-variant-numeric:tabular-nums">'+(i+1)+'</td>'
+        +'<td style="padding:6px 10px;color:#B3BBC1;font-size:12px">'+r.category+'</td>'
+        +'<td style="padding:6px 10px;color:var(--c-text);font-size:12px;font-weight:500">'+r.role_cn+'</td>'
+        +'<td style="padding:6px 10px;color:#B3BBC1;font-size:12px">'+r.va_cn+' / '+r.va_en+'</td>'
+        +'<td style="padding:6px 10px;color:'+stCls+';font-size:12px;font-weight:500">'+st+'</td>'
+        +'<td style="padding:6px 10px;color:#B3BBC1;font-size:11px;font-variant-numeric:tabular-nums">'+(r.date_cn||'—')+'</td>'
+        +'<td style="padding:6px 10px;color:#8B9199;font-size:11px">'+(r.location||'—')+'</td>'
+        +'</tr>';
+    }).join('');
+    host.innerHTML=''
+      +'<div style="padding:12px 16px 10px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;background:#0F171C;position:relative">'
+      +  '<div style="position:absolute;left:0;top:12px;bottom:10px;width:3px;background:var(--c-primary);opacity:.85"></div>'
+      +  '<div style="padding-left:8px">'
+      +    '<div style="font-size:13px;font-weight:600;color:var(--c-text);letter-spacing:.3px">台词库表格 · 3.录制档期 · '+(data.release||'—')+'</div>'
+      +    '<div style="font-size:11px;color:#8B9199;margin-top:4px"><span style="color:var(--c-primary);opacity:.7">&gt;</span> '+records.length+' 条 · 快照 '+((data.fetched_at||'').replace(\'T\',\' \'))+'</div>'
+      +  '</div>'
+      +  '<button onclick="document.getElementById(\'sheetSchedulePreview\').remove()" style="width:26px;height:26px;border:1px solid var(--c-hairline);background:transparent;color:var(--c-text-2);cursor:pointer;font-size:16px;line-height:1;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)">×</button>'
+      +'</div>'
+      +'<div style="flex:1;overflow-y:auto;padding:0 4px">'
+      +'<table style="width:100%;border-collapse:collapse;font-size:12px">'
+      +'<thead style="position:sticky;top:0;background:#0E1519"><tr style="border-bottom:1px solid rgba(15,247,150,.25)">'
+      +'<th style="padding:8px 10px;text-align:left;font-size:11px;color:var(--c-primary);letter-spacing:.4px;font-weight:600">NO</th>'
+      +'<th style="padding:8px 10px;text-align:left;font-size:11px;color:var(--c-primary);letter-spacing:.4px;font-weight:600">大类</th>'
+      +'<th style="padding:8px 10px;text-align:left;font-size:11px;color:var(--c-primary);letter-spacing:.4px;font-weight:600">游戏角色</th>'
+      +'<th style="padding:8px 10px;text-align:left;font-size:11px;color:var(--c-primary);letter-spacing:.4px;font-weight:600">声优 中/英</th>'
+      +'<th style="padding:8px 10px;text-align:left;font-size:11px;color:var(--c-primary);letter-spacing:.4px;font-weight:600">状态</th>'
+      +'<th style="padding:8px 10px;text-align:left;font-size:11px;color:var(--c-primary);letter-spacing:.4px;font-weight:600">录制日期</th>'
+      +'<th style="padding:8px 10px;text-align:left;font-size:11px;color:var(--c-primary);letter-spacing:.4px;font-weight:600">录制地点</th>'
+      +'</tr></thead>'
+      +'<tbody>'+rowsHtml+'</tbody>'
+      +'</table></div>';
+    toast('已加载：'+records.length+' 条表格档期');
+  }
   window.openDraftWizard=SCHED.open; window.closeDraftWizard=SCHED.close; window.confirmDraftWizard=SCHED.confirm;
   window.addEmptySched=SCHED.addEmpty; window.exportSchedule=SCHED.export; window.publishScheduleDrafts=SCHED.publishAll;
   window.renderSched=renderSched;

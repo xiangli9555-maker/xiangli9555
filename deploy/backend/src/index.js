@@ -73,6 +73,31 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// ---------- 台词库表格→web 端档期数据回读（2026-09-08 POC）----------
+// 数据源：Vomi 拥有的企微文档 `Vomi台词库-{release}` 的「3.录制档期」页
+// 由本地 wecom-cli 拉取生成 JSON 快照存 deploy/backend/data/schedule_from_sheet.json
+// 前端「录制档期」页会追加读取本 endpoint，作为「表格档期真源」层显示。
+app.get('/api/schedule-from-sheet', (req, res) => {
+  const release = String(req.query.release || 'Yang1.0');
+  const path = require('path');
+  const fs = require('fs');
+  const file = path.resolve(__dirname, '..', 'data', 'schedule_from_sheet.json');
+  fs.readFile(file, 'utf8', (err, txt) => {
+    if (err) {
+      return res.status(404).json({ ok: false, error: 'schedule_snapshot_missing', release });
+    }
+    try {
+      const data = JSON.parse(txt);
+      if (data.release && data.release !== release) {
+        return res.status(404).json({ ok: false, error: 'release_mismatch', want: release, snapshot_release: data.release });
+      }
+      res.json({ ok: true, ...data });
+    } catch (e) {
+      res.status(500).json({ ok: false, error: 'snapshot_invalid_json' });
+    }
+  });
+});
+
 // ---------- 统一日期引擎：节假日 / 调休 / 工作日 ----------
 app.get('/api/calendar', (req, res) => {
   const year = Number(req.query.year) || new Date().getFullYear();

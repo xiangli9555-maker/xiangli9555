@@ -330,6 +330,33 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 /* 年份分组带 · 战术色 */
 .yc-table tbody tr.yc-year-band td{background:var(--c-bg-0);color:var(--c-primary);text-align:left;font-weight:700;font-size:11px;padding:8px 14px;letter-spacing:3px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;text-transform:uppercase;border-top:1px solid var(--c-primary);border-bottom:1px solid var(--c-primary)}
 
+/* ★ 透明绿战术风 hover tip（2026-09-08 PM 要求）：替代原生 title 显示
+   切角 + 玻璃模糊 + 品牌绿边/字 + 左圆点锚点；切角 8px 与芯片标签视觉同源。 */
+.vn-hover-tip{
+  position:fixed;z-index:8500;
+  background:rgba(15, 23, 26, .42);
+  border:1px solid rgba(15, 247, 150, .75);
+  color:#0FF796;
+  font:600 11px/1.3 "Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;
+  letter-spacing:.5px;
+  padding:7px 13px 7px 20px;
+  border-radius:3px;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  transform:translateY(-2px);
+  transition:opacity .12s ease, transform .12s ease;
+  box-shadow:0 8px 22px rgba(0,0,0,.55),inset 0 0 0 1px rgba(15,247,150,.18),inset 0 -2px 0 rgba(15,247,150,.22);
+  backdrop-filter:blur(8px) saturate(1.3);
+  -webkit-backdrop-filter:blur(8px) saturate(1.3);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  -webkit-clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+}
+.vn-hover-tip.show{opacity:1;transform:translateY(0)}
+.vn-hover-tip::before{content:'';position:absolute;left:8px;top:50%;width:5px;height:5px;margin-top:-3px;background:#0FF796;box-shadow:0 0 6px #0FF796;border-radius:50%;opacity:.9}
+/* 表格内 chip 移入时关掉原生 title 行为，统一由浮层承载 */
+.yc-evt[data-tip],.evt-chip[data-tip]{cursor:help}
+
 /* ================================================================
    DAY-CELL CALENDAR (mode = day) — 单版本切片 · 日格表
    行 = 版本×阶段的每一周；子行 = 空白日期行 + 文案 + 音频 + PM
@@ -1361,6 +1388,16 @@ function renderTimeline(){
             hideLabel = (pos === ' pos-mid');
           }
           const tip = ev.range?fmtShort(ev.range[0])+'→'+fmtShort(ev.range[1]):fmtShort(ev.date)+'(周'+'日一二三四五六'[ev.date.getDay()]+')';
+          // 会议类（声优锁 / 台词锁 / 台词需求分配会）悬浮改写为「会议时间：X号XX点」；其余保留 full+tip
+          const isMeetingTip = (ev.tag === 'm-estimate' || ev.tag === 'm-script' || ev.tag === 's-thu-alloc');
+          const tipText = isMeetingTip
+            ? (function(){
+                const dd = ev.date.getDate();
+                const mm = String(ev.full).match(/(\d{1,2}):(\d{2})/);
+                const hh = mm ? +mm[1] : 11;
+                return `会议时间：${dd}号${hh}点`;
+              })()
+            : (ev.full + ' · ' + tip);
           const label = hideLabel ? '' : ev.short.replace(/^→/,'');
           // 区间事件给 first 挂 data-rk 便于 mergeRangeBars 分组；data-rk-end 提供 last cell 的锚点日期（YYYY/M/D）
           let dataAttrs = '';
@@ -1372,7 +1409,7 @@ function renderTimeline(){
               dataAttrs += ` data-rk-end="${effEnd2.getFullYear()}/${effEnd2.getMonth()+1}/${effEnd2.getDate()}"`;
             }
           }
-          return `<span class="yc-evt evt-${ev.tag}${pos}"${dataAttrs} title="${ev.full} · ${tip}">${label}</span>`;
+          return `<span class="yc-evt evt-${ev.tag}${pos}"${dataAttrs} title="${tipText.replace(/"/g,'&quot;')}" data-tip="${tipText.replace(/"/g,'&quot;')}">${label}</span>`;
         };
         // 每条事项独占一行，从上到下按版本优先级排列
         evtHtml = rows.map(ev => `<div class="yc-row yc-row-single">${chipOf(ev)}</div>`).join('');
@@ -2081,7 +2118,19 @@ function renderDayView(){
           if(dayEvts.length){
             cls = cls.replace(' empty','');
             td.className = cls;
-            td.innerHTML = dayEvts.map(e => `<span class="evt-chip evt-${e.tag}" title="${e.full}">${e.short.replace(/^→/,'')}</span>`).join('');
+            td.innerHTML = dayEvts.map(e => {
+              const isMeetingTip = (e.tag === 'm-estimate' || e.tag === 'm-script' || e.tag === 's-thu-alloc');
+              const tipText = isMeetingTip
+                ? (function(){
+                    const dd = e.date.getDate();
+                    const mm = String(e.full).match(/(\d{1,2}):(\d{2})/);
+                    const hh = mm ? +mm[1] : 11;
+                    return `会议时间：${dd}号${hh}点`;
+                  })()
+                : e.full;
+              const tipEsc = tipText.replace(/"/g,'&quot;');
+              return `<span class="evt-chip evt-${e.tag}" title="${tipEsc}" data-tip="${tipEsc}">${e.short.replace(/^→/,'')}</span>`;
+            }).join('');
           }
           tr.appendChild(td);
         }
@@ -2117,6 +2166,55 @@ function renderDayView(){
     }
   }).catch(()=>{});
   console.log('◉ 版本节点 · v17 (右侧栏+角色关注+倒数周免节假日) · '+VERSIONS.length+' 版本');
+})();
+</script>
+
+<script>
+/* ★ 透明绿战术风 hover tip（2026-09-08 PM 要求）：替代原生 title 显示
+   绑定 .yc-evt / .evt-chip 的 mouseover / mouseout；浮层单例挂 body 末尾。
+   外壳页禁全局 scrubTitles（按 MEMORY），仅对两类 chip 元素定向接管。 */
+(function(){
+  const tip = document.createElement('div');
+  tip.className = 'vn-hover-tip';
+  document.body.appendChild(tip);
+
+  function place(el){
+    const r = el.getBoundingClientRect();
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let left = r.left + r.width/2 - tw/2;
+    let top  = r.top - th - 8;
+    if(top < 6) top = r.bottom + 8;             // 顶部越界则下落到元素下方
+    left = Math.max(6, Math.min(left, window.innerWidth - tw - 6));
+    tip.style.left = (left + window.scrollX) + 'px';
+    tip.style.top  = (top  + window.scrollY) + 'px';
+  }
+  function show(el){
+    const text = el.getAttribute('data-tip') || el.getAttribute('title') || '';
+    if(!text) return;
+    if(tip.textContent === text && tip.classList.contains('show')){ place(el); return; }
+    tip.textContent = text;
+    tip.classList.add('show');
+    place(el);
+  }
+  function hide(){ tip.classList.remove('show'); }
+
+  document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest && e.target.closest('.yc-evt[data-tip], .evt-chip[data-tip]');
+    if(!el) return;
+    show(el);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const el = e.target.closest && e.target.closest('.yc-evt[data-tip], .evt-chip[data-tip]');
+    if(!el) return;
+    // 移入另一个 chip 时不关（让新的 show 接管）
+    const next = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.yc-evt[data-tip], .evt-chip[data-tip]');
+    if(next) return;
+    hide();
+  });
+  // 滚轮 / 窗口尺寸变化收起，避免浮层漂移
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('resize', hide);
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') hide(); });
 })();
 </script>
 

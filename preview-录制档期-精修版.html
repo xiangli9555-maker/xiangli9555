@@ -984,8 +984,8 @@ function normLang(v){
 }
 function schedStatusBucket(v){
   const s = String(v==null?'':v).trim().toLowerCase();
-  if(!s || s==='draft' || s==='pending' || s==='草稿' || s==='未约') return 'unbooked';
-  if(s==='confirmed' || s==='partial' || s==='已确认' || s==='部分约') return 'partial';
+  if(!s || s==='draft' || s==='pending' || s==='草稿' || s==='未约' || s==='待预约') return 'unbooked';
+  if(s==='confirmed' || s==='partial' || s==='已确认' || s==='部分约' || s==='已排期' || s==='部分已约') return 'partial';
   if(s==='done' || s==='booked' || s==='completed' || s==='已完成' || s==='已约完') return 'full';
   return 'unbooked';
 }
@@ -1243,6 +1243,28 @@ async function loadActorData(){
     if(v.ok){ const j=await v.json(); ACTOR_STATE.estimates=Array.isArray(j.rows)?j.rows:[]; }
     else ACTOR_STATE.estimates=[];
   }catch(e){ ACTOR_STATE.estimates=[]; }
+  // web 端预估单列（默认按 language='cn' 存）；为让「英文声优」看板也承接同一批角色，
+  // 在客户端为每条 cn 预估派生一条 language='en' 影子行——声优/状态/日期都由 sheet 快照回填。
+  try{
+    const cnOnly = (ACTOR_STATE.estimates||[]).filter(r => normLang(r.language)==='cn');
+    const enShadow = cnOnly.map(r => Object.assign({}, r, { language:'en', _shadow:true }));
+    ACTOR_STATE.estimates = cnOnly.concat(enShadow);
+  }catch(e){}
+  // 从台词库汇总表拉「3.录制档期」快照（Vomi 拥有的 release 实例）：
+  //  → GET /api/schedule-from-sheet?release=<current>
+  //  返回结构：{ok, release, records:[{category, role_cn, va_cn, va_en, status_cn, status_en, date_cn, date_en, location, ...}], fetched_at}
+  //  按 (category, role_cn) 归入 ACTOR_STATE.sheetSchedule 用于 aggregateActors 覆盖 actor/status/date
+  ACTOR_STATE.sheetSchedule = [];
+  ACTOR_STATE.sheetFetchedAt = '';
+  try{
+    const rel = ACTOR_STATE.release || 'Yang1.0';
+    const s = await fetch('/api/schedule-from-sheet?release=' + encodeURIComponent(rel), {cache:'no-store'});
+    if(s.ok){
+      const sj = await s.json();
+      ACTOR_STATE.sheetSchedule = Array.isArray(sj.records) ? sj.records : [];
+      ACTOR_STATE.sheetFetchedAt = sj.fetched_at || '';
+    }
+  }catch(e){ ACTOR_STATE.sheetSchedule = []; }
   // 虚拟数据兜底：仅 file:// 本地预览注入；线上保持真实数据（空则空态）2026-08-31
   // 2026-09-03：mock 数据不做 releaseInScope 过滤 —— file:// 下 release 日历无法加载
   //（fetch 不可用 → cachedPlans 空 → isAtOrAfterCached 恒 false），若过滤会把 mock 全清空。
@@ -1481,14 +1503,44 @@ function aggregateActors(demands, release){
     if(r.match_status==='unmatched')g.unmatched++;
   });
   const schedules=window.PUBLISHED_SCHEDULES||[];
+  // 台词库表格快照（3.录制档期页）—— 按 (category|role_cn) 建索引，用于覆盖 actor/status/date
+  const sheetRecs = ACTOR_STATE.sheetSchedule || [];
+  const sheetMap = new Map();
+  sheetRecs.forEach(rec => {
+    const cat = String(rec.category||'').trim();
+    const rc = String(rec.role_cn||'').trim();
+    if(!rc) return;
+    sheetMap.set(cat + '|' + rc, rec);
+    // 无 category 兜底：允许仅按 role_cn 匹配
+    if(!sheetMap.has('|' + rc)) sheetMap.set('|' + rc, rec);
+  });
   const list=[...map.values()];
   list.forEach(g=>{
+    // ① 先取 /api/schedules 的正式排期（真人已经在录制档期页发布过）
     const matched=schedules.filter(s=>{
       const sl=normLang(s.lang||s.language)||(s.role_en?'en':'cn');
       const roles=[s.role,s.role_cn,s.role_en].concat(Array.isArray(s.roles)?s.roles:[]).map(x=>String(x||'').trim());
       return sl===g.lang&&roles.includes(g.role);
     }).map(s=>({date:s.date||s.record_date||'',slot:s.slot||s.time_slot||'',start_time:s.start_time||'',end_time:s.end_time||'',studio:s.studio||''})).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
     g.schedules=matched;g.schedule=matched[0]||null;g.status=matched.length?'booked':'pending';
+    // ② 无正式排期时，回落到台词库表格快照的声优/状态/日期
+    if(!matched.length){
+      const hit = sheetMap.get((g.category||'')+'|'+g.role) || sheetMap.get('|'+g.role);
+      if(hit){
+        const va = g.lang==='en' ? (hit.va_en||'') : (hit.va_cn||'');
+        const st = g.lang==='en' ? (hit.status_en||'') : (hit.status_cn||'');
+        const dt = g.lang==='en' ? (hit.date_en||'') : (hit.date_cn||'');
+        if(va && va !== 'N/A') g.actor = va;
+        const bucket = schedStatusBucket(st);
+        if(bucket === 'full' || bucket === 'partial'){
+          g.status = 'booked';
+          g.schedule = { date: dt || '', slot: '', start_time:'', end_time:'', studio: hit.location || '' };
+          g.schedules = [g.schedule];
+        }
+        g.sheetStatus = st;
+        g.sheetLocation = hit.location || '';
+      }
+    }
     g.deviation=deviationState(g.total,g.actual,{delivered:g.delivered,total:g.demandTotal});
   });
   list.sort((a,b)=>(CAT_ORDER[a.category]||99)-(CAT_ORDER[b.category]||99)||b.total-a.total||a.role.localeCompare(b.role,'zh-CN'));

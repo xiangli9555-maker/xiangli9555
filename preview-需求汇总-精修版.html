@@ -74,61 +74,52 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 /* filter chip 圆点样式（替代 emoji） */
 .chip-num{opacity:.55;font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:2px}
 .chip-divider{display:inline-block;width:1px;height:16px;background:var(--c-hairline);align-self:center;margin:0 6px}
-/* ★ 状态芯片 · C 方案「战术状态导轨」（2026-09-07）：
-   待澄清=指挥官 / 文案ing=干员 / 已交稿=AI兵 / Vo ing=AI系统音 / Done=NPC。
-   与行内 HUD 同语言：左 2px 状态色导轨 + 底部金属细线，无外框；
-   hover 底线转品牌绿；选中底线回到状态色；暗色文字使用 CAT_INKS 提亮。 */
-.chip-status{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;background:rgba(255,255,255,.035);border:none;border-bottom:1px solid rgba(190,205,195,.25);color:var(--c-text-mute);border-radius:0;font-size:11px;cursor:pointer;transition:all .12s;letter-spacing:.2px;font-weight:500}
-.chip-status::before{content:'';width:2px;height:11px;background:currentColor;flex:0 0 auto;opacity:.85}
-.chip-status:hover{border-bottom-color:rgba(15,247,150,.55)}
+/* ★ 状态芯片 · 工业战术色板（2026-09-07 回退 9.4/9.5 格式 · 保留 5 态选项）：
+   待澄清=霓虹粉 / 文案ing=沙棕金 / 已交稿=蓝灰(旧已完成色) / Vo ing=青灰 / Done=军橄榄。 */
+.chip-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-mute);border-radius:12px;font-size:11px;cursor:pointer;transition:all .12s;letter-spacing:.2px;font-weight:500}
+.chip-status i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:middle}
 
-.chip-status.chip-prog-pending{color:#A8AD94}
-.chip-status.chip-prog-pending:hover{background:rgba(114,118,101,.10)}
-.chip-status.chip-prog-pending.on{background:rgba(114,118,101,.14);border-bottom-color:#A8AD94}
+.chip-status.chip-prog-pending{color:#C45D7A;border-color:rgba(232,125,160,.5)}
+.chip-status.chip-prog-pending:hover{color:#E87DA0;border-color:#C45D7A;background:rgba(232,125,160,.08)}
+.chip-status.chip-prog-pending.on{color:#E87DA0;border-color:#C45D7A;background:rgba(232,125,160,.12);box-shadow:inset 0 0 0 1px rgba(232,125,160,.35),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-pending i{background:#C45D7A;box-shadow:0 0 4px rgba(232,125,160,.6)}
 
-.chip-status.chip-prog-writing{color:#CEA06C}
-.chip-status.chip-prog-writing:hover{background:rgba(206,160,108,.08)}
-.chip-status.chip-prog-writing.on{background:rgba(206,160,108,.12);border-bottom-color:#CEA06C}
+.chip-status.chip-prog-writing{color:#AA8443;border-color:rgba(212,165,84,.5)}
+.chip-status.chip-prog-writing:hover{color:#D4A554;border-color:#AA8443;background:rgba(212,165,84,.08)}
+.chip-status.chip-prog-writing.on{color:#D4A554;border-color:#AA8443;background:rgba(212,165,84,.12);box-shadow:inset 0 0 0 1px rgba(212,165,84,.35),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-writing i{background:#AA8443;box-shadow:0 0 4px rgba(212,165,84,.6)}
 
-.chip-status.chip-prog-handover{color:#D3DFDD}
-.chip-status.chip-prog-handover:hover{background:rgba(211,223,221,.07)}
-.chip-status.chip-prog-handover.on{background:rgba(211,223,221,.10);border-bottom-color:#D3DFDD}
+.chip-status.chip-prog-handover{color:#7A8A96;border-color:rgba(122,138,150,.5)}
+.chip-status.chip-prog-handover:hover{color:#A7B4BE;border-color:#7A8A96;background:rgba(122,138,150,.08)}
+.chip-status.chip-prog-handover.on{color:#A7B4BE;border-color:#7A8A96;background:rgba(122,138,150,.12);box-shadow:inset 0 0 0 1px rgba(122,138,150,.35),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-handover i{background:#7A8A96;box-shadow:0 0 4px rgba(122,138,150,.6)}
 
-.chip-status.chip-prog-vo{color:#7FB0A6}
-.chip-status.chip-prog-vo:hover{background:rgba(96,137,128,.10)}
-.chip-status.chip-prog-vo.on{background:rgba(96,137,128,.14);border-bottom-color:#7FB0A6}
+.chip-status.chip-prog-vo{color:#649999;border-color:rgba(125,191,191,.5)}
+.chip-status.chip-prog-vo:hover{color:#7DBFBF;border-color:#649999;background:rgba(125,191,191,.08)}
+.chip-status.chip-prog-vo.on{color:#7DBFBF;border-color:#649999;background:rgba(125,191,191,.12);box-shadow:inset 0 0 0 1px rgba(125,191,191,.35),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-vo i{background:#649999;box-shadow:0 0 4px rgba(125,191,191,.6)}
 
-.chip-status.chip-prog-done{color:#8B937E}
-.chip-status.chip-prog-done:hover{background:rgba(71,76,64,.12)}
-.chip-status.chip-prog-done.on{background:rgba(71,76,64,.16);border-bottom-color:#8B937E}
-/* ★ 状态 HUD · C 方案「战术状态导轨」（2026-09-07 定稿）：
-   去外框，左侧 2px 状态色导轨 + 底部 1px 金属细线，文字左对齐、箭头靠右；
-   hover 底线转品牌绿。5 态统一复用声优库 CAT_COLORS / CAT_INKS，
-   顶部筛选芯片、HUD 与行首状态灯保持同源。 */
-.va-hud{position:relative;display:inline-flex;align-items:center;justify-content:center}
-.va-hud[data-stage="待澄清"],.va-hud-opt[data-stage="待澄清"]{--hud-c:#A8AD94;--hud-bd:rgba(114,118,101,.55);--hud-bg:rgba(114,118,101,.14)}
-.va-hud[data-stage="文案ing"],.va-hud-opt[data-stage="文案ing"]{--hud-c:#CEA06C;--hud-bd:rgba(206,160,108,.50);--hud-bg:rgba(206,160,108,.12)}
-.va-hud[data-stage="已交稿"],.va-hud-opt[data-stage="已交稿"]{--hud-c:#D3DFDD;--hud-bd:rgba(211,223,221,.45);--hud-bg:rgba(211,223,221,.10)}
-.va-hud[data-stage="Vo ing"],.va-hud-opt[data-stage="Vo ing"]{--hud-c:#7FB0A6;--hud-bd:rgba(96,137,128,.55);--hud-bg:rgba(96,137,128,.14)}
-.va-hud[data-stage="Done"],.va-hud-opt[data-stage="Done"]{--hud-c:#8B937E;--hud-bd:rgba(71,76,64,.58);--hud-bg:rgba(71,76,64,.16)}
-.va-hud-trigger{
-  position:relative;display:inline-flex;align-items:center;justify-content:flex-start;gap:4px;
-  width:80px;max-width:100%;height:25px;padding:0 7px 0 10px;
-  background:rgba(255,255,255,.035);
-  border:none;border-bottom:1px solid rgba(190,205,195,.22);
-  border-radius:0;
-  color:var(--hud-c,var(--c-text-mute));
-  font-weight:600;font-size:11px;line-height:1;font-family:inherit;
-  cursor:pointer;
-  transition:border-color .12s,background .12s;
-}
-.va-hud-trigger::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:2px;background:currentColor;opacity:.85;transition:opacity .12s}
-.va-hud-trigger:hover{background:rgba(255,255,255,.055);border-bottom-color:rgba(15,247,150,.60)}
-.va-hud-trigger:hover::before{opacity:1}
-/* 2026-09-07 C 导轨：文字左对齐、箭头贴右（导轨 + 文字本身承担颜色锚点） */
-.va-hud-label{flex:0 0 auto}
-.va-hud-caret{font:400 9px/1 'JetBrains Mono',monospace;color:var(--hud-c,var(--c-text-dim));flex:0 0 auto;margin-left:auto}
-.va-hud-trigger.va-manual::after{content:'🔒';position:absolute;right:-5px;top:-7px;font-size:8px;line-height:1;opacity:.85;filter:grayscale(.2);pointer-events:none}
+.chip-status.chip-prog-done{color:#9BA895;border-color:rgba(123,139,118,.5)}
+.chip-status.chip-prog-done:hover{color:#B5C0AE;border-color:#7B8B76;background:rgba(123,139,118,.08)}
+.chip-status.chip-prog-done.on{color:#B5C0AE;border-color:#7B8B76;background:rgba(123,139,118,.12);box-shadow:inset 0 0 0 1px rgba(123,139,118,.35),inset 0 -2px 0 currentColor}
+.chip-status.chip-prog-done i{background:#7B8B76;box-shadow:0 0 4px rgba(123,139,118,.6)}
+/* ★ 行内状态 · 原生 select 药丸（2026-09-07 回退 9.4/9.5 格式 · 保留 5 态选项） */
+.va-status{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;border-radius:14px;padding:6px 12px;border:1px solid var(--c-border);background:var(--c-bg-0);color:var(--c-text-mute);cursor:pointer}
+/* 状态角标视觉规则（PM 定稿 2026-07-24 · 15:30 版）：
+   - 待澄清/文案ing/已交稿/Vo ing 一律带左粗边 + 右上角🔒角标（PM 视觉锚点：这行还在推进中）
+   - Done 不带角标（终态归档，无需强调）
+   - 框宽不随状态变化（box-shadow inset 和 ::before absolute 都不占内容宽） */
+.va-status{position:relative;box-shadow:inset 3px 0 0 currentColor}
+.va-status::before{content:'🔒';position:absolute;right:-4px;top:-6px;font-size:8px;line-height:1;opacity:.85;filter:grayscale(.3);pointer-events:none;background:var(--c-bg);padding:1px 2px;border-radius:3px}
+/* Done：终态去角标（沉底归档） */
+.va-status.s-done{box-shadow:none}
+.va-status.s-done::before{content:none}
+/* 5 态工业战术色板（与下方 STATUS_STYLE 内联色双保险） */
+.va-status.s-none    {color:#E87DA0;border-color:rgba(232,125,160,.5);background:rgba(232,125,160,.12)}
+.va-status.s-writing {color:#D4A554;border-color:rgba(212,165,84,.5);background:rgba(212,165,84,.12)}
+.va-status.s-handover{color:#7A8A96;border-color:rgba(122,138,150,.5);background:rgba(45,58,72,.35)}
+.va-status.s-vo      {color:#7DBFBF;border-color:rgba(125,191,191,.5);background:rgba(125,191,191,.12)}
+.va-status.s-done    {color:#9BA895;border-color:rgba(123,139,118,.5);background:rgba(123,139,118,.14)}
 /* 文案策划就地可编辑（提示态） */
 .person.editable{cursor:text;border-bottom:1px dashed transparent;transition:border-color .12s,background .12s;padding:1px 4px;border-radius:3px}
 .person.editable:hover{border-bottom-color:var(--c-border);background:rgba(255,255,255,.03)}
@@ -421,32 +412,6 @@ body.embed .mid{width:100%}
   .clarify-cell b{color:var(--c-text-2);font-weight:600}
   .clarify-input{width:42px;background:var(--c-bg-0);border:1px solid var(--c-border);color:var(--c-text-2);border-radius:4px;padding:4px 5px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center}
   .clarify-input:focus{border-color:var(--c-primary);outline:none}
-  /* 状态 HUD 下拉面板（body 追加 · C 导轨选中态 · 2026-09-07） */
-  .va-hud-pop{
-    position:absolute;z-index:9998;
-    min-width:172px;
-    background:rgba(20,30,36,.85);
-    border:1px solid rgba(15,247,150,.55);
-    border-radius:6px;
-    padding:5px;
-    box-shadow:0 16px 36px -8px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.03);
-    backdrop-filter:blur(20px) saturate(1.4);
-    -webkit-backdrop-filter:blur(20px) saturate(1.4);
-  }
-  .va-hud-opt{
-    display:flex;align-items:center;gap:9px;width:100%;
-    padding:8px 11px;
-    font:600 11px/1 'JetBrains Mono',monospace;
-    letter-spacing:.06em;
-    color:var(--hud-c,var(--c-text-2));
-    background:transparent;
-    border:none;border-left:2px solid transparent;
-    border-radius:0;
-    cursor:pointer;text-align:left;
-  }
-  .va-hud-opt:hover{background:rgba(15,247,150,.07)}
-  .va-hud-opt.on{background:rgba(15,247,150,.10);border-left-color:var(--c-primary)}
-  .va-hud-opt.on .va-hud-label{color:var(--c-primary)}
 
   /* ============================================================
    * 详情区字体统一（2026-07-24 · 与左侧栏 .nav-item 同规格）
@@ -457,7 +422,7 @@ body.embed .mid{width:100%}
   .main .rp-tag, .main .story-title, .main .story-link,
   .main .task-name, .main .clarify, .main .vs,
   .main .area, .main .person, .main .chip-filter,
-  .main .clarify-cell, .main .clarify-input, .main .va-hud-trigger, .main .va-hud-label,
+  .main .clarify-cell, .main .clarify-input, .main .va-status,
   .main .cva-item .l, .main .cva-item .v small,
   .main input[type=text], .main select, .main textarea{
     font-family:'Inter','JetBrains Mono',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
@@ -488,8 +453,8 @@ body.embed .mid{width:100%}
   .ve-stack::-webkit-scrollbar-thumb:hover{background:var(--cat-ink,var(--c-primary))}
   .ve-stack::-webkit-scrollbar-button{display:none;width:0;height:0}
   .ve-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;background:rgba(15,23,28,.58);border:1px solid var(--cat-color,var(--c-hairline));border-radius:6px;padding:3px 7px;font-size:12px;color:var(--c-text);white-space:nowrap}
-  .ve-role{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--c-text-mute);letter-spacing:.5px}
-  .ve-chip .ve-x{color:var(--c-brand-yellow,#FFD24C);font-weight:600;flex-shrink:0}
+  .ve-role{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:inherit;font-size:inherit;font-weight:500;color:var(--c-text-mute);letter-spacing:.5px}
+  .ve-chip .ve-x{color:var(--c-text-mute);font-weight:500;flex-shrink:0;font-variant-numeric:tabular-nums}
   .ve-category-popover{position:fixed;z-index:6500;width:min(520px,calc(100vw - 20px));max-height:min(480px,calc(100vh - 20px));display:none;flex-direction:column;background:rgba(15,23,28,.98);border:1px solid var(--cat-color,var(--c-primary));border-radius:12px;box-shadow:0 18px 54px rgba(0,0,0,.55);overflow:hidden;outline:none}
   .ve-category-popover.open{display:flex}
   .ve-category-head{padding:13px 14px 10px;border-bottom:1px solid var(--c-hairline);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:#121D23}
@@ -560,7 +525,7 @@ body.embed .mid{width:100%}
   .release-library-link{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:62px;height:25px;padding:0 7px;border:1px solid rgba(107,217,149,.38);border-radius:4px;color:#6BD995;text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap}
   .release-library-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
   .release-library-link.pending{color:var(--c-text-dim);border-color:var(--c-hairline);border-style:dashed;cursor:default}
-  .col-status .va-hud-trigger{width:88px!important;padding:0 6px 0 10px!important;font-size:11px}
+  .col-status .va-status{width:108px!important;padding:5px 8px!important}
 
   /* ===== 不透明背景：修复透光 (2026-09-02) ===== */
   /* 侧栏 */
@@ -632,10 +597,10 @@ body.embed .mid{width:100%}
   .ve-cell{padding:4px 2px!important;overflow:hidden}
   .ve-stack{max-height:64px;overflow:hidden;gap:2px!important}
   .ve-chip{display:flex!important;width:100%!important;max-width:100%!important;box-sizing:border-box;padding:2px 4px;font-size:11px;overflow:hidden}
-  .ve-role{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+  .ve-role{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .th-ve-group{min-width:0!important}
   .th-max-date,.col-max-date{width:7.4%;min-width:0!important;max-width:none}
-  .col-status .va-hud-trigger{width:100%!important;min-width:0;padding:0 6px 0 10px!important;font-size:11px}
+  .col-status .va-status{width:100%!important;min-width:0;padding:4px 3px!important;font-size:11px}
   .story-title,.story-link,.creator-cell,.person,.max-date-cell,.release-summary-text{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ve-chip{max-width:100%;padding:2px 4px;font-size:11px}
   .ve-role{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -768,15 +733,15 @@ body.embed .mid{width:100%}
 
     <!-- 筛选区（三行分组：状态 / 分类 / 文案策划）· 2026-07-24 排版整理 -->
     <div class="filter-groups">
-      <!-- 状态：5 态声优库色板，无前置圆点 -->
+      <!-- 状态：5 态工业战术色板（2026-09-07 回退 9.4/9.5 圆点+药丸格式，选项保持 5 态） -->
       <div class="filter-row status-row" id="statusRow">
         <span class="flabel">STATUS</span>
         <div class="chip-filter on" data-fk="status" data-fv="">全部<span class="chip-num" id="cnt-status-all">—</span></div>
-        <div class="chip-status chip-prog chip-prog-pending"  data-fk="status" data-fv="待澄清">待澄清<span class="chip-num" id="cnt-pending">—</span></div>
-        <div class="chip-status chip-prog chip-prog-writing"  data-fk="status" data-fv="文案ing">文案ing<span class="chip-num" id="cnt-writing">—</span></div>
-        <div class="chip-status chip-prog chip-prog-handover" data-fk="status" data-fv="已交稿">已交稿<span class="chip-num" id="cnt-handover">—</span></div>
-        <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="Vo ing">Vo ing<span class="chip-num" id="cnt-vo">—</span></div>
-        <div class="chip-status chip-prog chip-prog-done"     data-fk="status" data-fv="Done">Done<span class="chip-num" id="cnt-done">—</span></div>
+        <div class="chip-status chip-prog chip-prog-pending"  data-fk="status" data-fv="待澄清"><i></i>待澄清<span class="chip-num" id="cnt-pending">—</span></div>
+        <div class="chip-status chip-prog chip-prog-writing"  data-fk="status" data-fv="文案ing"><i></i>文案ing<span class="chip-num" id="cnt-writing">—</span></div>
+        <div class="chip-status chip-prog chip-prog-handover" data-fk="status" data-fv="已交稿"><i></i>已交稿<span class="chip-num" id="cnt-handover">—</span></div>
+        <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="Vo ing"><i></i>Vo ing<span class="chip-num" id="cnt-vo">—</span></div>
+        <div class="chip-status chip-prog chip-prog-done"     data-fk="status" data-fv="Done"><i></i>Done<span class="chip-num" id="cnt-done">—</span></div>
       </div>
       <!-- 历史归档：STATUS 行整行 → 动态 RELEASE chip 行（2026-09-04 方案 A；仅 filterRelease==='__archive__' 时显示） -->
       <div class="filter-row release-row" id="releaseRow" style="display:none">
@@ -1164,7 +1129,7 @@ function isBlankAreaClick(el){
   if(tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return false;
   if(tag === 'SVG' || tag === 'PATH' || tag === 'LINE' || tag === 'RECT' || tag === 'CIRCLE' || tag === 'POLYLINE' || tag === 'POLYGON' || tag === 'G') return false;
   // 交互元素 → 不算空白（按钮/输入/链接/表头/筛选芯片/cw浮层/排序箭头/台词表图标）
-  if(t.closest('button, input, select, textarea, a, th, thead, .chip-filter, .chip-status, .chip-cw, .filter-groups, .cw-pick, .vs, [data-fk], [data-rel], [onclick], #cwPop, .cw-pop, .popover, .sort-arrows, .header-filter-pop, .header-filter-btn, .va-hud-pop, .va-hud-trigger, .brand-bar, .sidebar, .nav-item, .nav-sub-item, .vomi-tip-host-pop')) return false;
+  if(t.closest('button, input, select, textarea, a, th, thead, .chip-filter, .chip-status, .chip-cw, .filter-groups, .cw-pick, .vs, [data-fk], [data-rel], [onclick], #cwPop, .cw-pop, .popover, .sort-arrows, .header-filter-pop, .header-filter-btn, .brand-bar, .sidebar, .nav-item, .nav-sub-item, .vomi-tip-host-pop')) return false;
   // 表格内容区(tr/td/tbody/table/.table-wrap) → 也不算空白，避免点行内误复位
   if(t.closest('tr, td, tbody, table, .table-wrap')) return false;
   return true;
@@ -1177,7 +1142,7 @@ document.addEventListener('click', (e)=>{ if(isBlankAreaClick(e.target)) clearAl
   const tb = document.getElementById('demandBody');
   if(!tb) return;
   tb.addEventListener('click', (e)=>{
-    if(e.target.closest('select, a, .cw-pick, .va-hud-trigger, [contenteditable], .vs, svg, button')) return;
+    if(e.target.closest('select, a, .cw-pick, [contenteditable], .vs, svg, button')) return;
     const tr = e.target.closest('tr');
     if(!tr || !tr.dataset.id) return;
     const was = tr.classList.contains('selected');
@@ -1329,49 +1294,7 @@ function pickCw(id, val){
   closeCwPop();
   saveField(id, 'cn_lines_handler', val).then(()=>renderRows());
 }
-/* 状态 HUD 下拉：body 追加玻璃面板（2026-09-07 A 玻璃 HUD） */
-let __statusPop = null, __statusOpenTrigger = null;
-function closeStatusPop(){
-  if(__statusPop){ __statusPop.remove(); __statusPop = null; }
-  if(__statusOpenTrigger){ __statusOpenTrigger.setAttribute('aria-expanded','false'); __statusOpenTrigger = null; }
-}
-function toggleStatusPop(btn, ev){
-  if(ev){ ev.stopPropagation(); ev.preventDefault(); }
-  if(__statusPop && __statusOpenTrigger === btn){ closeStatusPop(); return; }
-  openStatusPop(btn);
-}
-function openStatusPop(btn){
-  closeStatusPop();
-  const hud = btn.closest('.va-hud');
-  const id = hud ? hud.dataset.id : btn.dataset.id;
-  const d = allDemands.find(x=>String(x.id)===String(id));
-  const cur = (d && (d.manual_status || tapdStage(d))) || '待澄清';
-  const pop = document.createElement('div');
-  pop.className = 'va-hud-pop';
-  pop.innerHTML = STATUS_LIST.map(s=>{
-    const on = s===cur ? ' on' : '';
-    return `<button type="button" class="va-hud-opt${on}" data-stage="${esc(s)}" data-val="${esc(s)}" onclick="pickStatus('${esc(id)}','${esc(s)}',this,event)">`+
-      `<span class="va-hud-label">${esc(s)}</span>`+
-      `</button>`;
-  }).join('');
-  pop.onclick = (e)=>e.stopPropagation();
-  document.body.appendChild(pop);
-  __statusPop = pop; __statusOpenTrigger = btn;
-  btn.setAttribute('aria-expanded','true');
-  const r = btn.getBoundingClientRect();
-  const sx = window.scrollX || 0, sy = window.scrollY || 0;
-  pop.style.left = Math.min(r.left + sx, sx + window.innerWidth - pop.offsetWidth - 8) + 'px';
-  pop.style.top = Math.min(r.bottom + sy + 6, sy + window.innerHeight - pop.offsetHeight - 8) + 'px';
-}
-function pickStatus(id, val, opt, ev){
-  ev.stopPropagation();
-  const hud = (__statusOpenTrigger && __statusOpenTrigger.closest('.va-hud'));
-  closeStatusPop();
-  saveClarify(id, 'status', val, hud ? hud.querySelector('.va-hud-trigger') : null);
-}
-document.addEventListener('click', (e)=>{ if(__statusPop && !e.target.closest('.va-hud-trigger,.va-hud-pop')) closeStatusPop(); });
-document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeStatusPop(); });
-document.addEventListener('scroll', ()=>closeStatusPop(), true);
+/* 行内状态已回退为原生 select.va-status（2026-09-07），无需弹层逻辑 */
 document.addEventListener('click', ()=>{ if(__cwOpenEl) closeCwPop(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && __cwOpenEl) closeCwPop(); });
 function releaseLibraryRecord(release){
@@ -1654,18 +1577,13 @@ function rowHTML(d){
   const manualTitle = isManual
     ? '状态：🔒 已锁定（PM 手动定值）· 右键单元格清除后回到「待澄清」'
     : '状态：初始「待澄清」；文案推到「文案ing → 已交稿」后，Vo ing / Done 由 VO Manager 维护';
+  const stCls = CLARIFY_STATUS[effectiveStage] || 's-none';
   return `<tr data-stage="${esc(effectiveStage)}" data-id="${d.id}" data-area="${esc(d.area||'')}"${isManual?' data-manual="1"':''}${d._offlineDraft?' data-offline-draft="1"':''}>
     <td class="col-release"><span class="rp-tag">${esc(d.release_plan||'—')}</span></td>
     <td class="col-area"><span class="area">${esc(d.area||'—')}</span></td>
     <td class="col-story"><div class="story-cell">${storyUrl?`<a class="story-title" href="${esc(storyUrl)}" target="_blank" rel="noopener" title="点击打开该 Story 的 TAPD 父需求：${esc(d.task_name||'')}">${storyTitle||'—'}</a>`:`<span class="story-title" title="该 Story 暂无父需求链接">${storyTitle||'—'}</span>`}</div></td>
     <td class="col-creator creator-cell" title="TAPD 创建人：${esc((d.creator||'').replace(/;+$/,''))}">${esc(fmtCreator(d.creator))}</td>
-    <td class="col-status" oncontextmenu="return clearManualStage('${d.id}',event)">
-      <span class="va-hud" data-id="${d.id}" data-stage="${esc(effectiveStage)}">
-        <button type="button" class="va-hud-trigger${manualCls}" data-id="${d.id}" onclick="toggleStatusPop(this,event)" title="${manualTitle}" aria-haspopup="listbox" aria-expanded="false">
-          <span class="va-hud-label">${esc(effectiveStage)}</span><span class="va-hud-caret">▾</span>
-        </button>
-      </span>
-    </td>
+    <td class="col-status" oncontextmenu="return clearManualStage('${d.id}',event)"><select class="va-status${manualCls} ${stCls}" style="${STATUS_STYLE[effectiveStage]||STATUS_STYLE['待澄清']}" onchange="saveClarify('${d.id}','status',this.value,this)" title="${manualTitle}">${STATUS_LIST.map(s=>`<option value="${s}" ${effectiveStage===s?'selected':''}>${s}</option>`).join('')}</select></td>
     <td class="col-video">${vsBadge(d.video_sync||'无需视频',d.id)}</td>
     <td class="col-cw"><span class="cw-pick" data-id="${d.id}" onclick="event.stopPropagation();toggleCwPop(this)" title="Narrative Designer：点击选择（固定名单）">${cwBadge((d.cn_lines_handler||'').trim())}</span></td>
     ${veCells(d)}
@@ -1932,6 +1850,16 @@ const CLARIFY_KEY = 'vo_clarify_v1';
 const CLARIFY_SCHEMA_KEY = 'vo_clarify_schema_v2';
 // 规则 6（用户定稿 2026-07-23；2026-09-07 状态收敛为 5 态纯人工维护）：状态选项 = 待澄清 / 文案ing / 已交稿 / Vo ing / Done
 const STATUS_LIST = ['待澄清','文案ing','已交稿','Vo ing','Done'];
+// 状态 → s-* 类映射（select 药丸 CSS 双保险之一）
+const CLARIFY_STATUS = {'待澄清':'s-none','文案ing':'s-writing','已交稿':'s-handover','Vo ing':'s-vo','Done':'s-done'};
+// 状态内联色（与上方 .va-status.s-* 同色板 · 双保险：下拉框切换时实时着色，不依赖 CSS 级联）
+const STATUS_STYLE = {
+  '待澄清':'color:#E87DA0;border-color:rgba(232,125,160,.55);background:rgba(232,125,160,.12)',
+  '文案ing':'color:#D4A554;border-color:rgba(212,165,84,.55);background:rgba(212,165,84,.12)',
+  '已交稿':'color:#7A8A96;border-color:rgba(122,138,150,.55);background:rgba(45,58,72,.35)',
+  'Vo ing':'color:#7DBFBF;border-color:rgba(125,191,191,.55);background:rgba(125,191,191,.12)',
+  'Done':'color:#9BA895;border-color:rgba(123,139,118,.55);background:rgba(123,139,118,.14)'
+};
 // 老状态只做等价映射；任何已有有效状态均按人工值保留，禁止再根据"待澄清"字面值猜测并清除。
 const LEGACY_STATUS_MAP = {
   '未澄清':'待澄清','有变更':'待澄清',
@@ -2004,13 +1932,8 @@ async function saveClarify(id, field, val, el){
     const d = allDemands.find(x=>String(x.id)===String(id));
     if(d) d.manual_status = nextStatus;
     if(el){
-      const hud = el.closest('.va-hud');
-      if(hud){
-        hud.setAttribute('data-stage', nextStatus);
-        const lbl = hud.querySelector('.va-hud-label');
-        if(lbl) lbl.textContent = nextStatus;
-      }
-      el.classList.add('va-manual');
+      el.style.cssText = STATUS_STYLE[nextStatus] || STATUS_STYLE['待澄清'];
+      el.className = 'va-status va-manual ' + (CLARIFY_STATUS[nextStatus] || 's-none');
       el.title = '状态：已保存（MySQL）· 右键清除后回到「待澄清」';
       const tr = el.closest('tr'); if(tr){ tr.setAttribute('data-stage',nextStatus); tr.setAttribute('data-manual','1'); }
     }

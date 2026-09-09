@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8"/>
+<html lang="zh-CN" data-page-node-id="CODvk2sPESFlBy1NyUY5MC">
+<head data-page-node-id="igLUHn2VE0U0vwiOF5El0H">
+<meta charset="UTF-8" data-page-node-id="qM8do0kVaQQyc739XVAlnB"/>
 <title>Preview · 录制档期精修版</title>
-<link rel="stylesheet" href="assets/project-fonts.css?v=20260817c"/>
+<link rel="stylesheet" href="assets/project-fonts.css?v=20260817c" data-page-node-id="n8ybg4ivspzAPGlSa1ssGr"/>
 <script src="assets/guest-mode.js?v=20260908"></script>
 <style>
 :root{--c-primary:#0FF796;--c-primary-dark:#0BD980;--c-primary-glow:rgba(15,247,150,0.18);
@@ -419,9 +419,9 @@ body.embed .main{width:100%}
 .actor-current-release::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.6)}
 
 /* 视图切换器（按角色 / 按需求） · 页面级 tab */
-.view-tabs{display:flex;align-items:flex-end;gap:28px;padding:0 0 0 2px;margin:0 0 16px;border-bottom:1px solid var(--c-hairline);position:relative}
+.view-tabs{display:flex;align-items:flex-end;gap:16px;padding:0 0 0 2px;margin:0 0 16px;border-bottom:1px solid var(--c-hairline);position:relative}
 .view-tabs::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,var(--c-primary) 0%,rgba(15,247,150,0) 22%,rgba(15,247,150,0) 78%,rgba(140,168,189,0) 100%);opacity:.18}
-.view-tabs .view-tab{display:inline-flex;align-items:center;gap:8px;background:transparent;border:none;color:var(--c-text-mute);padding:14px 8px 16px;font-size:16px;font-weight:500;font-family:'Inter','Microsoft YaHei UI',sans-serif;letter-spacing:0;position:relative;cursor:pointer;transition:color .12s}
+.view-tabs .view-tab{display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;color:var(--c-text-mute);padding:10px 4px 12px;font-size:13px;font-weight:500;font-family:'Inter','Microsoft YaHei UI',sans-serif;letter-spacing:.3px;position:relative;cursor:pointer;transition:color .12s}
 .view-tabs .view-tab svg{flex-shrink:0;opacity:.7;transition:opacity .15s,filter .15s}
 .view-tabs .view-tab:hover{color:var(--c-text)}
 .view-tabs .view-tab:hover svg{opacity:.95}
@@ -601,6 +601,13 @@ body.embed .main{width:100%}
 .actor-btn.secondary:hover{background:var(--c-hairline);color:var(--c-text)}
 .actor-empty{padding:60px 20px;text-align:center;color:var(--c-text-mute);font-size:13px;line-height:1.8}
 
+/* ============ 视图 A · 声优视图子模式切换（板视图 / 里程碑） ============ */
+.view-submode{display:inline-flex;align-items:center;gap:0;background:var(--c-bg-0);border:1px solid var(--c-hairline);border-radius:4px;padding:2px;margin-bottom:4px}
+.view-submode .submode-pill{background:transparent;border:none;color:var(--c-text-mute);font:500 11.5px/1 inherit;letter-spacing:.4px;padding:5px 10px;cursor:pointer;border-radius:3px;transition:all .12s}
+.view-submode .submode-pill:hover{color:var(--c-text-2)}
+.view-submode .submode-pill.on{background:rgba(15,247,150,.14);color:var(--c-primary)}
+.view-submode.is-hidden{display:none}
+
 /* ============ 视图 C · 时间看板（里程碑：开发 / 转测 / 发布） ============ */
 .sched-timeline{display:flex;flex-direction:column;gap:12px;padding:6px 2px}
 .sched-phase-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:8px;position:relative}
@@ -660,7 +667,7 @@ body.embed .main{width:100%}
 /* 直接复用下方 .line-board* 6 板样式，无单独声优视图特有 CSS */
 /* 风险公告字体已在上方 v2 完整定义（256-284）；此处不再重复覆盖 */
 /* 视图 tab */
-.view-tabs .view-tab{font-size:17px;letter-spacing:1.5px}
+.view-tabs .view-tab{font-size:13px;letter-spacing:.3px}
 
 /* 不透明背景：修复透光 (2026-09-02) */
 .toolbar,.stat,.cal-card,.side-card,.sched-section{background:var(--c-surface)}
@@ -705,7 +712,7 @@ body.embed .main{width:100%}
 /* ② 视图切换 tab —— 需求视图 / 声优视图 —— 按截图升一档
  * 注：project-fonts.css line 188 .view-tab 用 !important 锁死 13px/500，
  * 本块同步加 !important。 */
-.view-tabs .view-tab{font-size:17px !important;font-weight:700 !important;letter-spacing:1.5px !important;gap:8px !important}
+.view-tabs .view-tab{font-size:13px !important;font-weight:500 !important;letter-spacing:.3px !important;gap:6px !important}
 .view-tabs .view-tab svg{width:16px !important;height:16px !important}
 
 /* ② 数字 / 时间 / 编号 / 句数 / 计数 —— 全站雅黑 + 表格式数字对齐
@@ -734,76 +741,76 @@ body.embed .main{width:100%}
 /* 声优视图与需求视图统一为 6 板后，原 .ac-cat-* / .ac-card-* 编号与对齐 CSS 已随旧声优卡片视图退役 */
 </style>
 </head>
-<body>
+<body data-page-node-id="tXVyPyOsERFFNZWxf22Ef3">
 
-<div class="brand-bar">
-  <div class="brand-logo">
-    <img src="assets/DeltaForceLogo-Triangle.png" alt="Delta" class="logo-tri"/>
-    <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt"/>
+<div class="brand-bar" data-page-node-id="VMBJMRy8AnYEdJ3dB6Jdie">
+  <div class="brand-logo" data-page-node-id="Yb3C0XJo84DowpDLGqrNC4">
+    <img src="assets/DeltaForceLogo-Triangle.png" alt="Delta" class="logo-tri" data-page-node-id="YorLCrbCg3CtvYNPDr3Nrv"/>
+    <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt" data-page-node-id="BhpnfJO39um9ClZ6TKsUJi"/>
   </div>
-  <div class="brand-divider"></div>
-  <button class="brand-toggle" title="收起/展开侧栏" onclick="document.body.classList.toggle('sidebar-collapsed')">
-    <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  <div class="brand-divider" data-page-node-id="5qCdIscSJVoCxB0KNzxVDZ"></div>
+  <button class="brand-toggle" title="收起/展开侧栏" onclick="document.body.classList.toggle('sidebar-collapsed')" data-page-node-id="Sl1UekkPmi9StWCHHdTZeK">
+    <svg viewBox="0 0 24 24" data-page-node-id="MMtCWdtz31FJgvGOvTZjnh"><line x1="4" y1="7" x2="20" y2="7" data-page-node-id="kIakACEoCoWQ9aadWBTGcH"/><line x1="4" y1="12" x2="20" y2="12" data-page-node-id="JNQv4mkpCfJZYD0HJovEIr"/><line x1="4" y1="17" x2="20" y2="17" data-page-node-id="jUpFi7xPHjWcv1gY17aCZD"/></svg>
   </button>
-  <div class="brand-subsys" aria-label="Vomi · VO Manager">
-    <span class="brand-vomi-lockup"><img class="vomi-mark" src="assets/vomi-mark.svg?v=20260815g" alt="-Vomi-"/></span>
-    <span class="brand-slogan">包办 Vo, Mi 来打理</span>
+  <div class="brand-subsys" aria-label="Vomi · VO Manager" data-page-node-id="ks7EblpVcZuYgBEBHYWfR0">
+    <span class="brand-vomi-lockup" data-page-node-id="zDQg1Q7rsAv4Gk9Zo0n6tX"><img class="vomi-mark" src="assets/vomi-mark.svg?v=20260815g" alt="-Vomi-" data-page-node-id="MPFd7iix8NBMH0INNCAhaA"/></span>
+    <span class="brand-slogan" data-page-node-id="6GG6wNcOPVuTTEECssvgvq">包办 Vo, Mi 来打理</span>
   </div>
-  <div class="brand-spacer"></div>
+  <div class="brand-spacer" data-page-node-id="Oqf9buya9I6GuJqbresqFB"></div>
 </div>
 
-<div class="layout">
-  <aside class="sidebar">
-    <div class="sec-label">MISSION</div>
-    <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>需求汇总</button>
-    <div class="sec-label">ROSTER</div>
-    <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>声优库</button>
-    <div class="sec-label">SCHEDULE</div>
-    <button class="nav-item active"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>录制档期</button>
-    <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg>音频资产库</button>
-    <div class="sec-label">HQ</div>
-    <button class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>Vo 智能助手</button>
+<div class="layout" data-page-node-id="WptJVC1PYqgjSxO8SmcRyA">
+  <aside class="sidebar" data-page-node-id="aAyBi21TBDPjYL54w0qGum">
+    <div class="sec-label" data-page-node-id="riy0q37lHIcfY8ASA6c0OK">MISSION</div>
+    <button class="nav-item" data-page-node-id="aDA2930UNAfUxmnlhNC6V1"><svg viewBox="0 0 24 24" data-page-node-id="maJIyHkUgYvZ3rpnDOVRW8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" data-page-node-id="94eYyADR6AZ6fXz25drQuc"/><polyline points="14 2 14 8 20 8" data-page-node-id="ROBioUF5yYBZQOVloEtfkK"/></svg>需求汇总</button>
+    <div class="sec-label" data-page-node-id="R4moHyvYNDlzVLKUqpLYhe">ROSTER</div>
+    <button class="nav-item" data-page-node-id="t1XvE5MSdEHoHpbh1HNkOQ"><svg viewBox="0 0 24 24" data-page-node-id="jDfG3IVYqy4FMb6aV3J7Qr"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" data-page-node-id="4FGR7eadmJjGdSL6rjOxHv"/><circle cx="9" cy="7" r="4" data-page-node-id="gF3tCbSKQiC0tqnHYxOAsr"/></svg>声优库</button>
+    <div class="sec-label" data-page-node-id="GfxgRSNUcVTo3yLZjSv8tD">SCHEDULE</div>
+    <button class="nav-item active" data-page-node-id="BSiQpu5L1JaCxnIkC09g5m"><svg viewBox="0 0 24 24" data-page-node-id="5P5IK8kHFouZeUMP8Y97Qg"><rect x="3" y="4" width="18" height="18" rx="2" data-page-node-id="dyzlKM57M8Xdppz5LWuTEB"/><line x1="16" y1="2" x2="16" y2="6" data-page-node-id="k20QsCb1TD76aXpA9m2Dom"/><line x1="8" y1="2" x2="8" y2="6" data-page-node-id="uchZcPbn7jq4Mqop8eFDhP"/><line x1="3" y1="10" x2="21" y2="10" data-page-node-id="wPt0kKWndxoi5XrIZ1Wv2n"/></svg>录制档期</button>
+    <button class="nav-item" data-page-node-id="pVotiYeIbFvzzNDRXuPdqy"><svg viewBox="0 0 24 24" data-page-node-id="Gt3STXoY3pO65GdHmMvdrd"><path d="M3 18v-6a9 9 0 0 1 18 0v6" data-page-node-id="KQQRuxJ5cScGtgCVEdjYtf"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z" data-page-node-id="7XxqAZwGPOE4A9wbSWklGQ"/></svg>音频资产库</button>
+    <div class="sec-label" data-page-node-id="NheoRIAuL0oiwDKGeDpO2U">HQ</div>
+    <button class="nav-item" data-page-node-id="ivxGvOJ5L6L5Oybo2cObDx"><svg viewBox="0 0 24 24" data-page-node-id="JrQdh6YJSfJRUoRXwC5H9G"><circle cx="12" cy="12" r="10" data-page-node-id="ePS7KRz1F0nMXVRqnxtN9w"/><circle cx="12" cy="12" r="4" data-page-node-id="dMDGR0iamhuDFZ9AABwTOX"/><line x1="12" y1="2" x2="12" y2="6" data-page-node-id="c3wp3EBCXWfYWzV6IKyODL"/><line x1="12" y1="18" x2="12" y2="22" data-page-node-id="6T1opkCeOsip9DL8WeEGU2"/><line x1="2" y1="12" x2="6" y2="12" data-page-node-id="HYhVvwxZKKI026qVKn02vb"/><line x1="18" y1="12" x2="22" y2="12" data-page-node-id="XczHjbgQoawreyWATkMTSR"/></svg>Vo 智能助手</button>
   </aside>
 
-  <aside class="mid-panel" id="schedMidPanel">
-    <div class="mp-section">
-      <div class="mp-sec-title">预约进度</div>
-      <div class="mp-progress" id="mpProgress">
-        <div class="mp-empty">数据加载中…</div>
+  <aside class="mid-panel" id="schedMidPanel" data-page-node-id="gh97pyFa7pfFwhGzGFTmmI">
+    <div class="mp-section" data-page-node-id="UgJ1z3o2crGJmMyP8yXFo4">
+      <div class="mp-sec-title" data-page-node-id="e8ayclC91wfPevW4lVPJD9">预约进度</div>
+      <div class="mp-progress" id="mpProgress" data-page-node-id="FXKPEinKOzLyJ8mHsm61Eq">
+        <div class="mp-empty" data-page-node-id="cbnUsxGLoPzR9LFM33vRLM">数据加载中…</div>
       </div>
     </div>
 
-    <div class="mp-section">
-      <div class="mp-sec-title">录制日历</div>
-      <div class="mp-cal">
-        <div class="mp-cal-head">
-          <button class="mp-cal-nav" onclick="shiftMidMonth(-1)">‹</button>
-          <div class="mp-cal-title" id="mpCalTitle">—</div>
-          <button class="mp-cal-nav" onclick="shiftMidMonth(1)">›</button>
+    <div class="mp-section" data-page-node-id="ytRCnyqdb6UGiDeJDz7R21">
+      <div class="mp-sec-title" data-page-node-id="idnIHZi2Qrg97Cdhw7SIkd">录制日历</div>
+      <div class="mp-cal" data-page-node-id="vjQgRTMsEz49z52NAqFUCf">
+        <div class="mp-cal-head" data-page-node-id="ig3WUDxoBMlwiK2QQgxKcV">
+          <button class="mp-cal-nav" onclick="shiftMidMonth(-1)" data-page-node-id="Y3RL4SKTKLuXOdHFh8J3Vi">‹</button>
+          <div class="mp-cal-title" id="mpCalTitle" data-page-node-id="IqMItJKiTLVneR8W9Frrdf">—</div>
+          <button class="mp-cal-nav" onclick="shiftMidMonth(1)" data-page-node-id="BXnD7kLJGOKO05lZFdQNF1">›</button>
         </div>
-        <div class="mp-cal-grid" id="mpCalendarGrid">
-          <div class="mp-empty" style="grid-column:1/-1">数据加载中…</div>
+        <div class="mp-cal-grid" id="mpCalendarGrid" data-page-node-id="Qyi68oSPYSGYVo5wRMqqii">
+          <div class="mp-empty" style="grid-column:1/-1" data-page-node-id="xa7niZCojTrUgFg06zhAp5">数据加载中…</div>
         </div>
       </div>
     </div>
 
-    <div class="mp-section">
-      <div class="mp-sec-title" id="mpUpcomingTitle">即将录制</div>
-      <div class="mp-upcoming" id="mpUpcoming">
-        <div class="mp-empty">数据加载中…</div>
+    <div class="mp-section" data-page-node-id="qvviPhFA55sNY9lpQTmGuS">
+      <div class="mp-sec-title" id="mpUpcomingTitle" data-page-node-id="h9ZM5u3PC2vb4A9cQOFuVX">即将录制</div>
+      <div class="mp-upcoming" id="mpUpcoming" data-page-node-id="ehQAFCSAeiw7US2sF3pr2N">
+        <div class="mp-empty" data-page-node-id="WI1OqA8KGW3DjmcxzYaokZ">数据加载中…</div>
       </div>
     </div>
   </aside>
 
-  <main class="main">
-    <div class="tactical-header">
-      <div class="title-block">
-        <div class="eyebrow"><span class="sig"></span>RECORDING SCHEDULE<span class="chip-divider"></span><span class="eyebrow-release">Yang1.0</span></div>
-        <h1 class="page-title">录制档期 <span class="deadline-meta" id="schedDeadlinePill" hidden><span class="deadline-slash">//</span><span class="deadline-dates" id="schedDeadlineRange">--.-- → --.--</span><span class="deadline-sep">·</span><span class="deadline-rel" id="schedDeadlineRel">--</span> 录制定档期<span class="deadline-calm" id="schedDeadlineCalm" hidden>· 已完成</span></span></h1>
+  <main class="main" data-page-node-id="tMtseSEp5OC6GiFxXkh71o">
+    <div class="tactical-header" data-page-node-id="L7nfmpwnuxa5EmZINoClvw">
+      <div class="title-block" data-page-node-id="m7KSuFsuGWzRATk7oYsAe5">
+        <div class="eyebrow" data-page-node-id="RFYS5ovkGgEi1ZI8pR2S2G"><span class="sig" data-page-node-id="PaD3jPrqhAXL575JS0XdtE"></span>RECORDING SCHEDULE<span class="chip-divider" data-page-node-id="bywMiMSDYPQFt59QVmfS7z"></span><span class="eyebrow-release" data-page-node-id="gXDD1SVrf2tCuH0mNIDOkN">Yang1.0</span></div>
+        <h1 class="page-title" data-page-node-id="Aq1yqg4fMsX9lm7HpTKXUB">录制档期 <span class="deadline-meta" id="schedDeadlinePill" hidden data-page-node-id="pAjNhccbhD6dZyC2k0oqX1"><span class="deadline-slash" data-page-node-id="LRFrJhOgRcy7ymIZbJ5Qd8">//</span><span class="deadline-dates" id="schedDeadlineRange" data-page-node-id="njJflFPTGp10ry5V4xlbty">--.-- → --.--</span><span class="deadline-sep" data-page-node-id="E1mIVH5RM8ix4cm5Doroq2">·</span><span class="deadline-rel" id="schedDeadlineRel" data-page-node-id="VnCh7jpuUZtjHdZftmeNxd">--</span> 录制定档期<span class="deadline-calm" id="schedDeadlineCalm" hidden data-page-node-id="ulxg6zxq4vggacCAchGzxu">· 已完成</span></span></h1>
       </div>
-      <div class="actions">
-        <button id="syncFromSummaryBtn" class="btn btn-primary" onclick="syncFromVersionSummary()"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>从 Vo 版本汇总表同步</button>
-        <div class="sync-hint"><span class="sync-dot"></span>固定同步刷新时间：每日 10:30</div>
+      <div class="actions" data-page-node-id="Fgzyrvl55Bx0sGzgJyZDvf">
+        <button id="syncFromSummaryBtn" class="btn btn-primary" onclick="syncFromVersionSummary()" data-page-node-id="nAeOQeNzF8TEtaBugMm2Va"><svg viewBox="0 0 24 24" data-page-node-id="J6SJV4PEzEZPbhp2mAZFKd"><path d="M23 4v6h-6" data-page-node-id="71kJ0npTykZvA9uyym4zuK"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" data-page-node-id="wTA2mDR8pxfL9GJ3YCuH5s"/></svg>从 Vo 版本汇总表同步</button>
+        <div class="sync-hint" data-page-node-id="FKe7OmuBRyzdxVJVkHFYEx"><span class="sync-dot" data-page-node-id="FGjGjmv7HP0qgBQCIXEd8A"></span>固定同步刷新时间：每日 10:30</div>
       </div>
     </div>
 
@@ -813,70 +820,71 @@ body.embed .main{width:100%}
          2026-09-07 卡片分离改造：banner 专注「谁没约」（title + AREA/cat 胶囊行），
          统计卡片（受影响需求 / 距 VO 资源交付）从 banner 内抽出来作为 .risk-row 的兄弟，
          由 .risk-row 容器统一做三块 flex 自适应 -->
-    <div class="risk-row" id="riskRow">
-      <div class="risk-banner" id="riskBanner">
-        <div class="risk-icon">⚠</div>
-        <div class="risk-body">
-          <div class="risk-title" id="riskTitle">计算中…</div>
+    <div class="risk-row" id="riskRow" data-page-node-id="JDu0Fhax8Dq1AKKSGpjLsz">
+      <div class="risk-banner" id="riskBanner" data-page-node-id="kZp0gvdH4fWmHPqdWlQZ6c">
+        <div class="risk-icon" data-page-node-id="wXM3yTJrkRC7ITq0Ak5L1m">⚠</div>
+        <div class="risk-body" data-page-node-id="yJP8d49slbMKeJRXCDE6ru">
+          <div class="risk-title" id="riskTitle" data-page-node-id="NpGRZVdn3jJnNA8GBUVYWS">计算中…</div>
           <!-- AREA 圆框 pill 列表：默认隐藏，banner 计算后填充（calm 态也显示但用主色）；位于 title 与 sub 之间 -->
-          <div class="risk-areas" id="riskAreas" hidden></div>
-          <div class="risk-sub" id="riskSub">正在汇总当前版本的中英配预约状态。</div>
+          <div class="risk-areas" id="riskAreas" hidden data-page-node-id="PerwchyZJMT7BSw9OFL99A"></div>
+          <div class="risk-sub" id="riskSub" data-page-node-id="XjPdxAhPUiu8RHEGLNf8Sd">正在汇总当前版本的中英配预约状态。</div>
         </div>
         <!-- 风险预警快捷筛选（2026-09-03 加回）：跨视图共享，置于 banner 最右 -->
-        <button id="riskAction" class="risk-action" type="button" aria-pressed="false" data-tip="只显示尚未预约档期的项">仅看未预约</button>
+        <button id="riskAction" class="risk-action" type="button" aria-pressed="false" data-tip="只显示尚未预约档期的项" data-page-node-id="ecvbR77dueXT0oo1iaPJOP">仅看未预约</button>
       </div>
       <!-- 统计卡片：两个独立 stat 卡片（玻璃深底 + hairline 边框），从 banner 物理分离 -->
-      <div class="risk-stats" id="riskStats"></div>
+      <div class="risk-stats" id="riskStats" data-page-node-id="ObOa6v9GIB0XdFAlGOlCcN"></div>
     </div>
 
     <!-- 视图 A：演员预约明细（主视图 · 双视角：按角色 / 按需求） -->
-    <div id="viewActors" class="view-pane active">
-      <div class="view-tabs">
-        <button class="view-tab on" data-vmode="role" onclick="setActorView('role',this,event)">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 20c0-2.4 1.6-4.4 4-5"/></svg>
+    <div id="viewActors" class="view-pane active" data-page-node-id="Arfw5c5BUv0FfwQVwDxyNZ">
+      <div class="view-tabs" data-page-node-id="9q6BjDjlGAsZgqbkogArRK">
+        <button class="view-tab on" data-vmode="role" onclick="setActorView('role',this,event)" data-page-node-id="limUcgeQ3mredGUDarT4Wo">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="t11R6fziqxQgo9aeVBtihj"><circle cx="9" cy="8" r="3.2" data-page-node-id="VKud4udiOC0rd4Cp1BhhT7"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" data-page-node-id="aF219QXfuVBCtzcrVMeScB"/><circle cx="17" cy="9" r="2.4" data-page-node-id="ZqO4oNZzvmYsXSETfEvtes"/><path d="M16 20c0-2.4 1.6-4.4 4-5" data-page-node-id="EBeDKsf817BGHt72V0rWcb"/></svg>
           声优视图
         </button>
-        <button class="view-tab" data-vmode="demand" onclick="setActorView('demand',this,event)">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="9" y1="3" x2="9" y2="7"/><line x1="15" y1="3" x2="15" y2="7"/><line x1="9" y1="14" x2="9" y2="14"/><line x1="13" y1="14" x2="13" y2="14"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+        <button class="view-tab" data-vmode="demand" onclick="setActorView('demand',this,event)" data-page-node-id="9QRAEqbfLj3AL6ANmDnXyH">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="v4QZr6X7ZMxSPwXatAIj8E"><rect x="4" y="5" width="16" height="15" rx="2" data-page-node-id="8m6MCA3lpBzNusFVKTT1TZ"/><line x1="4" y1="10" x2="20" y2="10" data-page-node-id="CHNpV5e6qkL1bKLCIlNZbd"/><line x1="9" y1="3" x2="9" y2="7" data-page-node-id="bZeEyCYxlRQ3Ln6tGgPNFj"/><line x1="15" y1="3" x2="15" y2="7" data-page-node-id="lR07bMNnAbSETc37MsjcaU"/><line x1="9" y1="14" x2="9" y2="14" data-page-node-id="DLjkvwJKebCd8FoOLCVocZ"/><line x1="13" y1="14" x2="13" y2="14" data-page-node-id="okxeqMMeikiCQDDDYs7gMH"/><line x1="9" y1="17" x2="13" y2="17" data-page-node-id="9i9BTF88obWjQlxxyxXvlT"/></svg>
           需求视图
         </button>
-        <button class="view-tab" data-vmode="schedule" onclick="setActorView('schedule',this,event)">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 4v3"/><path d="M16 4v3"/><path d="M7 13h3"/><path d="M14 13h3"/><path d="M7 17h5"/></svg>
-          时间看板
-        </button>
+        <div class="view-tab-spacer" style="flex:1"></div>
+        <div class="view-submode" id="actorSubModeSwitch">
+          <button class="submode-pill on" data-sub="board" onclick="setActorSubMode('board',event)">板视图</button>
+          <button class="submode-pill" data-sub="milestone" onclick="setActorSubMode('milestone',event)">里程碑</button>
+        </div>
       </div>
-      <div class="actor-toolbar">
-        <div class="tb-group" id="actorDimGroup">
+      <div class="actor-toolbar" data-page-node-id="kvcXPfDWGlfx5BsoHCokDN">
+        <div class="tb-group" id="actorDimGroup" data-page-node-id="V5IqRAFMGBsKJRuDZ62wz1">
           <!-- 动态渲染：角色视图=大类 pill / 需求视图=AREA pill（含数量） -->
         </div>
-        <div class="tb-group" style="margin-left:auto">
-          <div class="search-host" data-search-host data-search-page="schedule">
-            <input id="actorSearch" placeholder="搜索游戏角色 / story" oninput="actorSearchDebounce()" style="background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:6px 10px;border-radius:4px;font-size:12px;min-width:200px"/>
-            <div class="search-history" data-search-history role="listbox" tabindex="-1" hidden aria-label="搜索历史">
-              <div class="sh-head">最近搜索</div>
-              <ul class="sh-list" role="presentation"></ul>
-              <button class="sh-clear" type="button">清除全部记录</button>
+        <div class="tb-group" style="margin-left:auto" data-page-node-id="QvLldUqWzhVwAF9RCxUpr3">
+          <div class="search-host" data-search-host data-search-page="schedule" data-page-node-id="D8EhqXbupEEitbpPcpSlwY">
+            <input id="actorSearch" placeholder="搜索游戏角色 / story" oninput="actorSearchDebounce()" style="background:var(--c-bg-0);border:1px solid var(--c-hairline);color:var(--c-text);padding:6px 10px;border-radius:4px;font-size:12px;min-width:200px" data-page-node-id="BBdH0EpuGb8Nzf9FzEjbRG"/>
+            <div class="search-history" data-search-history role="listbox" tabindex="-1" hidden aria-label="搜索历史" data-page-node-id="YBXGxz1sDV1iebAgrwTEgE">
+              <div class="sh-head" data-page-node-id="imnaBGCVBtYSvOKy6PBWY3">最近搜索</div>
+              <ul class="sh-list" role="presentation" data-page-node-id="psHSNLXD8HuWYUVYQGAGeb"></ul>
+              <button class="sh-clear" type="button" data-page-node-id="3sGQVld9zgTombYZzko4Hw">清除全部记录</button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- 视图 A · 按角色：6 块向下看板（与需求视图同构，2026-09-03 第三轮改造） -->
-      <div class="demand-cards-wrap" id="actorRoleView">
-        <div class="line-board-stack" id="actorRoleTbody"></div>
-        <div id="actorRoleEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无角色数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
+      <div class="demand-cards-wrap" id="actorRoleView" data-page-node-id="IlC8enRjLBo8rBFQKcWfT2">
+        <div class="line-board-stack" id="actorRoleTbody" data-page-node-id="OKopeAEOBQPb3Gr47OYgke"></div>
+        <div id="actorRoleEmpty" class="actor-empty" style="display:none" data-page-node-id="nX2aWCGbyOSpTFd5JEsvIV">当前 release / 筛选下暂无角色数据。<br data-page-node-id="YcAziC4knUGQMpcuulumBk"/>需要先在「需求汇总」页同步声优预估。</div>
       </div>
 
       <!-- 视图 B · 按需求：角色构成概览 → 按 AREA 分组 → 每 AREA 下需求卡片（1 卡 = 1 需求） -->
-      <div class="demand-cards-wrap" id="actorDemandView" style="display:none">
-        <div class="line-board-stack" id="actorDemandTbody"></div>
-        <div id="actorDemandEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无需求档期数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
+      <div class="demand-cards-wrap" id="actorDemandView" style="display:none" data-page-node-id="Q9x91HhcFRKvZAuW18CqlA">
+        <div class="line-board-stack" id="actorDemandTbody" data-page-node-id="64PfKRmUowxwa41J6fDSRO"></div>
+        <div id="actorDemandEmpty" class="actor-empty" style="display:none" data-page-node-id="uViBL5wSzjkaCht1y50QIW">当前 release / 筛选下暂无需求档期数据。<br data-page-node-id="ZFBCcHgfv0YuKB2yhnFjjX"/>需要先在「需求汇总」页同步声优预估。</div>
       </div>
 
       <!-- 视图 C · 时间看板：里程碑视图（开发/转测/发布 3 期泳道 + 未约倒计时池） -->
-      <div class="demand-cards-wrap" id="actorScheduleView" style="display:none">
-        <div id="actorScheduleBody" class="sched-timeline"></div>
-        <div id="actorScheduleEmpty" class="actor-empty" style="display:none">当前 release 未加载发布计划节点。<br/>需要 /api/release-plans 返回 phases 数据。</div>
+      <div class="demand-cards-wrap" id="actorScheduleView" style="display:none" data-page-node-id="ppB4Hi7fdSdYGM2MyJ4Urb">
+        <div id="actorScheduleBody" class="sched-timeline" data-page-node-id="fAnyckSg3sAa7Tu5KDRDcl"></div>
+        <div id="actorScheduleEmpty" class="actor-empty" style="display:none" data-page-node-id="agrGKbVIWWPk7qtOwL1R4F">当前 release 未加载发布计划节点。<br data-page-node-id="WKEkXATA2hxqjYUGlfpy3P"/>需要 /api/release-plans 返回 phases 数据。</div>
       </div>
     </div><!-- /#viewActors -->
   <script src="assets/holiday-calendar.js?v=20260901a"></script>
@@ -924,24 +932,24 @@ body.embed .main{width:100%}
 </script>
 
 <!-- 3B 生成向导 -->
-<div class="modal-mask" id="wizMask">
-  <div class="modal">
-    <div class="modal-head">
-      <h3><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>从澄清看板生成档期草稿</h3>
-      <button class="modal-close" onclick="closeDraftWizard()">✕</button>
+<div class="modal-mask" id="wizMask" data-page-node-id="G6MPGeIOWw80EJgEUwAsWy">
+  <div class="modal" data-page-node-id="lX0zfNvdRaF2DV8IVKFdLm">
+    <div class="modal-head" data-page-node-id="zEFn8jRe0QGE0ulNMHfElW">
+      <h3 data-page-node-id="8zYd0X0RT51CSycTV0q4ut"><svg viewBox="0 0 24 24" data-page-node-id="iJGbG3lvtOwoXqbSDe6Mc4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" data-page-node-id="qLcWxGIZalKXapEyyQRppo"/><polyline points="14 2 14 8 20 8" data-page-node-id="YXtGmynZuVi1yjmtFDIVwi"/></svg>从澄清看板生成档期草稿</h3>
+      <button class="modal-close" onclick="closeDraftWizard()" data-page-node-id="wHDGD1MmI3MXfrcgtEbwSq">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="wiz-global">
-        <label>每句时长 <input id="wizRate" type="number" min="1" value="25"/> 秒</label>
-        <label>默认录音棚
-          <select id="wizStudio"><option>8082</option><option>居然翁</option><option>叽咔</option><option>SIDE</option><option>待定</option></select>
+    <div class="modal-body" data-page-node-id="KJVxRtseTFXJ7i1QpVFypL">
+      <div class="wiz-global" data-page-node-id="Pfohj1kFYeoyiY6K28uI78">
+        <label data-page-node-id="ietSMGEnNmOroJ2OEwHDjt">每句时长 <input id="wizRate" type="number" min="1" value="25" data-page-node-id="l63doxYrX1hZP0dg9cfoKT"/> 秒</label>
+        <label data-page-node-id="LjN5ZsO7FfplDzEEtC8Kwz">默认录音棚
+          <select id="wizStudio" data-page-node-id="FrLNHTABsft4eCznYYzmBf"><option data-page-node-id="T9VP7GxwYijj7XFmHWhDWG">8082</option><option data-page-node-id="PvbPZmgL3SxTP5m6Tise8J">居然翁</option><option data-page-node-id="ItsZEf7c3diZxWsjnPAIPO">叽咔</option><option data-page-node-id="VldVFgX0ZIG7UXwGR6k13K">SIDE</option><option data-page-node-id="1dMrTsc8MrCvxhsdFcBbD8">待定</option></select>
         </label>
       </div>
-      <div id="wizRows"></div>
+      <div id="wizRows" data-page-node-id="ndMSP95pKCDVKciuQlm8ME"></div>
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeDraftWizard()">取消</button>
-      <button class="btn btn-primary" onclick="confirmDraftWizard()">生成草稿</button>
+    <div class="modal-foot" data-page-node-id="Cn2gZO178Cc7dqFyaC5vIk">
+      <button class="btn btn-outline" onclick="closeDraftWizard()" data-page-node-id="bTO5xAjS5LDYF9uo0IHeHg">取消</button>
+      <button class="btn btn-primary" onclick="confirmDraftWizard()" data-page-node-id="SlbE4NW4WFukmVQLlbErRb">生成草稿</button>
     </div>
   </div>
 </div>
@@ -952,12 +960,20 @@ body.embed .main{width:100%}
 // 【显示规则 2026-08-14】除声优库外，全站以"游戏角色名"为主体，演员名仅作 tooltip 溯源。
 // 归组键 = (lang, role)：同一角色的中/英配分开算一行；covers = 出现在哪些 story；actor = 演员名（tooltip 显示）。
 function readStoredActorVmode(){ try{ const v = localStorage.getItem('vo_actor_vmode'); return (v==='demand'||v==='role') ? v : 'role'; }catch(_){ return 'role'; } }
+function readStoredActorSubMode(){ try{ const v = localStorage.getItem('vo_actor_submode'); return (v==='milestone') ? 'milestone' : 'board'; }catch(_){ return 'board'; } }
+function setActorSubMode(mode, evt){
+  if(evt && evt.stopPropagation) evt.stopPropagation();
+  ACTOR_STATE.subMode = (mode==='milestone') ? 'milestone' : 'board';
+  try{ localStorage.setItem('vo_actor_submode', ACTOR_STATE.subMode); }catch(_){}
+  document.querySelectorAll('#actorSubModeSwitch [data-sub]').forEach(b => b.classList.toggle('on', b.dataset.sub === ACTOR_STATE.subMode));
+  renderActorRollup();
+}
 const RELEASE_SCOPE_START = 'Yang1.0';
 function releaseInScope(row){
   const release = typeof row === 'string' ? row : (row && (row.release_plan || row.plan));
   return !!(window.VOMI_RELEASE_CALENDAR && window.VOMI_RELEASE_CALENDAR.isAtOrAfterCached(release, RELEASE_SCOPE_START));
 }
-let ACTOR_STATE = { lang: 'all', status: 'all', pendingOnly: false, cat: 'all', gender: 'all', area: 'all', release: '', demands: [], estimates: [], loaded: false, vmode: readStoredActorVmode() };
+let ACTOR_STATE = { lang: 'all', status: 'all', pendingOnly: false, cat: 'all', gender: 'all', area: 'all', release: '', demands: [], estimates: [], loaded: false, vmode: readStoredActorVmode(), subMode: readStoredActorSubMode() };
 let SCHED_STATE = {
   lang: (window.SHELL_LANG==='cn'||window.SHELL_LANG==='en') ? window.SHELL_LANG : 'all',
   status: 'all',
@@ -1709,10 +1725,18 @@ function renderActorRollup(){
   const roleView = document.getElementById('actorRoleView');
   const demandView = document.getElementById('actorDemandView');
   const schedView = document.getElementById('actorScheduleView');
-  if(roleView)   roleView.style.display   = ACTOR_STATE.vmode === 'role'     ? '' : 'none';
-  if(demandView) demandView.style.display = ACTOR_STATE.vmode === 'demand'   ? '' : 'none';
-  if(schedView)  schedView.style.display  = ACTOR_STATE.vmode === 'schedule' ? '' : 'none';
-  if(ACTOR_STATE.vmode === 'schedule'){
+  var subSwitch = document.getElementById('actorSubModeSwitch');
+  if(subSwitch){
+    subSwitch.classList.toggle('is-hidden', ACTOR_STATE.vmode !== 'role');
+    subSwitch.querySelectorAll('[data-sub]').forEach(function(b){ b.classList.toggle('on', b.dataset.sub === ACTOR_STATE.subMode); });
+  }
+  var showRole = ACTOR_STATE.vmode === 'role' && ACTOR_STATE.subMode !== 'milestone';
+  var showDemand = ACTOR_STATE.vmode === 'demand';
+  var showSched = ACTOR_STATE.vmode === 'schedule' || (ACTOR_STATE.vmode === 'role' && ACTOR_STATE.subMode === 'milestone');
+  if(roleView)   roleView.style.display   = showRole   ? '' : 'none';
+  if(demandView) demandView.style.display = showDemand ? '' : 'none';
+  if(schedView)  schedView.style.display  = showSched  ? '' : 'none';
+  if(showSched){
     try{ renderActorScheduleTimeline(); }catch(e){ console.error('schedule timeline render failed', e); }
     return;
   }
@@ -1974,6 +1998,18 @@ async function renderActorScheduleTimeline(){
     }
   }catch(e){ console.warn('release-plans fetch failed', e); }
 
+  if(!phases || !phases.dev){
+    var normKeyFB = normReleaseKey(release);
+    var FALLBACK_PHASES = {
+      'Yang1':   { dev:{start:'2026-08-01', end:'2026-10-15'}, test:{start:'2026-10-16', end:'2026-11-15'}, release:{start:'2026-11-16', end:'2026-11-30'} },
+      'Yang2':   { dev:{start:'2026-11-16', end:'2027-01-31'}, test:{start:'2027-02-01', end:'2027-02-28'}, release:{start:'2027-03-01', end:'2027-03-14'} },
+      'Ma5':     { dev:{start:'2026-06-01', end:'2026-08-15'}, test:{start:'2026-08-16', end:'2026-09-15'}, release:{start:'2026-09-16', end:'2026-09-30'} }
+    };
+    if(FALLBACK_PHASES[normKeyFB]){
+      phases = FALLBACK_PHASES[normKeyFB];
+      window.__RELEASE_PHASES_CACHE[release] = phases;
+    }
+  }
   if(!phases || !phases.dev){
     host.innerHTML = '';
     if(empty){ empty.style.display=''; }

@@ -54,6 +54,32 @@ trap 'echo; echo "✗ 发布失败（第 $LINENO 行）。Git 未 push 成功时
 
 step "预检"
 [[ -d .git ]] || die "当前目录不是 Git 仓库：$PROJECT_DIR"
+# 2026-09-09 加固：.git 目录健康检查（曾发生 refs/ + objects/pack/*.pack 神秘消失，疑腾讯电脑管家实时防护）。
+# 只校验发布必需的三条铁律：① HEAD 能解析到 sha ② 该 sha 是有效 commit 对象 ③ 每个 .idx 有配套 .pack。
+# 不用 git fsck 全量扫（会因 reflog 或历史遗留触发误报）。
+_git_health_ok=1
+GIT_HEAD_SHA="$(git rev-parse HEAD 2>/dev/null || true)"
+if [[ -z "$GIT_HEAD_SHA" ]]; then _git_health_ok=0; fi
+if [[ $_git_health_ok -eq 1 ]] && ! git rev-parse --verify "$GIT_HEAD_SHA^{commit}" >/dev/null 2>&1; then _git_health_ok=0; fi
+if [[ $_git_health_ok -eq 1 ]]; then
+  for idx in .git/objects/pack/*.idx; do
+    [[ -e "$idx" ]] || continue
+    if [[ ! -e "${idx%.idx}.pack" ]]; then _git_health_ok=0; break; fi
+  done
+fi
+if [[ $_git_health_ok -eq 0 ]]; then
+  echo "✗ 本地 .git 仓库健康检查失败（refs/HEAD、commit 对象或 pack 数据文件缺失）"
+  echo "  很可能是安全软件（腾讯电脑管家/杀软实时防护）在 git 操作时清了 .git 目录。"
+  echo "  抢救步骤（不会丢工作区改动）："
+  echo "  1. cd $(dirname "$PROJECT_DIR") && git clone --bare https://github.com/xiangli9555-maker/xiangli9555.git .git_fresh_recover"
+  echo "  2. cd '$PROJECT_DIR' && mkdir -p .git/objects/pack"
+  echo "  3. cp -a ../.git_fresh_recover/{refs,HEAD,config,packed-refs,hooks} .git/"
+  echo "  4. cp -a ../.git_fresh_recover/objects/pack/* .git/objects/pack/"
+  echo "  5. sed -i 's/bare = true/bare = false/' .git/config && git reset HEAD"
+  echo "  6. rm -rf ../.git_fresh_recover"
+  echo "  长期防护：在腾讯电脑管家「杀毒 → 病毒查杀 → 信任区」添加：$PROJECT_DIR/.git"
+  die ".git 仓库损坏，请按上述步骤修复后重跑 release.sh"
+fi
 [[ -f "$SSH_KEY" ]] || die "SSH key 不存在：$SSH_KEY"
 for cmd in git ssh scp tar sha256sum; do command -v "$cmd" >/dev/null || die "缺少命令：$cmd"; done
 [[ "$(git branch --show-current)" == "master" ]] || die "请在 master 分支发布"
@@ -186,3 +212,17 @@ step "发布完成"
 echo "✓ GitHub: origin/master @ $COMMIT"
 echo "✓ CVM:     http://21.130.252.59"
 echo "✓ 备份:    /root/deploy/backups/release_${COMMIT}_*"
+
+# 2026-09-09 加固：本地 .git 定期备份（git bundle 单文件，含全部 refs+objects，可 clone 恢复）。
+# 位置：项目父目录 ../.vomi-git-backups/YYYY-MM-DD_HHMM.bundle；保留最近 7 份。
+# 恢复：cd 到空目录 → git clone <path>/YYYY-MM-DD_HHMM.bundle vomi-recover
+BACKUP_ROOT="$(cd "$PROJECT_DIR/.." && pwd)/.vomi-git-backups"
+mkdir -p "$BACKUP_ROOT"
+BACKUP_FILE="$BACKUP_ROOT/$(date +%Y-%m-%d_%H%M)_${COMMIT}.bundle"
+if git bundle create "$BACKUP_FILE" --all >/dev/null 2>&1; then
+  BSZ=$(du -h "$BACKUP_FILE" 2>/dev/null | awk '{print $1}')
+  echo "✓ .git 备份: $BACKUP_FILE ($BSZ)"
+  ls -1t "$BACKUP_ROOT"/*.bundle 2>/dev/null | tail -n +8 | xargs -r rm -f
+else
+  echo "⚠ .git 备份失败（不影响本次发布，下次仍会尝试）"
+fi

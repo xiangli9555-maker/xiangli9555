@@ -38,9 +38,9 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .nav-item.active{background:rgba(15,247,150,0.10);color:var(--c-primary);font-weight:600;box-shadow:inset 2px 0 0 var(--c-primary)}
 .nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
 
-.main{order:2;flex:1;padding:18px 22px 22px;overflow:hidden;display:flex;flex-direction:column;gap:14px}
+.main{order:2;flex:1;padding:8px 22px 22px;overflow:hidden;display:flex;flex-direction:column;gap:12px}
 
-.tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--c-hairline);position:relative}
+.tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid var(--c-hairline);position:relative}
 .tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
 .title-block{display:flex;flex-direction:column;gap:6px}
 .eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
@@ -759,7 +759,6 @@ body.embed .main{width:100%}
         <h1 class="page-title">录制档期 <span class="deadline-meta" id="schedDeadlinePill" hidden><span class="deadline-slash">//</span><span class="deadline-dates" id="schedDeadlineRange">--.-- → --.--</span><span class="deadline-sep">·</span><span class="deadline-rel" id="schedDeadlineRel">--</span> 录制定档期<span class="deadline-calm" id="schedDeadlineCalm" hidden>· 已完成</span></span></h1>
       </div>
       <div class="actions">
-        <button id="loadFromSheetBtn" class="btn" onclick="loadScheduleFromSheet()" style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--c-primary);color:var(--c-primary);padding:0 14px;height:32px;font-family:inherit;font-size:12px;font-weight:600;border-radius:0;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);transition:all .12s"><svg viewBox="0 0 24 24" width="16" height="16" style="stroke:currentColor;fill:none;stroke-width:2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>从台词库表格加载</button>
         <button id="syncFromSummaryBtn" class="btn btn-primary" onclick="syncFromVersionSummary()"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>从 Vo 版本汇总表同步</button>
         <div class="sync-hint"><span class="sync-dot"></span>固定同步刷新时间：每日 10:30</div>
       </div>
@@ -3058,16 +3057,33 @@ function bookActor(role, lang){
   };
   function mkSess(plan,vaType,lines,estHours,studio){ return {id:uid(),plan:plan,demandId:'',vaType:vaType,lines:lines,estHours:estHours,studio:studio,date:'',slot:'',status:'draft'}; }
   function toast(m,isConflict){ var t=document.createElement('div'); t.textContent=m; t.style.cssText='position:fixed;bottom:16px;right:20px;max-width:460px;font-family:var(--font-ui);font-size:11.5px;letter-spacing:.5px;background:var(--c-surface);border:1px solid '+(isConflict?'rgba(214,153,190,.55)':'var(--c-hairline)')+';padding:7px 12px;border-radius:4px;color:'+(isConflict?'#D699BE':'var(--c-primary)')+';z-index:500;transition:opacity .3s;opacity:1'; document.body.appendChild(t); setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},300);},isConflict?8000:2400); }
-  // 从 Vo 版本汇总表手动同步：实际行为是重新拉取 recording_schedules（由后端 automation-1787028270062 每日 10:30 自动从版本汇总表「声优锁-总表」写入）。
-  // 前端按钮只做"按需刷新"，不会真正触发腾讯文档拉取。
+  // 从 Vo 版本汇总表手动同步：合并了旧「从台词库表格加载」按钮（2026-09-08 两按钮合一）。
+  // 同时刷新：① /api/schedules 已发布档期 ② /api/schedule-from-sheet 台词库表格快照 → 触发侧栏与主表全面重绘。
   window.syncFromVersionSummary=function(){
     var btn=document.getElementById('syncFromSummaryBtn');
     if(btn){ btn.disabled=true; btn.dataset.label=btn.dataset.label||btn.innerHTML; btn.innerHTML='<span class="sync-spinner"></span>同步中…'; }
     toast('正在从 Vo 版本汇总表同步…');
-    return loadPublishedSchedules().then(function(rows){
-      toast('已同步：'+(Array.isArray(rows)?rows.length:0)+' 条录制定档');
-      return rows;
-    }).catch(function(e){ toast('同步失败：'+(e&&e.message||e), true); return []; }).finally(function(){
+    var release=(window.__INIT_RELEASE__||(document.querySelector('.eyebrow-release')&&document.querySelector('.eyebrow-release').textContent)||'Yang1.0').trim();
+    // 并行：正式档期 + 表格快照
+    var p1 = loadPublishedSchedules();
+    var p2 = fetch('/api/schedule-from-sheet?release='+encodeURIComponent(release), {cache:'no-store'})
+      .then(function(r){ return r.ok ? r.json() : {ok:false, records:[]}; })
+      .then(function(j){
+        if(j && j.ok && Array.isArray(j.records)){
+          if(window.ACTOR_STATE){ ACTOR_STATE.sheetSchedule = j.records; ACTOR_STATE.sheetFetchedAt = j.fetched_at||''; }
+          return j.records;
+        }
+        return [];
+      })
+      .catch(function(){ return []; });
+    return Promise.all([p1, p2]).then(function(res){
+      var pub = res[0]||[], sheet = res[1]||[];
+      toast('已同步：已发布 '+pub.length+' 条 · 表格快照 '+sheet.length+' 条');
+      // 同步刷新侧栏（renderSched 内部会调用 renderMidPanel）+ 主表演员卡
+      if(typeof window.renderSched === 'function') try{ window.renderSched(); }catch(_){}
+      if(typeof renderActorRollup === 'function') try{ renderActorRollup(); }catch(_){}
+      return { published: pub, sheet: sheet };
+    }).catch(function(e){ toast('同步失败：'+(e&&e.message||e), true); return null; }).finally(function(){
       if(btn){ btn.disabled=false; if(btn.dataset.label) btn.innerHTML=btn.dataset.label; }
     });
   };

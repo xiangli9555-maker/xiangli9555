@@ -214,15 +214,21 @@ echo "✓ CVM:     http://21.130.252.59"
 echo "✓ 备份:    /root/deploy/backups/release_${COMMIT}_*"
 
 # 2026-09-09 加固：本地 .git 定期备份（git bundle 单文件，含全部 refs+objects，可 clone 恢复）。
-# 位置：项目父目录 ../.vomi-git-backups/YYYY-MM-DD_HHMM.bundle；保留最近 7 份。
-# 恢复：cd 到空目录 → git clone <path>/YYYY-MM-DD_HHMM.bundle vomi-recover
-BACKUP_ROOT="$(cd "$PROJECT_DIR/.." && pwd)/.vomi-git-backups"
-mkdir -p "$BACKUP_ROOT"
-BACKUP_FILE="$BACKUP_ROOT/$(date +%Y-%m-%d_%H%M)_${COMMIT}.bundle"
+# 位置：项目父目录 ../.vomi-git-backups/YYYY-MM-DD_HHMM_<sha>.bundle；保留最近 7 份。
+# 恢复：cd 到空目录 → git clone <win-path>\\YYYY-MM-DD_HHMM_<sha>.bundle vomi-recover
+BACKUP_ROOT_POSIX="$(cd "$PROJECT_DIR/.." && pwd)/.vomi-git-backups"
+mkdir -p "$BACKUP_ROOT_POSIX"
+# Git for Windows 的 bundle 命令只认 Windows 路径 (/c/... 会失败)。用 cygpath 转，若无 cygpath 则手工替换盘符。
+if command -v cygpath >/dev/null 2>&1; then
+  BACKUP_ROOT_WIN="$(cygpath -w "$BACKUP_ROOT_POSIX")"
+else
+  BACKUP_ROOT_WIN="$(echo "$BACKUP_ROOT_POSIX" | sed -E 's|^/([a-zA-Z])/|\1:/|')"
+fi
+BACKUP_FILE="${BACKUP_ROOT_WIN}/$(date +%Y-%m-%d_%H%M)_${COMMIT}.bundle"
 if git bundle create "$BACKUP_FILE" --all >/dev/null 2>&1; then
-  BSZ=$(du -h "$BACKUP_FILE" 2>/dev/null | awk '{print $1}')
+  BSZ=$(du -h "$BACKUP_ROOT_POSIX/$(basename "$BACKUP_FILE")" 2>/dev/null | awk '{print $1}')
   echo "✓ .git 备份: $BACKUP_FILE ($BSZ)"
-  ls -1t "$BACKUP_ROOT"/*.bundle 2>/dev/null | tail -n +8 | xargs -r rm -f
+  ls -1t "$BACKUP_ROOT_POSIX"/*.bundle 2>/dev/null | tail -n +8 | xargs -r rm -f
 else
   echo "⚠ .git 备份失败（不影响本次发布，下次仍会尝试）"
 fi

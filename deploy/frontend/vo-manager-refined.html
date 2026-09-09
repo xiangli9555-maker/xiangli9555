@@ -121,36 +121,37 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
    无全屏遮罩，跟 .notification-popover 同款玻璃/绿边/blur/圆角。*/
 .share-wrap{position:relative;display:flex;align-items:center}
 #shareBtn[aria-expanded="true"]{border-color:rgba(15,247,150,.58);color:var(--c-primary);background:rgba(15,247,150,.10);box-shadow:0 0 18px rgba(15,247,150,.10)}
-.share-popover{position:absolute;z-index:6200;top:calc(100% + 13px);right:-10px;width:min(430px,calc(100vw - 24px));max-height:min(680px,calc(100vh - 88px));overflow:auto;padding:18px 20px 16px;border:1px solid rgba(15,247,150,.42);border-radius:16px;background:linear-gradient(180deg,rgba(15,247,150,.10) 0%,rgba(15,247,150,.05) 60%,rgba(15,23,28,.55) 100%),rgba(15,23,28,.42);box-shadow:0 0 32px rgba(15,247,150,.18),0 18px 48px rgba(0,0,0,.36),inset 0 1px 0 rgba(15,247,150,.10);backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);opacity:0;visibility:hidden;transform:translateY(-6px);transform-origin:top right;transition:opacity .16s ease,transform .16s ease,visibility .16s;pointer-events:none}
+.share-popover{position:absolute;z-index:6200;top:calc(100% + 13px);right:-10px;width:min(340px,calc(100vw - 24px));max-height:min(560px,calc(100vh - 88px));overflow:auto;padding:14px 16px 12px;border:1px solid rgba(15,247,150,.42);border-radius:16px;background:linear-gradient(180deg,rgba(15,247,150,.10) 0%,rgba(15,247,150,.05) 60%,rgba(15,23,28,.55) 100%),rgba(15,23,28,.42);box-shadow:0 0 32px rgba(15,247,150,.18),0 18px 48px rgba(0,0,0,.36),inset 0 1px 0 rgba(15,247,150,.10);backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);opacity:0;visibility:hidden;transform:translateY(-6px);transform-origin:top right;transition:opacity .16s ease,transform .16s ease,visibility .16s;pointer-events:none}
 .share-popover::before{content:'';position:absolute;top:-6px;right:21px;width:10px;height:10px;transform:rotate(45deg);background:rgba(15,247,150,.12);border-left:1px solid rgba(15,247,150,.42);border-top:1px solid rgba(15,247,150,.42);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
 .share-popover.is-open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
 @media (max-width:720px){.share-popover{position:fixed;top:62px;right:12px;left:12px;width:auto;max-height:calc(100vh - 76px)}}
 .share-modal{width:100%;position:relative;color:var(--c-text)}
 .share-head{display:flex;align-items:flex-start;gap:14px}
-.share-head h2{margin:0;font-size:15px;font-weight:600;letter-spacing:.6px;color:var(--c-primary);text-transform:uppercase}
-.share-head .share-head-sub{margin:4px 0 0;color:var(--c-text-mute);font-size:12px}
-.share-head .share-eyebrow{margin-top:8px;font-size:13px;color:var(--c-text-2);font-weight:600}
+.share-head h2{margin:0;font-size:13px;font-weight:600;letter-spacing:.5px;color:var(--c-primary);text-transform:uppercase}
+.share-head .share-head-sub{margin:3px 0 0;color:var(--c-text-mute);font-size:11px;line-height:1.4}
+.share-head .share-eyebrow{margin-top:6px;font-size:12px;color:var(--c-text-2);font-weight:600;line-height:1.35}
 .share-close{margin-left:auto;width:30px;height:30px;border:0;background:transparent;color:var(--c-text-mute);font:400 24px/1 Arial,sans-serif;cursor:pointer;border-radius:6px}
 .share-close:hover{color:var(--c-primary);background:rgba(15,247,150,.08)}
-.share-section-label{margin:18px 0 10px;font-size:11.5px;color:var(--c-text-mute);letter-spacing:.8px;text-transform:uppercase}
-.share-tabs{display:flex;flex-wrap:wrap;gap:8px}
-.share-tab{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid rgba(15,247,150,.22);border-radius:999px;background:rgba(15,23,28,.42);color:var(--c-text-2);font-size:13px;cursor:pointer;transition:all .15s}
+.share-section-label{margin:12px 0 8px;font-size:11px;color:var(--c-text-mute);letter-spacing:.6px;text-transform:uppercase}
+.share-tabs{display:flex;flex-wrap:wrap;gap:6px}
+.share-tab{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border:1px solid rgba(15,247,150,.22);border-radius:999px;background:rgba(15,23,28,.42);color:var(--c-text-2);font-size:11.5px;cursor:pointer;transition:all .15s}
 .share-tab:hover{border-color:rgba(15,247,150,.5);color:var(--c-text)}
 .share-tab.active{background:rgba(15,247,150,.16);border-color:var(--c-primary);color:var(--c-text);box-shadow:0 0 0 1px rgba(15,247,150,.30) inset}
-.share-tab svg{width:14px;height:14px;flex-shrink:0}
-.share-channels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
-.share-channel{padding:18px 16px 16px;border:1px solid rgba(15,247,150,.22);border-radius:14px;background:rgba(15,23,28,.42);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all .18s}
+.share-tab svg{width:12px;height:12px;flex-shrink:0}
+.share-channels{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.share-channel{padding:10px 10px 8px;border:1px solid rgba(15,247,150,.22);border-radius:10px;background:rgba(15,23,28,.42);display:flex;flex-direction:row;align-items:center;gap:9px;cursor:pointer;transition:all .18s;text-align:left}
+.share-channel-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(15,247,150,.12);color:var(--c-primary);border:1px solid rgba(15,247,150,.32);flex-shrink:0}
+.share-channel-icon svg{width:16px;height:16px}
+.share-channel-label{font-size:12px;font-weight:600;color:var(--c-text);letter-spacing:.3px;line-height:1.2}
+.share-channel-desc{font-size:10.5px;color:var(--c-text-mute);line-height:1.3;margin-top:2px}
+.share-channel-body{display:flex;flex-direction:column;gap:0;min-width:0}
 .share-channel:hover{border-color:var(--c-primary);background:rgba(15,247,150,.06);box-shadow:0 0 0 2px rgba(15,247,150,.18)}
-.share-channel-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(15,247,150,.12);color:var(--c-primary);border:1px solid rgba(15,247,150,.32)}
-.share-channel-icon svg{width:24px;height:24px}
 .share-channel[disabled]{opacity:.4;pointer-events:none}
-.share-channel-label{font-size:14px;font-weight:600;color:var(--c-text);letter-spacing:.4px}
-.share-channel-desc{font-size:11.5px;color:var(--c-text-mute)}
-.share-preview-wrap{margin-top:18px;padding:16px 18px;border:1px solid rgba(15,247,150,.16);border-radius:14px;background:rgba(15,23,28,.34)}
-.share-preview-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;color:var(--c-text-mute);font-size:12px}
+.share-preview-wrap{margin-top:10px;padding:10px 12px;border:1px solid rgba(15,247,150,.16);border-radius:10px;background:rgba(15,23,28,.34)}
+.share-preview-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px;color:var(--c-text-mute);font-size:11px}
 .share-preview-bar .dot{width:6px;height:6px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 8px var(--c-primary);animation:share-pulse 1.6s infinite}
 @keyframes share-pulse{0%,100%{opacity:.5}50%{opacity:1}}
-.share-preview-stage{display:flex;justify-content:center;padding:4px 0 0;min-height:200px}
+.share-preview-stage{display:flex;justify-content:center;padding:4px 0 0;min-height:120px}
 .share-loading,.share-empty{display:flex;align-items:center;gap:8px;justify-content:center;color:var(--c-text-mute);font-size:13px;padding:32px 0;width:100%}
 .share-empty{padding:18px 12px;text-align:center}
 .share-empty strong{display:block;color:var(--c-warning);margin-bottom:6px}
@@ -423,7 +424,7 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
             <div class="share-head-sub">选一种分享内容，再选一种通道，对方看到的预览如下</div>
             <div class="share-eyebrow" id="shareEyebrow">—</div>
           </div>
-          <button class="share-close" type="button" aria-label="关闭" onclick="closeShare()">×</button>
+          <button class="share-close" type="button" aria-label="关闭" onclick="closeShare(true)">×</button>
         </div>
 
         <div class="share-section-label">分享内容</div>
@@ -1043,27 +1044,32 @@ function toast(msg){
 //   - summaryMd   纯文本摘要（用于企业微信通道发送 / 复制）
 //   - detailUrl   该 tab 对应外壳 URL（点击"查看完整详情"跳转）
 //   - plainText   一行说明（用于 toast 显示）
-const SHARE_STATE = { open:false, tab:'progress', payload:null, busy:false, picker:false, sending:false };
+const SHARE_STATE = { open:false, tab:'progress', payload:null, busy:false, picker:false, sending:false, pinned:false, closeTimer:null };
 
 function toggleShare(event){
   if(event) event.stopPropagation();
   const btn = document.getElementById('shareBtn');
-  if(btn && btn.getAttribute('aria-expanded') === 'true'){ closeShare(); return; }
-  openShare();
+  const open = btn && btn.getAttribute('aria-expanded') === 'true';
+  if(open && SHARE_STATE.pinned){ SHARE_STATE.pinned = false; closeShare(true); return; }
+  openShare(true);
 }
-async function openShare(){
-  if(SHARE_STATE.open) return;
-  SHARE_STATE.open = true;
+async function openShare(pin=false){
   const m = document.getElementById('shareModal');
   const btn = document.getElementById('shareBtn');
   if(!m) return;
+  clearTimeout(SHARE_STATE.closeTimer);
+  SHARE_STATE.pinned = !!pin || SHARE_STATE.pinned;
+  if(SHARE_STATE.open){ return; }
+  SHARE_STATE.open = true;
   if(SHARE_STATE.picker){ closeSharePicker(); }
   m.hidden = false;
   requestAnimationFrame(()=> m.classList.add('is-open'));
   if(btn) btn.setAttribute('aria-expanded','true');
   await renderShareTab(SHARE_STATE.tab);
 }
-function closeShare(){
+function closeShare(force=false){
+  if(SHARE_STATE.pinned && !force) return;
+  SHARE_STATE.pinned = false;
   if(!SHARE_STATE.open && document.getElementById('shareBtn')?.getAttribute('aria-expanded') !== 'true') return;
   SHARE_STATE.open = false;
   const m = document.getElementById('shareModal');
@@ -1730,16 +1736,24 @@ async function copyShareCardSummary(){
 document.addEventListener('keydown', (e)=>{
   if(e.key === 'Escape'){
     if(SHARE_STATE.picker){ closeSharePicker(); }
-    else if(SHARE_STATE.open){ closeShare(); }
+    else if(SHARE_STATE.open){ closeShare(true); }
   }
 });
 // 点击 popover 外侧关闭（wrap 内点任意处不关，含按钮自身，其 onclick 已 stopPropagation）
 document.addEventListener('click', (e)=>{
   const wrap = document.getElementById('shareWrap');
   if(!wrap) return;
-  if(SHARE_STATE.open && !wrap.contains(e.target)){ closeShare(); }
+  if(SHARE_STATE.open && !wrap.contains(e.target)){ closeShare(true); }
   else if(SHARE_STATE.picker && !wrap.contains(e.target)){ closeSharePicker(); }
 });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeShare(true); });
+// hover 联动（与通知中心同款）：mouseenter 直接打开非固定态，mouseleave 140ms 后关（若未 click 固定）。
+(function bindShareHover(){
+  const wrap = document.getElementById('shareWrap');
+  if(!wrap) return;
+  wrap.addEventListener('mouseenter', ()=>{ clearTimeout(SHARE_STATE.closeTimer); openShare(false); });
+  wrap.addEventListener('mouseleave', ()=>{ clearTimeout(SHARE_STATE.closeTimer); SHARE_STATE.closeTimer = setTimeout(()=>closeShare(false), 140); });
+})();
 
 // 老的 sharePage() 保留为降级（去掉 toast 直接弹面板）
 function sharePage(){

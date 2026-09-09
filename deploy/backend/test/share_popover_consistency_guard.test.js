@@ -1,17 +1,21 @@
-// 分享面板 Popover 化守卫（2026-09-03）
+// 分享面板 Popover 化守卫（2026-09-03 初版；2026-09-09 收窄为通知面板同款尺寸）
 //
 // 背景：用户要求「分享按钮优化，弹出的界面跟提示一样大小，且也显示在下方左侧」。
 //   即：把原来的全屏遮罩 + 居中大模态，改成与通知中心 .notification-popover 完全一致
-//   的锚定 popover —— 同样 ~430px 宽、同款玻璃质感、无全屏遮罩、从按钮正下方偏左弹出。
+//   的锚定 popover —— 同款玻璃质感、无全屏遮罩、从按钮正下方偏左弹出。
+//   2026-09-09 用户复审：把 width 收窄到 340px、max-height 收到 560px，让整块视觉体量
+//   贴近通知面板（原 430/680 会显得比通知面板重）。picker 保持 430 不动（覆盖层，需要写下拉列表）。
 //
-// 契约（以 .notification-popover 为基准）：
+// 契约：
 //   1. 彻底移除 .share-overlay / .share-picker-overlay 全屏遮罩
 //   2. #shareBtn 外包 .share-wrap（position:relative），popover 相对按钮绝对定位
-//   3. .share-popover 与 .share-picker-popover 均为 position:absolute + top:calc(100%+13px)
-//      + right:-10px + width:min(430px,...)，即「下方偏左」锚定
-//   4. 玻璃质感：backdrop-filter blur + 绿细边 + 16px 圆角 + opacity/visibility 过渡
-//   5. JS：toggleShare(event) 读写 #shareBtn 的 aria-expanded；点外部用 wrap.contains 关闭
-//   6. deploy/frontend 副本与根权威文件 byte-equal
+//   3. .share-popover 为 position:absolute + top:calc(100%+13px) + right:-10px + width:min(340px,...)
+//   4. .share-picker-popover 沿用 width:min(430px,...) 覆盖层
+//   5. 玻璃质感：backdrop-filter blur + 绿细边 + 16px 圆角 + opacity/visibility 过渡
+//   6. JS：toggleShare(event) 读写 #shareBtn 的 aria-expanded；点外部用 wrap.contains 关闭
+//   7. hover 触发：与通知中心同款，shareWrap 上 mouseenter 打开 (pinned=false)，mouseleave 140ms 后关闭；
+//      click 打开则 pinned=true 保持不被 hover 关掉
+//   8. deploy/frontend 副本与根权威文件 byte-equal
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
@@ -51,15 +55,15 @@ test('分享按钮携带 popover 语义属性', () => {
 });
 
 // ---------- 3. 锚定定位：下方偏左，与通知中心一致 ----------
-test('分享面板为绝对定位 popover，锚定按钮下方偏左', () => {
+test('分享面板为绝对定位 popover，锚定按钮下方偏左，收窄到通知面板尺寸', () => {
   const i0 = SRC.indexOf('.share-popover{');
   assert.ok(i0 > -1, '应存在 .share-popover 规则');
   const rule = SRC.slice(i0, SRC.indexOf('}', i0));
   assert.match(rule, /position:absolute/, '必须绝对定位，不能是全屏 fixed');
   assert.match(rule, /top:calc\(100% \+ 13px\)/, '应从按钮正下方 13px 弹出');
   assert.match(rule, /right:-10px/, '右对齐向左展开（下方偏左）');
-  assert.match(rule, /width:min\(430px,calc\(100vw - 24px\)\)/, '宽度应与通知中心一致 ~430px');
-  assert.match(rule, /max-height:min\(680px,calc\(100vh - 88px\)\)/, '应限制最大高度');
+  assert.match(rule, /width:min\(340px,calc\(100vw - 24px\)\)/, '宽度收窄到 340px（2026-09-09 用户定稿）');
+  assert.match(rule, /max-height:min\(560px,calc\(100vh - 88px\)\)/, 'max-height 收到 560px');
 });
 
 test('联系选择面板同为锚定 popover，覆盖在分享面板之上', () => {
@@ -96,6 +100,16 @@ test('点外部关闭改用 wrap.contains，ESC 关闭保留', () => {
   has(/!wrap\.contains\(e\.target\)/, '外部点击判定必须用 wrap.contains');
   assert.doesNotMatch(SRC, /e\.target\.id === 'shareModal'/, '不得再用「点击面板自身即关闭」的旧逻辑');
   has(/if\(e\.key === 'Escape'\)/, 'ESC 关闭入口应保留');
+});
+
+// ---------- 7. hover 触发（2026-09-09 加入，与通知面板同款）----------
+test('hover 触发：shareWrap mouseenter/leave 联动，pinned 保护 click 状态', () => {
+  has(/wrap\.addEventListener\('mouseenter'/, '应在 shareWrap 上绑定 mouseenter');
+  has(/wrap\.addEventListener\('mouseleave'/, '应在 shareWrap 上绑定 mouseleave');
+  has(/openShare\(false\)/, 'mouseenter 应调用 openShare(false)（非 pinned）');
+  has(/closeShare\(false\)/, 'mouseleave 应调用 closeShare(false)（受 pinned 保护）');
+  has(/SHARE_STATE\.pinned/, '应存在 pinned 字段');
+  has(/if\(SHARE_STATE\.pinned && !force\) return/, 'closeShare(false) 遇 pinned 必须直接返回');
 });
 
 // ---------- 6. 部署副本一致 ----------

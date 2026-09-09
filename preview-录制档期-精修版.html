@@ -2083,6 +2083,7 @@ async function renderActorScheduleTimeline(){
   }
 
   function roleRowHTML(e, hot){
+    var esc = window.escHtml || function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}); };
     var langBadge = e.lang === 'en' ? ' EN' : '';
     var dateCls = e.date ? 'is-booked' : 'is-pending';
     var dateTxt = e.date ? fmt(e.date) : '—';

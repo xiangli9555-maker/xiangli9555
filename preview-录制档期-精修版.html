@@ -600,6 +600,49 @@ body.embed .main{width:100%}
 .actor-btn.secondary{border-color:var(--c-hairline);color:var(--c-text-2)}
 .actor-btn.secondary:hover{background:var(--c-hairline);color:var(--c-text)}
 .actor-empty{padding:60px 20px;text-align:center;color:var(--c-text-mute);font-size:13px;line-height:1.8}
+
+/* ============ 视图 C · 时间看板（里程碑：开发 / 转测 / 发布） ============ */
+.sched-timeline{display:flex;flex-direction:column;gap:12px;padding:6px 2px}
+.sched-phase-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:8px;position:relative}
+.sched-phase-cell{padding:10px 12px;position:relative;border-radius:4px;background:rgba(255,255,255,.02)}
+.sched-phase-cell.on-dev{background:rgba(202,225,207,0.10);border-left:3px solid #CAE1CF}
+.sched-phase-cell.on-test{background:rgba(244,207,103,0.10);border-left:3px solid #F4CF67}
+.sched-phase-cell.on-release{background:rgba(15,247,150,0.10);border-left:3px solid var(--c-primary)}
+.sched-phase-cell .ph-label{font-size:11px;color:var(--c-text-mute);letter-spacing:.6px;font-weight:500}
+.sched-phase-cell .ph-range{font-size:12px;color:var(--c-text);margin-top:4px;font-family:var(--font-ui);letter-spacing:.3px}
+.sched-phase-cell .ph-hint{font-size:10.5px;color:var(--c-text-dim);margin-top:3px;letter-spacing:.4px}
+.sched-phase-cell.is-current::after{content:'今';position:absolute;top:6px;right:8px;background:var(--c-primary);color:#0A1015;font-size:10px;font-weight:500;padding:1px 5px;border-radius:2px;letter-spacing:.5px}
+
+.sched-lane{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden}
+.sched-lane-head{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--c-hairline);background:var(--c-bg-0)}
+.sched-lane-head .lane-rail{width:2px;height:14px;background:var(--c-hairline);flex-shrink:0}
+.sched-lane.lane-pending .lane-rail{background:#E24B4A}
+.sched-lane.lane-dev .lane-rail{background:#CAE1CF}
+.sched-lane.lane-test .lane-rail{background:#F4CF67}
+.sched-lane.lane-release .lane-rail{background:var(--c-primary)}
+.sched-lane-title{font-size:13px;font-weight:500;color:var(--c-text);letter-spacing:.4px}
+.sched-lane-count{font-family:var(--font-ui);font-size:12px;color:var(--c-text-mute);margin-left:6px}
+.sched-lane-ddl{margin-left:auto;font-size:11px;color:var(--c-text-mute);font-family:var(--font-ui)}
+.sched-lane.lane-pending .sched-lane-ddl.is-hot{color:#E24B4A}
+.sched-lane.lane-pending .sched-lane-ddl.is-warm{color:var(--c-warning)}
+
+.sched-lane-body{padding:6px 8px}
+.sched-lane-body.is-empty{padding:14px 12px;color:var(--c-text-dim);font-size:12px;text-align:center;font-style:italic}
+.sched-role-row{display:grid;grid-template-columns:130px 60px 1fr 46px 90px 100px;gap:8px;align-items:center;padding:6px 8px;border-bottom:1px solid rgba(190,205,195,.05);font-size:12px}
+.sched-role-row:last-child{border-bottom:none}
+.sched-role-row .r-name{color:var(--c-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.3px}
+.sched-role-row .r-cat{color:var(--c-text-dim);font-size:11px;letter-spacing:.4px}
+.sched-role-row .r-story{color:var(--c-text-mute);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sched-role-row .r-lines{text-align:right;color:var(--c-warning);font-family:var(--font-ui);font-size:11px}
+.sched-role-row .r-actor{color:var(--c-text-2);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sched-role-row .r-date{color:var(--c-text-mute);font-family:var(--font-ui);font-size:11px;text-align:right}
+.sched-role-row .r-date.is-booked{color:var(--c-primary)}
+.sched-role-row .r-date.is-pending{color:var(--c-text-dim)}
+.sched-role-row.is-hot{background:rgba(226,75,74,.04)}
+.sched-role-row.is-hot .r-lines{color:#E24B4A}
+
+.sched-legend{padding:8px 12px;font-size:11px;color:var(--c-text-dim);letter-spacing:.4px;line-height:1.6}
+.sched-legend b{color:var(--c-text-mute);font-weight:500}
 /* ============ 字体系统 · 全站统一收敛（录制档期） ============ */
 /* 数字/时间/编号 → 等宽（JetBrains Mono）；中文正文 → Inter+YaHei，不混排 */
 :root{
@@ -797,6 +840,10 @@ body.embed .main{width:100%}
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="9" y1="3" x2="9" y2="7"/><line x1="15" y1="3" x2="15" y2="7"/><line x1="9" y1="14" x2="9" y2="14"/><line x1="13" y1="14" x2="13" y2="14"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
           需求视图
         </button>
+        <button class="view-tab" data-vmode="schedule" onclick="setActorView('schedule',this,event)">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 4v3"/><path d="M16 4v3"/><path d="M7 13h3"/><path d="M14 13h3"/><path d="M7 17h5"/></svg>
+          时间看板
+        </button>
       </div>
       <div class="actor-toolbar">
         <div class="tb-group" id="actorDimGroup">
@@ -824,6 +871,12 @@ body.embed .main{width:100%}
       <div class="demand-cards-wrap" id="actorDemandView" style="display:none">
         <div class="line-board-stack" id="actorDemandTbody"></div>
         <div id="actorDemandEmpty" class="actor-empty" style="display:none">当前 release / 筛选下暂无需求档期数据。<br/>需要先在「需求汇总」页同步声优预估。</div>
+      </div>
+
+      <!-- 视图 C · 时间看板：里程碑视图（开发/转测/发布 3 期泳道 + 未约倒计时池） -->
+      <div class="demand-cards-wrap" id="actorScheduleView" style="display:none">
+        <div id="actorScheduleBody" class="sched-timeline"></div>
+        <div id="actorScheduleEmpty" class="actor-empty" style="display:none">当前 release 未加载发布计划节点。<br/>需要 /api/release-plans 返回 phases 数据。</div>
       </div>
     </div><!-- /#viewActors -->
   <script src="assets/holiday-calendar.js?v=20260901a"></script>
@@ -1655,8 +1708,14 @@ function renderActorRollup(){
   });
   const roleView = document.getElementById('actorRoleView');
   const demandView = document.getElementById('actorDemandView');
-  if(roleView)   roleView.style.display   = ACTOR_STATE.vmode === 'role'   ? '' : 'none';
-  if(demandView) demandView.style.display = ACTOR_STATE.vmode === 'demand' ? '' : 'none';
+  const schedView = document.getElementById('actorScheduleView');
+  if(roleView)   roleView.style.display   = ACTOR_STATE.vmode === 'role'     ? '' : 'none';
+  if(demandView) demandView.style.display = ACTOR_STATE.vmode === 'demand'   ? '' : 'none';
+  if(schedView)  schedView.style.display  = ACTOR_STATE.vmode === 'schedule' ? '' : 'none';
+  if(ACTOR_STATE.vmode === 'schedule'){
+    try{ renderActorScheduleTimeline(); }catch(e){ console.error('schedule timeline render failed', e); }
+    return;
+  }
 
   // KPI 卡：基于 aggregateActors 全量
   const all = aggregateActors(ACTOR_STATE.demands, ACTOR_STATE.release);
@@ -1886,6 +1945,173 @@ function itemHasSlotOn(item, ymd){
 //   状态 3 档统一：⚠ 待预约（黄）/ ◆ 部分已约（蓝）/ ✓ 已约完（绿）
 //   条目粒度：需求 × 角色 × 语种（板内同款 lbe，与需求视图同构）
 //   占位行（无声优预估）不占板，沉底「待录入」提示条；全占位时板内 lb-skeleton 骨架文案
+
+// ============================================================
+// 视图 C · 时间看板（里程碑 · 开发/转测/发布 3 期泳道 + 未约倒计时池）
+// 2026-09-09：附加于既有 6 板视图之后，data 源同 aggregateActors + 发布计划 phases。
+// 未约角色沉「距最近 DDL X 天」置顶提醒；已约角色按 booking 日期落入对应 phase 泳道。
+// ============================================================
+async function renderActorScheduleTimeline(){
+  var host = document.getElementById('actorScheduleBody');
+  var empty = document.getElementById('actorScheduleEmpty');
+  if(!host) return;
+
+  var release = ACTOR_STATE.release || detectCurrentReleaseFromDemands() || 'Yang1.0';
+  var phases = null;
+  try{
+    if(!window.__RELEASE_PHASES_CACHE){ window.__RELEASE_PHASES_CACHE = {}; }
+    if(window.__RELEASE_PHASES_CACHE[release]){
+      phases = window.__RELEASE_PHASES_CACHE[release];
+    } else {
+      var resp = await fetch('/api/release-plans', {cache:'no-store'});
+      if(resp.ok){
+        var j = await resp.json();
+        var arr = Array.isArray(j) ? j : (j.data || []);
+        var normKey = normReleaseKey(release);
+        var match = arr.find(function(p){ return normReleaseKey(p.release_plan||p.name||'') === normKey; });
+        if(match && match.phases){ phases = match.phases; window.__RELEASE_PHASES_CACHE[release] = phases; }
+      }
+    }
+  }catch(e){ console.warn('release-plans fetch failed', e); }
+
+  if(!phases || !phases.dev){
+    host.innerHTML = '';
+    if(empty){ empty.style.display=''; }
+    return;
+  }
+  if(empty) empty.style.display='none';
+
+  var today = new Date(); today.setHours(0,0,0,0);
+  var pDev = { start: new Date(phases.dev.start), end: new Date(phases.dev.end) };
+  var pTest = phases.test ? { start: new Date(phases.test.start), end: new Date(phases.test.end) } : null;
+  var pRel = phases.release ? { start: new Date(phases.release.start), end: new Date(phases.release.end) } : null;
+
+  function fmt(d){ if(!d) return '—'; var m=d.getMonth()+1, dd=d.getDate(); return String(m).padStart(2,'0')+'.'+String(dd).padStart(2,'0'); }
+  function daysBetween(a,b){ return Math.round((a - b) / 86400000); }
+  function classifyDate(d){
+    if(!d) return 'pending';
+    if(pRel && d >= pRel.start && d <= pRel.end) return 'release';
+    if(pTest && d >= pTest.start && d <= pTest.end) return 'test';
+    if(d >= pDev.start && d <= pDev.end) return 'dev';
+    if(pTest && d > pTest.end) return 'release';
+    if(d > pDev.end) return 'test';
+    return 'dev';
+  }
+  function currentPhase(){
+    if(pRel && today >= pRel.start && today <= pRel.end) return 'release';
+    if(pTest && today >= pTest.start && today <= pTest.end) return 'test';
+    if(today >= pDev.start && today <= pDev.end) return 'dev';
+    if(today < pDev.start) return 'pre';
+    return 'post';
+  }
+  var curPhase = currentPhase();
+
+  var actors = aggregateActors(ACTOR_STATE.demands, release) || [];
+  actors = actors.filter(function(a){
+    if(ACTOR_STATE.lang !== 'all' && a.lang !== ACTOR_STATE.lang) return false;
+    if(ACTOR_STATE.cat !== 'all'){
+      var c = (a.category || (typeof categoryOf==='function' ? categoryOf(a.role) : '') || '').trim();
+      if(c !== ACTOR_STATE.cat) return false;
+    }
+    return true;
+  });
+
+  var lanes = { pending:[], dev:[], test:[], release:[] };
+  actors.forEach(function(a){
+    var bookedDate = null;
+    var scheds = Array.isArray(a.schedules) ? a.schedules : (a.schedule ? [a.schedule] : []);
+    scheds.forEach(function(s){
+      var raw = s && (s.date || s.record_date);
+      if(!raw) return;
+      var d = new Date(String(raw).replace(/\//g,'-'));
+      if(!isNaN(d.getTime())){ if(!bookedDate || d < bookedDate) bookedDate = d; }
+    });
+    var story = (a.covers && a.covers[0] && a.covers[0].story) || '';
+    var actor = a.va_cn || a.va_en || (scheds[0] && (scheds[0].va_cn || scheds[0].va_en)) || '';
+    var lines = a.total || a.demandTotal || 0;
+    var entry = { role:a.role, cat:a.category||'', lang:a.lang, story:story, lines:lines, actor:actor, date:bookedDate };
+    if(bookedDate){ lanes[classifyDate(bookedDate)].push(entry); }
+    else { lanes.pending.push(entry); }
+  });
+  lanes.pending.sort(function(x,y){ return (y.lines||0) - (x.lines||0); });
+  ['dev','test','release'].forEach(function(k){ lanes[k].sort(function(x,y){ return (x.date - y.date) || (String(x.role).localeCompare(String(y.role))); }); });
+
+  var nextDdl = null;
+  if(pDev && today < pDev.end) nextDdl = { name:'开发期结束', date:pDev.end };
+  else if(pTest && today < pTest.end) nextDdl = { name:'转测期结束', date:pTest.end };
+  else if(pRel && today < pRel.end) nextDdl = { name:'发布', date:pRel.end };
+  var pendingDdlDays = nextDdl ? daysBetween(nextDdl.date, today) : null;
+  var ddlCls = '';
+  if(pendingDdlDays != null){
+    ddlCls = (pendingDdlDays <= 14) ? 'is-hot' : (pendingDdlDays <= 30 ? 'is-warm' : '');
+  }
+
+  function roleRowHTML(e, hot){
+    var langBadge = e.lang === 'en' ? ' EN' : '';
+    var dateCls = e.date ? 'is-booked' : 'is-pending';
+    var dateTxt = e.date ? fmt(e.date) : '—';
+    return '<div class="sched-role-row'+(hot?' is-hot':'')+'">'
+      + '<span class="r-name" title="'+esc(e.role)+'">'+esc(e.role)+langBadge+'</span>'
+      + '<span class="r-cat">'+esc(e.cat||'—')+'</span>'
+      + '<span class="r-story" title="'+esc(e.story)+'">'+esc(e.story||'—')+'</span>'
+      + '<span class="r-lines">'+(e.lines||0)+'</span>'
+      + '<span class="r-actor" title="'+esc(e.actor)+'">'+esc(e.actor||'未指派')+'</span>'
+      + '<span class="r-date '+dateCls+'">'+dateTxt+'</span>'
+      + '</div>';
+  }
+
+  function laneHTML(cls, title, items, ddlHTML){
+    var body;
+    if(!items.length){
+      body = '<div class="sched-lane-body is-empty">暂无</div>';
+    } else {
+      body = '<div class="sched-lane-body">' + items.map(function(e){ return roleRowHTML(e, cls==='lane-pending'); }).join('') + '</div>';
+    }
+    return '<div class="sched-lane '+cls+'">'
+      + '<div class="sched-lane-head">'
+      +   '<span class="lane-rail"></span>'
+      +   '<span class="sched-lane-title">'+title+'</span>'
+      +   '<span class="sched-lane-count">'+items.length+'</span>'
+      +   (ddlHTML || '')
+      + '</div>'
+      + body
+      + '</div>';
+  }
+
+  var phaseStrip = ''
+    + '<div class="sched-phase-strip">'
+    +   '<div class="sched-phase-cell on-dev'+(curPhase==='dev'?' is-current':'')+'">'
+    +     '<div class="ph-label">开发期</div>'
+    +     '<div class="ph-range">'+fmt(pDev.start)+' → '+fmt(pDev.end)+'</div>'
+    +     '<div class="ph-hint">台词制作 · 声优锁 · 台词锁 · 录制</div>'
+    +   '</div>'
+    +   '<div class="sched-phase-cell on-test'+(curPhase==='test'?' is-current':'')+'">'
+    +     '<div class="ph-label">转测期</div>'
+    +     '<div class="ph-range">'+(pTest?fmt(pTest.start)+' → '+fmt(pTest.end):'—')+'</div>'
+    +     '<div class="ph-hint">台词封板 · 音频合入 · 修正</div>'
+    +   '</div>'
+    +   '<div class="sched-phase-cell on-release'+(curPhase==='release'?' is-current':'')+'">'
+    +     '<div class="ph-label">发布期</div>'
+    +     '<div class="ph-range">'+(pRel?fmt(pRel.start)+' → '+fmt(pRel.end):'—')+'</div>'
+    +     '<div class="ph-hint">台词发布 · 音频发布</div>'
+    +   '</div>'
+    + '</div>';
+
+  var pendingDdlHTML = '';
+  if(pendingDdlDays != null){
+    pendingDdlHTML = '<span class="sched-lane-ddl '+ddlCls+'">距'+nextDdl.name+' '+pendingDdlDays+' 天</span>';
+  }
+
+  host.innerHTML = ''
+    + phaseStrip
+    + laneHTML('lane-pending', '未约 · 待指派', lanes.pending, pendingDdlHTML)
+    + laneHTML('lane-dev',     '开发期已约',   lanes.dev,     '')
+    + laneHTML('lane-test',    '转测期已约',   lanes.test,    '')
+    + laneHTML('lane-release', '发布期已约',   lanes.release, '')
+    + '<div class="sched-legend"><b>说明</b>：未约角色置顶按句数倒序，距最近里程碑 ≤14 天转红、≤30 天转黄；已约按录制日期落入对应阶段。数据源：voice_estimates + /api/schedules + /api/schedule-from-sheet。</div>';
+}
+
+
 function renderActorSixBoard(viewType){
   const all = aggregateByDemand(ACTOR_STATE.demands, ACTOR_STATE.release);
   const q = (document.getElementById('actorSearch') ? (document.getElementById('actorSearch').value || '') : '').trim().toLowerCase();
@@ -2145,7 +2371,7 @@ function renderActorDemandTable(){ return renderActorSixBoard('demand'); }
 
 function setActorView(mode, btn, evt){
   if(evt && evt.stopPropagation) evt.stopPropagation();
-  ACTOR_STATE.vmode = (mode==='demand') ? 'demand' : 'role';
+  ACTOR_STATE.vmode = (mode==='demand') ? 'demand' : (mode==='schedule' ? 'schedule' : 'role');
   try{ localStorage.setItem('vo_actor_vmode', ACTOR_STATE.vmode); }catch(_){}
   document.querySelectorAll('.view-tabs [data-vmode]').forEach(b => b.classList.toggle('on', b.dataset.vmode === ACTOR_STATE.vmode));
   renderFilterBar();

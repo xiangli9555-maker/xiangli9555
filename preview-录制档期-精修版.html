@@ -675,6 +675,8 @@ body.embed .main{width:100%}
 .ac-gantt-timeline .gt-lane{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;text-align:center;position:relative}
 .ac-gantt-timeline .gt-week{padding:2px 0;color:var(--c-text-dim);border-left:1px solid rgba(255,255,255,.05)}
 .ac-gantt-timeline .gt-week.is-today{color:var(--c-primary);font-weight:700;background:rgba(15,247,150,.08)}
+.ac-gantt-timeline .gt-week.is-vo{color:#D699BE;font-weight:700;background:rgba(214,153,190,.08)}
+.ac-gantt-timeline .gt-week.is-rec{color:var(--c-brand-yellow,#FFD24C);font-weight:700;background:rgba(255,210,76,.08)}
 .ac-gantt-timeline .gt-week.is-ms{color:var(--c-brand-yellow,#FFD24C);font-weight:700}
 .ac-gantt-body{max-height:320px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--c-hairline) transparent;padding:2px 0}
 .ac-gantt-body::-webkit-scrollbar{width:6px}
@@ -690,6 +692,8 @@ body.embed .main{width:100%}
 .ac-gantt-row .gr-track{position:relative;height:20px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 8px),rgba(255,255,255,.015);border-radius:0;overflow:hidden}
 .ac-gantt-row .gr-actor{font-size:10.5px;color:var(--c-text-mute);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 .gr-track .gt-today-line{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--c-primary);opacity:.85;z-index:2;pointer-events:none;box-shadow:0 0 4px rgba(15,247,150,.5)}
+.gr-track .gt-vo-line{position:absolute;top:-3px;bottom:-3px;width:1px;background:#D699BE;opacity:.8;z-index:2;pointer-events:none;box-shadow:0 0 4px rgba(214,153,190,.5)}
+.gr-track .gt-rec-line{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--c-brand-yellow,#FFD24C);opacity:.8;z-index:2;pointer-events:none;box-shadow:0 0 4px rgba(255,210,76,.5)}
 .gr-track .gt-ms-line{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--c-brand-yellow,#FFD24C);opacity:.65;z-index:2;pointer-events:none}
 .gr-track .gt-block{position:absolute;top:3px;bottom:3px;background:#7FB0A6;clip-path:polygon(3px 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%,0 3px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);z-index:3}
 .gr-track .gt-block[data-phase="test"]{background:var(--c-brand-yellow,#FFD24C)}
@@ -717,6 +721,7 @@ body.embed .main{width:100%}
 .ac-gantt-ms-strip .ms-tag[data-kind="today"]{--ms-c:var(--c-primary)}
 .ac-gantt-ms-strip .ms-tag[data-kind="va"]{--ms-c:var(--c-brand-yellow,#FFD24C)}
 .ac-gantt-ms-strip .ms-tag[data-kind="sc"]{--ms-c:var(--c-brand-yellow,#FFD24C)}
+.ac-gantt-ms-strip .ms-tag[data-kind="rec"]{--ms-c:var(--c-brand-yellow,#FFD24C)}
 .ac-gantt-ms-strip .ms-tag[data-kind="vo"]{--ms-c:#D699BE}
 
 /* A · 风险清单（终端表格 · 装甲切角 · ASCII 状态方括号） */
@@ -760,10 +765,12 @@ body.embed .main{width:100%}
   position:relative;transition:background .12s
 }
 .ac-risk-row::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:3px;background:var(--risk-c,transparent);opacity:.95;box-shadow:0 0 6px var(--risk-c,transparent)}
-.ac-risk-row[data-risk="hot"]{--risk-c:#D699BE}
+/* 2026-09-10 色调重定义：警告/危险=品牌黄 · 待录制=品牌绿 · 已完成=深橄榄 #474C40（NPC 色） */
+.ac-risk-row[data-risk="hot"]{--risk-c:var(--c-brand-yellow,#FFD24C)}
 .ac-risk-row[data-risk="warn"]{--risk-c:var(--c-brand-yellow,#FFD24C)}
-.ac-risk-row[data-risk="ok"]{--risk-c:#7FB0A6}
-.ac-risk-row[data-risk="done"]{--risk-c:var(--c-primary);opacity:.68}
+.ac-risk-row[data-risk="ok"]{--risk-c:var(--c-primary)}
+.ac-risk-row[data-risk="done"]{--risk-c:#474C40;opacity:.75}
+.ac-risk-row[data-risk="done"] .rr-icon{color:#8B937E;border-color:#8B937E}
 .ac-risk-row:hover{background:rgba(15,247,150,.038)}
 .ac-risk-row:hover::before{box-shadow:0 0 10px var(--risk-c,transparent)}
 .ac-risk-row .rr-icon{font:700 10px/1 var(--font-ui);text-align:center;color:var(--risk-c);letter-spacing:.4px;padding:3px 0;border:1px solid var(--risk-c);border-radius:2px;background:rgba(11,17,22,.55)}
@@ -775,10 +782,10 @@ body.embed .main{width:100%}
 .ac-risk-row .rr-actor{font-size:11px;color:var(--c-text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 .ac-risk-row .rr-status{font:600 10px/1 var(--font-ui);color:var(--c-text-mute);white-space:nowrap;text-align:right;letter-spacing:.4px}
 .ac-risk-row .rr-status::before{content:'> ';opacity:.6}
-.ac-risk-row .rr-status[data-status="hot"]{color:#D699BE}
+.ac-risk-row .rr-status[data-status="hot"]{color:var(--c-brand-yellow,#FFD24C)}
 .ac-risk-row .rr-status[data-status="warn"]{color:var(--c-brand-yellow,#FFD24C)}
-.ac-risk-row .rr-status[data-status="ok"]{color:#7FB0A6}
-.ac-risk-row .rr-status[data-status="done"]{color:var(--c-primary)}
+.ac-risk-row .rr-status[data-status="ok"]{color:var(--c-primary)}
+.ac-risk-row .rr-status[data-status="done"]{color:#8B937E}
 
 /* ============ 视图 A · 声优视图子模式切换（板视图 / 里程碑） ============ */
 .view-submode{display:inline-flex;align-items:center;gap:0;background:var(--c-bg-0);border:1px solid var(--c-hairline);border-radius:4px;padding:2px;margin-bottom:4px}
@@ -2368,7 +2375,8 @@ async function renderActorCombined(){
   }
   if(!phases || !phases.dev){
     var FB = {
-      'Yang1': { dev:{start:'2026-08-01',end:'2026-10-15'}, test:{start:'2026-10-16',end:'2026-11-15'}, release:{start:'2026-11-16',end:'2026-11-30'} },
+      // 2026-09-10 从 /api/release-plans 读取真实 Yang1.0 phases
+      'Yang1': { dev:{start:'2026-11-09',end:'2026-12-13'}, test:{start:'2026-12-21',end:'2027-01-17'}, release:{start:'2027-01-18',end:'2027-01-24'} },
       'Yang2': { dev:{start:'2026-11-16',end:'2027-01-31'}, test:{start:'2027-02-01',end:'2027-02-28'}, release:{start:'2027-03-01',end:'2027-03-14'} },
       'Ma5':   { dev:{start:'2026-06-01',end:'2026-08-15'}, test:{start:'2026-08-16',end:'2026-09-15'}, release:{start:'2026-09-16',end:'2026-09-30'} }
     };
@@ -2441,11 +2449,15 @@ async function renderActorCombined(){
   var vaIdx = weekIdx(vaLock);
   var scIdx = weekIdx(scLock);
   var voIdx = weekIdx(voDeliver);
+  // 2026-09-10 录制档期最后一天 = 所有已排角色中 schedule.date 最大值所在周
+  var bookedDates = list.filter(function(a){ return a.status==='booked' && a.schedule && a.schedule.date; }).map(function(a){ return new Date(a.schedule.date).getTime(); });
+  var recEndDate = bookedDates.length ? new Date(Math.max.apply(null, bookedDates)) : null;
+  var recEndIdx = recEndDate ? weekIdx(recEndDate) : -1;
   var wkHtml = weeks.map(function(wm, i){
     var cls = ['gt-week'];
-    var isMs = (i === vaIdx || i === scIdx || i === voIdx);
     if(i === todayIdx) cls.push('is-today');
-    if(isMs) cls.push('is-ms');
+    if(i === voIdx)    cls.push('is-vo');
+    if(i === recEndIdx && i !== voIdx) cls.push('is-rec');
     var wn = isoWeekNo(wm);
     var mm = wm.getMonth()+1, dd = wm.getDate();
     return '<div class="' + cls.join(' ') + '" title="W' + wn + ' · ' + mm + '/' + dd + '">W' + wn + '</div>';
@@ -2457,10 +2469,10 @@ async function renderActorCombined(){
     var track = '';
     var bookedDate = a.schedule && a.schedule.date ? new Date(a.schedule.date) : null;
     var idx = bookedDate ? weekIdx(bookedDate) : -1;
-    // 里程碑竖线
-    if(todayIdx >= 0) track += '<div class="gt-today-line" style="left:calc(' + ((todayIdx + 0.5) / 13 * 100) + '% - 0.5px)"></div>';
-    if(vaIdx >= 0)    track += '<div class="gt-ms-line" style="left:calc(' + ((vaIdx + 0.5) / 13 * 100) + '% - 0.5px)"></div>';
-    if(scIdx >= 0)    track += '<div class="gt-ms-line" style="left:calc(' + ((scIdx + 0.5) / 13 * 100) + '% - 0.5px)"></div>';
+    // 里程碑竖线（2026-09-10 保留 3 条：今天 / VO资源交付 / 录制档期最后一天）
+    if(todayIdx >= 0)  track += '<div class="gt-today-line" style="left:calc(' + ((todayIdx + 0.5) / 13 * 100) + '% - 0.5px)"></div>';
+    if(voIdx >= 0)     track += '<div class="gt-vo-line"    style="left:calc(' + ((voIdx    + 0.5) / 13 * 100) + '% - 0.5px)"></div>';
+    if(recEndIdx >= 0 && recEndIdx !== voIdx) track += '<div class="gt-rec-line" style="left:calc(' + ((recEndIdx + 0.5) / 13 * 100) + '% - 0.5px)"></div>';
     if(a.status === 'booked' && idx >= 0){
       var ph = phaseOfDate(bookedDate);
       var left = (idx / 13 * 100), width = (1 / 13 * 100);
@@ -2490,13 +2502,12 @@ async function renderActorCombined(){
     return (Number(b.total)||0) - (Number(a.total)||0);
   });
 
-  // 里程碑标签栏（今 / 声 / 台 / 交），叠加在甘特列上
+  // 里程碑标签栏（2026-09-10 只保留 3 条：今 / VO 交付 / 录制截止）
   function msPct(idx){ return ((idx + 0.5) / 13 * 100); }
   var msTags = [];
   if(todayIdx >= 0) msTags.push('<span class="ms-tag" data-kind="today" style="left:'+msPct(todayIdx)+'%">今</span>');
-  if(vaIdx >= 0)    msTags.push('<span class="ms-tag" data-kind="va"    style="left:'+msPct(vaIdx)+'%">声优锁</span>');
-  if(scIdx >= 0 && scIdx !== vaIdx) msTags.push('<span class="ms-tag" data-kind="sc" style="left:'+msPct(scIdx)+'%">台词锁</span>');
-  if(voIdx >= 0 && voIdx !== scIdx) msTags.push('<span class="ms-tag" data-kind="vo" style="left:'+msPct(voIdx)+'%">VO 交付</span>');
+  if(voIdx >= 0)    msTags.push('<span class="ms-tag" data-kind="vo"    style="left:'+msPct(voIdx)+'%">VO 交付</span>');
+  if(recEndIdx >= 0 && recEndIdx !== voIdx) msTags.push('<span class="ms-tag" data-kind="rec" style="left:'+msPct(recEndIdx)+'%">录制截止</span>');
   var msStripHtml = msTags.length
     ? '<div class="ac-gantt-ms-strip"><div class="ms-lane">' + msTags.join('') + '</div></div>'
     : '';

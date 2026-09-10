@@ -601,87 +601,181 @@ body.embed .main{width:100%}
 .actor-btn.secondary:hover{background:var(--c-hairline);color:var(--c-text)}
 .actor-empty{padding:60px 20px;text-align:center;color:var(--c-text-mute);font-size:13px;line-height:1.8}
 /* ================================================================
-   声优视图 · 组合仪表盘（2026-09-09 方向 1 · A + C + D 三段）
+   声优视图 · 战术组合仪表盘（2026-09-10 军事简洁风重构）
+   规范：切角装甲 + [SYS]//终端前缀 + 左侧状态导轨 + 网格纹理底
    ================================================================ */
-.actor-combined-wrap{display:flex;flex-direction:column;gap:14px}
-/* D · 顶部 4 张 KPI 卡（切角装甲） */
-.ac-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.ac-kpi-card{position:relative;padding:12px 14px 10px 16px;background:rgba(15,23,28,.55);border:1px solid var(--c-hairline);clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);overflow:hidden}
-.ac-kpi-card::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--kpi-c,var(--c-text-mute));opacity:.85}
+.actor-combined-wrap{display:flex;flex-direction:column;gap:12px}
+
+/* D · 顶部 4 张 KPI 卡（装甲切角 · 网格底纹 · 终端标签） */
+.ac-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ac-kpi-card{
+  position:relative;padding:12px 14px 11px 18px;
+  background:
+    linear-gradient(180deg,rgba(15,247,150,.045) 0%,rgba(15,23,28,0) 60%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 12px),
+    rgba(11,17,22,.72);
+  border:1px solid var(--c-hairline);
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  overflow:hidden;
+  transition:border-color .15s
+}
+.ac-kpi-card:hover{border-color:rgba(15,247,150,.32)}
+.ac-kpi-card::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--kpi-c,var(--c-text-mute));opacity:.95;box-shadow:0 0 6px var(--kpi-c,transparent)}
+.ac-kpi-card::after{content:attr(data-code);position:absolute;top:8px;right:10px;font:600 9.5px/1 var(--font-ui);letter-spacing:.6px;color:var(--kpi-c,var(--c-text-dim));opacity:.55;text-transform:uppercase}
 .ac-kpi-card[data-tone="total"]{--kpi-c:var(--c-primary)}
 .ac-kpi-card[data-tone="booked"]{--kpi-c:#7FB0A6}
 .ac-kpi-card[data-tone="pending"]{--kpi-c:#D699BE}
 .ac-kpi-card[data-tone="ddl"]{--kpi-c:var(--c-brand-yellow,#FFD24C)}
 .ac-kpi-card[data-tone="ddl"][data-hot="1"]{--kpi-c:#D699BE}
-.ac-kpi-label{font-size:11px;color:var(--c-text-mute);letter-spacing:.4px}
-.ac-kpi-value{margin-top:4px;font-size:26px;font-weight:600;color:var(--kpi-c,var(--c-text));font-family:var(--font-ui);line-height:1;font-variant-numeric:tabular-nums}
-.ac-kpi-sub{margin-top:6px;font-size:11px;color:var(--c-text-mute)}
-.ac-kpi-sub b{color:var(--c-text-2);font-weight:500}
-/* C · 全角色行甘特 */
-.ac-gantt-wrap{background:rgba(15,23,28,.42);border:1px solid var(--c-hairline);border-radius:0;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);padding:12px 14px 8px}
-.ac-gantt-head{display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--c-hairline);margin-bottom:8px}
-.ac-gantt-head .gh-title{font-size:12px;font-weight:600;color:var(--c-text);letter-spacing:.4px}
-.ac-gantt-head .gh-title::before{content:'▌';color:var(--c-primary);margin-right:4px;opacity:.85}
-.ac-gantt-head .gh-legend{margin-left:auto;display:flex;gap:14px;font-size:10.5px;color:var(--c-text-mute);font-family:var(--font-ui)}
+.ac-kpi-card[data-tone="ddl"][data-hot="1"]{animation:acKpiPulse 1.8s ease-in-out infinite}
+@keyframes acKpiPulse{0%,100%{box-shadow:inset 0 0 0 1px rgba(214,153,190,.15)}50%{box-shadow:inset 0 0 0 1px rgba(214,153,190,.45)}}
+.ac-kpi-label{font:600 10px/1 var(--font-ui);letter-spacing:1.2px;color:var(--c-text-mute);text-transform:uppercase;display:flex;align-items:center;gap:5px}
+.ac-kpi-label::before{content:'▸';color:var(--kpi-c);opacity:.75;font-size:9px}
+.ac-kpi-value{margin-top:6px;font:600 28px/1 var(--font-ui);color:var(--kpi-c,var(--c-text));font-variant-numeric:tabular-nums;letter-spacing:.4px}
+.ac-kpi-value .unit{font-size:12px;color:var(--c-text-mute);margin-left:5px;letter-spacing:.6px;font-weight:500}
+.ac-kpi-sub{margin-top:8px;font:500 10.5px/1.4 var(--font-ui);color:var(--c-text-mute);letter-spacing:.3px}
+.ac-kpi-sub::before{content:'> ';color:var(--kpi-c);opacity:.7}
+.ac-kpi-sub b{color:var(--c-text-2);font-weight:600}
+
+/* C · 全角色行甘特（网格纹理 · 里程碑标签 · 装甲切角） */
+.ac-gantt-wrap{
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 20px),
+    rgba(11,17,22,.62);
+  border:1px solid var(--c-hairline);border-radius:0;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  padding:0
+}
+.ac-gantt-head{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:rgba(11,17,22,.85);
+  border-bottom:1px solid var(--c-hairline);
+  position:relative
+}
+.ac-gantt-head::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--c-primary);opacity:.9}
+.ac-gantt-head .gh-title{font:600 12px/1 var(--font-ui);color:var(--c-text);letter-spacing:.6px;display:flex;align-items:center;gap:6px}
+.ac-gantt-head .gh-title::before{content:'[SYS]';color:var(--c-primary);opacity:.7;font:600 10px/1 var(--font-ui);letter-spacing:.6px;padding:2px 5px;border:1px solid rgba(15,247,150,.35);border-radius:2px}
+.ac-gantt-head .gh-title-sub{color:var(--c-text-mute);font-weight:500;font-size:11px;letter-spacing:.3px}
+.ac-gantt-head .gh-title-sub::before{content:'// ';color:var(--c-primary);opacity:.5}
+.ac-gantt-head .gh-legend{margin-left:auto;display:flex;gap:12px;font:500 10px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.4px;text-transform:uppercase}
+.ac-gantt-head .gh-legend span{display:inline-flex;align-items:center}
 .ac-gantt-head .gh-legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:middle}
 .ac-gantt-head .gh-legend .lg-dev{background:#7FB0A6}
 .ac-gantt-head .gh-legend .lg-test{background:var(--c-brand-yellow,#FFD24C)}
 .ac-gantt-head .gh-legend .lg-release{background:var(--c-primary)}
 .ac-gantt-head .gh-legend .lg-pending{background:transparent;border:1px dashed #D699BE}
-.ac-gantt{position:relative}
-.ac-gantt-timeline{display:grid;grid-template-columns:150px 44px 60px 1fr 60px;gap:8px;align-items:center;font-size:10px;color:var(--c-text-mute);padding:4px 0 8px;font-family:var(--font-ui);letter-spacing:.3px;border-bottom:1px solid rgba(255,255,255,.04)}
+.ac-gantt{position:relative;padding:0 14px 8px}
+.ac-gantt-timeline{
+  display:grid;grid-template-columns:150px 44px 60px 1fr 60px;gap:8px;align-items:end;
+  font:500 9.5px/1 var(--font-ui);color:var(--c-text-dim);letter-spacing:.4px;
+  padding:8px 0 6px;border-bottom:1px solid rgba(15,247,150,.12);
+  text-transform:uppercase
+}
 .ac-gantt-timeline .gt-lane{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;text-align:center;position:relative}
-.ac-gantt-timeline .gt-week{padding:2px 0;color:var(--c-text-dim);border-left:1px solid rgba(255,255,255,.04)}
-.ac-gantt-timeline .gt-week.is-today{color:var(--c-primary);font-weight:600}
-.ac-gantt-timeline .gt-week.is-ms{color:var(--c-brand-yellow,#FFD24C);font-weight:600}
-.ac-gantt-body{max-height:280px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--c-hairline) transparent}
+.ac-gantt-timeline .gt-week{padding:2px 0;color:var(--c-text-dim);border-left:1px solid rgba(255,255,255,.05)}
+.ac-gantt-timeline .gt-week.is-today{color:var(--c-primary);font-weight:700;background:rgba(15,247,150,.08)}
+.ac-gantt-timeline .gt-week.is-ms{color:var(--c-brand-yellow,#FFD24C);font-weight:700}
+.ac-gantt-body{max-height:320px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--c-hairline) transparent;padding:2px 0}
 .ac-gantt-body::-webkit-scrollbar{width:6px}
 .ac-gantt-body::-webkit-scrollbar-track{background:transparent}
 .ac-gantt-body::-webkit-scrollbar-thumb{background:var(--c-hairline);background-clip:padding-box;border:1px solid transparent;border-radius:999px}
-.ac-gantt-row{display:grid;grid-template-columns:150px 44px 60px 1fr 60px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);min-height:24px}
-.ac-gantt-row:hover{background:rgba(15,247,150,.03)}
+.ac-gantt-body::-webkit-scrollbar-thumb:hover{background:var(--c-border)}
+.ac-gantt-row{display:grid;grid-template-columns:150px 44px 60px 1fr 60px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.028);min-height:26px;transition:background .12s}
+.ac-gantt-row:hover{background:rgba(15,247,150,.035)}
 .ac-gantt-row .gr-name{font-size:12px;color:var(--c-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:2px}
-.ac-gantt-row .gr-name .lang-badge{color:var(--c-text-dim);margin-left:4px;font-family:var(--font-ui);font-size:10px}
-.ac-gantt-row .gr-cat{font-size:10.5px;color:var(--c-text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ac-gantt-row .gr-lines{font-size:11px;color:var(--c-brand-yellow,#FFD24C);text-align:right;font-family:var(--font-ui);font-variant-numeric:tabular-nums}
-.ac-gantt-row .gr-track{position:relative;height:18px;background:rgba(255,255,255,.02);border-radius:2px}
-.ac-gantt-row .gr-track::before,.ac-gantt-row .gr-track::after{content:'';position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.05)}
-.ac-gantt-row .gr-actor{font-size:10.5px;color:var(--c-text-mute);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gr-track .gt-today-line{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--c-primary);opacity:.55;z-index:2;pointer-events:none}
-.gr-track .gt-ms-line{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--c-brand-yellow,#FFD24C);opacity:.4;z-index:2;pointer-events:none}
-.gr-track .gt-block{position:absolute;top:2px;bottom:2px;background:#7FB0A6;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);z-index:3}
-.gr-track .gt-block[data-phase="test"]{background:var(--c-brand-yellow,#FFD24C);color:#0A1015}
-.gr-track .gt-block[data-phase="release"]{background:var(--c-primary);color:#0A1015}
+.ac-gantt-row .gr-name .lang-badge{color:var(--c-primary);margin-left:5px;font:600 9.5px/1 var(--font-ui);letter-spacing:.4px;padding:1px 4px;border:1px solid rgba(15,247,150,.28);border-radius:2px;opacity:.72}
+.ac-gantt-row .gr-cat{font-size:10.5px;color:var(--c-text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.3px}
+.ac-gantt-row .gr-lines{font:600 11px/1 var(--font-ui);color:var(--c-brand-yellow,#FFD24C);text-align:right;font-variant-numeric:tabular-nums}
+.ac-gantt-row .gr-track{position:relative;height:20px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 8px),rgba(255,255,255,.015);border-radius:0;overflow:hidden}
+.ac-gantt-row .gr-actor{font-size:10.5px;color:var(--c-text-mute);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.gr-track .gt-today-line{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--c-primary);opacity:.85;z-index:2;pointer-events:none;box-shadow:0 0 4px rgba(15,247,150,.5)}
+.gr-track .gt-ms-line{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--c-brand-yellow,#FFD24C);opacity:.65;z-index:2;pointer-events:none}
+.gr-track .gt-block{position:absolute;top:3px;bottom:3px;background:#7FB0A6;clip-path:polygon(3px 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%,0 3px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);z-index:3}
+.gr-track .gt-block[data-phase="test"]{background:var(--c-brand-yellow,#FFD24C)}
+.gr-track .gt-block[data-phase="release"]{background:var(--c-primary)}
 .gr-track .gt-block[data-phase="pre"]{background:#5F7A6E}
-.gr-track .gt-pending{position:absolute;top:2px;bottom:2px;background:repeating-linear-gradient(90deg,rgba(214,153,190,.28) 0 4px,transparent 4px 8px);border:1px dashed rgba(214,153,190,.55);border-radius:2px;z-index:3}
-.gr-track .gt-pending::after{content:attr(data-note);position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:9.5px;color:#D699BE;font-family:var(--font-ui);letter-spacing:.3px;white-space:nowrap;pointer-events:none}
-/* A · 风险清单 */
-.ac-risk-wrap{background:rgba(15,23,28,.42);border:1px solid var(--c-hairline);clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
-.ac-risk-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--c-hairline);background:rgba(15,23,28,.55)}
-.ac-risk-head .rh-title{font-size:12px;font-weight:600;color:var(--c-text);letter-spacing:.4px}
-.ac-risk-head .rh-title::before{content:'▌';color:#D699BE;margin-right:4px;opacity:.85}
-.ac-risk-head .rh-note{margin-left:auto;font-size:10.5px;color:var(--c-text-mute);font-family:var(--font-ui)}
-.ac-risk-cols{display:grid;grid-template-columns:28px 150px 60px 44px 1fr 100px 90px;gap:8px;padding:7px 14px 6px;font-size:10.5px;color:var(--c-text-dim);letter-spacing:.4px;text-transform:uppercase;font-family:var(--font-ui);border-bottom:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.015)}
+.gr-track .gt-pending{position:absolute;top:3px;bottom:3px;background:repeating-linear-gradient(90deg,rgba(214,153,190,.22) 0 4px,transparent 4px 8px);border:1px dashed rgba(214,153,190,.6);border-radius:0;z-index:3}
+.gr-track .gt-pending::after{content:attr(data-note);position:absolute;right:6px;top:50%;transform:translateY(-50%);font:600 9.5px/1 var(--font-ui);color:#D699BE;letter-spacing:.5px;white-space:nowrap;pointer-events:none;text-shadow:0 0 4px rgba(11,17,22,.9)}
+/* 里程碑标签栏（今/声/台）— 头部通道 */
+.ac-gantt-ms-strip{
+  position:relative;height:18px;margin:8px 0 4px;
+  border-top:1px dashed rgba(15,247,150,.15);border-bottom:1px dashed rgba(15,247,150,.15);
+  background:rgba(11,17,22,.35);
+  display:grid;grid-template-columns:150px 44px 60px 1fr 60px;gap:8px
+}
+.ac-gantt-ms-strip .ms-lane{position:relative;grid-column:4}
+.ac-gantt-ms-strip .ms-tag{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  font:600 9px/1 var(--font-ui);letter-spacing:.6px;
+  color:var(--ms-c,var(--c-text-mute));
+  padding:2px 6px;background:rgba(11,17,22,.9);
+  border:1px solid var(--ms-c,var(--c-hairline));
+  clip-path:polygon(3px 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%,0 3px);
+  white-space:nowrap;z-index:4
+}
+.ac-gantt-ms-strip .ms-tag[data-kind="today"]{--ms-c:var(--c-primary)}
+.ac-gantt-ms-strip .ms-tag[data-kind="va"]{--ms-c:var(--c-brand-yellow,#FFD24C)}
+.ac-gantt-ms-strip .ms-tag[data-kind="sc"]{--ms-c:var(--c-brand-yellow,#FFD24C)}
+.ac-gantt-ms-strip .ms-tag[data-kind="vo"]{--ms-c:#D699BE}
+
+/* A · 风险清单（终端表格 · 装甲切角 · ASCII 状态方括号） */
+.ac-risk-wrap{
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 30px),
+    rgba(11,17,22,.62);
+  border:1px solid var(--c-hairline);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)
+}
+.ac-risk-head{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:rgba(11,17,22,.85);
+  border-bottom:1px solid var(--c-hairline);
+  position:relative
+}
+.ac-risk-head::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:#D699BE;opacity:.9}
+.ac-risk-head .rh-title{font:600 12px/1 var(--font-ui);color:var(--c-text);letter-spacing:.6px;display:flex;align-items:center;gap:6px}
+.ac-risk-head .rh-title::before{content:'[SYS]';color:#D699BE;opacity:.75;font:600 10px/1 var(--font-ui);letter-spacing:.6px;padding:2px 5px;border:1px solid rgba(214,153,190,.4);border-radius:2px}
+.ac-risk-head .rh-title-sub{color:var(--c-text-mute);font-weight:500;font-size:11px}
+.ac-risk-head .rh-title-sub::before{content:'// ';color:#D699BE;opacity:.5}
+.ac-risk-head .rh-note{margin-left:auto;font:500 10px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.4px;text-transform:uppercase}
+.ac-risk-head .rh-note b{color:var(--c-text-2);font-weight:600}
+.ac-risk-cols{
+  display:grid;grid-template-columns:36px 150px 60px 44px 1fr 100px 100px;gap:8px;
+  padding:7px 14px;
+  font:600 9.5px/1 var(--font-ui);color:var(--c-text-dim);letter-spacing:.8px;text-transform:uppercase;
+  border-bottom:1px solid rgba(15,247,150,.10);
+  background:rgba(255,255,255,.018)
+}
 .ac-risk-body{max-height:360px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--c-hairline) transparent}
 .ac-risk-body::-webkit-scrollbar{width:6px}
 .ac-risk-body::-webkit-scrollbar-track{background:transparent}
 .ac-risk-body::-webkit-scrollbar-thumb{background:var(--c-hairline);background-clip:padding-box;border:1px solid transparent;border-radius:999px}
-.ac-risk-row{display:grid;grid-template-columns:28px 150px 60px 44px 1fr 100px 90px;gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.03);position:relative}
-.ac-risk-row::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:2px;background:var(--risk-c,transparent);opacity:.85}
+.ac-risk-body::-webkit-scrollbar-thumb:hover{background:var(--c-border)}
+.ac-risk-row{
+  display:grid;grid-template-columns:36px 150px 60px 44px 1fr 100px 100px;gap:8px;align-items:center;
+  padding:7px 14px 7px 18px;
+  border-bottom:1px solid rgba(255,255,255,.03);
+  position:relative;transition:background .12s
+}
+.ac-risk-row::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:3px;background:var(--risk-c,transparent);opacity:.95;box-shadow:0 0 6px var(--risk-c,transparent)}
 .ac-risk-row[data-risk="hot"]{--risk-c:#D699BE}
 .ac-risk-row[data-risk="warn"]{--risk-c:var(--c-brand-yellow,#FFD24C)}
-.ac-risk-row[data-risk="ok"]{--risk-c:#7FB0A6;opacity:.85}
-.ac-risk-row[data-risk="done"]{--risk-c:var(--c-primary);opacity:.7}
-.ac-risk-row:hover{background:rgba(15,247,150,.03)}
-.ac-risk-row .rr-icon{font-size:14px;text-align:center;color:var(--risk-c)}
+.ac-risk-row[data-risk="ok"]{--risk-c:#7FB0A6}
+.ac-risk-row[data-risk="done"]{--risk-c:var(--c-primary);opacity:.68}
+.ac-risk-row:hover{background:rgba(15,247,150,.038)}
+.ac-risk-row:hover::before{box-shadow:0 0 10px var(--risk-c,transparent)}
+.ac-risk-row .rr-icon{font:700 10px/1 var(--font-ui);text-align:center;color:var(--risk-c);letter-spacing:.4px;padding:3px 0;border:1px solid var(--risk-c);border-radius:2px;background:rgba(11,17,22,.55)}
 .ac-risk-row .rr-role{font-size:12px;font-weight:500;color:var(--c-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ac-risk-row .rr-role .lang-badge{color:var(--c-text-dim);margin-left:4px;font-family:var(--font-ui);font-size:10px}
-.ac-risk-row .rr-cat{font-size:11px;color:var(--c-text-mute)}
-.ac-risk-row .rr-lines{text-align:right;font-size:11px;color:var(--c-brand-yellow,#FFD24C);font-family:var(--font-ui);font-variant-numeric:tabular-nums}
+.ac-risk-row .rr-role .lang-badge{color:var(--c-primary);margin-left:5px;font:600 9.5px/1 var(--font-ui);letter-spacing:.4px;padding:1px 4px;border:1px solid rgba(15,247,150,.28);border-radius:2px;opacity:.72}
+.ac-risk-row .rr-cat{font-size:11px;color:var(--c-text-mute);letter-spacing:.3px}
+.ac-risk-row .rr-lines{text-align:right;font:600 11px/1 var(--font-ui);color:var(--c-brand-yellow,#FFD24C);font-variant-numeric:tabular-nums}
 .ac-risk-row .rr-story{font-size:11px;color:var(--c-text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ac-risk-row .rr-actor{font-size:11px;color:var(--c-text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ac-risk-row .rr-status{font-size:10.5px;color:var(--c-text-mute);font-family:var(--font-ui);white-space:nowrap;text-align:right}
-.ac-risk-row .rr-status[data-status="hot"]{color:#D699BE;font-weight:600}
+.ac-risk-row .rr-actor{font-size:11px;color:var(--c-text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.ac-risk-row .rr-status{font:600 10px/1 var(--font-ui);color:var(--c-text-mute);white-space:nowrap;text-align:right;letter-spacing:.4px}
+.ac-risk-row .rr-status::before{content:'> ';opacity:.6}
+.ac-risk-row .rr-status[data-status="hot"]{color:#D699BE}
 .ac-risk-row .rr-status[data-status="warn"]{color:var(--c-brand-yellow,#FFD24C)}
 .ac-risk-row .rr-status[data-status="ok"]{color:#7FB0A6}
 .ac-risk-row .rr-status[data-status="done"]{color:var(--c-primary)}
@@ -2329,18 +2423,18 @@ async function renderActorCombined(){
   if(ddlDays <= 14) ddlHot = 1;
 
   kpiEl.innerHTML = ''
-    + '<div class="ac-kpi-card" data-tone="total"><div class="ac-kpi-label">角色总数 · ' + escFn(release) + '</div>'
-    +   '<div class="ac-kpi-value">' + list.length + '</div>'
-    +   '<div class="ac-kpi-sub">共 <b>' + totalLines + '</b> 句 · 分布于 ' + (new Set(list.map(function(a){return a.category||'—';}))).size + ' 个大类</div></div>'
-    + '<div class="ac-kpi-card" data-tone="booked"><div class="ac-kpi-label">已排期</div>'
-    +   '<div class="ac-kpi-value">' + booked + '</div>'
-    +   '<div class="ac-kpi-sub">占比 <b>' + Math.round(booked / Math.max(1,list.length) * 100) + '%</b></div></div>'
-    + '<div class="ac-kpi-card" data-tone="pending"><div class="ac-kpi-label">待预约 · 待指派</div>'
-    +   '<div class="ac-kpi-value">' + pending + '</div>'
-    +   '<div class="ac-kpi-sub">共 <b>' + list.filter(function(a){return a.status!=='booked';}).reduce(function(s,a){return s+(Number(a.total)||0);},0) + '</b> 句待录</div></div>'
-    + '<div class="ac-kpi-card" data-tone="ddl" data-hot="' + ddlHot + '"><div class="ac-kpi-label">距最近里程碑 · ' + ddlLabel + '</div>'
-    +   '<div class="ac-kpi-value">' + (ddlDays >= 0 ? ddlDays : '—') + '<span style="font-size:13px;color:var(--c-text-mute);margin-left:4px">天</span></div>'
-    +   '<div class="ac-kpi-sub">' + ddlLabel + ' · <b>' + fmtD(ddlLabel === '声优锁' ? vaLock : ddlLabel === '台词锁' ? scLock : voDeliver) + '</b></div></div>';
+    + '<div class="ac-kpi-card" data-tone="total" data-code="ROSTER"><div class="ac-kpi-label">角色总数 · ' + escFn(release) + '</div>'
+    +   '<div class="ac-kpi-value">' + list.length + '<span class="unit">位</span></div>'
+    +   '<div class="ac-kpi-sub"><b>' + totalLines + '</b> 句 · ' + (new Set(list.map(function(a){return a.category||'—';}))).size + ' 个大类</div></div>'
+    + '<div class="ac-kpi-card" data-tone="booked" data-code="BOOKED"><div class="ac-kpi-label">已排期</div>'
+    +   '<div class="ac-kpi-value">' + booked + '<span class="unit">位</span></div>'
+    +   '<div class="ac-kpi-sub">覆盖率 <b>' + Math.round(booked / Math.max(1,list.length) * 100) + '%</b></div></div>'
+    + '<div class="ac-kpi-card" data-tone="pending" data-code="PENDING"><div class="ac-kpi-label">待预约 · 待指派</div>'
+    +   '<div class="ac-kpi-value">' + pending + '<span class="unit">位</span></div>'
+    +   '<div class="ac-kpi-sub"><b>' + list.filter(function(a){return a.status!=='booked';}).reduce(function(s,a){return s+(Number(a.total)||0);},0) + '</b> 句待录</div></div>'
+    + '<div class="ac-kpi-card" data-tone="ddl" data-hot="' + ddlHot + '" data-code="DDL"><div class="ac-kpi-label">距最近里程碑 · ' + ddlLabel + '</div>'
+    +   '<div class="ac-kpi-value">' + (ddlDays >= 0 ? ddlDays : '—') + '<span class="unit">天</span></div>'
+    +   '<div class="ac-kpi-sub">' + ddlLabel + ' <b>' + fmtD(ddlLabel === '声优锁' ? vaLock : ddlLabel === '台词锁' ? scLock : voDeliver) + '</b></div></div>';
 
   // 甘特头（周刻度）
   var todayIdx = weekIdx(today);
@@ -2395,17 +2489,29 @@ async function renderActorCombined(){
     return (Number(b.total)||0) - (Number(a.total)||0);
   });
 
+  // 里程碑标签栏（今 / 声 / 台 / 交），叠加在甘特列上
+  function msPct(idx){ return ((idx + 0.5) / 13 * 100); }
+  var msTags = [];
+  if(todayIdx >= 0) msTags.push('<span class="ms-tag" data-kind="today" style="left:'+msPct(todayIdx)+'%">今</span>');
+  if(vaIdx >= 0)    msTags.push('<span class="ms-tag" data-kind="va"    style="left:'+msPct(vaIdx)+'%">声优锁</span>');
+  if(scIdx >= 0 && scIdx !== vaIdx) msTags.push('<span class="ms-tag" data-kind="sc" style="left:'+msPct(scIdx)+'%">台词锁</span>');
+  if(voIdx >= 0 && voIdx !== scIdx) msTags.push('<span class="ms-tag" data-kind="vo" style="left:'+msPct(voIdx)+'%">VO 交付</span>');
+  var msStripHtml = msTags.length
+    ? '<div class="ac-gantt-ms-strip"><div class="ms-lane">' + msTags.join('') + '</div></div>'
+    : '';
+
   ganttEl.innerHTML = ''
     + '<div class="ac-gantt-head">'
-    +   '<div class="gh-title">全角色时间轴 · ' + list.length + ' 位角色 · 13 周窗口</div>'
-    +   '<div class="gh-legend"><span><i class="lg-dev"></i>开发期</span><span><i class="lg-test"></i>转测期</span><span><i class="lg-release"></i>发布期</span><span><i class="lg-pending"></i>未约</span></div>'
+    +   '<div class="gh-title">TIMELINE <span class="gh-title-sub">全角色时间轴 · ' + list.length + ' 位角色 · 13 周窗口</span></div>'
+    +   '<div class="gh-legend"><span><i class="lg-dev"></i>开发</span><span><i class="lg-test"></i>转测</span><span><i class="lg-release"></i>发布</span><span><i class="lg-pending"></i>未约</span></div>'
     + '</div>'
     + '<div class="ac-gantt">'
     +   '<div class="ac-gantt-timeline">'
-    +     '<div>角色</div><div>大类</div><div>句数</div>'
+    +     '<div>ROLE</div><div>CAT</div><div>LINES</div>'
     +     '<div class="gt-lane">' + wkHtml + '</div>'
-    +     '<div>声优</div>'
+    +     '<div>VA</div>'
     +   '</div>'
+    +   msStripHtml
     +   '<div class="ac-gantt-body">' + sorted.map(ganttRowHtml).join('') + '</div>'
     + '</div>';
 
@@ -2422,7 +2528,7 @@ async function renderActorCombined(){
     if(ddlDays <= 30) return 'warn';
     return 'warn';
   }
-  var riskIcon = { hot:'⛔', warn:'⚠', ok:'◆', done:'✓' };
+  var riskIcon = { hot:'[!]', warn:'[~]', ok:'[◆]', done:'[✓]' };
   var riskLabel = { hot:'高危 · 未约', warn:'待预约', ok:'已排期', done:'已完成' };
   function statusText(a){
     if(a.status === 'booked'){
@@ -2458,10 +2564,10 @@ async function renderActorCombined(){
 
   riskEl.innerHTML = ''
     + '<div class="ac-risk-head">'
-    +   '<div class="rh-title">风险清单 · ' + hotN + ' 高危 / ' + warnN + ' 待约 / ' + (list.length - hotN - warnN) + ' 已跟进</div>'
-    +   '<div class="rh-note">按风险倒序 · 距最近 DDL ' + (ddlDays>=0?ddlDays:'—') + ' 天 · 数据源 aggregateActors</div>'
+    +   '<div class="rh-title">ALERT <span class="rh-title-sub">风险清单 · ' + hotN + ' 高危 · ' + warnN + ' 待约 · ' + (list.length - hotN - warnN) + ' 已跟进</span></div>'
+    +   '<div class="rh-note">按风险倒序 · 距最近 DDL <b>' + (ddlDays>=0?ddlDays:'—') + '</b> 天</div>'
     + '</div>'
-    + '<div class="ac-risk-cols"><div></div><div>角色</div><div>大类</div><div style="text-align:right">句数</div><div>需求</div><div>声优</div><div style="text-align:right">状态</div></div>'
+    + '<div class="ac-risk-cols"><div>LVL</div><div>ROLE</div><div>CAT</div><div style="text-align:right">LINES</div><div>MISSION</div><div>VA</div><div style="text-align:right">STATUS</div></div>'
     + '<div class="ac-risk-body">' + riskSorted.map(riskRowHtml).join('') + '</div>';
 }
 

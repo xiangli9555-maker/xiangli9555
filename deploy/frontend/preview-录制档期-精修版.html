@@ -2228,6 +2228,8 @@ async function renderActorCombined(){
   var emptyEl = document.getElementById('actorRoleEmpty');
   if(!kpiEl || !ganttEl || !riskEl) return;
   var escFn = window.escHtml || function(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  // 局部 fmt（IIFE 内的 fmt 全局看不见，自带一份避免 ReferenceError）
+  function fmtD(d){ if(!d || !(d instanceof Date) || isNaN(d)) return '—'; var m=d.getMonth()+1, dd=d.getDate(); return String(m).padStart(2,'0')+'.'+String(dd).padStart(2,'0'); }
 
   // 数据聚合
   var release = ACTOR_STATE.release || detectCurrentReleaseFromDemands() || 'Yang1.0';
@@ -2338,7 +2340,7 @@ async function renderActorCombined(){
     +   '<div class="ac-kpi-sub">共 <b>' + list.filter(function(a){return a.status!=='booked';}).reduce(function(s,a){return s+(Number(a.total)||0);},0) + '</b> 句待录</div></div>'
     + '<div class="ac-kpi-card" data-tone="ddl" data-hot="' + ddlHot + '"><div class="ac-kpi-label">距最近里程碑 · ' + ddlLabel + '</div>'
     +   '<div class="ac-kpi-value">' + (ddlDays >= 0 ? ddlDays : '—') + '<span style="font-size:13px;color:var(--c-text-mute);margin-left:4px">天</span></div>'
-    +   '<div class="ac-kpi-sub">' + ddlLabel + ' · <b>' + fmt(ddlLabel === '声优锁' ? vaLock : ddlLabel === '台词锁' ? scLock : voDeliver) + '</b></div></div>';
+    +   '<div class="ac-kpi-sub">' + ddlLabel + ' · <b>' + fmtD(ddlLabel === '声优锁' ? vaLock : ddlLabel === '台词锁' ? scLock : voDeliver) + '</b></div></div>';
 
   // 甘特头（周刻度）
   var todayIdx = weekIdx(today);
@@ -2368,7 +2370,7 @@ async function renderActorCombined(){
     if(a.status === 'booked' && idx >= 0){
       var ph = phaseOfDate(bookedDate);
       var left = (idx / 13 * 100), width = (1 / 13 * 100);
-      track += '<div class="gt-block" data-phase="' + ph + '" style="left:' + left + '%;width:' + width + '%" title="' + escFn(fmt(bookedDate)) + ' · ' + escFn(a.actor||'—') + '"></div>';
+      track += '<div class="gt-block" data-phase="' + ph + '" style="left:' + left + '%;width:' + width + '%" title="' + escFn(fmtD(bookedDate)) + ' · ' + escFn(a.actor||'—') + '"></div>';
     } else {
       // 未约：从今天到最近的 DDL（声优锁 或 台词锁）画虚线，右侧显示天数
       var startIdx = todayIdx >= 0 ? todayIdx : 0;
@@ -2426,7 +2428,7 @@ async function renderActorCombined(){
     if(a.status === 'booked'){
       var bd = a.schedule && a.schedule.date ? new Date(a.schedule.date) : null;
       var studio = a.schedule && a.schedule.studio ? a.schedule.studio : '';
-      var dtxt = bd ? fmt(bd) : '未定';
+      var dtxt = bd ? fmtD(bd) : '未定';
       return dtxt + (studio ? ' · ' + studio : '');
     }
     return '距 ' + ddlLabel + ' ' + ddlDays + ' 天';

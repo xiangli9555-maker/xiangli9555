@@ -2466,13 +2466,14 @@ async function renderActorCombined(){
       var left = (idx / 13 * 100), width = (1 / 13 * 100);
       track += '<div class="gt-block" data-phase="' + ph + '" style="left:' + left + '%;width:' + width + '%" title="' + escFn(fmtD(bookedDate)) + ' · ' + escFn(a.actor||'—') + '"></div>';
     } else {
-      // 未约：从今天到最近的 DDL（声优锁 或 台词锁）画虚线，右侧显示天数
+      // 未约：从今天跨到窗口末端（12），note 短标签：D-{n}=还剩 n 天 · D+{n}=已逾期 n 天 · D0=今日 DDL
       var startIdx = todayIdx >= 0 ? todayIdx : 0;
-      var endIdx = vaIdx >= 0 ? vaIdx : (scIdx >= 0 ? scIdx : 12);
+      var endIdx = 12;
       if(endIdx < startIdx) endIdx = startIdx;
       var l = (startIdx / 13 * 100), w = ((endIdx - startIdx + 1) / 13 * 100);
-      var note = ddlDays >= 0 ? ('距 ' + ddlLabel + ' ' + ddlDays + ' 天') : '';
-      track += '<div class="gt-pending" style="left:' + l + '%;width:' + w + '%" data-note="' + escFn(note) + '"></div>';
+      var noteShort = (ddlDays > 0) ? ('D-' + ddlDays) : (ddlDays === 0 ? 'D-DAY' : ('D+' + Math.abs(ddlDays)));
+      var noteFull = (ddlDays > 0) ? ('距 ' + ddlLabel + ' ' + ddlDays + ' 天') : (ddlDays === 0 ? (ddlLabel + ' 今日') : ('已逾期 ' + Math.abs(ddlDays) + ' 天'));
+      track += '<div class="gt-pending" style="left:' + l + '%;width:' + w + '%" data-note="' + escFn(noteShort) + '" title="' + escFn(noteFull) + '"></div>';
     }
     return '<div class="ac-gantt-row">'
       + '<div class="gr-name" title="' + escFn(a.role) + '">' + escFn(a.role) + langBadgeHtml(a) + '</div>'

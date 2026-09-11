@@ -539,6 +539,9 @@ body.embed .mid{width:100%}
   .th-max-date.sortable .sort-arrows{margin-left:3px;padding:1px 4px}
   .max-date-cell{font-family:var(--font-data);font-size:13px;color:var(--c-text-2);text-align:center;white-space:nowrap}
   .max-date-cell.empty{color:var(--c-text-dim)}
+  /* 2026-09-11 · 未填档期时展示 Pending 徽章，跟录制档期页 STATUS 列 Pending 保持一致 */
+  .max-date-cell.pending{color:var(--c-brand-yellow);font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:.4px}
+  .max-date-cell.pending::before{content:'Pending';display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 10px;min-width:64px;border:1px solid var(--c-brand-yellow);border-radius:3px}
   .release-summary-row{background:rgba(107,217,149,.07)!important;box-shadow:inset 3px 0 0 #6BD995,inset 0 -1px 0 rgba(107,217,149,.22)}
   .release-summary-row:hover{background:rgba(107,217,149,.10)!important}
   .release-summary-row td{border-bottom-color:rgba(107,217,149,.20)!important;height:96px;vertical-align:middle}
@@ -1583,7 +1586,7 @@ window.addEventListener('resize',()=>{if(document.getElementById('veCategoryPopo
 function releaseMaxDate(rows,lang){
   let max='';
   rows.forEach(d=>demandScheduleKeys(d).forEach(k=>{ const rec=recordingMaxByDemand[k]; const v=rec&&rec[lang]; if(v&&(!max||v>max)) max=v; }));
-  return fmtMonthDay(max);
+  return max ? fmtMonthDay(max) : 'Pending';
 }
 function buildReleaseSummaryRows(){
   const groups=new Map();
@@ -1613,8 +1616,8 @@ function releaseSummaryRowHTML(d){
     <td class="col-video"><span class="release-summary-text">${esc(d.video_sync)} 音画</span></td>
     <td class="col-cw"><span class="release-summary-text">${esc(d.cn_lines_handler)}</span></td>
     ${veCells(d)}
-    <td class="col-max-date max-date-cell${d._max_cn==='—'?' empty':''}">${d._max_cn}</td>
-    <td class="col-max-date max-date-cell${d._max_en==='—'?' empty':''}">${d._max_en}</td>
+    <td class="col-max-date max-date-cell${d._max_cn==='Pending'?' pending':''}">${d._max_cn==='Pending'?'':d._max_cn}</td>
+    <td class="col-max-date max-date-cell${d._max_en==='Pending'?' pending':''}">${d._max_en==='Pending'?'':d._max_en}</td>
   </tr>`;
 }
 // 需求名去【】美化：保留首个【…】原样，后续【】只留段内文字，空格分隔
@@ -1647,8 +1650,8 @@ function rowHTML(d){
     <td class="col-video">${vsBadge(d.video_sync||'无需视频',d.id)}</td>
     <td class="col-cw"><span class="cw-pick" data-id="${d.id}" onclick="event.stopPropagation();toggleCwPop(this)" title="Narrative Designer：点击选择（固定名单）">${cwBadge((d.cn_lines_handler||'').trim())}</span></td>
     ${veCells(d)}
-    <td class="col-max-date max-date-cell${scheduleMax(d,'cn')==='—'?' empty':''}" title="中文末次录制完成时间">${scheduleMax(d,'cn')}</td>
-    <td class="col-max-date max-date-cell${scheduleMax(d,'en')==='—'?' empty':''}" title="英文末次录制完成时间">${scheduleMax(d,'en')}</td>
+    <td class="col-max-date max-date-cell${scheduleMax(d,'cn')==='Pending'?' pending':''}" title="中文末次录制完成时间">${scheduleMax(d,'cn')==='Pending'?'':scheduleMax(d,'cn')}</td>
+    <td class="col-max-date max-date-cell${scheduleMax(d,'en')==='Pending'?' pending':''}" title="英文末次录制完成时间">${scheduleMax(d,'en')==='Pending'?'':scheduleMax(d,'en')}</td>
   </tr>`;
 }
 // release_plan 归一化：消除空格/.0 差异（防止数据库值 "Ma 5" 与按钮 "Ma5.0" 不匹配导致表格永远为空）
@@ -1666,18 +1669,59 @@ function fmtMonthDay(v){
 }
 function scheduleMax(d,lang){
   for(const k of demandScheduleKeys(d)){ const x=recordingMaxByDemand[k]; if(x&&x[lang]) return fmtMonthDay(x[lang]); }
-  return '—';
+  return 'Pending';
 }
 async function loadRecordingMax(){
   const maxMap={};
   const put=(key,lang,date)=>{ if(!key||!date)return; key=String(key).trim(); lang=(lang==='en'||/英/.test(lang||''))?'en':'cn'; if(!maxMap[key])maxMap[key]={cn:'',en:''}; if(!maxMap[key][lang]||date>maxMap[key][lang])maxMap[key][lang]=date; };
+  // 数据源 A · 已发布档期（/api/schedules）—— DB 里正式落地的档期
   try{
-    // 唯一真源：recording_schedules。未发布的localStorage/KV草稿绝不参与Max。
     const apiRes=await fetch('/api/schedules',{cache:'no-store'});
     if(!apiRes.ok) throw new Error(`HTTP ${apiRes.status}`);
     const rows=await apiRes.json();
     rows.forEach(s=>put(s.demand_id,s.language,s.record_date));
-  }catch(e){ console.warn('[schedule-max-db-only]',e); }
+  }catch(e){ console.warn('[schedule-max-db]',e); }
+  // 数据源 B · 台词库表格快照（/api/schedule-from-sheet）—— PM 在表格里填的档期，按 (category|role_cn) 索引
+  // 每个 demand 的 voice_estimates 里的角色，去表格里查档期，然后按 demand.id 聚合取 max
+  try{
+    const rel = (window.currentReleasePlan && window.currentReleasePlan()) || 'Yang1.0';
+    const shRes=await fetch('/api/schedule-from-sheet?release='+encodeURIComponent(rel),{cache:'no-store'});
+    if(shRes.ok){
+      const shJson=await shRes.json();
+      if(shJson && shJson.ok && Array.isArray(shJson.records)){
+        // 建 (category|role_cn) 索引
+        const sheetByRole=new Map();
+        shJson.records.forEach(r=>{
+          const cat=String(r.category||'').trim();
+          const rc=String(r.role_cn||'').trim();
+          if(!rc) return;
+          sheetByRole.set(cat+'|'+rc, r);
+          if(!sheetByRole.has('|'+rc)) sheetByRole.set('|'+rc, r); // 无 category 兜底
+        });
+        // 遍历 VE_ESTIMATE_INDEX，按 demand.id 聚合每个 role 的档期
+        if(typeof VE_ESTIMATE_INDEX!=='undefined'){
+          VE_ESTIMATE_INDEX.forEach((veList, demandId)=>{
+            veList.forEach(ve=>{
+              const cat=String(ve.category||'').trim();
+              const rc=String(ve.role_cn||'').trim();
+              if(!rc) return;
+              const rec=sheetByRole.get(cat+'|'+rc) || sheetByRole.get('|'+rc);
+              if(!rec) return;
+              // 日期归一：sheet 里可能是 "2026/9/22 12：00-14：00" 或 "2026-09-22" → 取前缀
+              const normDate=v=>{
+                if(!v) return '';
+                const m=String(v).match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+                return m?`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`:'';
+              };
+              const dcn=normDate(rec.date_cn), den=normDate(rec.date_en);
+              if(dcn) put(demandId,'cn',dcn);
+              if(den) put(demandId,'en',den);
+            });
+          });
+        }
+      }
+    }
+  }catch(e){ console.warn('[schedule-max-sheet]',e); }
   recordingMaxByDemand=maxMap;
 }
 function matchFilter(d){
@@ -1753,14 +1797,14 @@ function renderRows(){
           continue;
         }
         case 'maxDateCn': {
-          const da = a._max_cn === '—' ? '' : (a._max_cn || '');
-          const db = b._max_cn === '—' ? '' : (b._max_cn || '');
+          const da = a._max_cn === 'Pending' ? '' : (a._max_cn || '');
+          const db = b._max_cn === 'Pending' ? '' : (b._max_cn || '');
           if(da && !db) return -dir; if(!da && db) return dir;
           cmp = da.localeCompare(db); if(cmp !== 0) return cmp * dir; continue;
         }
         case 'maxDateEn': {
-          const da = a._max_en === '—' ? '' : (a._max_en || '');
-          const db = b._max_en === '—' ? '' : (b._max_en || '');
+          const da = a._max_en === 'Pending' ? '' : (a._max_en || '');
+          const db = b._max_en === 'Pending' ? '' : (b._max_en || '');
           if(da && !db) return -dir; if(!da && db) return dir;
           cmp = da.localeCompare(db); if(cmp !== 0) return cmp * dir; continue;
         }

@@ -16,7 +16,7 @@
   --c-rec-danger:#FFD24C;        /* 排在开发期最后一周 · 品牌黄 */
   --font-ui:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif;
   /* 列宽定值 · 无独立 LVL 列（合入 ROLE 前缀） */
-  --col-cat:60px;--col-role:150px;--col-story:minmax(140px,1fr);--col-lines:44px;--col-weeks:640px;--col-ddl:88px;
+  --col-cat:60px;--col-lang:48px;--col-role:150px;--col-story:200px;--col-lines:44px;--col-weeks:minmax(560px,1fr);--col-ddl:104px;
   /* 阶段色 */
   --ph-hist:#4C5A64;--ph-sched:var(--c-primary);--ph-dev:#7FB0A6;--ph-test:var(--c-brand-yellow)
 }
@@ -98,8 +98,8 @@ html,body{
 .act-head .hd-legend .lg-warn{background:transparent;border:1px solid var(--c-brand-yellow)}
 
 /* 分组上标行 */
-.act-groups{display:grid;grid-template-columns:var(--col-cat) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:6px 14px 4px}
-.act-groups .g-lane{grid-column:5/6;display:grid;gap:2px}
+.act-groups{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:6px 14px 4px}
+.act-groups .g-lane{grid-column:6/7;display:grid;gap:2px}
 .act-groups .g-tag{font:600 9px/1 var(--font-ui);letter-spacing:1.4px;text-transform:uppercase;color:var(--g-c);text-align:center;padding:3px 0;border-bottom:2px solid var(--g-c);opacity:.85}
 .act-groups .g-tag[data-g="hist"]{--g-c:var(--ph-hist);opacity:.55}
 .act-groups .g-tag[data-g="sched"]{--g-c:var(--ph-sched)}
@@ -107,8 +107,8 @@ html,body{
 .act-groups .g-tag[data-g="test"]{--g-c:var(--ph-test)}
 
 /* 关键节点标签行 · 紧凑小行（不要大 pill；仅关键锚点） */
-.act-labels{display:grid;grid-template-columns:var(--col-cat) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:8px 14px;background:transparent}
-.act-labels .ll-lane{grid-column:5/6;position:relative;height:20px;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr);border-top:1px dashed rgba(15,247,150,.18);border-bottom:1px dashed rgba(15,247,150,.18);background:rgba(11,17,22,.35)}
+.act-labels{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:8px 14px;background:transparent}
+.act-labels .ll-lane{grid-column:6/7;position:relative;height:20px;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr);border-top:1px dashed rgba(15,247,150,.18);border-bottom:1px dashed rgba(15,247,150,.18);background:rgba(11,17,22,.35)}
 .act-labels .ll-lane .ll-tick{border-left:1px solid rgba(255,255,255,.03);height:100%}
 /* 通用小 tag：无背景填充、细描边、9px 大写字，紧贴其对应周的中心 */
 .act-labels .ll{
@@ -127,7 +127,7 @@ html,body{
 .act-labels .ll[data-kind="vo"]  {--ll-c:var(--c-vo)}
 
 /* 列名行 */
-.act-cols{display:grid;grid-template-columns:var(--col-cat) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:7px 14px;background:rgba(255,255,255,.018);border-bottom:1px solid rgba(15,247,150,.10);font:600 9.5px/1 var(--font-ui);letter-spacing:.8px;text-transform:uppercase;color:var(--c-text-dim)}
+.act-cols{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:7px 14px;background:rgba(255,255,255,.018);border-bottom:1px solid rgba(15,247,150,.10);font:600 9.5px/1 var(--font-ui);letter-spacing:.8px;text-transform:uppercase;color:var(--c-text-dim)}
 .act-cols>div{padding:0 8px}
 .act-cols .col-weeks{padding:0;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr)}
 .act-cols .col-weeks .wk{text-align:center;padding:2px 0;font-size:9px;border-left:1px solid rgba(255,255,255,.05);position:relative}
@@ -150,7 +150,7 @@ html,body{
 .act-body::-webkit-scrollbar{width:6px}
 .act-body::-webkit-scrollbar-track{background:transparent}
 .act-body::-webkit-scrollbar-thumb{background:var(--c-hairline);background-clip:padding-box;border:1px solid transparent;border-radius:999px}
-.act-row{display:grid;grid-template-columns:var(--col-cat) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);align-items:center;padding:7px 14px 7px 18px;border-bottom:1px solid rgba(255,255,255,.03);position:relative;transition:background .12s}
+.act-row{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);align-items:center;padding:7px 14px 7px 18px;border-bottom:1px solid rgba(255,255,255,.03);position:relative;transition:background .12s}
 .act-row::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:3px;background:var(--risk-c);opacity:.95;box-shadow:0 0 6px var(--risk-c)}
 /* 风险色统一：黄=危险 · 绿=已排 · 灰=完成（不用粉） */
 .act-row[data-risk="danger"]{--risk-c:var(--c-brand-yellow)}
@@ -163,14 +163,20 @@ html,body{
 .act-row .ar-lvl .df-mark{display:inline-block;width:12px;height:11px;background-color:currentColor;-webkit-mask:var(--df-logo-url) no-repeat center/contain;mask:var(--df-logo-url) no-repeat center/contain;vertical-align:middle}
 /* ROLE / CAT / STORY / LINES 统一 STORY 系灰字风格 */
 .act-row .ar-cat{padding:0 8px;font:500 11px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* LANG 列：中配 / 英配 · 细描边 pill，中英同色板不抢眼 */
+.act-row .ar-lang{padding:0 4px;display:flex;align-items:center;justify-content:center}
+.act-row .ar-lang::before{content:attr(data-lang);display:none}
+.act-row .ar-lang{font:600 10px/1 var(--font-ui);letter-spacing:.4px;color:var(--lang-c,var(--c-text-mute));text-align:center}
+.act-row .ar-lang[data-lang="cn"]{--lang-c:#8FB6C4}
+.act-row .ar-lang[data-lang="en"]{--lang-c:#C4A78F}
 .act-row .ar-role{padding:0 8px;font:500 11px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;min-width:0}
 .act-row .ar-role .ar-role-text{overflow:hidden;text-overflow:ellipsis;min-width:0;font-weight:500}
 .act-row .ar-story{padding:0 8px;font:500 11px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .act-row .ar-lines{padding:0 12px;text-align:right;font:500 11px/1 var(--font-ui);color:var(--c-text-mute);font-variant-numeric:tabular-nums;letter-spacing:.3px}
-/* STATUS 列 · [DDL]/[REC] 前缀 · 状态色 */
-.act-row .ar-ddl{padding:0 10px;text-align:right;font:600 10.5px/1 var(--font-ui);white-space:nowrap;letter-spacing:.3px;display:flex;align-items:center;justify-content:flex-end;gap:6px}
-.act-row .ar-ddl .st-pref{display:inline-flex;align-items:center;justify-content:center;height:16px;padding:0 5px;font:700 9px/1 var(--font-ui);letter-spacing:.6px;border:1px solid var(--st-c);color:var(--st-c);border-radius:2px}
-.act-row .ar-ddl .st-val{color:var(--st-c);font:600 11px/1 var(--font-ui);font-variant-numeric:tabular-nums}
+/* STATUS 列 · [Pending]/[REC]/[DONE] 前缀 · 状态色 · 两栏固定宽保证列内整齐 */
+.act-row .ar-ddl{padding:0 6px 0 0;font:600 10.5px/1 var(--font-ui);white-space:nowrap;letter-spacing:.3px;display:grid;grid-template-columns:52px 40px;align-items:center;gap:4px;justify-self:end}
+.act-row .ar-ddl .st-pref{display:inline-flex;align-items:center;justify-content:center;height:16px;padding:0 2px;width:100%;font:700 9px/1 var(--font-ui);letter-spacing:.4px;border:1px solid var(--st-c);color:var(--st-c);border-radius:2px;box-sizing:border-box}
+.act-row .ar-ddl .st-val{color:var(--st-c);font:600 11px/1 var(--font-ui);font-variant-numeric:tabular-nums;text-align:left;min-width:0}
 .act-row .ar-ddl[data-status="danger"]{--st-c:var(--c-brand-yellow)}
 .act-row .ar-ddl[data-status="open"]  {--st-c:var(--c-primary)}
 .act-row .ar-ddl[data-status="done"]  {--st-c:var(--c-text-mute)}
@@ -259,24 +265,24 @@ const YANG1_MILESTONES_OVERRIDE = {
 
 const MOCK_ROLES = [
   // 已完成 (今日之前的录制)
-  { role:'路人-女B',           category:'NPC',      story:'Yang1 · 城镇环境音·B',    total:8,   status:'booked', dateOffset:-4  },
-  { role:'黑鸦Boss',           category:'Boss',     story:'Yang1 · Boss 战 · 黑鸦',  total:120, status:'booked', dateOffset:-10 },
-  { role:'AI-系统提示',        category:'AI系统音', story:'Yang1 · HUD 语音·提示',   total:45,  status:'booked', dateOffset:-18 },
+  { role:'路人-女B',           category:'NPC',      lang:'cn', story:'Yang1 · 城镇环境音·B',    total:8,   status:'booked', dateOffset:-4  },
+  { role:'黑鸦Boss',           category:'Boss',     lang:'cn', story:'Yang1 · Boss 战 · 黑鸦',  total:120, status:'booked', dateOffset:-10 },
+  { role:'AI-系统提示',        category:'AI系统音', lang:'en', story:'Yang1 · HUD 语音·提示',   total:45,  status:'booked', dateOffset:-18 },
   // 已排待录制 · 深绿
-  { role:'医疗兵',             category:'干员',     story:'Yang1 · 医疗支援',        total:22,  status:'booked', dateOffset:4   },
-  { role:'侦查兵',             category:'干员',     story:'Yang1 · 侦察小队',        total:42,  status:'booked', dateOffset:10  },
-  { role:'18维罗妮卡·卡尔多佐', category:'干员',    story:'Yang1 · 主线新干员777',   total:500, status:'booked', dateOffset:14  },
-  { role:'Grunt-步兵',         category:'AI兵',     story:'Yang1 · 敌方兵种·步兵',   total:30,  status:'booked', dateOffset:16  },
+  { role:'医疗兵',             category:'干员',     lang:'cn', story:'Yang1 · 医疗支援',        total:22,  status:'booked', dateOffset:4   },
+  { role:'侦查兵',             category:'干员',     lang:'cn', story:'Yang1 · 侦察小队',        total:42,  status:'booked', dateOffset:10  },
+  { role:'18维罗妮卡·卡尔多佐', category:'干员',    lang:'cn', story:'Yang1 · 主线新干员777',   total:500, status:'booked', dateOffset:14  },
+  { role:'Grunt-步兵',         category:'AI兵',     lang:'en', story:'Yang1 · 敌方兵种·步兵',   total:30,  status:'booked', dateOffset:16  },
   // 已排但落 DEV 最后一周 · 黄警告
-  { role:'CC(赛季)',           category:'AI系统音', story:'Yang1 · 赛季语音包',      total:70,  status:'booked', dateOffset:24  },
-  { role:'阿萨拉盾兵',         category:'AI兵',     story:'Yang1 · 敌方兵种·盾兵',   total:88,  status:'booked', dateOffset:26  },
-  { role:'01红狼',             category:'干员',     story:'Yang1 · 主线红狼小队',    total:15,  status:'booked', dateOffset:28  },
+  { role:'CC(赛季)',           category:'AI系统音', lang:'cn', story:'Yang1 · 赛季语音包',      total:70,  status:'booked', dateOffset:24  },
+  { role:'阿萨拉盾兵',         category:'AI兵',     lang:'cn', story:'Yang1 · 敌方兵种·盾兵',   total:88,  status:'booked', dateOffset:26  },
+  { role:'01红狼',             category:'干员',     lang:'en', story:'Yang1 · 主线红狼小队',    total:15,  status:'booked', dateOffset:28  },
   // 未排 · pending
-  { role:'Haavk指挥官',        category:'指挥官',   story:'Yang1 · 主线任务 A',      total:50,  status:'pending' },
-  { role:'SOL-GTI指挥官',      category:'指挥官',   story:'Yang1 · 补给线',          total:25,  status:'pending' },
-  { role:'AI-战术分析',        category:'AI系统音', story:'Yang1 · HUD 系统音',      total:88,  status:'pending' },
-  { role:'MP-Haavk战术班长',   category:'干员',     story:'Yang1 · MP 多人对战',     total:14,  status:'pending' },
-  { role:'哈夫克哨兵',         category:'AI兵',     story:'Yang1 · 敌方兵种·哨兵',   total:12,  status:'pending' }
+  { role:'Haavk指挥官',        category:'指挥官',   lang:'cn', story:'Yang1 · 主线任务 A',      total:50,  status:'pending' },
+  { role:'SOL-GTI指挥官',      category:'指挥官',   lang:'en', story:'Yang1 · 补给线',          total:25,  status:'pending' },
+  { role:'AI-战术分析',        category:'AI系统音', lang:'cn', story:'Yang1 · HUD 系统音',      total:88,  status:'pending' },
+  { role:'MP-Haavk战术班长',   category:'干员',     lang:'cn', story:'Yang1 · MP 多人对战',     total:14,  status:'pending' },
+  { role:'哈夫克哨兵',         category:'AI兵',     lang:'cn', story:'Yang1 · 敌方兵种·哨兵',   total:12,  status:'pending' }
 ];
 
 // ============ 工具 ============
@@ -357,10 +363,11 @@ function addWorkDaysN(start, n){
     if(devStartIdx<0   && w.phase==='dev')   devStartIdx=i;
     if(testStartIdx<0  && w.phase==='test')  testStartIdx=i;
   });
+  // 周编号：以 DEV 起始周为 W1，往前 W-N 往后 W+N，全轴统一（不再分 D/T 前缀）
   WEEK_META.forEach(function(w,i){
-    if(w.phase==='hist')       w.label = 'W-'+(devStartIdx>=0?devStartIdx-i:i+1);
-    else if(w.phase==='dev')   w.label = 'D'+(i - devStartIdx + 1);
-    else if(w.phase==='test')  w.label = 'T'+(i - testStartIdx + 1);
+    if(devStartIdx < 0){ w.label = 'W'+(i+1); return; }
+    var n = i - devStartIdx + 1;   // DEV.start = W1
+    w.label = n >= 1 ? ('W'+n) : ('W'+(n-1));  // n=0/-1/… → W-1/W-2/…（跳过 W0）
   });
 
   // 索引定位
@@ -445,6 +452,7 @@ function addWorkDaysN(start, n){
   }).join('');
   document.getElementById('colsRow').innerHTML = ''
     + '<div>CAT</div>'
+    + '<div>LANG</div>'
     + '<div>LVL · ROLE</div>'
     + '<div>STORY</div>'
     + '<div style="text-align:right">LINES</div>'
@@ -496,22 +504,23 @@ function addWorkDaysN(start, n){
 
   function statusHtml(a){
     if(a.status !== 'booked'){
-      var wd = workdaysBetween(today, fixDdl);
-      var txt = wd > 0 ? 'D-'+wd : wd === 0 ? 'D-DAY' : 'D+'+Math.abs(wd);
-      return '<span class="st-pref">DDL</span><span class="st-val">'+txt+'</span>';
+      // 未安排 → Pending 徽章占前缀位，值位留空占位保持列内两栏对齐
+      return '<span class="st-pref">Pending</span><span class="st-val"></span>';
     }
     var bd = addDays(today, a.dateOffset);
-    // 已完成（录制日期在今日之前）→ 显示 DONE，不再展示 [REC] 日期
+    // 已完成（录制日期在今日之前）→ DONE 徽章
     if(bd < today){
-      return '<span class="st-pref">DONE</span>';
+      return '<span class="st-pref">DONE</span><span class="st-val"></span>';
     }
     return '<span class="st-pref">REC</span><span class="st-val">'+fmtD(bd)+'</span>';
   }
 
   function rowHtml(a){
     var r = riskOf(a);
+    var langTxt = a.lang === 'en' ? '英配' : '中配';
     return '<div class="act-row" data-risk="'+r+'">'
       + '<div class="ar-cat">'+esc(a.category)+'</div>'
+      + '<div class="ar-lang" data-lang="'+(a.lang||'cn')+'">'+langTxt+'</div>'
       + '<div class="ar-role" title="'+esc(a.role)+'"><span class="ar-lvl">'+riskIcon[r]+'</span><span class="ar-role-text">'+esc(a.role)+'</span></div>'
       + '<div class="ar-story" title="'+esc(a.story)+'">'+esc(a.story)+'</div>'
       + '<div class="ar-lines">'+a.total+'</div>'
@@ -525,6 +534,13 @@ function addWorkDaysN(start, n){
   var sorted = MOCK_ROLES.slice().sort(function(a,b){
     var ra = riskOrder[riskOf(a)], rb = riskOrder[riskOf(b)];
     if(ra !== rb) return ra - rb;
+    // 同组内的排序策略：
+    //  - danger（Pending 未安排）：按句数倒序（大句数排前）
+    //  - open（REC 待录制）：按录制日期升序（最近的排前，最远排后）
+    //  - done（DONE 已完成）：按录制日期降序（最近完成的排前）
+    var risk = riskOf(a);
+    if(risk === 'open')  return a.dateOffset - b.dateOffset;   // 未来越近越靠前
+    if(risk === 'done')  return b.dateOffset - a.dateOffset;   // 过去越近越靠前（负值大者近）
     return b.total - a.total;
   });
   document.getElementById('tableBody').innerHTML = sorted.map(rowHtml).join('');

@@ -609,7 +609,7 @@ body.embed .main{flex:1;min-width:0}
    声优视图 · 组合仪表盘 v2（2026-09-11 单表合并 · v2 mock 全量落地）
    D KPI + 时间轴 + 风险状态一体化，双语列 · Yang1 里程碑对齐版本节点页
    ================================================================ */
-.actor-combined-wrap{display:flex;flex-direction:column;gap:12px}
+.actor-combined-wrap{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0}
 .actor-combined-wrap{
   --col-cat:60px;--col-lang:48px;--col-role:150px;--col-story:200px;--col-lines:44px;--col-weeks:minmax(0,1fr);--col-ddl:104px;
   --ph-hist:#4C5A64;--ph-sched:var(--c-primary);--ph-dev:#7FB0A6;--ph-test:var(--c-brand-yellow);
@@ -656,8 +656,8 @@ body.embed .main{flex:1;min-width:0}
     rgba(11,17,22,.62);
   border:1px solid var(--c-hairline);
   clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
-  /* 2026-09-11 · 表格允许右侧横向滚动：内容超出主容器时保证时间轴不被挤压 */
-  overflow-x:auto;overflow-y:hidden
+  /* 2026-09-11 · 表格允许右侧横向滚动 + 纵向铺满剩余空间 */
+  overflow-x:auto;overflow-y:auto;flex:1;min-height:0
 }
 .actor-combined-wrap .act-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(11,17,22,.85);border-bottom:1px solid var(--c-hairline);position:relative}
 .actor-combined-wrap .act-head::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--c-primary);opacity:.9}

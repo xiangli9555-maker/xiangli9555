@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="8hg2Ld0gpXB5jS4ao9873b">
+<head data-page-node-id="rvk7sfEzLDkQEOtltfsM6e">
+<meta charset="UTF-8" data-page-node-id="kjbsvb35Lt0blhTPB2ZElo"/>
+<title>录制档期 · 组合仪表盘 · MOCK · 战术军事简洁风</title>
+<style>
+/* ================================================================
+   独立 MOCK 演示 · 单文件双击可开
+   包含：D 顶部 KPI 卡 + C 全角色行甘特 + A 风险清单
+   数据：内联 20 位角色（4 hot / 4 warn / 8 ok / 4 done）+ Yang1.0 phases
+   ================================================================ */
+:root{
+  --c-primary:#0FF796;--c-primary-dark:#0BD980;--c-primary-glow:rgba(15,247,150,0.18);
+  --c-bg:#0F171C;--c-bg-0:#0F171C;--c-surface:#1F2A32;--c-surface-2:#26333C;--c-surface-3:#2E3B45;
+  --c-border:#2E3B45;--c-border-strong:#3D4C57;--c-hairline:#243039;
+  --c-text:#FFFFFF;--c-text-2:#D4DDE3;--c-text-mute:#A1B1BC;--c-text-dim:#6B7A85;
+  --c-warning:#FFD24C;--c-brand-yellow:#FFD24C;--c-danger:#D699BE;
+  --font-ui:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  font-family:var(--font-ui);font-size:14px;color:var(--c-text);
+  background:
+    radial-gradient(1200px 800px at 20% -10%,rgba(15,247,150,.06) 0%,transparent 55%),
+    radial-gradient(900px 700px at 90% 100%,rgba(214,153,190,.045) 0%,transparent 55%),
+    var(--c-bg);
+  -webkit-font-smoothing:antialiased;min-height:100vh
+}
+
+/* 页头 */
+.demo-header{padding:22px 32px 14px;border-bottom:1px solid var(--c-hairline);background:rgba(11,17,22,.6);position:relative}
+.demo-header::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--c-primary) 30%,var(--c-primary) 70%,transparent);opacity:.35}
+.demo-eyebrow{font:600 10px/1 var(--font-ui);letter-spacing:1.4px;color:var(--c-primary);text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.demo-eyebrow::before{content:'▌';color:var(--c-primary)}
+.demo-eyebrow .code{color:var(--c-text-mute);font-weight:500;margin-left:6px}
+.demo-title{margin-top:6px;font:700 22px/1 var(--font-ui);letter-spacing:.3px;color:var(--c-text);display:flex;align-items:baseline;gap:12px}
+.demo-title .sub{font:500 12px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.4px}
+.demo-toolbar{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.demo-toolbar .toggle{
+  padding:5px 12px;font:600 11px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.4px;text-transform:uppercase;
+  background:rgba(11,17,22,.6);border:1px solid var(--c-hairline);cursor:pointer;
+  clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
+  transition:all .15s
+}
+.demo-toolbar .toggle:hover{color:var(--c-text);border-color:var(--c-primary)}
+.demo-toolbar .toggle.on{color:var(--c-primary);border-color:var(--c-primary);background:rgba(15,247,150,.08)}
+.demo-toolbar .hint{margin-left:auto;font:500 10.5px/1.5 var(--font-ui);color:var(--c-text-dim);letter-spacing:.3px;align-self:center}
+.demo-toolbar .hint::before{content:'[SYS] ';color:var(--c-primary);opacity:.6}
+
+/* 主容器 */
+.demo-main{padding:16px 24px 40px;max-width:1600px;margin:0 auto}
+.actor-combined-wrap{display:flex;flex-direction:column;gap:12px}
+
+/* D · KPI 卡 */
+.ac-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ac-kpi-card{
+  position:relative;padding:12px 14px 11px 18px;
+  background:
+    linear-gradient(180deg,rgba(15,247,150,.045) 0%,rgba(15,23,28,0) 60%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 12px),
+    rgba(11,17,22,.72);
+  border:1px solid var(--c-hairline);
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+  overflow:hidden;transition:border-color .15s
+}
+.ac-kpi-card:hover{border-color:rgba(15,247,150,.32)}
+.ac-kpi-card::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--kpi-c,var(--c-text-mute));opacity:.95;box-shadow:0 0 6px var(--kpi-c,transparent)}
+.ac-kpi-card::after{content:attr(data-code);position:absolute;top:8px;right:10px;font:600 9.5px/1 var(--font-ui);letter-spacing:.6px;color:var(--kpi-c,var(--c-text-dim));opacity:.55;text-transform:uppercase}
+.ac-kpi-card[data-tone="total"]{--kpi-c:var(--c-primary)}
+.ac-kpi-card[data-tone="booked"]{--kpi-c:#7FB0A6}
+.ac-kpi-card[data-tone="pending"]{--kpi-c:#D699BE}
+.ac-kpi-card[data-tone="ddl"]{--kpi-c:var(--c-brand-yellow)}
+.ac-kpi-card[data-tone="ddl"][data-hot="1"]{--kpi-c:#D699BE;animation:acKpiPulse 1.8s ease-in-out infinite}
+@keyframes acKpiPulse{0%,100%{box-shadow:inset 0 0 0 1px rgba(214,153,190,.15)}50%{box-shadow:inset 0 0 0 1px rgba(214,153,190,.45)}}
+.ac-kpi-label{font:600 10px/1 var(--font-ui);letter-spacing:1.2px;color:var(--c-text-mute);text-transform:uppercase;display:flex;align-items:center;gap:5px}
+.ac-kpi-label::before{content:'▸';color:var(--kpi-c);opacity:.75;font-size:9px}
+.ac-kpi-value{margin-top:6px;font:600 28px/1 var(--font-ui);color:var(--kpi-c,var(--c-text));font-variant-numeric:tabular-nums;letter-spacing:.4px}
+.ac-kpi-value .unit{font-size:12px;color:var(--c-text-mute);margin-left:5px;letter-spacing:.6px;font-weight:500}
+.ac-kpi-sub{margin-top:8px;font:500 10.5px/1.4 var(--font-ui);color:var(--c-text-mute);letter-spacing:.3px}
+.ac-kpi-sub::before{content:'> ';color:var(--kpi-c);opacity:.7}
+.ac-kpi-sub b{color:var(--c-text-2);font-weight:600}
+
+/* C · 甘特 */
+.ac-gantt-wrap{
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 20px),
+    rgba(11,17,22,.62);
+  border:1px solid var(--c-hairline);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  padding:0
+}
+.ac-gantt-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(11,17,22,.85);border-bottom:1px solid var(--c-hairline);position:relative}
+.ac-gantt-head::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--c-primary);opacity:.9}
+.ac-gantt-head .gh-title{font:600 12px/1 var(--font-ui);color:var(--c-text);letter-spacing:.6px;display:flex;align-items:center;gap:6px}
+.ac-gantt-head .gh-title::before{content:'[SYS]';color:var(--c-primary);opacity:.7;font:600 10px/1 var(--font-ui);letter-spacing:.6px;padding:2px 5px;border:1px solid rgba(15,247,150,.35);border-radius:2px}
+.ac-gantt-head .gh-title-sub{color:var(--c-text-mute);font-weight:500;font-size:11px;letter-spacing:.3px}
+.ac-gantt-head .gh-title-sub::before{content:'// ';color:var(--c-primary);opacity:.5}
+.ac-gantt-head .gh-legend{margin-left:auto;display:flex;gap:12px;font:500 10px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.4px;text-transform:uppercase}
+.ac-gantt-head .gh-legend span{display:inline-flex;align-items:center}
+.ac-gantt-head .gh-legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:middle}
+.ac-gantt-head .gh-legend .lg-dev{background:#7FB0A6}
+.ac-gantt-head .gh-legend .lg-test{background:var(--c-brand-yellow)}
+.ac-gantt-head .gh-legend .lg-release{background:var(--c-primary)}
+.ac-gantt-head .gh-legend .lg-pending{background:transparent;border:1px dashed #D699BE}
+.ac-gantt{position:relative;padding:0 14px 8px}
+.ac-gantt-timeline{
+  display:grid;grid-template-columns:150px 44px 60px 1fr 60px;gap:8px;align-items:end;
+  font:500 9.5px/1 var(--font-ui);color:var(--c-text-dim);letter-spacing:.4px;
+  padding:8px 0 6px;border-bottom:1px solid rgba(15,247,150,.12);text-transform:uppercase
+}
+.ac-gantt-timeline .gt-lane{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;text-align:center;position:relative}
+.ac-gantt-timeline .gt-week{padding:2px 0;color:var(--c-text-dim);border-left:1px solid rgba(255,255,255,.05)}
+.ac-gantt-timeline .gt-week.is-today{color:var(--c-primary);font-weight:700;background:rgba(15,247,150,.08)}
+.ac-gantt-timeline .gt-week.is-ms{color:var(--c-brand-yellow);font-weight:700}
+.ac-gantt-body{max-height:520px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--c-hairline) transparent;padding:2px 0}
+.ac-gantt-body::-webkit-scrollbar{width:6px}
+.ac-gantt-body::-webkit-scrollbar-track{background:transparent}
+.ac-gantt-body::-webkit-scrollbar-thumb{background:var(--c-hairline);background-clip:padding-box;border:1px solid transparent;border-radius:999px}
+.ac-gantt-row{display:grid;grid-template-columns:150px 44px 60px 1fr 60px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.028);min-height:26px;transition:background .12s}
+.ac-gantt-row:hover{background:rgba(15,247,150,.035)}
+.ac-gantt-row .gr-name{font-size:12px;color:var(--c-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:2px}
+.ac-gantt-row .gr-name .lang-badge{color:var(--c-primary);margin-left:5px;font:600 9.5px/1 var(--font-ui);letter-spacing:.4px;padding:1px 4px;border:1px solid rgba(15,247,150,.28);border-radius:2px;opacity:.72}
+.ac-gantt-row .gr-cat{font-size:10.5px;color:var(--c-text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.3px}
+.ac-gantt-row .gr-lines{font:600 11px/1 var(--font-ui);color:var(--c-brand-yellow);text-align:right;font-variant-numeric:tabular-nums}
+.ac-gantt-row .gr-track{position:relative;height:20px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 8px),rgba(255,255,255,.015);border-radius:0;overflow:hidden}
+.ac-gantt-row .gr-actor{font-size:10.5px;color:var(--c-text-mute);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.gr-track .gt-today-line{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--c-primary);opacity:.85;z-index:2;pointer-events:none;box-shadow:0 0 4px rgba(15,247,150,.5)}
+.gr-track .gt-ms-line{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--c-brand-yellow);opacity:.65;z-index:2;pointer-events:none}
+.gr-track .gt-block{position:absolute;top:3px;bottom:3px;background:#7FB0A6;clip-path:polygon(3px 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%,0 3px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);z-index:3}
+.gr-track .gt-block[data-phase="test"]{background:var(--c-brand-yellow)}
+.gr-track .gt-block[data-phase="release"]{background:var(--c-primary)}
+.gr-track .gt-block[data-phase="pre"]{background:#5F7A6E}
+.gr-track .gt-pending{position:absolute;top:3px;bottom:3px;background:repeating-linear-gradient(90deg,rgba(214,153,190,.22) 0 4px,transparent 4px 8px);border:1px dashed rgba(214,153,190,.6);border-radius:0;z-index:3}
+.gr-track .gt-pending::after{content:attr(data-note);position:absolute;right:6px;top:50%;transform:translateY(-50%);font:600 9.5px/1 var(--font-ui);color:#D699BE;letter-spacing:.5px;white-space:nowrap;pointer-events:none;text-shadow:0 0 4px rgba(11,17,22,.9)}
+/* 里程碑标签栏 */
+.ac-gantt-ms-strip{
+  position:relative;height:18px;margin:8px 0 4px;
+  border-top:1px dashed rgba(15,247,150,.15);border-bottom:1px dashed rgba(15,247,150,.15);
+  background:rgba(11,17,22,.35);
+  display:grid;grid-template-columns:150px 44px 60px 1fr 60px;gap:8px
+}
+.ac-gantt-ms-strip .ms-lane{position:relative;grid-column:4}
+.ac-gantt-ms-strip .ms-tag{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  font:600 9px/1 var(--font-ui);letter-spacing:.6px;
+  color:var(--ms-c,var(--c-text-mute));
+  padding:2px 6px;background:rgba(11,17,22,.9);
+  border:1px solid var(--ms-c,var(--c-hairline));
+  clip-path:polygon(3px 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%,0 3px);
+  white-space:nowrap;z-index:4
+}
+.ac-gantt-ms-strip .ms-tag[data-kind="today"]{--ms-c:var(--c-primary)}
+.ac-gantt-ms-strip .ms-tag[data-kind="va"],.ac-gantt-ms-strip .ms-tag[data-kind="sc"]{--ms-c:var(--c-brand-yellow)}
+.ac-gantt-ms-strip .ms-tag[data-kind="vo"]{--ms-c:#D699BE}
+
+/* A · 风险清单 */
+.ac-risk-wrap{
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 30px),
+    rgba(11,17,22,.62);
+  border:1px solid var(--c-hairline);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)
+}
+.ac-risk-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(11,17,22,.85);border-bottom:1px solid var(--c-hairline);position:relative}
+.ac-risk-head::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:#D699BE;opacity:.9}
+.ac-risk-head .rh-title{font:600 12px/1 var(--font-ui);color:var(--c-text);letter-spacing:.6px;display:flex;align-items:center;gap:6px}
+.ac-risk-head .rh-title::before{content:'[SYS]';color:#D699BE;opacity:.75;font:600 10px/1 var(--font-ui);letter-spacing:.6px;padding:2px 5px;border:1px solid rgba(214,153,190,.4);border-radius:2px}
+.ac-risk-head .rh-title-sub{color:var(--c-text-mute);font-weight:500;font-size:11px}
+.ac-risk-head .rh-title-sub::before{content:'// ';color:#D699BE;opacity:.5}
+.ac-risk-head .rh-note{margin-left:auto;font:500 10px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.4px;text-transform:uppercase}
+.ac-risk-head .rh-note b{color:var(--c-text-2);font-weight:600}
+.ac-risk-cols{
+  display:grid;grid-template-columns:36px 150px 60px 44px 1fr 100px 100px;gap:8px;
+  padding:7px 14px;font:600 9.5px/1 var(--font-ui);color:var(--c-text-dim);letter-spacing:.8px;text-transform:uppercase;
+  border-bottom:1px solid rgba(15,247,150,.10);background:rgba(255,255,255,.018)
+}
+.ac-risk-body{max-height:560px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--c-hairline) transparent}
+.ac-risk-body::-webkit-scrollbar{width:6px}
+.ac-risk-body::-webkit-scrollbar-track{background:transparent}
+.ac-risk-body::-webkit-scrollbar-thumb{background:var(--c-hairline);background-clip:padding-box;border:1px solid transparent;border-radius:999px}
+.ac-risk-row{
+  display:grid;grid-template-columns:36px 150px 60px 44px 1fr 100px 100px;gap:8px;align-items:center;
+  padding:7px 14px 7px 18px;border-bottom:1px solid rgba(255,255,255,.03);position:relative;transition:background .12s
+}
+.ac-risk-row::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:3px;background:var(--risk-c,transparent);opacity:.95;box-shadow:0 0 6px var(--risk-c,transparent)}
+.ac-risk-row[data-risk="hot"]{--risk-c:#D699BE}
+.ac-risk-row[data-risk="warn"]{--risk-c:var(--c-brand-yellow)}
+.ac-risk-row[data-risk="ok"]{--risk-c:#7FB0A6}
+.ac-risk-row[data-risk="done"]{--risk-c:var(--c-primary);opacity:.68}
+.ac-risk-row:hover{background:rgba(15,247,150,.038)}
+.ac-risk-row:hover::before{box-shadow:0 0 10px var(--risk-c,transparent)}
+.ac-risk-row .rr-icon{font:700 10px/1 var(--font-ui);text-align:center;color:var(--risk-c);letter-spacing:.4px;padding:3px 0;border:1px solid var(--risk-c);border-radius:2px;background:rgba(11,17,22,.55)}
+.ac-risk-row .rr-role{font-size:12px;font-weight:500;color:var(--c-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-risk-row .rr-role .lang-badge{color:var(--c-primary);margin-left:5px;font:600 9.5px/1 var(--font-ui);letter-spacing:.4px;padding:1px 4px;border:1px solid rgba(15,247,150,.28);border-radius:2px;opacity:.72}
+.ac-risk-row .rr-cat{font-size:11px;color:var(--c-text-mute);letter-spacing:.3px}
+.ac-risk-row .rr-lines{text-align:right;font:600 11px/1 var(--font-ui);color:var(--c-brand-yellow);font-variant-numeric:tabular-nums}
+.ac-risk-row .rr-story{font-size:11px;color:var(--c-text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-risk-row .rr-actor{font-size:11px;color:var(--c-text-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.ac-risk-row .rr-status{font:600 10px/1 var(--font-ui);color:var(--c-text-mute);white-space:nowrap;text-align:right;letter-spacing:.4px}
+.ac-risk-row .rr-status::before{content:'> ';opacity:.6}
+.ac-risk-row .rr-status[data-status="hot"]{color:#D699BE}
+.ac-risk-row .rr-status[data-status="warn"]{color:var(--c-brand-yellow)}
+.ac-risk-row .rr-status[data-status="ok"]{color:#7FB0A6}
+.ac-risk-row .rr-status[data-status="done"]{color:var(--c-primary)}
+</style>
+</head>
+<body data-page-node-id="7fOstS724jYtnbo74DEonW">
+<div class="demo-header" data-page-node-id="CuwSUlKgDTy7npuITaAmHU">
+  <div class="demo-eyebrow" data-page-node-id="CxJfDUTGMWMDVh1jTr7FtF">RECORDING SCHEDULE · MOCK <span class="code" data-page-node-id="ROGDkdzR8mVxjCH79IIgD7">// v1 · offline demo</span></div>
+  <div class="demo-title" data-page-node-id="pCNc1xTNsObeFWbCLRoQCS">录制档期 · 组合仪表盘 <span class="sub" data-page-node-id="uvicC1vCxcmvJc4QZcUsPn">D 顶部 KPI · C 全角色行甘特 · A 风险清单</span></div>
+  <div class="demo-toolbar" data-page-node-id="spGnNKUqKSRBMLgbhLi98G">
+    <button class="toggle on" data-scen="normal" data-page-node-id="0348T2joxyE12qT3Y10lW3">正常态 · 距 DDL 20 天</button>
+    <button class="toggle" data-scen="hot" data-page-node-id="xPaJbPAMZMVF35RkzA9yQk">高危态 · 距 DDL 5 天</button>
+    <button class="toggle" data-scen="dday" data-page-node-id="A02WgEig7T9tqqGliMPEqM">D-Day 态 · 今日 DDL</button>
+    <button class="toggle" data-scen="overdue" data-page-node-id="HZ2oW5aorYa7VxfJzgYjMa">逾期态 · DDL 已过 3 天</button>
+    <button class="toggle" data-scen="healthy" data-page-node-id="wai3zdnknMQvihw4F71pH4">健康态 · 大部分已排</button>
+    <span class="hint" data-page-node-id="5lcsrwWmRyMHe22ZXyByZ7">切换场景查看不同 DDL 距离下的表现（脉冲动画/文案/色板）</span>
+  </div>
+</div>
+
+<div class="demo-main" data-page-node-id="4CxwbTsn9Sx50GT05I9IEv">
+  <div class="actor-combined-wrap" data-page-node-id="ZhnjuRLFvhPnAY4RK5QTut">
+    <div class="ac-kpi-row" id="acKpiRow" data-page-node-id="hGEnrdV6US9eO7dUy5AjdE"></div>
+    <div class="ac-gantt-wrap" id="acGanttWrap" data-page-node-id="nayGjE0zmBmi1kpH39XF5l"></div>
+    <div class="ac-risk-wrap" id="acRiskWrap" data-page-node-id="o5HzPqKisL8qP7NzXc5UFN"></div>
+  </div>
+</div>
+
+<script>
+// ============ MOCK 数据 ============
+// 20 位角色 · CN/EN 混排 · 6 大类覆盖 · 4 hot / 4 warn / 8 ok / 4 done
+// 每个角色 { role, category, lang, actor, total (est lines), status, schedule?, covers, dateOffset (相对今天) }
+const MOCK_ROLES = [
+  // === 未约（8 位）===
+  { role:'Haavk指挥官',       category:'指挥官', lang:'cn', actor:'',      total:50, status:'pending', covers:[{story:'Yang1 · 主线任务 A'},{story:'Yang1 · 支线任务 · 前哨'}] },
+  { role:'Haavk指挥官',       category:'指挥官', lang:'en', actor:'',      total:50, status:'pending', covers:[{story:'Yang1 · 主线任务 A'}] },
+  { role:'SOL-GTI指挥官',     category:'指挥官', lang:'cn', actor:'',      total:25, status:'pending', covers:[{story:'Yang1 · 支线任务 · 补给线'}] },
+  { role:'AI-战术分析',       category:'AI系统音', lang:'cn', actor:'',    total:88, status:'pending', covers:[{story:'Yang1 · HUD 系统语音'}] },
+  { role:'AI-战术分析',       category:'AI系统音', lang:'en', actor:'',    total:88, status:'pending', covers:[{story:'Yang1 · HUD 系统语音'}] },
+  { role:'MP-Haavk战术班长',  category:'干员',   lang:'cn', actor:'',      total:14, status:'pending', covers:[{story:'Yang1 · MP 多人对战'}] },
+  { role:'MP-Haavk战术班长',  category:'干员',   lang:'en', actor:'',      total:14, status:'pending', covers:[{story:'Yang1 · MP 多人对战'}] },
+  { role:'哈夫克哨兵',        category:'AI兵',   lang:'cn', actor:'',      total:12, status:'pending', covers:[{story:'Yang1 · 敌方兵种 · 哨兵'}] },
+  // === 已排（8 位）===
+  { role:'18维罗妮卡·卡尔多佐', category:'干员', lang:'cn', actor:'谢佳洺', total:500, status:'booked', dateOffset:11, studio:'8082棚',   covers:[{story:'Yang1 · 主线任务 · 新干员777'}] },
+  { role:'18维罗妮卡·卡尔多佐', category:'干员', lang:'en', actor:'Dana',   total:500, status:'booked', dateOffset:13, studio:'8082棚',   covers:[{story:'Yang1 · 主线任务 · 新干员777'}] },
+  { role:'CC(赛季)',           category:'AI系统音', lang:'cn', actor:'胡瑞璋', total:70, status:'booked', dateOffset:22, studio:'居然翁棚', covers:[{story:'Yang1 · 赛季语音包'}] },
+  { role:'CC(赛季)',           category:'AI系统音', lang:'en', actor:'Kaito',  total:70, status:'booked', dateOffset:24, studio:'居然翁棚', covers:[{story:'Yang1 · 赛季语音包'}] },
+  { role:'阿萨拉盾兵',        category:'AI兵',   lang:'cn', actor:'关学院',  total:88, status:'booked', dateOffset:34, studio:'叽咔棚',   covers:[{story:'Yang1 · 敌方兵种 · 盾兵'}] },
+  { role:'阿萨拉盾兵',        category:'AI兵',   lang:'en', actor:'Alex',    total:88, status:'booked', dateOffset:36, studio:'叽咔棚',   covers:[{story:'Yang1 · 敌方兵种 · 盾兵'}] },
+  { role:'01红狼',            category:'干员',   lang:'cn', actor:'陈晨',    total:15, status:'booked', dateOffset:45, studio:'SIDE棚',   covers:[{story:'Yang1 · 主线任务 · 红狼小队'}] },
+  { role:'01红狼',            category:'干员',   lang:'en', actor:'Kaito',   total:15, status:'booked', dateOffset:48, studio:'SIDE棚',   covers:[{story:'Yang1 · 主线任务 · 红狼小队'}] },
+  // === 已完成（4 位 · 录制日期在过去）===
+  { role:'路人-女A',          category:'NPC',    lang:'cn', actor:'罗婧文',  total:6,  status:'booked', dateOffset:-3, studio:'8082棚',   covers:[{story:'Yang1 · 城镇环境音'}] },
+  { role:'路人-女A',          category:'NPC',    lang:'en', actor:'Lila',    total:6,  status:'booked', dateOffset:-3, studio:'8082棚',   covers:[{story:'Yang1 · 城镇环境音'}] },
+  { role:'黑鸦Boss',          category:'Boss',   lang:'cn', actor:'胡瑞璋',  total:120, status:'booked', dateOffset:-8, studio:'居然翁棚', covers:[{story:'Yang1 · Boss 战 · 黑鸦'}] },
+  { role:'黑鸦Boss',          category:'Boss',   lang:'en', actor:'Kaito',   total:120, status:'booked', dateOffset:-8, studio:'居然翁棚', covers:[{story:'Yang1 · Boss 战 · 黑鸦'}] }
+];
+
+// ============ 场景切换：控制 DDL 距离 ============
+// ddlOffset = 从今天推多少天到"最近的 DDL"（>0=未来，0=今日，<0=已过）
+const SCENARIOS = {
+  normal:   { ddlOffset: 20, ddlLabel: '声优锁' },
+  hot:      { ddlOffset: 5,  ddlLabel: '声优锁' },
+  dday:     { ddlOffset: 0,  ddlLabel: '声优锁' },
+  overdue:  { ddlOffset: -3, ddlLabel: '声优锁' },
+  healthy:  { ddlOffset: 30, ddlLabel: '声优锁', healthyMode: true }
+};
+
+// ============ 工具函数 ============
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtD(d){ if(!d || !(d instanceof Date) || isNaN(d)) return '—'; var m=d.getMonth()+1, dd=d.getDate(); return String(m).padStart(2,'0')+'.'+String(dd).padStart(2,'0'); }
+function addDays(base, n){ var d = new Date(base); d.setHours(0,0,0,0); d.setDate(d.getDate()+n); return d; }
+function isoMonday(d){ var x = new Date(d); x.setHours(0,0,0,0); var day = x.getDay(); x.setDate(x.getDate() - ((day+6)%7)); return x; }
+function isoWeekNo(d){ var t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7)); var s=new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t-s)/86400000+1)/7); }
+
+// ============ 主渲染 ============
+function render(scenario){
+  var scen = SCENARIOS[scenario] || SCENARIOS.normal;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var vaLock = addDays(today, scen.ddlOffset);
+  var scLock = addDays(today, scen.ddlOffset + 21);   // 台词锁 = 声优锁 + 3 周
+  var voDeliver = addDays(today, scen.ddlOffset + 56); // VO 交付 = 声优锁 + 8 周
+  var devEnd = addDays(today, scen.ddlOffset + 56);
+
+  // healthyMode: 把所有 pending 转成 booked（随机分布日期）
+  var list = MOCK_ROLES.map(function(a, i){
+    var copy = Object.assign({ role_lang_key: a.role+'|'+a.lang }, a);
+    if(scen.healthyMode && copy.status === 'pending'){
+      copy.status = 'booked';
+      copy.dateOffset = 8 + (i % 8) * 4;
+      copy.actor = ['谢佳洺','关学院','罗婧文','陈晨','胡瑞璋','杨开元','郑懿','hayden'][i % 8];
+      copy.studio = ['8082棚','叽咔棚','居然翁棚','SIDE棚'][i % 4];
+    }
+    if(copy.status === 'booked'){
+      copy.schedule = { date: addDays(today, copy.dateOffset), studio: copy.studio || '' };
+    }
+    return copy;
+  });
+
+  // 计算 DDL
+  var dayDiff = function(a,b){ return Math.floor((a - b) / 86400000); };
+  var daysToVA = dayDiff(vaLock, today);
+  var daysToSC = dayDiff(scLock, today);
+  var daysToVO = dayDiff(voDeliver, today);
+  var ddlLabel, ddlDays, ddlHot = 0;
+  // 允许 -7 天以内的逾期仍显示在当前 DDL 上（不自动跳到下一个），便于展示"已逾期"态
+  if(daysToVA >= -7){ ddlLabel = '声优锁'; ddlDays = daysToVA; }
+  else if(daysToSC >= -7){ ddlLabel = '台词锁'; ddlDays = daysToSC; }
+  else { ddlLabel = 'VO 交付'; ddlDays = daysToVO; }
+  if(ddlDays <= 14) ddlHot = 1;
+
+  // 甘特 13 周窗口
+  var W0 = isoMonday(today); W0.setDate(W0.getDate() - 14);
+  var weeks = []; for(var i=0;i<13;i++){ var wm = new Date(W0); wm.setDate(wm.getDate() + i*7); weeks.push(wm); }
+  var wStart = weeks[0], wEnd = new Date(weeks[12]); wEnd.setDate(wEnd.getDate() + 6);
+  function weekIdx(dt){ if(!(dt instanceof Date) || isNaN(dt)) return -1; var d = new Date(dt); d.setHours(0,0,0,0); if(d < wStart || d > wEnd) return -1; return Math.floor((d - wStart) / (7*86400000)); }
+  function phaseOfDate(dt){ if(!dt) return ''; var d = new Date(dt); d.setHours(0,0,0,0); if(d <= addDays(today, scen.ddlOffset + 21)) return 'dev'; if(d <= addDays(today, scen.ddlOffset + 42)) return 'test'; return 'release'; }
+
+  // ============ D · KPI ============
+  var booked = list.filter(a => a.status === 'booked').length;
+  var pending = list.length - booked;
+  var totalLines = list.reduce((s,a)=>s+a.total, 0);
+  var pendingLines = list.filter(a=>a.status!=='booked').reduce((s,a)=>s+a.total, 0);
+  var kpiEl = document.getElementById('acKpiRow');
+  kpiEl.innerHTML = ''
+    + '<div class="ac-kpi-card" data-tone="total" data-code="ROSTER"><div class="ac-kpi-label">角色总数 · Yang1.0</div>'
+    +   '<div class="ac-kpi-value">'+list.length+'<span class="unit">位</span></div>'
+    +   '<div class="ac-kpi-sub"><b>'+totalLines+'</b> 句 · '+(new Set(list.map(a=>a.category))).size+' 个大类</div></div>'
+    + '<div class="ac-kpi-card" data-tone="booked" data-code="BOOKED"><div class="ac-kpi-label">已排期</div>'
+    +   '<div class="ac-kpi-value">'+booked+'<span class="unit">位</span></div>'
+    +   '<div class="ac-kpi-sub">覆盖率 <b>'+Math.round(booked/list.length*100)+'%</b></div></div>'
+    + '<div class="ac-kpi-card" data-tone="pending" data-code="PENDING"><div class="ac-kpi-label">待预约 · 待指派</div>'
+    +   '<div class="ac-kpi-value">'+pending+'<span class="unit">位</span></div>'
+    +   '<div class="ac-kpi-sub"><b>'+pendingLines+'</b> 句待录</div></div>'
+    + '<div class="ac-kpi-card" data-tone="ddl" data-hot="'+ddlHot+'" data-code="DDL"><div class="ac-kpi-label">距最近里程碑 · '+ddlLabel+'</div>'
+    +   '<div class="ac-kpi-value">'+(ddlDays>=0?ddlDays:Math.abs(ddlDays))+'<span class="unit">'+(ddlDays<0?'天逾期':'天')+'</span></div>'
+    +   '<div class="ac-kpi-sub">'+ddlLabel+' <b>'+fmtD(ddlLabel==='声优锁'?vaLock:ddlLabel==='台词锁'?scLock:voDeliver)+'</b></div></div>';
+
+  // ============ C · 甘特 ============
+  var todayIdx = weekIdx(today), vaIdx = weekIdx(vaLock), scIdx = weekIdx(scLock), voIdx = weekIdx(voDeliver);
+  var wkHtml = weeks.map(function(wm, i){
+    var cls = ['gt-week'];
+    if(i === todayIdx) cls.push('is-today');
+    if(i === vaIdx || i === scIdx || i === voIdx) cls.push('is-ms');
+    var wn = isoWeekNo(wm), mm = wm.getMonth()+1, dd = wm.getDate();
+    return '<div class="'+cls.join(' ')+'" title="W'+wn+' · '+mm+'/'+dd+'">W'+wn+'</div>';
+  }).join('');
+  function langBadge(a){ return a.lang === 'en' ? '<span class="lang-badge">EN</span>' : '<span class="lang-badge">CN</span>'; }
+  function ganttRow(a){
+    var track = '';
+    if(todayIdx >= 0) track += '<div class="gt-today-line" style="left:calc('+((todayIdx+0.5)/13*100)+'% - 0.5px)"></div>';
+    if(vaIdx >= 0)    track += '<div class="gt-ms-line" style="left:calc('+((vaIdx+0.5)/13*100)+'% - 0.5px)"></div>';
+    if(scIdx >= 0)    track += '<div class="gt-ms-line" style="left:calc('+((scIdx+0.5)/13*100)+'% - 0.5px)"></div>';
+    if(a.status === 'booked'){
+      var idx = weekIdx(a.schedule.date);
+      if(idx >= 0){
+        var ph = phaseOfDate(a.schedule.date);
+        var left = idx/13*100, width = 1/13*100;
+        track += '<div class="gt-block" data-phase="'+ph+'" style="left:'+left+'%;width:'+width+'%" title="'+esc(fmtD(a.schedule.date))+' · '+esc(a.actor)+'"></div>';
+      }
+    } else {
+      var startIdx = todayIdx>=0?todayIdx:0, endIdx = 12;
+      var l = startIdx/13*100, w = (endIdx-startIdx+1)/13*100;
+      var noteShort = (ddlDays>0) ? ('D-'+ddlDays) : (ddlDays===0?'D-DAY':('D+'+Math.abs(ddlDays)));
+      var noteFull = (ddlDays>0)?('距 '+ddlLabel+' '+ddlDays+' 天'):(ddlDays===0?(ddlLabel+' 今日'):('已逾期 '+Math.abs(ddlDays)+' 天'));
+      track += '<div class="gt-pending" style="left:'+l+'%;width:'+w+'%" data-note="'+esc(noteShort)+'" title="'+esc(noteFull)+'"></div>';
+    }
+    return '<div class="ac-gantt-row">'
+      + '<div class="gr-name" title="'+esc(a.role)+'">'+esc(a.role)+langBadge(a)+'</div>'
+      + '<div class="gr-cat">'+esc(a.category)+'</div>'
+      + '<div class="gr-lines">'+a.total+'</div>'
+      + '<div class="gr-track">'+track+'</div>'
+      + '<div class="gr-actor" title="'+esc(a.actor)+'">'+esc(a.actor||'未指派')+'</div>'
+      + '</div>';
+  }
+  var sorted = list.slice().sort(function(a,b){
+    if((a.status==='booked') !== (b.status==='booked')) return a.status==='booked' ? 1 : -1;
+    return b.total - a.total;
+  });
+  // 里程碑标签栏
+  function msPct(idx){ return ((idx+0.5)/13*100); }
+  var msTags = [];
+  if(todayIdx >= 0) msTags.push('<span class="ms-tag" data-kind="today" style="left:'+msPct(todayIdx)+'%">今</span>');
+  if(vaIdx >= 0)    msTags.push('<span class="ms-tag" data-kind="va" style="left:'+msPct(vaIdx)+'%">声优锁</span>');
+  if(scIdx >= 0 && scIdx !== vaIdx) msTags.push('<span class="ms-tag" data-kind="sc" style="left:'+msPct(scIdx)+'%">台词锁</span>');
+  if(voIdx >= 0 && voIdx !== scIdx) msTags.push('<span class="ms-tag" data-kind="vo" style="left:'+msPct(voIdx)+'%">VO 交付</span>');
+  var msStripHtml = msTags.length ? '<div class="ac-gantt-ms-strip"><div class="ms-lane">'+msTags.join('')+'</div></div>' : '';
+
+  document.getElementById('acGanttWrap').innerHTML = ''
+    + '<div class="ac-gantt-head">'
+    +   '<div class="gh-title">TIMELINE <span class="gh-title-sub">全角色时间轴 · '+list.length+' 位角色 · 13 周窗口</span></div>'
+    +   '<div class="gh-legend"><span><i class="lg-dev"></i>开发</span><span><i class="lg-test"></i>转测</span><span><i class="lg-release"></i>发布</span><span><i class="lg-pending"></i>未约</span></div>'
+    + '</div>'
+    + '<div class="ac-gantt">'
+    +   '<div class="ac-gantt-timeline"><div>ROLE</div><div>CAT</div><div>LINES</div><div class="gt-lane">'+wkHtml+'</div><div>VA</div></div>'
+    +   msStripHtml
+    +   '<div class="ac-gantt-body">'+sorted.map(ganttRow).join('')+'</div>'
+    + '</div>';
+
+  // ============ A · 风险清单 ============
+  function riskOf(a){
+    if(a.status === 'booked'){
+      var bd = a.schedule && a.schedule.date;
+      if(bd && bd < today) return 'done';
+      return 'ok';
+    }
+    if(ddlDays <= 14) return 'hot';
+    return 'warn';
+  }
+  var riskIcon = { hot:'[!]', warn:'[~]', ok:'[◆]', done:'[✓]' };
+  function statusText(a){
+    if(a.status === 'booked'){
+      var bd = a.schedule && a.schedule.date;
+      var studio = a.schedule && a.schedule.studio ? a.schedule.studio : '';
+      var dtxt = bd ? fmtD(bd) : '未定';
+      return dtxt + (studio ? ' · '+studio : '');
+    }
+    return (ddlDays>0?'距 '+ddlLabel+' '+ddlDays+' 天':ddlDays===0?ddlLabel+' 今日':'已逾期 '+Math.abs(ddlDays)+' 天');
+  }
+  function riskRow(a){
+    var r = riskOf(a);
+    var stories = (a.covers||[]).map(c=>c.story).filter(Boolean).join(' / ') || '—';
+    return '<div class="ac-risk-row" data-risk="'+r+'">'
+      + '<div class="rr-icon">'+riskIcon[r]+'</div>'
+      + '<div class="rr-role" title="'+esc(a.role)+'">'+esc(a.role)+langBadge(a)+'</div>'
+      + '<div class="rr-cat">'+esc(a.category)+'</div>'
+      + '<div class="rr-lines">'+a.total+'</div>'
+      + '<div class="rr-story" title="'+esc(stories)+'">'+esc(stories)+'</div>'
+      + '<div class="rr-actor" title="'+esc(a.actor||'')+'">'+esc(a.actor||'未指派')+'</div>'
+      + '<div class="rr-status" data-status="'+r+'">'+esc(statusText(a))+'</div>'
+      + '</div>';
+  }
+  var riskOrder = { hot:0, warn:1, ok:2, done:3 };
+  var riskSorted = list.slice().sort(function(a,b){
+    var ra = riskOrder[riskOf(a)], rb = riskOrder[riskOf(b)];
+    if(ra !== rb) return ra - rb;
+    return b.total - a.total;
+  });
+  var hotN = riskSorted.filter(a=>riskOf(a)==='hot').length;
+  var warnN = riskSorted.filter(a=>riskOf(a)==='warn').length;
+  var okN = riskSorted.filter(a=>riskOf(a)==='ok').length;
+  var doneN = riskSorted.filter(a=>riskOf(a)==='done').length;
+
+  document.getElementById('acRiskWrap').innerHTML = ''
+    + '<div class="ac-risk-head">'
+    +   '<div class="rh-title">ALERT <span class="rh-title-sub">风险清单 · '+hotN+' 高危 · '+warnN+' 待约 · '+okN+' 已排 · '+doneN+' 完成</span></div>'
+    +   '<div class="rh-note">按风险倒序 · 距最近 DDL <b>'+(ddlDays>=0?ddlDays:'-'+Math.abs(ddlDays))+'</b> 天</div>'
+    + '</div>'
+    + '<div class="ac-risk-cols"><div>LVL</div><div>ROLE</div><div>CAT</div><div style="text-align:right">LINES</div><div>MISSION</div><div>VA</div><div style="text-align:right">STATUS</div></div>'
+    + '<div class="ac-risk-body">'+riskSorted.map(riskRow).join('')+'</div>';
+}
+
+// ============ 场景切换按钮 ============
+document.querySelectorAll('.demo-toolbar .toggle').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.demo-toolbar .toggle').forEach(b => b.classList.remove('on'));
+    this.classList.add('on');
+    render(this.dataset.scen);
+  });
+});
+
+// 初始渲染
+render('normal');
+</script>
+</body>
+</html>

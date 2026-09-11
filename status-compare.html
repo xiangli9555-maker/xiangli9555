@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<title>STATUS 列优化方案对比</title>
+<style>
+:root{
+  --bg:#0B1118;--bg-panel:rgba(9,14,20,.9);--bg-head:rgba(7,11,16,.95);
+  --hairline:#1A2530;--hairline2:#222E3A;
+  --tx:#E2EBF0;--tx-2:#B0C2CE;--tx-3:#6A8294;--tx-4:#384F60;
+  --green:#00D97A;--green-dim:rgba(0,217,122,.5);
+  --yellow:#D4A820;--yellow-dim:rgba(212,168,32,.5);
+  --font:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font);font-size:13px;color:var(--tx);
+  background:var(--bg);-webkit-font-smoothing:antialiased;min-height:100vh;padding:20px 24px 48px}
+
+/* ── 页头 ── */
+.page-title{
+  font:800 17px/1 var(--font);letter-spacing:.1px;margin-bottom:4px
+}
+.page-sub{font:400 10px/1.5 var(--font);color:var(--tx-3);letter-spacing:.5px;margin-bottom:22px}
+
+/* ── 三列布局 ── */
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+
+/* ── 方案卡 ── */
+.card{
+  background:var(--bg-panel);border:1px solid var(--hairline);
+  clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)
+}
+.card-hdr{
+  padding:9px 13px 8px;background:var(--bg-head);
+  border-bottom:1px solid var(--hairline);
+  display:flex;align-items:baseline;gap:8px;position:relative
+}
+.card-hdr::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green)
+}
+.card-tag{
+  font:700 8px/1 var(--font);letter-spacing:2px;color:var(--green);
+  padding:2px 5px;border:1px solid rgba(0,217,122,.3);text-transform:uppercase
+}
+.card-name{font:700 12px/1 var(--font);letter-spacing:.2px}
+.card-desc{
+  padding:7px 13px 9px;font:400 9.5px/1.6 var(--font);color:var(--tx-3);
+  border-bottom:1px solid var(--hairline);letter-spacing:.2px
+}
+.card-desc b{color:var(--tx-2);font-weight:600}
+
+/* ── 行列演示 ── */
+.demo{padding:0}
+.d-head{
+  display:grid;padding:5px 13px;
+  background:rgba(255,255,255,.012);
+  border-bottom:1px solid rgba(0,217,122,.06);
+  font:700 7.5px/1 var(--font);letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--tx-4)
+}
+.d-row{
+  display:grid;align-items:center;
+  padding:5px 13px;border-bottom:1px solid rgba(255,255,255,.022);
+  position:relative
+}
+.d-row::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rc)
+}
+.d-row[data-r="hot"] {--rc:var(--yellow);background:rgba(212,168,32,.04)}
+.d-row[data-r="ok"]  {--rc:var(--green);background:rgba(0,217,122,.025)}
+.d-row[data-r="done"]{--rc:#2E3D2E;background:transparent;opacity:.5}
+.d-row:last-child{border-bottom:none}
+
+/* 小色点 */
+.dot{
+  display:inline-block;width:7px;height:7px;border-radius:1px;
+  background:var(--rc);margin-right:6px;flex-shrink:0;vertical-align:middle
+}
+.role-txt{font:500 11px/1 var(--font);vertical-align:middle;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ━━ 方案A：前缀标签 ━━ */
+.a-cols{grid-template-columns:1fr 90px}
+.a-status{
+  text-align:right;
+  font:600 9.5px/1 var(--font);letter-spacing:.4px;white-space:nowrap
+}
+.a-status .tag{
+  font:700 7px/1 var(--font);letter-spacing:1px;
+  padding:1.5px 4px;margin-right:4px;
+  border:1px solid currentColor;opacity:.7;vertical-align:middle
+}
+.a-status.hot{color:var(--yellow)}
+.a-status.ok {color:var(--green)}
+.a-status.done{color:#4A6050}
+
+/* ━━ 方案B：两行 ━━ */
+.b-cols{grid-template-columns:1fr 80px}
+.b-status{text-align:right}
+.b-main{
+  font:600 10px/1 var(--font);letter-spacing:.4px
+}
+.b-sub{
+  margin-top:3px;font:400 8px/1 var(--font);
+  color:var(--tx-4);letter-spacing:.5px
+}
+.b-status.hot .b-main{color:var(--yellow)}
+.b-status.hot .b-sub {color:rgba(212,168,32,.5)}
+.b-status.ok  .b-main{color:var(--green)}
+.b-status.ok  .b-sub {color:rgba(0,217,122,.4)}
+.b-status.done .b-main,.b-status.done .b-sub{color:#4A6050}
+
+/* ━━ 方案C：双列 ━━ */
+.c-cols{grid-template-columns:1fr 52px 52px}
+.c-cell{
+  text-align:right;
+  font:600 9.5px/1 var(--font);letter-spacing:.3px;white-space:nowrap
+}
+.c-lbl{
+  display:block;font:700 6.5px/1 var(--font);letter-spacing:1.2px;
+  margin-bottom:3px;text-transform:uppercase
+}
+.c-rec.active{color:var(--green)}
+.c-rec.active .c-lbl{color:rgba(0,217,122,.5)}
+.c-rec.empty{color:var(--tx-4);opacity:.3}
+.c-ddl.hot{color:var(--yellow)}
+.c-ddl.hot .c-lbl{color:rgba(212,168,32,.5)}
+.c-ddl.dim{color:var(--tx-4);opacity:.35}
+.c-ddl.dim .c-lbl{color:var(--tx-4)}
+
+/* 选择按钮 */
+.pick-row{
+  padding:10px 13px;background:rgba(0,217,122,.035);
+  border-top:1px solid rgba(0,217,122,.08);
+  display:flex;justify-content:center
+}
+.pick-btn{
+  font:700 8.5px/1 var(--font);letter-spacing:1.5px;text-transform:uppercase;
+  color:#060E09;background:var(--green);border:none;cursor:pointer;
+  padding:5px 16px;clip-path:polygon(3px 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%,0 3px)
+}
+.pick-btn:hover{opacity:.85}
+</style>
+</head>
+<body>
+
+<div class="page-title">STATUS 列优化方案对比</div>
+<div class="page-sub">三个方向的真实行渲染 · 鼠标感受后告知选择</div>
+
+<div class="cols">
+
+  <!-- ══ 方案 A ══ -->
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-tag">A</span>
+      <span class="card-name">前缀标签区分</span>
+    </div>
+    <div class="card-desc">
+      STATUS 列单行，加前缀 <b>[DDL]</b>/<b>[REC]</b> 区分语义。<br>
+      颜色跟随状态：黄=危险，绿=已排，灰=完成。<br>
+      <b>优点</b>：最直接，0 歧义 · <b>缺点</b>：文字略多
+    </div>
+    <div class="demo">
+      <div class="d-head a-cols"><div>ROLE</div><div style="text-align:right">STATUS</div></div>
+      <div class="d-row a-cols" data-r="hot">
+        <div><span class="dot"></span><span class="role-txt">Haavk指挥官</span></div>
+        <div class="a-status hot"><span class="tag">DDL</span>D-12</div>
+      </div>
+      <div class="d-row a-cols" data-r="hot">
+        <div><span class="dot"></span><span class="role-txt">SOL-GTI指挥官</span></div>
+        <div class="a-status hot"><span class="tag">DDL</span>D-12</div>
+      </div>
+      <div class="d-row a-cols" data-r="ok">
+        <div><span class="dot"></span><span class="role-txt">医疗兵</span></div>
+        <div class="a-status ok"><span class="tag">REC</span>09.22</div>
+      </div>
+      <div class="d-row a-cols" data-r="ok">
+        <div><span class="dot"></span><span class="role-txt">侦查兵</span></div>
+        <div class="a-status ok"><span class="tag">REC</span>10.15</div>
+      </div>
+      <div class="d-row a-cols" data-r="done">
+        <div><span class="dot"></span><span class="role-txt">路人-女B</span></div>
+        <div class="a-status done"><span class="tag">DONE</span>09.03</div>
+      </div>
+    </div>
+    <div class="pick-row"><button class="pick-btn" onclick="pick('A')">选这个</button></div>
+  </div>
+
+  <!-- ══ 方案 B ══ -->
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-tag">B</span>
+      <span class="card-name">两行信息叠加</span>
+    </div>
+    <div class="card-desc">
+      STATUS 列两行：<b>主行</b>显示关键数字，<b>副行</b>显示补充信息。<br>
+      未排：主行 <b>D-12</b>，副行小字定档日期；<br>
+      已排：主行 <b>09.22</b>，副行小字 <b>W4</b> 周标签。
+    </div>
+    <div class="demo">
+      <div class="d-head b-cols"><div>ROLE</div><div style="text-align:right">STATUS</div></div>
+      <div class="d-row b-cols" data-r="hot">
+        <div><span class="dot"></span><span class="role-txt">Haavk指挥官</span></div>
+        <div class="b-status hot"><div class="b-main">D-12</div><div class="b-sub">定档 09.23</div></div>
+      </div>
+      <div class="d-row b-cols" data-r="hot">
+        <div><span class="dot"></span><span class="role-txt">SOL-GTI指挥官</span></div>
+        <div class="b-status hot"><div class="b-main">D-12</div><div class="b-sub">定档 09.23</div></div>
+      </div>
+      <div class="d-row b-cols" data-r="ok">
+        <div><span class="dot"></span><span class="role-txt">医疗兵</span></div>
+        <div class="b-status ok"><div class="b-main">09.22</div><div class="b-sub">W4</div></div>
+      </div>
+      <div class="d-row b-cols" data-r="ok">
+        <div><span class="dot"></span><span class="role-txt">侦查兵</span></div>
+        <div class="b-status ok"><div class="b-main">10.15</div><div class="b-sub">T3</div></div>
+      </div>
+      <div class="d-row b-cols" data-r="done">
+        <div><span class="dot"></span><span class="role-txt">路人-女B</span></div>
+        <div class="b-status done"><div class="b-main">09.03</div><div class="b-sub">W-2 ✓</div></div>
+      </div>
+    </div>
+    <div class="pick-row"><button class="pick-btn" onclick="pick('B')">选这个</button></div>
+  </div>
+
+  <!-- ══ 方案 C ══ -->
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-tag">C</span>
+      <span class="card-name">拆成 REC / DDL 双列</span>
+    </div>
+    <div class="card-desc">
+      STATUS 拆为两列：<b>REC</b>（录制日）和 <b>DDL</b>（倒计时）。<br>
+      已排：REC 亮绿，DDL 灰暗；未排：REC 空，DDL 黄色高亮。<br>
+      <b>优点</b>：一眼扫两列即知全貌 · <b>缺点</b>：多占宽度
+    </div>
+    <div class="demo">
+      <div class="d-head c-cols">
+        <div>ROLE</div>
+        <div style="text-align:right">REC</div>
+        <div style="text-align:right">DDL</div>
+      </div>
+      <div class="d-row c-cols" data-r="hot">
+        <div><span class="dot"></span><span class="role-txt">Haavk指挥官</span></div>
+        <div class="c-cell c-rec empty"><span class="c-lbl">REC</span>—</div>
+        <div class="c-cell c-ddl hot"><span class="c-lbl">DDL</span>D-12</div>
+      </div>
+      <div class="d-row c-cols" data-r="hot">
+        <div><span class="dot"></span><span class="role-txt">SOL-GTI指挥官</span></div>
+        <div class="c-cell c-rec empty"><span class="c-lbl">REC</span>—</div>
+        <div class="c-cell c-ddl hot"><span class="c-lbl">DDL</span>D-12</div>
+      </div>
+      <div class="d-row c-cols" data-r="ok">
+        <div><span class="dot"></span><span class="role-txt">医疗兵</span></div>
+        <div class="c-cell c-rec active"><span class="c-lbl">REC</span>09.22</div>
+        <div class="c-cell c-ddl dim"><span class="c-lbl">DDL</span>09.23</div>
+      </div>
+      <div class="d-row c-cols" data-r="ok">
+        <div><span class="dot"></span><span class="role-txt">侦查兵</span></div>
+        <div class="c-cell c-rec active"><span class="c-lbl">REC</span>10.15</div>
+        <div class="c-cell c-ddl dim"><span class="c-lbl">DDL</span>09.23</div>
+      </div>
+      <div class="d-row c-cols" data-r="done">
+        <div><span class="dot"></span><span class="role-txt">路人-女B</span></div>
+        <div class="c-cell c-rec empty" style="opacity:.4"><span class="c-lbl">REC</span>09.03</div>
+        <div class="c-cell c-ddl dim"><span class="c-lbl">DDL</span>—</div>
+      </div>
+    </div>
+    <div class="pick-row"><button class="pick-btn" onclick="pick('C')">选这个</button></div>
+  </div>
+
+</div>
+
+<script>
+function pick(v){
+  var msg={
+    A:'已选方案 A：前缀标签区分\n请告知 AI，将合并进 v3 主原型。',
+    B:'已选方案 B：两行信息叠加\n请告知 AI，将合并进 v3 主原型。',
+    C:'已选方案 C：双列 REC / DDL\n请告知 AI，将合并进 v3 主原型。'
+  };
+  alert(msg[v]);
+}
+</script>
+</body>
+</html>

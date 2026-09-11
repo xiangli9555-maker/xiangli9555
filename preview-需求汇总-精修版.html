@@ -1708,10 +1708,11 @@ async function loadRecordingMax(){
               if(!rc) return;
               const rec=sheetByRole.get(cat+'|'+rc) || sheetByRole.get('|'+rc);
               if(!rec) return;
-              // 日期归一：sheet 里可能是 "2026/9/22 12：00-14：00" 或 "2026-09-22" → 取前缀
+              // 日期归一：sheet 里可能是 "2026/9/22 12：00-14：00" / "2026-09-22" / 有漏空格的 "2026/10/512：00"
+              // 日期部分严格 1-31，避免把 "512" 当成日期 51（漏空格污染）
               const normDate=v=>{
                 if(!v) return '';
-                const m=String(v).match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+                const m=String(v).match(/(\d{4})[\/\-](\d{1,2})[\/\-](3[01]|[12]\d|0?[1-9])/);
                 return m?`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`:'';
               };
               const dcn=normDate(rec.date_cn), den=normDate(rec.date_en);

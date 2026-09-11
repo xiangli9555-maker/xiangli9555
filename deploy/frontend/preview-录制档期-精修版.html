@@ -1712,6 +1712,37 @@ function aggregateActors(demands, release){
     // 无 category 兜底：允许仅按 role_cn 匹配
     if(!sheetMap.has('|' + rc)) sheetMap.set('|' + rc, rec);
   });
+  // 2026-09-11 · 台词表为真源：sheet 里存在但 estimates 里缺失的角色，直接从 sheet 造 baseline 行（cn + en 两条）
+  // 只造有排期或有预估句数的行；纯占位（est=0 且无档期）跳过避免噪音
+  sheetRecs.forEach(rec => {
+    const cat = String(rec.category||'').trim();
+    const rc = String(rec.role_cn||'').trim();
+    if(!rc) return;
+    const est = Number(rec.est_lines)||0;
+    const hasCn = !!(rec.date_cn||'').trim();
+    const hasEn = !!(rec.date_en||'').trim();
+    if(est<=0 && !hasCn && !hasEn) return;
+    ['cn','en'].forEach(lang => {
+      const k = lang + '|' + rc;
+      if(map.has(k)) return; // estimates 已提供 baseline 就不覆盖
+      const meta = ROLE_META_MAP.get(rc) || {};
+      map.set(k, {
+        role: rc,
+        category: cat || meta.module || '未匹配',
+        gender: meta.gender || '',
+        lang,
+        actor: '',
+        covers: [{ story:'（台词表）', est, actual:Number(rec.actual_lines)||0, status:'', demandId:'sheet' }],
+        total: est,
+        actual: Number(rec.actual_lines)||0,
+        delivered: 0,
+        demandTotal: 1,
+        unmatched: 0,
+        status: 'pending',
+        _fromSheet: true
+      });
+    });
+  });
   const list=[...map.values()];
   list.forEach(g=>{
     // ① 先取 /api/schedules 的正式排期（真人已经在录制档期页发布过）

@@ -1455,10 +1455,14 @@ async function loadActorData(){
       const sj = await s.json();
       ACTOR_STATE.sheetSchedule = Array.isArray(sj.records) ? sj.records : [];
       ACTOR_STATE.sheetFetchedAt = sj.fetched_at || '';
+      // 直接同步回填 syncHintLast（不依赖 refreshSyncHint 是否已定义），双保险
+      try{
+        const el = document.getElementById('syncHintLast');
+        const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(ACTOR_STATE.sheetFetchedAt || '');
+        if(el && m) el.textContent = m[2]+'.'+m[3]+' '+m[4]+':'+m[5];
+      }catch(_){}
     }
   }catch(e){ ACTOR_STATE.sheetSchedule = []; }
-  // 首屏回填「上次同步」时间戳（延迟 0，确保 refreshSyncHint 已定义）
-  setTimeout(function(){ if(typeof window.refreshSyncHint === 'function') try{ window.refreshSyncHint(); }catch(_){} }, 0);
   // 虚拟数据兜底：仅 file:// 本地预览注入；线上保持真实数据（空则空态）2026-08-31
   // 2026-09-03：mock 数据不做 releaseInScope 过滤 —— file:// 下 release 日历无法加载
   //（fetch 不可用 → cachedPlans 空 → isAtOrAfterCached 恒 false），若过滤会把 mock 全清空。

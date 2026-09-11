@@ -63,7 +63,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .page-title .deadline-meta .deadline-calm{color:var(--c-primary);opacity:.7;font-weight:500;margin-left:4px}
 .actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
 .actions .btn{width:auto}
-.sync-hint{font-size:11px;color:var(--c-text-mute);font-family:var(--font-ui);letter-spacing:.3px;display:inline-flex;align-items:baseline;gap:7px;line-height:1.4;max-width:320px;text-align:right}
+.sync-hint{font-size:10.5px;color:var(--c-text-mute);font-family:var(--font-ui);letter-spacing:.2px;display:inline-flex;align-items:baseline;gap:6px;line-height:1.4;max-width:260px;text-align:right}
 .sync-hint .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55);flex-shrink:0;align-self:center;animation:pulse 2.2s infinite}
 .sync-spinner{display:inline-block;width:12px;height:12px;border:1.5px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:4px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -239,10 +239,9 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 body.embed{background:transparent !important;background-color:transparent !important}
 html:has(body.embed){background:transparent !important;background-color:transparent !important}
 body.embed .brand-bar,
-body.embed aside.sidebar,
-body.embed .mid-panel{display:none !important}
+body.embed aside.sidebar{display:none !important}
 body.embed .layout{padding-left:0}
-body.embed .main{width:100%;flex:1}
+body.embed .main{flex:1;min-width:0}
 
 
 /* ===== 3B 档期草稿 ===== */
@@ -612,7 +611,7 @@ body.embed .main{width:100%;flex:1}
    ================================================================ */
 .actor-combined-wrap{display:flex;flex-direction:column;gap:12px}
 .actor-combined-wrap{
-  --col-cat:60px;--col-lang:48px;--col-role:150px;--col-story:200px;--col-lines:44px;--col-weeks:minmax(760px,1fr);--col-ddl:104px;
+  --col-cat:60px;--col-lang:48px;--col-role:150px;--col-story:200px;--col-lines:44px;--col-weeks:minmax(0,1fr);--col-ddl:104px;
   --ph-hist:#4C5A64;--ph-sched:var(--c-primary);--ph-dev:#7FB0A6;--ph-test:var(--c-brand-yellow);
   --c-vo:#D699BE;
   --c-rec-open:var(--c-primary);
@@ -643,11 +642,11 @@ body.embed .main{width:100%;flex:1}
 .ac-kpi-card[data-tone="ddl"]{--kpi-c:var(--c-brand-yellow)}
 .ac-kpi-card[data-tone="ddl"][data-hot="1"]{animation:acKpiV2Pulse 1.8s ease-in-out infinite}
 @keyframes acKpiV2Pulse{0%,100%{box-shadow:inset 0 0 0 1px rgba(255,210,76,.15)}50%{box-shadow:inset 0 0 0 1px rgba(255,210,76,.45)}}
-.ac-kpi-label{font:600 10px/1 var(--font-ui);letter-spacing:1.2px;color:var(--c-text-mute);text-transform:uppercase;display:flex;align-items:center;gap:5px}
+.ac-kpi-label{font:600 10.5px/1 var(--font-ui);letter-spacing:.8px;color:var(--c-text-mute);text-transform:uppercase;display:flex;align-items:center;gap:5px}
 .ac-kpi-label::before{content:'·';color:var(--kpi-c);opacity:.9;font-size:14px;line-height:0;margin-right:1px}
-.ac-kpi-value{margin-top:10px;font:600 28px/1 var(--font-ui);color:var(--kpi-c);font-variant-numeric:tabular-nums;letter-spacing:.4px}
-.ac-kpi-value .unit{font-size:12px;color:var(--c-text-mute);margin-left:5px;letter-spacing:.6px;font-weight:500}
-.ac-kpi-sub{margin-top:8px;font:500 10.5px/1.4 var(--font-ui);color:var(--c-text-mute);letter-spacing:.3px}
+.ac-kpi-value{margin-top:10px;font:600 24px/1 var(--font-ui);color:var(--kpi-c);font-variant-numeric:tabular-nums;letter-spacing:0}
+.ac-kpi-value .unit{font-size:12px;color:var(--c-text-mute);margin-left:6px;letter-spacing:.4px;font-weight:500}
+.ac-kpi-sub{margin-top:6px;font:500 11px/1.4 var(--font-ui);color:var(--c-text-mute);letter-spacing:.2px}
 .ac-kpi-sub b{color:var(--c-text-2);font-weight:600}
 
 /* ============ 合并表 · 时间轴 + 风险清单 ============ */
@@ -693,10 +692,10 @@ body.embed .main{width:100%;flex:1}
 .actor-combined-wrap .act-labels .ll[data-kind="vo"]{--ll-c:var(--c-vo)}
 
 /* 列名行 */
-.actor-combined-wrap .act-cols{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:7px 14px;background:rgba(255,255,255,.018);border-bottom:1px solid rgba(15,247,150,.10);font:600 9.5px/1 var(--font-ui);letter-spacing:.8px;text-transform:uppercase;color:var(--c-text-dim)}
+.actor-combined-wrap .act-cols{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:7px 14px;background:rgba(255,255,255,.018);border-bottom:1px solid rgba(15,247,150,.10);font:600 10.5px/1 var(--font-ui);letter-spacing:.6px;text-transform:uppercase;color:var(--c-text-dim)}
 .actor-combined-wrap .act-cols>div{padding:0 8px}
 .actor-combined-wrap .act-cols .col-weeks{padding:0;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr)}
-.actor-combined-wrap .act-cols .col-weeks .wk{text-align:center;padding:2px 0;font-size:9px;border-left:1px solid rgba(255,255,255,.05);position:relative}
+.actor-combined-wrap .act-cols .col-weeks .wk{text-align:center;padding:2px 0;font-size:9.5px;border-left:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden;text-overflow:clip;white-space:nowrap;min-width:0;letter-spacing:.2px}
 .actor-combined-wrap .act-cols .col-weeks .wk[data-phase="hist"]{color:var(--ph-hist);opacity:.75}
 .actor-combined-wrap .act-cols .col-weeks .wk[data-phase="sched"]{color:var(--ph-sched);opacity:.9}
 .actor-combined-wrap .act-cols .col-weeks .wk[data-phase="dev"]{color:var(--ph-dev);opacity:.85}
@@ -720,18 +719,18 @@ body.embed .main{width:100%;flex:1}
 .actor-combined-wrap .act-row:hover{background:rgba(15,247,150,.03)}
 .actor-combined-wrap .act-row:hover::before{box-shadow:0 0 10px var(--risk-c)}
 .actor-combined-wrap .act-row .ar-lvl{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;margin-right:8px;font:700 11px/1 var(--font-ui);color:var(--risk-c);border:1px solid var(--risk-c);border-radius:2px;background:rgba(11,17,22,.55);letter-spacing:0;vertical-align:middle;flex-shrink:0}
-.actor-combined-wrap .act-row .ar-lvl .df-mark{display:inline-block;width:12px;height:11px;background-color:currentColor;-webkit-mask:var(--df-logo-url) no-repeat center/contain;mask:var(--df-logo-url) no-repeat center/contain;vertical-align:middle}
-.actor-combined-wrap .act-row .ar-cat{padding:0 8px;font:500 11px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.actor-combined-wrap .act-row .ar-lang{padding:0 4px;display:flex;align-items:center;justify-content:center;font:600 10px/1 var(--font-ui);letter-spacing:.4px;color:var(--lang-c,var(--c-text-mute));text-align:center}
-.actor-combined-wrap .act-row .ar-lang[data-lang="cn"]{--lang-c:#8FB6C4}
-.actor-combined-wrap .act-row .ar-lang[data-lang="en"]{--lang-c:#C4A78F}
-.actor-combined-wrap .act-row .ar-role{padding:0 8px;font:500 11px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;min-width:0}
-.actor-combined-wrap .act-row .ar-role .ar-role-text{overflow:hidden;text-overflow:ellipsis;min-width:0;font-weight:500}
-.actor-combined-wrap .act-row .ar-story{padding:0 8px;font:500 11px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.actor-combined-wrap .act-row .ar-lines{padding:0 12px;text-align:right;font:500 11px/1 var(--font-ui);color:var(--c-text-mute);font-variant-numeric:tabular-nums;letter-spacing:.3px}
+.actor-combined-wrap .act-row .ar-lvl .df-mark{display:inline-block;width:12px;height:11px;background-color:currentColor;-webkit-mask:var(--df-logo-url) no-repeat center/contain;mask:var(--df-logo-url) no-repeat center/contain;vertical-align:middle;transform:translateY(-1px)}
+.actor-combined-wrap .act-row .ar-cat{padding:0 8px;font:500 11.5px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actor-combined-wrap .act-row .ar-lang{padding:0 4px;display:flex;align-items:center;justify-content:center;font:600 10.5px/1 var(--font-ui);letter-spacing:.3px;color:var(--lang-c,var(--c-text-mute));text-align:center}
+.actor-combined-wrap .act-row .ar-lang[data-lang="cn"]{--lang-c:#B8CBD8}
+.actor-combined-wrap .act-row .ar-lang[data-lang="en"]{--lang-c:var(--c-primary)}
+.actor-combined-wrap .act-row .ar-role{padding:0 8px;font:600 11.5px/1 var(--font-ui);color:var(--c-text-2);letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;min-width:0}
+.actor-combined-wrap .act-row .ar-role .ar-role-text{overflow:hidden;text-overflow:ellipsis;min-width:0;font-weight:600}
+.actor-combined-wrap .act-row .ar-story{padding:0 8px;font:500 11.5px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actor-combined-wrap .act-row .ar-lines{padding:0 12px;text-align:right;font:600 11.5px/1 var(--font-ui);color:var(--c-text-2);font-variant-numeric:tabular-nums;letter-spacing:.2px}
 /* 2026-09-11 · STATUS 列格式统一：单栏 + 居中 + 三态徽章同宽（80px），REC 日期塞入胶囊内一体化 */
 .actor-combined-wrap .act-row .ar-ddl{padding:0;font:600 10.5px/1 var(--font-ui);white-space:nowrap;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;justify-self:center;width:100%}
-.actor-combined-wrap .act-row .ar-ddl .st-pref{display:inline-flex;align-items:center;justify-content:center;gap:5px;height:20px;padding:0 10px;min-width:80px;font:700 10px/1 var(--font-ui);letter-spacing:.5px;border:1px solid var(--st-c);color:var(--st-c);border-radius:3px;box-sizing:border-box;text-align:center}
+.actor-combined-wrap .act-row .ar-ddl .st-pref{display:inline-flex;align-items:center;justify-content:center;gap:5px;height:20px;padding:0 10px;min-width:80px;font:700 10.5px/1 var(--font-ui);letter-spacing:.4px;border:1px solid var(--st-c);color:var(--st-c);border-radius:3px;box-sizing:border-box;text-align:center}
 .actor-combined-wrap .act-row .ar-ddl .st-pref .st-date{font:600 10px/1 var(--font-ui);color:var(--st-c);font-variant-numeric:tabular-nums;letter-spacing:.3px}
 .actor-combined-wrap .act-row .ar-ddl[data-status="danger"]{--st-c:var(--c-brand-yellow)}
 .actor-combined-wrap .act-row .ar-ddl[data-status="open"]{--st-c:var(--c-primary)}
@@ -754,7 +753,7 @@ body.embed .main{width:100%;flex:1}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="open"]{--bk-c:var(--c-rec-open)}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="done"]{--bk-c:var(--c-rec-done)}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="danger"]{--bk-c:var(--c-rec-danger)}
-.actor-combined-wrap .ar-weeks .booked-mark .df-mark{display:inline-block;width:13px;height:12px;background-color:#0A1015;-webkit-mask:var(--df-logo-url) no-repeat center/contain;mask:var(--df-logo-url) no-repeat center/contain}
+.actor-combined-wrap .ar-weeks .booked-mark .df-mark{display:inline-block;width:13px;height:12px;background-color:#0A1015;-webkit-mask:var(--df-logo-url) no-repeat center/contain;mask:var(--df-logo-url) no-repeat center/contain;transform:translateY(-1px)}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="done"] .df-mark{background-color:rgba(10,16,21,.7)}
 
 /* ============ 视图 A · 声优视图子模式切换（板视图 / 里程碑） ============ */
@@ -966,7 +965,7 @@ body.embed .main{width:100%;flex:1}
       </div>
       <div class="actions" data-page-node-id="Fgzyrvl55Bx0sGzgJyZDvf">
         <button id="syncFromSummaryBtn" class="btn btn-primary" onclick="syncFromVersionSummary()" data-page-node-id="nAeOQeNzF8TEtaBugMm2Va"><svg viewBox="0 0 24 24" data-page-node-id="J6SJV4PEzEZPbhp2mAZFKd"><path d="M23 4v6h-6" data-page-node-id="71kJ0npTykZvA9uyym4zuK"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" data-page-node-id="wTA2mDR8pxfL9GJ3YCuH5s"/></svg>从 Vo 版本汇总表同步</button>
-        <div class="sync-hint" data-page-node-id="FKe7OmuBRyzdxVJVkHFYEx"><span class="sync-dot" data-page-node-id="FGjGjmv7HP0qgBQCIXEd8A"></span>固定同步刷新时间：每日 10:30</div>
+        <div class="sync-hint" data-page-node-id="FKe7OmuBRyzdxVJVkHFYEx"><span class="sync-dot" data-page-node-id="FGjGjmv7HP0qgBQCIXEd8A"></span>手动同步 · 上次 <span id="syncHintLast">—</span></div>
       </div>
     </div>
 
@@ -1458,6 +1457,8 @@ async function loadActorData(){
       ACTOR_STATE.sheetFetchedAt = sj.fetched_at || '';
     }
   }catch(e){ ACTOR_STATE.sheetSchedule = []; }
+  // 首屏回填「上次同步」时间戳（延迟 0，确保 refreshSyncHint 已定义）
+  setTimeout(function(){ if(typeof window.refreshSyncHint === 'function') try{ window.refreshSyncHint(); }catch(_){} }, 0);
   // 虚拟数据兜底：仅 file:// 本地预览注入；线上保持真实数据（空则空态）2026-08-31
   // 2026-09-03：mock 数据不做 releaseInScope 过滤 —— file:// 下 release 日历无法加载
   //（fetch 不可用 → cachedPlans 空 → isAtOrAfterCached 恒 false），若过滤会把 mock 全清空。
@@ -3830,6 +3831,8 @@ function bookActor(role, lang){
     return Promise.all([p1, p2]).then(function(res){
       var pub = res[0]||[], sheet = res[1]||[];
       toast('已同步：已发布 '+pub.length+' 条 · 表格快照 '+sheet.length+' 条');
+      // 回填「上次同步」时间戳到页头 hint
+      if(typeof window.refreshSyncHint === 'function') try{ window.refreshSyncHint(); }catch(_){}
       // 同步刷新侧栏（renderSched 内部会调用 renderMidPanel）+ 主表演员卡
       if(typeof window.renderSched === 'function') try{ window.renderSched(); }catch(_){}
       if(typeof renderActorRollup === 'function') try{ renderActorRollup(); }catch(_){}
@@ -3837,6 +3840,17 @@ function bookActor(role, lang){
     }).catch(function(e){ toast('同步失败：'+(e&&e.message||e), true); return null; }).finally(function(){
       if(btn){ btn.disabled=false; if(btn.dataset.label) btn.innerHTML=btn.dataset.label; }
     });
+  };
+
+  // 「上次同步」时间戳回填：读 ACTOR_STATE.sheetFetchedAt（ISO 字符串），写成 MM.DD HH:mm
+  window.refreshSyncHint = function(){
+    var el = document.getElementById('syncHintLast'); if(!el) return;
+    var iso = (window.ACTOR_STATE && ACTOR_STATE.sheetFetchedAt) || '';
+    if(!iso){ el.textContent = '—'; return; }
+    // ISO: 2026-09-11T18:47:59
+    var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso);
+    if(!m){ el.textContent = iso.slice(0,16); return; }
+    el.textContent = m[2]+'.'+m[3]+' '+m[4]+':'+m[5];
   };
   // ============================================================
   // 「从台词库表格加载」（2026-09-08 POC）

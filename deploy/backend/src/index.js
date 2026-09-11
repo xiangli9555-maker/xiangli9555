@@ -82,13 +82,15 @@ app.get('/api/schedule-from-sheet', (req, res) => {
   const path = require('path');
   const fs = require('fs');
   const file = path.resolve(__dirname, '..', 'schedule_from_sheet.json');
+  // 归一化 release：去 .0 后缀 + 忽略大小写，让 Yang1 / Yang1.0 / yang1 视为同一个
+  const normRel = s => String(s||'').trim().replace(/\.0+$/,'').toLowerCase();
   fs.readFile(file, 'utf8', (err, txt) => {
     if (err) {
       return res.status(404).json({ ok: false, error: 'schedule_snapshot_missing', release });
     }
     try {
       const data = JSON.parse(txt);
-      if (data.release && data.release !== release) {
+      if (data.release && normRel(data.release) !== normRel(release)) {
         return res.status(404).json({ ok: false, error: 'release_mismatch', want: release, snapshot_release: data.release });
       }
       res.json({ ok: true, ...data });

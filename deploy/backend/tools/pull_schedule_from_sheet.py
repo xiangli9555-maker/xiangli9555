@@ -38,7 +38,7 @@ def first_nonempty(*args):
         if a and str(a).strip(): return str(a).strip()
     return ''
 
-def parse_csv(csv_text, release='Yang1.0', docid_hint='Vomi台词库-Yang1-test-v2', sheet_name='3.录制档期'):
+def parse_csv(csv_text, release='Yang1', docid_hint='Vomi台词库-Yang1-test-v2', sheet_name='3.录制档期'):
     reader = csv.reader(io.StringIO(csv_text))
     rows = list(reader)
     # 前 3 行是表头（主表头 / 副表头 / 填写人说明）

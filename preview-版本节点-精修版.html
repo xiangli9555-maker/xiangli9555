@@ -905,6 +905,10 @@ function deliveryFriday(devEnd){
   return fridayOf(week);
 }
 
+// 2026-09-11 · PM 手动锚定：Yang1 Vo需求锁 = 2026-09-14（跳过 dev.end-11 有效周公式）
+// 后续版本追加：VO_NEED_LOCK_OVERRIDE[versionId] = 'YYYY-MM-DD'
+const VO_NEED_LOCK_OVERRIDE = { 'yang1': '2026-09-14' };
+
 // 4 关键节点 + 5 个未来60天过程事项（PM 权威规则 · 2026-08-20）
 function computeEvents(){
   const out = [];
@@ -912,7 +916,10 @@ function computeEvents(){
     const devPh = v.phases.find(p=>p.type==='dev');
     if(!devPh) continue;
     const devEnd = d(devPh.end);
-    const lockDay     = nthValidWeekBackwardInclusive(devEnd,11);
+    // Vo需求锁：默认按 "dev最后周含当周向前第11有效周周一" 计算；
+    // 若在 VO_NEED_LOCK_OVERRIDE 里为该版本 id 显式声明 override（YYYY-MM-DD），则用 override（PM 手动锚定，跳过公式）
+    const overrideIso = v.voNeedLockOverride || VO_NEED_LOCK_OVERRIDE[v.id] || '';
+    const lockDay     = overrideIso ? mondayOf(d(overrideIso.replace(/-/g,'/'))) : nthValidWeekBackwardInclusive(devEnd,11);
     const estimateDay = thursdayOf(shiftValidWeeksAfter(lockDay,3));
     const scriptDay   = thursdayOf(shiftValidWeeksAfter(estimateDay,2));
     const deliverDay  = deliveryFriday(devEnd);
@@ -1109,7 +1116,7 @@ async function loadReleasePlans(){
       phasesObj = plan.phases;
       const arr = phaseObjToArr(phasesObj);
       if(!arr || !arr.length) continue;
-      out.push({...meta, phases:arr, planned, tapdId: plan?.id || '', detail:{
+      out.push({...meta, phases:arr, planned, tapdId: plan?.id || '', voNeedLockOverride:plan?.voNeedLockOverride||'', detail:{
         release:meta.name, status:plan?.status || '',
         devWeeks:phasesObj.dev_weeks, testWeeks:phasesObj.test_weeks, relWeeks:1,
         voiceLead:'', note:'',

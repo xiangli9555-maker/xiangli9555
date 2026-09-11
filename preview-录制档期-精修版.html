@@ -2399,7 +2399,11 @@ async function renderActorCombined(){
   YANG.test.start.setHours(0,0,0,0); YANG.test.end.setHours(0,0,0,0);
 
   // 里程碑（对齐版本节点页 s-sched-win 真源）
-  var voNeedLock = isoMon(addDaysD(YANG.dev.end, -77));
+  // 2026-09-11 · PM 手动锚定 Yang1 Vo需求锁 = 2026-09-14（跳过 dev.end-77 公式；后续版本走公式）
+  var VO_NEED_LOCK_OVERRIDE = { 'Yang1': '2026-09-14', 'Yang1.0': '2026-09-14' };
+  var relKey = normReleaseKey(release);
+  var overrideIso = VO_NEED_LOCK_OVERRIDE[release] || VO_NEED_LOCK_OVERRIDE[relKey] || '';
+  var voNeedLock = overrideIso ? isoMon(new Date(overrideIso+'T00:00:00')) : isoMon(addDaysD(YANG.dev.end, -77));
   var vaLock     = addDaysD(voNeedLock, 3*7 + 3);  // +3w 周四
   var scriptLock = addDaysD(vaLock, 2*7);           // +2w 周四
   var fixDdl     = addWorkDaysND(scriptLock, 5);

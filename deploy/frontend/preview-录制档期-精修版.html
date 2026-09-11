@@ -3305,15 +3305,33 @@ function bookActor(role, lang){
       });
     });
     var out = [];
+    // 从 "2026/9/22 12：00-14：00" / "2026-09-22 12:00-14:00" 提取纯日期 + 时段
+    // 支持全角冒号 ： 和半角 :，兼容漏空格 "2026/10/512：00-14：00" 时 5=day, 12:00-14:00 才是时段
+    function splitDateTime(raw){
+      var s = String(raw||'').trim();
+      if(!s) return { dateOnly:'', slot:'' };
+      // 归一化全角冒号为半角、全角连字符为半角
+      s = s.replace(/：/g,':').replace(/[—–]/g,'-');
+      // 匹配日期 + 剩余时段
+      var m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](3[01]|[12]\d|0?[1-9])\s*(.*)$/);
+      if(!m) return { dateOnly:'', slot:'' };
+      var yy=m[1], mm=String(m[2]).padStart(2,'0'), dd=String(m[3]).padStart(2,'0');
+      var rest = String(m[4]||'').trim();
+      // 时段部分：匹配 "H:MM-H:MM" 或 "HH:MM-HH:MM"（漏空格也能捕）
+      var t = rest.match(/(\d{1,2}:\d{2})\s*[-~至]\s*(\d{1,2}:\d{2})/);
+      var slot = t ? (t[1]+'-'+t[2]) : rest;
+      return { dateOnly: yy+'-'+mm+'-'+dd, slot: slot };
+    }
     recs.forEach(function(r){
       var role = String(r.role_cn||'').trim(); if(!role) return;
       var meta = demandByRole[role] || { id:'', title:'' };
       var loc = String(r.location||'').trim();
       var noteTitle = String(r.note||'').replace(/^Story:\s*/,'').trim();
-      // cn 行
+      // cn 行 · 拆分日期 + 时段
+      var cnDT = splitDateTime(r.date_cn);
       out.push({
-        date: String(r.date_cn||'').trim(),
-        slot:'', start_time:'', end_time:'', studio: loc,
+        date: cnDT.dateOnly,
+        slot: cnDT.slot, start_time:'', end_time:'', studio: loc,
         lang:'cn', role: role,
         demandId: meta.id, plan: cur,
         title: meta.title || noteTitle || '未关联需求'
@@ -3321,9 +3339,10 @@ function bookActor(role, lang){
       // en 行（若 va_en 有值才派生，避免全空占位）
       var vaEn = String(r.va_en||'').trim();
       if(vaEn && vaEn !== 'N/A'){
+        var enDT = splitDateTime(r.date_en);
         out.push({
-          date: String(r.date_en||'').trim(),
-          slot:'', start_time:'', end_time:'', studio: loc,
+          date: enDT.dateOnly,
+          slot: enDT.slot, start_time:'', end_time:'', studio: loc,
           lang:'en', role: role + '（英）',
           demandId: meta.id, plan: cur,
           title: meta.title || noteTitle || '未关联需求'

@@ -1703,7 +1703,8 @@ async function loadRecordingMax(){
           VE_ESTIMATE_INDEX.forEach((veList, demandId)=>{
             veList.forEach(ve=>{
               const cat=String(ve.category||'').trim();
-              const rc=String(ve.role_cn||'').trim();
+              // voice-estimates 里字段名是 role_name（不是 role_cn），兼容多种字段
+              const rc=String(ve.role_cn||ve.role_name||ve.source_role_name||'').trim();
               if(!rc) return;
               const rec=sheetByRole.get(cat+'|'+rc) || sheetByRole.get('|'+rc);
               if(!rec) return;

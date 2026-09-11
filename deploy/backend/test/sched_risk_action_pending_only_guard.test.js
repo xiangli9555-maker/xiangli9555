@@ -14,19 +14,23 @@ const DEPLOY = path.join(ROOT, 'deploy', 'frontend', 'preview-录制档期-精�
 
 function read(file){ return fs.readFileSync(file, 'utf8'); }
 
-test('1. 风险预警按钮元素存在（位于 riskBanner / body / stats 之间）', () => {
+test('1. 「仅看未预约」按钮元素存在（2026-09-11 · 位于 .actor-toolbar 内、性别按钮之后的独立 .tb-quick-actions 组）', () => {
   const html = read(SRC);
-  const m = html.match(/<div class="risk-banner"[^>]*id="riskBanner"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/);
-  // 取 banner 内三个子节点（body、button、stats）相对位置
-  const bannerBlock = html.match(/<div class="risk-banner"[^>]*id="riskBanner"[^>]*>([\s\S]*?)<div class="risk-stats"/);
-  assert.ok(bannerBlock, '必须能在 riskBanner 内 risk-body 与 risk-stats 之间定位');
-  const inside = bannerBlock[1];
-  assert.match(inside, /<button[^>]*id="riskAction"/, 'riskAction 按钮必须在 riskBanner 里');
-  assert.match(inside, /class="risk-action"/, '按钮必须套用 .risk-action 样式');
-  assert.match(inside, /type="button"/, '按钮必须是 type=button（避免默认 submit）');
-  assert.match(inside, /aria-pressed="false"/, '按钮默认 aria-pressed=false');
-  assert.match(inside, /仅看未预约/, '按钮文案必须是"仅看未预约"');
-  assert.match(inside, /data-tip="[^"]+"/, '按钮必须有 data-tip 提示');
+  // 用户定稿：按钮从 KPI 行右侧迁到 actor-toolbar 内（.tb-quick-actions 独立 tb-group，紧跟大类 pill 组之后）
+  assert.match(html, /<div class="tb-group tb-quick-actions"[^>]*>\s*<button[^>]*id="riskAction"/, 'riskAction 必须在 .tb-quick-actions 组内');
+  const btn = html.match(/<button[^>]*id="riskAction"[^>]*>[^<]*<\/button>/);
+  assert.ok(btn, '必须能匹配到 riskAction 按钮');
+  const b = btn[0];
+  assert.match(b, /class="risk-action"/, '按钮必须套用 .risk-action 样式');
+  assert.match(b, /type="button"/, '按钮必须是 type=button');
+  assert.match(b, /aria-pressed="false"/, '按钮默认 aria-pressed=false');
+  assert.match(b, /仅看未预约/, '按钮文案必须是"仅看未预约"');
+  assert.match(b, /data-tip="[^"]+"/, '按钮必须有 data-tip 提示');
+  // KPI strip 依然存在（作为大卡容器），但不再挂 riskAction
+  assert.match(html, /<div class="ac-kpi-strip">\s*<div class="ac-kpi-row" id="acKpiRow"><\/div>\s*<\/div>/, '.ac-kpi-strip 只保留 acKpiRow');
+  // 旧结构必须已删
+  assert.equal(html.includes('id="riskBanner"'), false, 'riskBanner 必须已删除');
+  assert.equal(/<div class="view-tabs"/.test(html), false, 'view-tabs tab 栏必须已删除');
 });
 
 test('2. CSS 已就绪（pill 形 + 黄色 + active 态实心黄黑）', () => {

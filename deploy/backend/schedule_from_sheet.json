@@ -3,7 +3,7 @@
   "docid_hint": "Vomi台词库-Yang1-test-v2",
   "sheet_name": "3.录制档期",
   "release": "Yang1",
-  "fetched_at": "2026-09-11T18:43:17",
+  "fetched_at": "2026-09-11T18:47:59",
   "records": [
     {
       "category": "指挥官",
@@ -2016,8 +2016,7 @@
       "role_cn": "CC（赛季）",
       "role_type": "已有声优",
       "est_lines": 70,
-      [pull] parsed 104 records
-"actual_lines": 10,
+      "actual_lines": 10,
       "deviation": "-86%",
       "va_cn": "",
       "va_en": "",

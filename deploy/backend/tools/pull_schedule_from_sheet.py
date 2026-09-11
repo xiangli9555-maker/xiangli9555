@@ -114,4 +114,4 @@ if __name__ == '__main__':
     result = parse_csv(csv_text)
     json.dump(result, sys.stdout, ensure_ascii=False, indent=2)
     sys.stdout.write('\n')
-    sys.stderr.write(f'[pull] parsed {len(result["records"])} records\n')
+    # 计数不再输出，避免调用方 2>&1 时污染 stdout JSON

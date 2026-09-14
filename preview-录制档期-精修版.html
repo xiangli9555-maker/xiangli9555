@@ -1762,12 +1762,19 @@ function aggregateActors(demands, release){
       if(hit){
         const va = g.lang==='en' ? (hit.va_en||'') : (hit.va_cn||'');
         const st = g.lang==='en' ? (hit.status_en||'') : (hit.status_cn||'');
-        const dt = g.lang==='en' ? (hit.date_en||'') : (hit.date_cn||'');
+        const dtRaw = g.lang==='en' ? (hit.date_en||'') : (hit.date_cn||'');
+        // 2026-09-14 · sheet 里日期可能是 "2026/9/22 12：00-14：00" 类字符串（含全角冒号+时段+范围）
+        // new Date() 无法解析这种混合串，会导致 pickScheduleDate() 返回 null → 时间轴上不画 △ booked-mark
+        // 归一：抽出 YYYY-MM-DD（严格 1-31 防漏空格 typo），加时段到 slot
+        const dtMatch = String(dtRaw).match(/(\d{4})[\/\-](\d{1,2})[\/\-](3[01]|[12]\d|0?[1-9])/);
+        const dt = dtMatch ? (dtMatch[1]+'-'+String(dtMatch[2]).padStart(2,'0')+'-'+String(dtMatch[3]).padStart(2,'0')) : '';
+        const slotMatch = String(dtRaw).replace(/：/g,':').match(/(\d{1,2}:\d{2}[\s]*-[\s]*\d{1,2}:\d{2})/);
+        const slot = slotMatch ? slotMatch[1].replace(/\s/g,'') : '';
         if(va && va !== 'N/A') g.actor = va;
         const bucket = schedStatusBucket(st);
         if(bucket === 'full' || bucket === 'partial'){
           g.status = 'booked';
-          g.schedule = { date: dt || '', slot: '', start_time:'', end_time:'', studio: hit.location || '' };
+          g.schedule = { date: dt || '', slot: slot || '', start_time:'', end_time:'', studio: hit.location || '' };
           g.schedules = [g.schedule];
         }
         g.sheetStatus = st;

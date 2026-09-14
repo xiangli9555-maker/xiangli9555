@@ -69,6 +69,11 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .actions{display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:6px;flex-shrink:0}
 .actions .btn{width:auto}
 .sync-hint{font-size:9.5px;color:var(--c-text-mute);font-family:var(--font-ui);letter-spacing:.2px;display:inline-flex;align-items:center;gap:5px;line-height:1;white-space:nowrap}
+/* 2026-09-14 · 页头右侧竖排两行（状态文字在上、同步按钮在下）文字右端对齐：
+   .btn 是 border-radius:999px 胶囊，padding:8px 16px → 文字右缘 = 胶囊外缘 - 16px。
+   同时胶囊高 31.59px → 圆角半径 15.8px≈16px，即胶囊在顶部区段的可见轮廓本就内缩约 16px。
+   故 hint 右缩 16px：既与按钮文字右端齐平，也贴合胶囊的光学右缘，不再凸出轮廓之外。 */
+.tactical-header .actions .sync-hint{margin-right:16px}
 .sync-hint .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55);flex-shrink:0;animation:pulse 2.2s infinite}
 /* 窄屏护栏：页头右侧放不下时优先收掉状态文字（1470 设计宽度不受影响） */
 @media (max-width:1360px){.tactical-header .sync-hint{display:none}}
@@ -622,7 +627,13 @@ body.embed .main{flex:1;min-width:0}
    ================================================================ */
 .actor-combined-wrap{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0}
 .actor-combined-wrap{
-  --col-cat:60px;--col-lang:48px;--col-role:150px;--col-story:300px;--col-lines:44px;--col-weeks:minmax(0,1fr);--col-ddl:104px;
+  /* 2026-09-14 · 列宽重分配：character 150→172、story 300→305，共 +27px 全部由周列让出
+     （--col-weeks 是 minmax(0,1fr)，固定列变宽即自动收缩）。
+     27px = 1470 设计视口下周列 270px 的 10.0%（1920 视口 620→593 仅 -4.4%，3840 仅 -1.1%，大视口几乎无感）。
+     分配依据（线上 Yang1 34 行实测）：character 文本可用仅 134px，P90 已到 139.4、最大 153.9 → 2 行被截断；
+     需 ≥170px 才归零，给 172 留 2.1px 余量。story 文本可用 284px、最大需求仅 201.7（余量 82px），
+     本不挤，+5 纯为视觉透气；若要更明显需再多让周列缩 5%~8%。 */
+  --col-cat:60px;--col-lang:48px;--col-role:172px;--col-story:305px;--col-lines:44px;--col-weeks:minmax(0,1fr);--col-ddl:104px;
   --ph-hist:#4C5A64;--ph-sched:var(--c-primary);--ph-dev:#7FB0A6;--ph-test:var(--c-brand-yellow);
   --c-vo:#D699BE;
   --c-rec-open:var(--c-primary);
@@ -684,7 +695,13 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-head .hd-legend .lg-warn{background:transparent;border:1px solid var(--c-brand-yellow)}
 
 /* 分组上标行 */
-.actor-combined-wrap .act-groups{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:6px 14px 4px}
+/* 2026-09-14 · STATUS 列对齐：`.act-body` 的纵向滚动条在滚动容器内部独占 S px（各浏览器 0~11px），
+   表体整行因此比「在滚动容器之外」的列名行窄 S → STATUS 徽章被整体推向左侧。
+   此处三行表头（groups / labels / cols）的右内边距统一补偿 var(--sbw)（由 JS 实测滚动条占位写入），
+   两边列网格重新对齐；无滚动条的环境 --sbw=0，行为与改前完全一致。
+   左内边距三行统一 18px（= `.act-row` 的 `padding:0 14px 0 18px`）：改前 14px 使周格整段右移 4px，
+   逐格与表体 `.wcell` 错位最多 4px（today/fix/vo 彩色 pill 与表体竖线标记对不齐）。 */
+.actor-combined-wrap .act-groups{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:6px calc(14px + var(--sbw,0px)) 4px 18px}
 .actor-combined-wrap .act-groups .g-lane{grid-column:6/7;display:grid;gap:2px}
 .actor-combined-wrap .act-groups .g-tag{font:600 9px/1 var(--font-ui);letter-spacing:1.4px;text-transform:uppercase;color:var(--g-c);text-align:center;padding:3px 0;border-bottom:2px solid var(--g-c);opacity:.85}
 .actor-combined-wrap .act-groups .g-tag[data-g="hist"]{--g-c:var(--ph-hist);opacity:.55}
@@ -693,7 +710,7 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-groups .g-tag[data-g="test"]{--g-c:var(--ph-test)}
 
 /* 关键节点标签行 · 紧凑小 tag */
-.actor-combined-wrap .act-labels{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:8px 14px;background:transparent}
+.actor-combined-wrap .act-labels{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:8px calc(14px + var(--sbw,0px)) 8px 18px;background:transparent}
 .actor-combined-wrap .act-labels .ll-lane{grid-column:6/7;position:relative;height:20px;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr);border-top:1px dashed rgba(15,247,150,.18);border-bottom:1px dashed rgba(15,247,150,.18);background:rgba(11,17,22,.35)}
 .actor-combined-wrap .act-labels .ll-lane .ll-tick{border-left:1px solid rgba(255,255,255,.03);height:100%}
 .actor-combined-wrap .act-labels .ll{position:absolute;top:50%;transform:translate(-50%,-50%);padding:2px 6px;font:700 9px/1 var(--font-ui);letter-spacing:.5px;color:var(--ll-c);background:rgba(11,17,22,.85);border:1px solid var(--ll-c);border-radius:2px;white-space:nowrap;z-index:4}
@@ -703,12 +720,14 @@ body.embed .main{flex:1;min-width:0}
 
 /* 列名行 */
 /* 2026-09-14 · 列名行表头文字垂直居中（改前 `>div{padding:0 8px}` 顶到行首 → 偏心 -15.9px）；周列保持拉伸以承载里程碑色块 */
-.actor-combined-wrap .act-cols{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);align-items:center;padding:9px 14px;background:rgba(255,255,255,.028);border-bottom:1px solid rgba(15,247,150,.14);font:700 10.5px/1 var(--font-ui);letter-spacing:.5px;text-transform:none;color:var(--c-text-mute)}
+.actor-combined-wrap .act-cols{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);align-items:center;padding:9px calc(14px + var(--sbw,0px)) 9px 18px;background:rgba(255,255,255,.028);border-bottom:1px solid rgba(15,247,150,.14);font:700 10.5px/1 var(--font-ui);letter-spacing:.5px;text-transform:none;color:var(--c-text-mute)}
 .actor-combined-wrap .act-cols>div{padding:0 8px}
 .actor-combined-wrap .act-cols .col-weeks{align-self:stretch;padding:0;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr)}
-.actor-combined-wrap .act-cols .col-weeks .wk{text-align:center;padding:2px 0;font-size:9.5px;border-left:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden;text-overflow:clip;white-space:nowrap;min-width:0;letter-spacing:.2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.1}
-.actor-combined-wrap .act-cols .col-weeks .wk .wk-lbl{font-size:10px;font-weight:700;letter-spacing:.3px;line-height:1}
-.actor-combined-wrap .act-cols .col-weeks .wk .wk-range{font-size:8.5px;font-weight:700;color:var(--c-text-dim);opacity:.85;letter-spacing:0;line-height:1;font-family:var(--font-ui);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* 2026-09-14 · 「文字更舒展」：周标签行高 1→1.3、日期行高 1→1.35、行距 2→3px。
+   只放开行高与行距，不动徽章尺寸 —— 假期格与普通格仍各自垂直居中（保留里程碑 pill 的居中观感）。 */
+.actor-combined-wrap .act-cols .col-weeks .wk{text-align:center;padding:2px 0;font-size:9.5px;border-left:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden;text-overflow:clip;white-space:nowrap;min-width:0;letter-spacing:.2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1.3}
+.actor-combined-wrap .act-cols .col-weeks .wk .wk-lbl{font-size:10px;font-weight:700;letter-spacing:.3px;line-height:1.3}
+.actor-combined-wrap .act-cols .col-weeks .wk .wk-range{font-size:8.5px;font-weight:700;color:var(--c-text-dim);opacity:.85;letter-spacing:0;line-height:1.35;font-family:var(--font-ui);font-variant-numeric:tabular-nums;white-space:nowrap}
 .actor-combined-wrap .act-cols .col-weeks .wk.today .wk-range,
 .actor-combined-wrap .act-cols .col-weeks .wk.fix .wk-range,
 .actor-combined-wrap .act-cols .col-weeks .wk.vo .wk-range{color:rgba(10,16,21,.72);opacity:1}
@@ -722,8 +741,8 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-cols .col-weeks .wk.vo{color:#0A1015;font-weight:700;background:var(--c-vo);border-radius:3px 3px 0 0;opacity:1}
 /* 2026-09-14 · 节假日周（周一~周日任一天命中假期）·顶部加金色小徽章，wk 列头轻微金色底 */
 .actor-combined-wrap .act-cols .col-weeks .wk.holiday{background:rgba(255,210,76,.08)}
-/* 2026-09-14 · 日期范围与假期徽章统一「微软雅黑加粗」（原 Segoe UI 400 / 600） */
-.actor-combined-wrap .act-cols .col-weeks .wk.holiday .wk-holi{display:block;font:700 8.5px/1.1 var(--font-ui);color:#FFD24C;letter-spacing:.2px;margin:1px 2px 0;padding:1px 3px;border:1px solid rgba(255,210,76,.35);border-radius:2px;background:rgba(255,210,76,.06);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+/* 2026-09-14 · 日期范围与假期徽章统一「微软雅黑加粗」（原 Segoe UI 400 / 600）；左右内边距 3→4px 让徽章更透气 */
+.actor-combined-wrap .act-cols .col-weeks .wk.holiday .wk-holi{display:block;font:700 8.5px/1.1 var(--font-ui);color:#FFD24C;letter-spacing:.2px;margin:1px 2px 0;padding:1px 4px;border:1px solid rgba(255,210,76,.35);border-radius:2px;background:rgba(255,210,76,.06);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 /* 里程碑 pill 优先级 > 节假日：today/fix/vo 命中时假期底色不叠加 */
 .actor-combined-wrap .act-cols .col-weeks .wk.today.holiday,
 .actor-combined-wrap .act-cols .col-weeks .wk.fix.holiday,
@@ -740,12 +759,15 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-body::-webkit-scrollbar-thumb{background:var(--c-hairline);background-clip:padding-box;border:1px solid transparent;border-radius:999px}
 /* 2026-09-14 · 行高 26px → 46px：行内时间条同步 24→30px，分隔线 .03→.06，左侧风险条由 16px 段改为 24px 段 */
 .actor-combined-wrap .act-row{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);align-items:center;min-height:46px;padding:0 14px 0 18px;border-bottom:1px solid rgba(255,255,255,.06);position:relative;transition:background .12s}
-.actor-combined-wrap .act-row::before{content:'';position:absolute;left:0;top:11px;bottom:11px;width:3px;background:var(--risk-c);opacity:.95;box-shadow:0 0 6px var(--risk-c)}
+/* 2026-09-14 · 「整行落满」：top/bottom 11px → 0，色条由 24px 段（占行高 52%）改为通高 46px。
+   原上下各留 11px 导致相邻两行色条之间出现 22px 断层；贴满后左右仅由 1px 行分隔线切开。
+   发光半径 6→4px：通高后相邻色条首尾相接，原半径会在接缝处叠出亮斑。 */
+.actor-combined-wrap .act-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--risk-c);opacity:.95;box-shadow:0 0 4px var(--risk-c)}
 .actor-combined-wrap .act-row[data-risk="danger"]{--risk-c:var(--c-brand-yellow)}
 .actor-combined-wrap .act-row[data-risk="open"]{--risk-c:var(--c-rec-open)}
 .actor-combined-wrap .act-row[data-risk="done"]{--risk-c:var(--c-rec-done);opacity:.85}
 .actor-combined-wrap .act-row:hover{background:rgba(15,247,150,.03)}
-.actor-combined-wrap .act-row:hover::before{box-shadow:0 0 10px var(--risk-c)}
+.actor-combined-wrap .act-row:hover::before{box-shadow:0 0 7px var(--risk-c)}
 .actor-combined-wrap .act-row .ar-lvl{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;margin-right:8px;font:700 11px/1 var(--font-ui);color:var(--risk-c);border:1px solid var(--risk-c);border-radius:2px;background:rgba(11,17,22,.55);letter-spacing:0;vertical-align:middle;flex-shrink:0}
 .actor-combined-wrap .act-row .ar-lvl .df-mark{display:inline-block;width:12px;height:11px;background-color:currentColor;-webkit-mask:var(--df-logo-url) no-repeat center/contain;mask:var(--df-logo-url) no-repeat center/contain;vertical-align:middle;transform:translate(1px,-1px)}
 .actor-combined-wrap .act-row .ar-cat{padding:0 8px;font:500 11.5px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2343,6 +2365,30 @@ async function renderActorScheduleTimeline(){
     + '<div class="sched-legend"><b>说明</b>：未约角色置顶按句数倒序，距最近里程碑 ≤14 天转红、≤30 天转黄；已约按录制日期落入对应阶段。数据源：voice_estimates + /api/schedules + /api/schedule-from-sheet。</div>';
 }
 
+/* 2026-09-14 · 把 `.act-body` 的纵向滚动条占位写进 `--sbw`（CSS 见 .act-groups/.act-labels/.act-cols）。
+   无滚动条的环境量到 0，行为与改前一致；有滚动条时三行表头右内边距等量补偿，
+   使列名行 STATUS 与表体徽章、以及周条带，重新落在同一套列网格上。 */
+function syncTableSbw(){
+  var wrap = document.getElementById('acTableWrap');
+  var body = document.getElementById('acTableBody');
+  if(!wrap || !body) return;
+  var s = body.offsetWidth - body.clientWidth;   // .act-body 无 border → 差值即滚动条占位
+  if(!(s > 0)) s = 0;
+  var cur = parseFloat(wrap.style.getPropertyValue('--sbw')) || 0;
+  if(Math.abs(cur - s) > 0.5) wrap.style.setProperty('--sbw', s + 'px');
+}
+function bindTableSbw(){
+  var body = document.getElementById('acTableBody');
+  if(!body || body.dataset.sbwBound === '1') return;
+  body.dataset.sbwBound = '1';
+  var raf = 0;
+  function later(){ if(raf) return; raf = requestAnimationFrame(function(){ raf = 0; syncTableSbw(); }); }
+  window.addEventListener('resize', later);
+  if(window.ResizeObserver){ new ResizeObserver(later).observe(body); }   // 滚动条出现/消失 → 内容盒宽度变化即触发
+  syncTableSbw();
+}
+if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', bindTableSbw); } else { bindTableSbw(); }
+
 // ================================================================
 // 声优视图 · 组合仪表盘（2026-09-09 方向 1 · A + C + D 三段）
 // 数据源：aggregateActors + /api/release-plans phases + 里程碑公式
@@ -2627,7 +2673,7 @@ async function renderActorCombined(){
     colsEl.innerHTML = ''
       + '<div>CAT</div>'
       + '<div>LANG</div>'
-      + '<div>LVL · ROLE</div>'
+      + '<div>CHARACTER</div>'
       + '<div>STORY</div>'
       + '<div style="text-align:right">LINES</div>'
       + '<div class="col-weeks">'+wkHtml+'</div>'
@@ -2737,6 +2783,7 @@ async function renderActorCombined(){
   });
 
   bodyEl.innerHTML = sorted.map(rowHtml).join('');
+  syncTableSbw();   // 行数/内容变化会影响是否出现滚动条 → 重新校准 --sbw
 }
 
 function renderActorSixBoard(viewType){
@@ -3062,7 +3109,10 @@ function renderScheduleDeadline(){
   var rel = '';
   try{
     rel = String(
-      (window.SCHED_STATE && SCHED_STATE.currentRelease)
+      // 2026-09-14 · SCHED_STATE 是顶层 let（非 window 属性），原 `window.SCHED_STATE &&` 恒 false → 本候选从未生效。
+      // 当前与次候选 ACTOR_STATE.release 同值（均由 L1145-1146 的同一个 current 赋值），故此前无实际表现；
+      // 但一旦两者分叉，页头 release 会静默取错值。此处按同页 ACTOR_STATE 的修法统一用 typeof 守卫。
+      (typeof SCHED_STATE !== 'undefined' && SCHED_STATE.currentRelease)
       || (typeof ACTOR_STATE !== 'undefined' && ACTOR_STATE.release)
       || (typeof detectCurrentReleaseFromDemands === 'function' ? detectCurrentReleaseFromDemands() : '')
       || (window.SHELL_RELEASE || '')

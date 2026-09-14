@@ -196,7 +196,8 @@ for (const [name, relativePath, label] of eyebrowPageSpecs) {
   test(`${name} 顶部英文提示统一为全大写与同一字体规格`, () => {
     const page = readProjectFile(relativePath);
     assert.equal(page.includes(canonicalEyebrowRule), true, 'eyebrow 字体规格未统一');
-    assert.match(page, new RegExp(`<div class="eyebrow"><span class="sig"></span>${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:<|\\s)`));
+    // 2026-09-14：页面后来插入了 data-page-node-id 等属性，断言需容忍标签内额外属性（语义不变）。
+    assert.match(page, new RegExp(`<div class="eyebrow"[^>]*><span class="sig"[^>]*></span>${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:<|\\s)`));
   });
 }
 
@@ -266,9 +267,10 @@ for (const [index, page] of demandPages.entries()) {
 
   test(`需求汇总页 ${index + 1} 历史归档 STATUS 行 → RELEASE chip 行（2026-09-04 方案 A）`, () => {
     // 1) 两个筛选行都存在，releaseRow 默认隐藏
-    assert.equal(/<div class="filter-row status-row" id="statusRow">/.test(page), true, '缺少 STATUS 筛选行');
-    assert.equal(/id="releaseRow" style="display:none"/.test(page), true, '缺少默认隐藏的 RELEASE 筛选行');
-    assert.equal(/data-fk="archive-rel" data-fv="">全部/.test(page), true, 'RELEASE 行缺少「全部」chip');
+    // 2026-09-14：同上，容忍标签内 data-page-node-id 等额外属性。
+    assert.equal(/<div class="filter-row status-row" id="statusRow"[^>]*>/.test(page), true, '缺少 STATUS 筛选行');
+    assert.equal(/id="releaseRow"[^>]*style="display:none"/.test(page), true, '缺少默认隐藏的 RELEASE 筛选行');
+    assert.equal(/data-fk="archive-rel" data-fv=""[^>]*>全部/.test(page), true, 'RELEASE 行缺少「全部」chip');
     // 2) 局部子筛选变量 + 持久化字段
     assert.equal(/let archiveSubRelease = \(filterRelease === '__archive__'\) \? \(_f0\.archiveRelease \|\| ''\) : ''/.test(page), true, '缺少 archiveSubRelease 局部变量初始化');
     assert.equal(/archiveRelease:archiveSubRelease/.test(page), true, 'saveFilters 未持久化 archiveRelease');

@@ -47,7 +47,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 
 .tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--c-hairline);position:relative}
 .tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
-/* 2026-09-14 · 页头右侧收成一行：同步状态 + 同步按钮同排居中，按钮沉到标题基线上
+/* 2026-09-14 · 页头右侧：同步状态压在按钮上方（竖排两行），按钮仍沉到标题基线上
    去掉旧的「按钮悬浮下横线 + 独立 hint 空行」双层结构 —— 那条空行只有右侧一小行字，
    在页头与 KPI 之间留下一整条约 35px 的视觉空带，是这一版要消掉的东西。 */
 .tactical-header .actions{position:static}
@@ -65,13 +65,12 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .page-title .deadline-meta .deadline-sep{margin:0 6px;opacity:.5}
 .page-title .deadline-meta .deadline-slash{font-family:var(--font-ui);font-weight:500;color:var(--c-text-mute);letter-spacing:1px;margin-right:6px;opacity:.7}
 .page-title .deadline-meta .deadline-calm{color:var(--c-primary);opacity:.7;font-weight:500;margin-left:4px}
-.actions{display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:14px;flex-shrink:0}
+/* 2026-09-14 · 右侧改竖排：状态文字在上、同步按钮在下，整体右对齐（贴合按钮右缘） */
+.actions{display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:6px;flex-shrink:0}
 .actions .btn{width:auto}
-.sync-hint{font-size:10.5px;color:var(--c-text-mute);font-family:var(--font-ui);letter-spacing:.2px;display:inline-flex;align-items:center;gap:6px;line-height:1;white-space:nowrap}
-.sync-hint .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55);flex-shrink:0;animation:pulse 2.2s infinite}
-/* 状态文字与按钮之间的细竖分隔（去掉字重与按钮抢视觉） */
-.sync-hint::after{content:'';width:1px;height:14px;background:var(--c-hairline);margin-left:2px}
-/* 窄屏护栏：页头右侧那一行放不下时优先收掉状态文字（1470 设计宽度不受影响） */
+.sync-hint{font-size:9.5px;color:var(--c-text-mute);font-family:var(--font-ui);letter-spacing:.2px;display:inline-flex;align-items:center;gap:5px;line-height:1;white-space:nowrap}
+.sync-hint .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55);flex-shrink:0;animation:pulse 2.2s infinite}
+/* 窄屏护栏：页头右侧放不下时优先收掉状态文字（1470 设计宽度不受影响） */
 @media (max-width:1360px){.tactical-header .sync-hint{display:none}}
 .sync-spinner{display:inline-block;width:12px;height:12px;border:1.5px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:4px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -142,7 +141,8 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .mp-empty{font-size:11px;color:var(--c-text-dim);font-style:italic;padding:4px 0}
 
 .mp-progress{display:flex;flex-direction:column;gap:14px;padding:4px 0 2px}
-.mp-pr-row{display:grid;grid-template-columns:44px 1fr 60px;align-items:center;gap:10px;padding:4px 0}
+/* 2026-09-14 · 第一列 44→48px：44px 时胶囊内容需 44.6px，差 0.6px 导致「中配」二字被挤成两行（与下方 .lang-badge 形态不再一致） */
+.mp-pr-row{display:grid;grid-template-columns:48px 1fr 60px;align-items:center;gap:10px;padding:4px 0}
 .mp-pr-row.total .mp-pr-label{font-weight:700}
 /* 药丸按钮：未激活也带语种色描边+淡底，激活时实色填充 */
 .mp-pr-label{font-size:11px;color:var(--c-text-2);font-weight:600;letter-spacing:.3px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.10);border-radius:999px;padding:3px 10px;text-align:center;cursor:pointer;transition:all .12s;font-family:inherit;line-height:1.2;user-select:none}
@@ -226,7 +226,10 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .mp-up-meta{font-family:var(--font-ui);font-size:10.5px;color:var(--c-text-dim);letter-spacing:.2px}
 .mp-up-role{font-size:13px;line-height:1.35;margin-top:3px;color:rgba(255,255,255,.7);font-weight:600}
 .mp-up-demand{font-size:11.5px;line-height:1.35;margin-top:3px;color:rgba(255,255,255,.7)}
-.mp-up-demand .lang-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;font-size:11px;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.3px;font-weight:600;margin-left:6px;vertical-align:baseline;border:1px solid;cursor:default;line-height:1}
+/* 2026-09-14 · 与「预约进度」.mp-pr-label 规格对齐（用户要求两处胶囊一致）。
+   注意：assets/project-fonts.css 的 chip 基类把 .lang-badge 也收进列表并用 !important 压了
+   font-size/weight/letter-spacing，故此处必须加 !important 才能生效（否则恒为 12px/500/0）。 */
+.mp-up-demand .lang-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px !important;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.3px !important;font-weight:600 !important;margin-left:6px;vertical-align:baseline;border:1px solid;cursor:default;line-height:1.2}
 .mp-up-demand .lang-badge.cn{background:rgba(140,168,189,.10);border-color:rgba(140,168,189,.36);color:#B8CBD8}
 .mp-up-demand .lang-badge.en{background:rgba(15,247,150,.08);border-color:rgba(15,247,150,.34);color:var(--c-primary)}
 /* 即将录制 · pill（对齐主表 sc-pill：圆点+日期+时间，过去态灰化） */
@@ -699,12 +702,13 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-labels .ll[data-kind="vo"]{--ll-c:var(--c-vo)}
 
 /* 列名行 */
-.actor-combined-wrap .act-cols{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:9px 14px;background:rgba(255,255,255,.028);border-bottom:1px solid rgba(15,247,150,.14);font:700 10.5px/1 var(--font-ui);letter-spacing:.5px;text-transform:none;color:var(--c-text-mute)}
+/* 2026-09-14 · 列名行表头文字垂直居中（改前 `>div{padding:0 8px}` 顶到行首 → 偏心 -15.9px）；周列保持拉伸以承载里程碑色块 */
+.actor-combined-wrap .act-cols{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);align-items:center;padding:9px 14px;background:rgba(255,255,255,.028);border-bottom:1px solid rgba(15,247,150,.14);font:700 10.5px/1 var(--font-ui);letter-spacing:.5px;text-transform:none;color:var(--c-text-mute)}
 .actor-combined-wrap .act-cols>div{padding:0 8px}
-.actor-combined-wrap .act-cols .col-weeks{padding:0;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr)}
+.actor-combined-wrap .act-cols .col-weeks{align-self:stretch;padding:0;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr)}
 .actor-combined-wrap .act-cols .col-weeks .wk{text-align:center;padding:2px 0;font-size:9.5px;border-left:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden;text-overflow:clip;white-space:nowrap;min-width:0;letter-spacing:.2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.1}
 .actor-combined-wrap .act-cols .col-weeks .wk .wk-lbl{font-size:10px;font-weight:700;letter-spacing:.3px;line-height:1}
-.actor-combined-wrap .act-cols .col-weeks .wk .wk-range{font-size:8.5px;font-weight:400;color:var(--c-text-dim);opacity:.85;letter-spacing:0;line-height:1;font-family:var(--font-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+.actor-combined-wrap .act-cols .col-weeks .wk .wk-range{font-size:8.5px;font-weight:700;color:var(--c-text-dim);opacity:.85;letter-spacing:0;line-height:1;font-family:var(--font-ui);font-variant-numeric:tabular-nums;white-space:nowrap}
 .actor-combined-wrap .act-cols .col-weeks .wk.today .wk-range,
 .actor-combined-wrap .act-cols .col-weeks .wk.fix .wk-range,
 .actor-combined-wrap .act-cols .col-weeks .wk.vo .wk-range{color:rgba(10,16,21,.72);opacity:1}
@@ -718,7 +722,8 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-cols .col-weeks .wk.vo{color:#0A1015;font-weight:700;background:var(--c-vo);border-radius:3px 3px 0 0;opacity:1}
 /* 2026-09-14 · 节假日周（周一~周日任一天命中假期）·顶部加金色小徽章，wk 列头轻微金色底 */
 .actor-combined-wrap .act-cols .col-weeks .wk.holiday{background:rgba(255,210,76,.08)}
-.actor-combined-wrap .act-cols .col-weeks .wk.holiday .wk-holi{display:block;font:600 8.5px/1.1 var(--font-ui);color:#FFD24C;letter-spacing:.2px;margin:1px 2px 0;padding:1px 3px;border:1px solid rgba(255,210,76,.35);border-radius:2px;background:rgba(255,210,76,.06);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+/* 2026-09-14 · 日期范围与假期徽章统一「微软雅黑加粗」（原 Segoe UI 400 / 600） */
+.actor-combined-wrap .act-cols .col-weeks .wk.holiday .wk-holi{display:block;font:700 8.5px/1.1 var(--font-ui);color:#FFD24C;letter-spacing:.2px;margin:1px 2px 0;padding:1px 3px;border:1px solid rgba(255,210,76,.35);border-radius:2px;background:rgba(255,210,76,.06);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 /* 里程碑 pill 优先级 > 节假日：today/fix/vo 命中时假期底色不叠加 */
 .actor-combined-wrap .act-cols .col-weeks .wk.today.holiday,
 .actor-combined-wrap .act-cols .col-weeks .wk.fix.holiday,
@@ -742,7 +747,7 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-row:hover{background:rgba(15,247,150,.03)}
 .actor-combined-wrap .act-row:hover::before{box-shadow:0 0 10px var(--risk-c)}
 .actor-combined-wrap .act-row .ar-lvl{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;margin-right:8px;font:700 11px/1 var(--font-ui);color:var(--risk-c);border:1px solid var(--risk-c);border-radius:2px;background:rgba(11,17,22,.55);letter-spacing:0;vertical-align:middle;flex-shrink:0}
-.actor-combined-wrap .act-row .ar-lvl .df-mark{display:inline-block;width:12px;height:11px;background-color:currentColor;-webkit-mask:var(--df-logo-url) no-repeat center/contain;mask:var(--df-logo-url) no-repeat center/contain;vertical-align:middle;transform:translateY(-1px)}
+.actor-combined-wrap .act-row .ar-lvl .df-mark{display:inline-block;width:12px;height:11px;background-color:currentColor;-webkit-mask:var(--df-logo-url) no-repeat center/contain;mask:var(--df-logo-url) no-repeat center/contain;vertical-align:middle;transform:translate(1px,-1px)}
 .actor-combined-wrap .act-row .ar-cat{padding:0 8px;font:500 11.5px/1 var(--font-ui);color:var(--c-text-mute);letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .actor-combined-wrap .act-row .ar-lang{padding:0 4px;display:flex;align-items:center;justify-content:center;font:600 10.5px/1 var(--font-ui);letter-spacing:.3px;color:var(--lang-c,var(--c-text-mute));text-align:center}
 .actor-combined-wrap .act-row .ar-lang[data-lang="cn"]{--lang-c:#B8CBD8}
@@ -2378,6 +2383,18 @@ async function renderActorCombined(){
   // 数据聚合
   var release = ACTOR_STATE.release || detectCurrentReleaseFromDemands() || 'Yang1.0';
   var all = aggregateActors(ACTOR_STATE.demands || [], release);
+  // 2026-09-14 · 侧栏「预约进度」口径统一：把 aggregateActors 的**全量**行（不受筛选影响）按语种统计后发布到全局。
+  //   修正此前侧栏只统计「已经写了预约时间的行」→ 分母恒等于分子 → 永远显示 100%（如 中配 15/15）。
+  //   分母 = 应约角色 × 语种行数；分子 = 其中 status==='booked'（与顶部「已排期 / 覆盖率」同口径）。
+  window.ACTOR_PROGRESS = (function(){
+    function stat(lg){
+      var arr = all.filter(function(a){ return a.lang === lg; });
+      return { total: arr.length, done: arr.filter(function(a){ return a.status === 'booked'; }).length };
+    }
+    return { cn: stat('cn'), en: stat('en'), release: release };
+  })();
+  // 统计变了要让侧栏进度条跟着走（侧栏主渲染在主表之后，否则会一直用上一轮的口径）
+  try{ if(typeof window.refreshMidProgress === 'function') window.refreshMidProgress(); }catch(_){}
   var q = (document.getElementById('actorSearch') && document.getElementById('actorSearch').value || '').trim().toLowerCase();
   var list = all.filter(function(a){
     if(ACTOR_STATE.lang !== 'all' && a.lang !== ACTOR_STATE.lang) return false;
@@ -3046,7 +3063,7 @@ function renderScheduleDeadline(){
   try{
     rel = String(
       (window.SCHED_STATE && SCHED_STATE.currentRelease)
-      || (window.ACTOR_STATE && ACTOR_STATE.release)
+      || (typeof ACTOR_STATE !== 'undefined' && ACTOR_STATE.release)
       || (typeof detectCurrentReleaseFromDemands === 'function' ? detectCurrentReleaseFromDemands() : '')
       || (window.SHELL_RELEASE || '')
       || ''
@@ -3447,7 +3464,7 @@ function bookActor(role, lang){
     // 2026-09-14 · 侧栏「预约进度 / 录制日历 / 即将录制」跟随 ACTOR_STATE.lang 联动
     // 预约进度 3 条（中/英/总计）依然全量展示（用户参考），
     // 但录制日历 + 即将录制根据当前选中语种过滤
-    var curLang = (window.ACTOR_STATE && window.ACTOR_STATE.lang) || 'all';
+    var curLang = (typeof ACTOR_STATE !== 'undefined' && ACTOR_STATE.lang) || 'all';
     var langFiltered = (curLang === 'all')
       ? safeRows
       : safeRows.filter(function(r){ return r.lang === curLang; });
@@ -3458,15 +3475,23 @@ function bookActor(role, lang){
   function renderMidProgress(rows){
     var box=document.getElementById('mpProgress'); if(!box) return;
     var cnT=0, cnD=0, enT=0, enD=0;
-    rows.forEach(function(r){
-      var lg=r.lang;
-      if(lg==='cn'){ cnT++; if(parseYMD(r.date)) cnD++; }
-      else if(lg==='en'){ enT++; if(parseYMD(r.date)) enD++; }
-    });
+    // 2026-09-14 · 口径统一：优先用主表同源的 aggregateActors 全量统计（应约角色 × 语种），
+    //   仅在主表统计尚未就绪时回落到 sheet 快照行（旧口径：只数「已写了预约时间」的行，分母会缩水）。
+    var pg = window.ACTOR_PROGRESS;
+    if(pg && pg.cn && pg.en && (pg.cn.total || pg.en.total)){
+      cnT = Number(pg.cn.total)||0; cnD = Number(pg.cn.done)||0;
+      enT = Number(pg.en.total)||0; enD = Number(pg.en.done)||0;
+    } else {
+      (Array.isArray(rows)?rows:[]).forEach(function(r){
+        var lg=r.lang;
+        if(lg==='cn'){ cnT++; if(parseYMD(r.date)) cnD++; }
+        else if(lg==='en'){ enT++; if(parseYMD(r.date)) enD++; }
+      });
+    }
     var allT=cnT+enT, allD=cnD+enD;
     function row(label, done, total, cls, extra, pill){
       var pct=total?Math.max(0,Math.min(100,Math.round(done*100/total))):0;
-      var curLang = (window.ACTOR_STATE && window.ACTOR_STATE.lang) || 'all';
+      var curLang = (typeof ACTOR_STATE !== 'undefined' && ACTOR_STATE.lang) || 'all';
       var onCls = (pill === curLang) ? ' on' : '';
       return '<div class="mp-pr-row'+(extra?' '+extra:'')+'">'
         +'<button class="mp-pr-label'+onCls+'" data-lang-pill="'+pill+'" onclick="setActorLangFromPanel(\''+pill+'\',this)" type="button">'+label+'</button>'
@@ -3956,7 +3981,12 @@ function bookActor(role, lang){
         .then(function(r){ return r.ok ? r.json() : {ok:false, records:[]}; })
         .then(function(j){
           if(j && j.ok && Array.isArray(j.records)){
-            if(window.ACTOR_STATE){ ACTOR_STATE.sheetSchedule = j.records; ACTOR_STATE.sheetFetchedAt = j.fetched_at||''; }
+            // 2026-09-14 · 修正：ACTOR_STATE 是顶层 let（不是 window 属性），原 `if(window.ACTOR_STATE)` 恒 false
+            //   → 点「从 Vo 版本汇总表同步」后新拉到的快照根本没进内存，主表/侧栏一直用旧数据（这就是"不是实际的"来源）
+            if(typeof ACTOR_STATE !== 'undefined'){
+              ACTOR_STATE.sheetSchedule = j.records;
+              ACTOR_STATE.sheetFetchedAt = j.fetched_at||'';
+            }
             return j.records;
           }
           return [];
@@ -3980,7 +4010,8 @@ function bookActor(role, lang){
   // 「上次同步」时间戳回填：读 ACTOR_STATE.sheetFetchedAt（ISO 字符串），写成 MM.DD HH:mm
   window.refreshSyncHint = function(){
     var el = document.getElementById('syncHintLast'); if(!el) return;
-    var iso = (window.ACTOR_STATE && ACTOR_STATE.sheetFetchedAt) || '';
+    // 2026-09-14 · 修正：ACTOR_STATE 不是 window 属性，原 `window.ACTOR_STATE &&` 恒 false → 同步后时间戳被清成「—」
+    var iso = (typeof ACTOR_STATE !== 'undefined' && ACTOR_STATE.sheetFetchedAt) || '';
     if(!iso){ el.textContent = '—'; return; }
     // ISO: 2026-09-11T18:47:59
     var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso);
@@ -4061,6 +4092,9 @@ function bookActor(role, lang){
   window.openDraftWizard=SCHED.open; window.closeDraftWizard=SCHED.close; window.confirmDraftWizard=SCHED.confirm;
   window.addEmptySched=SCHED.addEmpty; window.exportSchedule=SCHED.export; window.publishScheduleDrafts=SCHED.publishAll;
   window.renderSched=renderSched;
+  // 2026-09-14 · 顶层 renderActorCombined 刷新 aggregateActors 统计后回刷侧栏「预约进度」
+  //   （跨 IIFE 单向调用，不反向触发主表渲染，无环）
+  window.refreshMidProgress=function(){ try{ renderMidProgress(null); }catch(_){} };
   document.getElementById('wizMask').addEventListener('click',function(e){ if(e.target===this) SCHED.close(); });
   renderSched();
   loadDemandOptions();

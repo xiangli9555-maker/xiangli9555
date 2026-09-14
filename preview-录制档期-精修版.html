@@ -2421,12 +2421,12 @@ async function renderActorCombined(){
     }
     return addDaysD(week, 4);   // Friday
   })();
-  // 时间轴右边界 = 覆盖 voDeliver + testW3（取更晚者）以留出上下文
-  var testW3Mon  = addDaysD(isoMon(YANG.test.start), 2*7);
+  // 时间轴右边界 = 覆盖 voDeliver + testW2（取更晚者）以留出上下文
+  var testW2Mon  = addDaysD(isoMon(YANG.test.start), 1*7);
 
-  // 时间轴窗口：声优锁那周 → 测试第3周 那周
+  // 时间轴窗口：声优锁那周 → 测试第2周 那周（PM 2026-09-14 从 test W3 收窄到 test W2）
   var winStart = isoMon(vaLock);
-  var winEnd   = addDaysD(testW3Mon, 6);
+  var winEnd   = addDaysD(testW2Mon, 6);
   // 2026-09-11 用户定稿：如果今日早于窗口左边界（today 落在 HIST W-4 之前），
   // 时间轴自动向左延伸到覆盖 today，W 编号会自动扩展到 W-5/W-6/... 保证「今」竖线可见。
   var todayMon = isoMon(today);
@@ -2506,7 +2506,7 @@ async function renderActorCombined(){
   // 表头
   if(headEl){
     headEl.innerHTML = ''
-      + '<div class="hd-title">TIMELINE <span class="hd-title-sub">'+escFn(release)+' · 全 Talent 录制排期总表 · 声优锁 → 测试第3周</span></div>'
+      + '<div class="hd-title">TIMELINE <span class="hd-title-sub">'+escFn(release)+' · 全 Talent 录制排期总表 · 声优锁 → 测试第2周</span></div>'
       + '<div class="hd-legend">'
       +   '<span><i class="lg-open"></i>已排待录</span>'
       +   '<span><i class="lg-done"></i>录制完成</span>'

@@ -17,7 +17,7 @@
      统一注册为 #FFD24C（同 mock v2 preview-组合仪表盘-v2.html:12 一致）。 */
   --c-brand-yellow:#FFD24C}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Inter','JetBrains Mono',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);-webkit-font-smoothing:antialiased}
+html,body{height:100%;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Noto Sans CJK SC",-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;color:var(--c-text);background:url('assets/bg-universal.png') center/cover no-repeat fixed;background-color:var(--c-bg);-webkit-font-smoothing:antialiased}
 body{display:flex;flex-direction:column;overflow:hidden}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--c-surface-3);border-radius:4px}
 
@@ -32,7 +32,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle:hover{background:var(--c-surface);border-color:var(--c-primary);color:var(--c-primary)}
 .brand-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:'Inter',sans-serif;letter-spacing:.3px}
+.brand-subsys{font-size:18px;font-weight:700;color:var(--c-text);font-family:'Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif;letter-spacing:.3px}
 .brand-spacer{flex:1}
 .layout{flex:1;display:flex;overflow:hidden}
 .sidebar{order:0;width:216px;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:16px 12px;flex-shrink:0;overflow-y:auto}
@@ -55,7 +55,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .page-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;display:flex;align-items:baseline;gap:14px;text-shadow:0 0 16px rgba(15,247,150,.18)}
 .page-title .code{font-family:var(--font-ui);font-size:13px;color:var(--c-text-mute);font-weight:500;letter-spacing:1px}
 /* 录制档期截止药丸：替代原 "// 2026 · JUL" 灰色占位，按当前 release 显示到期日；过期/未到期主色差异 */
-.page-title .deadline-meta{display:inline-block;font-family:'Inter','Microsoft YaHei UI',sans-serif;font-size:12.5px;font-weight:400;color:var(--c-text-2);letter-spacing:.2px;line-height:1;vertical-align:middle;margin-left:4px;white-space:nowrap}
+.page-title .deadline-meta{display:inline-block;font-family:'Microsoft YaHei UI',sans-serif;font-size:12.5px;font-weight:400;color:var(--c-text-2);letter-spacing:.2px;line-height:1;vertical-align:middle;margin-left:4px;white-space:nowrap}
 .page-title .deadline-meta .deadline-rel{font-family:var(--font-ui);font-weight:600;color:var(--c-text-2);letter-spacing:.4px;font-variant-numeric:tabular-nums}
 .page-title .deadline-meta .deadline-dates{font-family:var(--font-ui);font-weight:600;color:var(--c-text-2);letter-spacing:.4px;font-variant-numeric:tabular-nums}
 .page-title .deadline-meta .deadline-sep{margin:0 6px;opacity:.5}
@@ -84,7 +84,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 /* 录制档期头部（按截图改版） */
 .sched-hero{display:flex;flex-direction:column;gap:10px;padding:2px 0 2px;border-bottom:1px solid var(--c-hairline)}
 .sched-hero-main{display:flex;align-items:center;gap:12px;min-height:34px}
-.sched-hero-title{font-size:40px;line-height:1;font-weight:900;letter-spacing:.2px;color:#fff;font-family:'Inter','Microsoft YaHei UI',sans-serif}
+.sched-hero-title{font-size:40px;line-height:1;font-weight:900;letter-spacing:.2px;color:#fff;font-family:'Microsoft YaHei UI',sans-serif}
 .sched-hero-sub{font-size:30px;line-height:1;color:#8CA0AF;white-space:nowrap}
 .sched-hero-line{height:1px;flex:1;min-width:120px;background:linear-gradient(90deg,rgba(140,160,175,.38),rgba(140,160,175,.14) 62%,transparent 100%)}
 .sched-hero-count{font-size:11px;color:var(--c-text-dim);font-family:var(--font-ui);display:none}
@@ -92,7 +92,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .sched-filterbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:0 0 4px}
 .sched-filterbar .tb-group{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--c-text-mute);font-family:var(--font-ui);letter-spacing:.6px}
 .sched-filterbar .tb-label{color:#4E6A7E;font-weight:700;letter-spacing:1.4px;font-size:24px;text-transform:uppercase}
-.sched-filterbar .tb-btn{background:rgba(15,23,28,.82);border:1px solid #22313B;color:var(--c-text-2);padding:8px 20px;font-size:30px;border-radius:999px;cursor:pointer;transition:all .12s;font-family:'Inter','Microsoft YaHei UI',sans-serif;line-height:1.1}
+.sched-filterbar .tb-btn{background:rgba(15,23,28,.82);border:1px solid #22313B;color:var(--c-text-2);padding:8px 20px;font-size:30px;border-radius:999px;cursor:pointer;transition:all .12s;font-family:'Microsoft YaHei UI',sans-serif;line-height:1.1}
 .sched-filterbar .tb-btn:hover{border-color:var(--c-primary);color:#fff}
 .sched-filterbar [data-sched-lang].on[data-sched-lang="cn"]{color:#8CA8C1;border-color:#8CA8C1;background:rgba(58,82,102,.20);box-shadow:0 0 0 1px rgba(140,168,189,.20) inset}
 .sched-filterbar [data-sched-lang].on[data-sched-lang="en"]{color:var(--c-primary);border-color:var(--c-primary);background:rgba(15,247,150,.14);box-shadow:0 0 0 1px rgba(15,247,150,.18) inset}
@@ -128,7 +128,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 /* 中间侧边栏最后一节（即将录制）：紧接日历下方，剩余空间内自适应，超出可滚动 */
 #schedMidPanel .mp-section:last-child{flex:1 1 0;min-height:0}
 #schedMidPanel .mp-section:last-child .mp-upcoming{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-right:6px;margin-right:-6px}
-.mp-sec-title{font-size:15px;letter-spacing:.2px;color:transparent;font-family:'Inter',sans-serif;font-weight:600;padding:1px 0 1px 33px;line-height:1.2;position:relative;display:flex;align-items:center;min-height:24px;background:linear-gradient(90deg,#0FF89B 0%,rgba(15,248,155,.55) 35%,rgba(15,248,155,.22) 65%,rgba(15,248,155,0) 100%);-webkit-background-clip:text;background-clip:text}
+.mp-sec-title{font-size:15px;letter-spacing:.2px;color:transparent;font-family:'Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif;font-weight:600;padding:1px 0 1px 33px;line-height:1.2;position:relative;display:flex;align-items:center;min-height:24px;background:linear-gradient(90deg,#0FF89B 0%,rgba(15,248,155,.55) 35%,rgba(15,248,155,.22) 65%,rgba(15,248,155,0) 100%);-webkit-background-clip:text;background-clip:text}
 .mp-sec-title::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:24px;height:24px;background-color:#6bd995;-webkit-mask:url('assets/DeltaForceLogo-Triangle.png') no-repeat center/contain,linear-gradient(90deg,#000 45%,transparent 100%);mask:url('assets/DeltaForceLogo-Triangle.png') no-repeat center/contain,linear-gradient(90deg,#000 45%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}
 .mp-sec-title::after{content:'';position:absolute;left:33px;right:0;bottom:-5px;height:1px;background:linear-gradient(90deg, rgba(202,225,207,.34), rgba(202,225,207,.10) 58%, transparent 92%)}
 .mp-empty{font-size:11px;color:var(--c-text-dim);font-style:italic;padding:4px 0}
@@ -339,7 +339,7 @@ body.embed .main{flex:1;min-width:0}
 
 /* 搜索历史下拉（2026-09-07 谷歌风格 + 玻璃绿 UI + 5 条内 + 紧凑） */
 .search-host{position:relative;display:inline-block;flex:0 0 auto}
-.search-history{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(15,23,28,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(15,247,150,.32);border-radius:10px;padding:6px 6px 4px;z-index:6100;box-shadow:0 8px 24px rgba(0,0,0,.45);outline:none;font-family:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif}
+.search-history{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(15,23,28,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(15,247,150,.32);border-radius:10px;padding:6px 6px 4px;z-index:6100;box-shadow:0 8px 24px rgba(0,0,0,.45);outline:none;font-family:'Microsoft YaHei UI','PingFang SC',sans-serif}
 .search-history::before{content:"";position:absolute;left:18px;top:-5px;width:8px;height:8px;background:rgba(15,23,28,.92);border-left:1px solid rgba(15,247,150,.32);border-top:1px solid rgba(15,247,150,.32);transform:rotate(45deg)}
 .sh-head{font-size:10.5px;color:var(--c-text-dim);letter-spacing:.8px;padding:4px 8px 6px;text-transform:uppercase;font-weight:500;font-family:var(--font-ui)}
 .sh-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:1px}
@@ -347,7 +347,7 @@ body.embed .main{flex:1;min-width:0}
 .sh-item:hover,.sh-item.active{background:rgba(15,247,150,.08);color:#fff}
 .sh-item .ico{flex-shrink:0;width:14px;height:14px;color:var(--c-text-dim);opacity:.65}
 .sh-item.hit .label{color:var(--c-primary)}
-.sh-item .label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Inter','Microsoft YaHei UI','PingFang SC',sans-serif}
+.sh-item .label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Microsoft YaHei UI','PingFang SC',sans-serif}
 .sh-item .del{flex-shrink:0;width:18px;height:18px;border:0;background:transparent;color:var(--c-text-dim);cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;opacity:0;transition:opacity .12s, background .12s, color .12s;font-family:inherit;padding:0}
 .sh-item:hover .del{opacity:.7}
 .sh-item .del:hover{background:rgba(214,153,190,.18);color:var(--c-danger);opacity:1}
@@ -370,9 +370,9 @@ body.embed .main{flex:1;min-width:0}
 .risk-icon{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:rgba(255,210,76,.06);border:1px solid rgba(255,210,76,.28);color:#FFD24C;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
 .risk-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 /* L1 标题：14/700，与主表 L1 完全对齐 */
-.risk-title{font-size:14px;font-weight:700;color:#FFD24C;letter-spacing:.3px;line-height:1.3;font-family:'Inter','Microsoft YaHei UI',sans-serif}
+.risk-title{font-size:14px;font-weight:700;color:#FFD24C;letter-spacing:.3px;line-height:1.3;font-family:'Microsoft YaHei UI',sans-serif}
 /* L2 副标题：12/500 灰 */
-.risk-sub{font-size:12px;color:var(--c-text-mute);font-family:'Inter','Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif;line-height:1.4;font-weight:400;letter-spacing:.2px}
+.risk-sub{font-size:12px;color:var(--c-text-mute);font-family:'Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif;line-height:1.4;font-weight:400;letter-spacing:.2px}
 /* 独立 stat 卡片 · 2026-09-07 卡片分离改造：
    从 banner 内抽出，作为 .risk-row 的兄弟。两张 stat 卡片本身有独立背景+边框+圆角，
    视觉上与 banner「各司其职」——banner 谈「谁没约」、stat 谈「影响多大」。 */
@@ -391,7 +391,7 @@ body.embed .main{flex:1;min-width:0}
 /* AREA 圆框 pill 列表：标题下方一行，每个 AREA 一个圆角（圆框）pill + 尾后圆形数字徽章 */
 .risk-areas{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
 .risk-banner.calm .risk-areas{margin-top:2px}
-.risk-area-pill{display:inline-flex;align-items:center;gap:6px;padding:2px 4px 2px 11px;border-radius:9999px;background:rgba(255,210,76,.06);border:1px solid rgba(255,210,76,.30);color:#FFD24C;font-size:12px;font-weight:500;font-family:'Inter','Microsoft YaHei UI',sans-serif;letter-spacing:.2px;line-height:1.4;white-space:nowrap}
+.risk-area-pill{display:inline-flex;align-items:center;gap:6px;padding:2px 4px 2px 11px;border-radius:9999px;background:rgba(255,210,76,.06);border:1px solid rgba(255,210,76,.30);color:#FFD24C;font-size:12px;font-weight:500;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.2px;line-height:1.4;white-space:nowrap}
 .risk-area-pill .num{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;border-radius:9999px;background:#FFD24C;color:#0F171C;font-size:11px;font-weight:600;font-family:var(--font-ui);letter-spacing:0;font-variant-numeric:tabular-nums;line-height:1}
 .risk-banner.calm .risk-area-pill{background:rgba(15,247,150,.08);border-color:rgba(15,247,150,.32);color:var(--c-primary)}
 .risk-banner.calm .risk-area-pill .num{background:var(--c-primary);color:#0F171C}
@@ -426,7 +426,7 @@ body.embed .main{flex:1;min-width:0}
 /* 视图切换器（按角色 / 按需求） · 页面级 tab */
 .view-tabs{display:flex;align-items:flex-end;gap:16px;padding:0 0 0 2px;margin:0 0 16px;border-bottom:1px solid var(--c-hairline);position:relative}
 .view-tabs::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,var(--c-primary) 0%,rgba(15,247,150,0) 22%,rgba(15,247,150,0) 78%,rgba(140,168,189,0) 100%);opacity:.18}
-.view-tabs .view-tab{display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;color:var(--c-text-mute);padding:10px 4px 12px;font-size:13px;font-weight:500;font-family:'Inter','Microsoft YaHei UI',sans-serif;letter-spacing:.3px;position:relative;cursor:pointer;transition:color .12s}
+.view-tabs .view-tab{display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;color:var(--c-text-mute);padding:10px 4px 12px;font-size:13px;font-weight:500;font-family:'Microsoft YaHei UI',sans-serif;letter-spacing:.3px;position:relative;cursor:pointer;transition:color .12s}
 .view-tabs .view-tab svg{flex-shrink:0;opacity:.7;transition:opacity .15s,filter .15s}
 .view-tabs .view-tab:hover{color:var(--c-text)}
 .view-tabs .view-tab:hover svg{opacity:.95}

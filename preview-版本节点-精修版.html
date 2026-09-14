@@ -961,10 +961,16 @@ function eventMatchesCat(e){
   if(!catFilter) return true;
   return Array.isArray(e.categories) && e.categories.includes(catFilter);
 }
-// 三个过滤维度组合
-function eventVisible(e){ return !e.subTask && eventMatchesRole(e) && eventMatchesNode(e) && eventMatchesCat(e); }
-// 时间轴专用：允许 subTask 但仍受 role/node/cat 三维筛选
-function eventVisibleTimeline(e){ return eventMatchesRole(e) && eventMatchesNode(e) && eventMatchesCat(e); }
+// 版本筛选：'all' 时全通过；Set 时只保留其 forVer 命中的事件（2026-09-14 · PM 明确要求：点版本 pill 只显示该版本相关节点）
+function eventMatchesVer(e){
+  if(currentFilter === 'all') return true;
+  if(currentFilter instanceof Set) return e.forVer && currentFilter.has(e.forVer);
+  return true;
+}
+// 四个过滤维度组合
+function eventVisible(e){ return !e.subTask && eventMatchesRole(e) && eventMatchesNode(e) && eventMatchesCat(e) && eventMatchesVer(e); }
+// 时间轴专用：允许 subTask 但仍受 role/node/cat/ver 四维筛选
+function eventVisibleTimeline(e){ return eventMatchesRole(e) && eventMatchesNode(e) && eventMatchesCat(e) && eventMatchesVer(e); }
 // 事件是否与给定周(Mon-Sun)相交（点事件按 date 命中，区间事件按 range 相交）
 function eventOverlapsWeek(e, wkMon, wkSun){
   if(e.range){ return e.range[0] <= wkSun && e.range[1] >= wkMon; }
@@ -1884,10 +1890,13 @@ function renderTimeline60(){
 function renderProgress(){
   const box = document.getElementById('rpProgress');
   // 「当前 + 后 2 个」= 按发布时间顺序，dev 段尚未结束（或即将开始）的前 3 个非 planned 版本
+  // 若用户选了具体版本 pill（currentFilter 是 Set），只展示命中的版本，避免"进度卡显示了未选版本+其次节点为空"的错乱
   const vers = VERSIONS.filter(v => {
     if(v.planned) return false;
     const lastPh = v.phases[v.phases.length-1];
-    return d(lastPh.end) >= TODAY; // 尚未完全结束
+    if(d(lastPh.end) < TODAY) return false;
+    if(currentFilter instanceof Set) return currentFilter.has(v.id);
+    return true;
   }).slice(0, 3);
   if(!vers.length){ box.innerHTML = '<div class="rp-empty">暂无进行中版本</div>'; return; }
   box.innerHTML = vers.map(ver => {

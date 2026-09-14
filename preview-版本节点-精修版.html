@@ -843,14 +843,16 @@ const VIEW_START = mondayOf(TODAY);
 // 输入：VERSIONS[]  输出：EVENTS = [{date|range, label, tag, forVer, roles}]
 // 有效周：周一~周日；中国正式放假区间任一日或圣诞节12/25命中，整周不计。
 //   1. Vo需求锁 = 从开发最后周“含当周”向前数第11个有效周的周一
-//   2. 声优锁   = Vo需求锁周之后第3个有效周 周四11:30
-//   3. 台词锁   = 声优锁周之后第2个有效周 周四11:30
+//   2. 声优锁   = Vo需求锁周之后第3个有效周 周三11:30（PM 2026-09-14 由周四调整为周三）
+//   3. 台词锁   = 声优锁周之后第2个有效周 周三11:30（PM 2026-09-14 由周四调整为周三）
 //   4. VO资源交付 = 开发倒数第二自然周 周五；若该周无效，提前到前一个有效周周五
 // 分类：A.重点会议 meeting={2,3}；B.重要节点 milestone={1,4}
 // 角色：文案(cn)=1,2,3；音频(audio)=2,3,4
 // ================================================================
 let EVENTS = [];
 function thursdayOf(date){ const m=mondayOf(date); const t=new Date(m); t.setDate(t.getDate()+3); return t; }
+// 2026-09-14 · PM 调整：需求分配 / 台词锁 / 声优锁 全部从周四调整到周三上午 11:30
+function wednesdayOf(date){ const m=mondayOf(date); const t=new Date(m); t.setDate(t.getDate()+2); return t; }
 function fridayOf(date){ const m=mondayOf(date); const f=new Date(m); f.setDate(f.getDate()+4); return f; }
 function shiftWeeks(date, w){ const r=new Date(date); r.setDate(r.getDate()+w*7); return r; }
 function addDaysN(date, n){ const r=new Date(date); r.setDate(r.getDate()+n); return r; }
@@ -920,8 +922,8 @@ function computeEvents(){
     // 若在 VO_NEED_LOCK_OVERRIDE 里为该版本 id 显式声明 override（YYYY-MM-DD），则用 override（PM 手动锚定，跳过公式）
     const overrideIso = v.voNeedLockOverride || VO_NEED_LOCK_OVERRIDE[v.id] || '';
     const lockDay     = overrideIso ? mondayOf(d(overrideIso.replace(/-/g,'/'))) : nthValidWeekBackwardInclusive(devEnd,11);
-    const estimateDay = thursdayOf(shiftValidWeeksAfter(lockDay,3));
-    const scriptDay   = thursdayOf(shiftValidWeeksAfter(estimateDay,2));
+    const estimateDay = wednesdayOf(shiftValidWeeksAfter(lockDay,3));
+    const scriptDay   = wednesdayOf(shiftValidWeeksAfter(estimateDay,2));
     const deliverDay  = deliveryFriday(devEnd);
     const shortVer    = v.name.replace('.0','');
 
@@ -931,7 +933,7 @@ function computeEvents(){
     out.push({ date:deliverDay,  short:`→${shortVer} VO资源交付`, full:`${v.name} · VO资源交付`,         tag:'m-deliver',  categories:['milestone'], forVer:v.id, roles:['audio'] });
 
     // 过程事项仅进入未来60天时间轴/本周待办，不进入主体年历的4节点矩阵
-    out.push({ date:thursdayOf(lockDay), subTask:true, short:`${shortVer} 台词需求分配会`, full:`${v.name} · 台词需求分配会 · 周四11:30`, tag:'s-thu-alloc', categories:['subtask'], forVer:v.id, roles:['cn'] });
+    out.push({ date:wednesdayOf(lockDay), subTask:true, short:`${shortVer} 台词需求分配会`, full:`${v.name} · 台词需求分配会 · 周三11:30`, tag:'s-thu-alloc', categories:['subtask'], forVer:v.id, roles:['cn'] });
     out.push({ range:[fridayOf(lockDay),scriptDay], subTask:true, short:'文案ING', full:`${v.name} · 文案ING`, tag:'r-cn-ing', categories:['subtask'], forVer:v.id, roles:['cn'] });
     out.push({ range:[estimateDay,addWorkDaysN(scriptDay,5)], subTask:true, short:'录制定档期', full:`${v.name} · 录制定档期（声优锁至台词锁后5工作日）`, tag:'s-sched-win', categories:['subtask'], forVer:v.id, roles:['audio'] });
     out.push({ range:[estimateDay,addWorkDaysN(estimateDay,10)], subTask:true, short:'选角ING', full:`${v.name} · 选角ING（声优锁后10工作日内）`, tag:'r-cast', categories:['subtask'], forVer:v.id, roles:['audio'] });

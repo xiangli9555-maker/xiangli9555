@@ -2404,8 +2404,8 @@ async function renderActorCombined(){
   var relKey = normReleaseKey(release);
   var overrideIso = VO_NEED_LOCK_OVERRIDE[release] || VO_NEED_LOCK_OVERRIDE[relKey] || '';
   var voNeedLock = overrideIso ? isoMon(new Date(overrideIso+'T00:00:00')) : isoMon(addDaysD(YANG.dev.end, -77));
-  var vaLock     = addDaysD(voNeedLock, 3*7 + 3);  // +3w 周四
-  var scriptLock = addDaysD(vaLock, 2*7);           // +2w 周四
+  var vaLock     = addDaysD(voNeedLock, 3*7 + 2);  // +3w 周三（PM 2026-09-14 由周四调整为周三 11:30）
+  var scriptLock = addDaysD(vaLock, 2*7);           // +2w 周三
   var fixDdl     = addWorkDaysND(scriptLock, 5);
   var recWinStart= vaLock;
   var recWinEnd  = fixDdl;

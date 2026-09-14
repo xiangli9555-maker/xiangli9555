@@ -1584,8 +1584,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElement
 document.addEventListener('click',e=>{const pop=document.getElementById('veCategoryPopover');if(pop&&pop.classList.contains('open')&&!pop.contains(e.target)&&e.target!==VE_CATEGORY.anchor)closeVeCategory();});
 window.addEventListener('resize',()=>{if(document.getElementById('veCategoryPopover').classList.contains('open'))positionVeCategory(VE_CATEGORY.anchor);});
 function releaseMaxDate(rows,lang){
+  // 汇总口径（PM 2026-09-14 拍板）：只要下面任一 demand 是 Pending（无档期），汇总也显示 Pending；
+  // 全部有档期时，取所有 demand 里最晚那个日期。
   let max='';
-  rows.forEach(d=>demandScheduleKeys(d).forEach(k=>{ const rec=recordingMaxByDemand[k]; const v=rec&&rec[lang]; if(v&&(!max||v>max)) max=v; }));
+  for(const d of rows){
+    let demandMax='';
+    for(const k of demandScheduleKeys(d)){
+      const rec=recordingMaxByDemand[k]; const v=rec&&rec[lang];
+      if(v && (!demandMax || v>demandMax)) demandMax=v;
+    }
+    if(!demandMax) return 'Pending';   // 任一 Pending → 汇总即 Pending
+    if(!max || demandMax>max) max=demandMax;
+  }
   return max ? fmtMonthDay(max) : 'Pending';
 }
 function buildReleaseSummaryRows(){

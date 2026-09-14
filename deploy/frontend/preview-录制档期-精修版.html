@@ -3370,19 +3370,20 @@ function bookActor(role, lang){
       var meta = demandByRole[role] || { id:'', title:'' };
       var loc = String(r.location||'').trim();
       var noteTitle = String(r.note||'').replace(/^Story:\s*/,'').trim();
-      // cn 行 · 拆分日期 + 时段
+      // cn 行 · 有 date_cn 才派生（va_cn 可空——项目实际情况：档期先排、声优后填）
       var cnDT = splitDateTime(r.date_cn);
-      out.push({
-        date: cnDT.dateOnly,
-        slot: cnDT.slot, start_time:'', end_time:'', studio: loc,
-        lang:'cn', role: role,
-        demandId: meta.id, plan: cur,
-        title: meta.title || noteTitle || '未关联需求'
-      });
-      // en 行（若 va_en 有值才派生，避免全空占位）
-      var vaEn = String(r.va_en||'').trim();
-      if(vaEn && vaEn !== 'N/A'){
-        var enDT = splitDateTime(r.date_en);
+      if(cnDT.dateOnly){
+        out.push({
+          date: cnDT.dateOnly,
+          slot: cnDT.slot, start_time:'', end_time:'', studio: loc,
+          lang:'cn', role: role,
+          demandId: meta.id, plan: cur,
+          title: meta.title || noteTitle || '未关联需求'
+        });
+      }
+      // en 行 · 有 date_en 才派生（放宽 va_en 校验，跟 cn 侧同口径）
+      var enDT = splitDateTime(r.date_en);
+      if(enDT.dateOnly){
         out.push({
           date: enDT.dateOnly,
           slot: enDT.slot, start_time:'', end_time:'', studio: loc,

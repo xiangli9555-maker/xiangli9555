@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<meta http-equiv="Pragma" content="no-cache"/>
-<meta http-equiv="Expires" content="0"/>
-<title>Vomi · VO Manager</title>
-<link rel="stylesheet" href="assets/project-fonts.css?v=20260817ad"/>
+<html lang="zh-CN" data-page-node-id="C1kDgZz6HMaOit5Wn8IZRk">
+<head data-page-node-id="WGCCJTLOwhzlRsd1m2T6AN">
+<meta charset="UTF-8" data-page-node-id="UpnoySwQc2ldXxoRyO2nSb"/>
+<meta name="viewport" content="width=device-width,initial-scale=1" data-page-node-id="HGJN8xQLaKEUkmUOnuJfEY"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="s6f3FBnwawlz7tdzn9C6yJ"/>
+<meta http-equiv="Pragma" content="no-cache" data-page-node-id="Z0C7MpsAqBT1UaQtjaIy0U"/>
+<meta http-equiv="Expires" content="0" data-page-node-id="N6uBgCxcepgTlQqkn8LGeu"/>
+<title>Vomi · Vo Manager</title>
+<link rel="stylesheet" href="assets/project-fonts.css?v=20260817ad" data-page-node-id="uAgG3PA13LxfoBAUKhevT3"/>
 <script src="assets/guest-mode.js?v=20260908"></script>
-<link rel="icon" type="image/png" href="assets/DeltaForceLogo-Triangle.png"/>
+<link rel="icon" type="image/png" href="assets/DeltaForceLogo-Triangle.png" data-page-node-id="WBFbf2fy6bX5zzuFUXXDiE"/>
 <style>
 :root{
   --c-primary:#0FF796; --c-primary-dark:#0BD980; --c-primary-glow:rgba(15,247,150,0.18);
@@ -365,213 +365,213 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
 }
 </style>
 </head>
-<body>
+<body data-page-node-id="sHNNehT5kD0VGq2FDrB3GA">
 
 <!-- Brand Bar · 还原为原版（不动） -->
-<header class="brand-bar">
-  <div class="brand-logo">
-    <img src="assets/DeltaForceLogo-Triangle.png" alt="Delta" class="logo-tri"/>
-    <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt"/>
+<header class="brand-bar" data-page-node-id="cUAJEzDsSFJZK1YhGmBHZO">
+  <div class="brand-logo" data-page-node-id="NXPfCCL0VBjZEiFOyX8YyT">
+    <img src="assets/DeltaForceLogo-Triangle.png" alt="Delta" class="logo-tri" data-page-node-id="xuO7do224swiOcjA4fIKdJ"/>
+    <img src="assets/DeltaForceLogo-Text.png" alt="DELTA FORCE" class="logo-txt" data-page-node-id="9eS2q4GdYAGd9OW5cgiWbB"/>
   </div>
-  <div class="brand-divider"></div>
-  <button class="brand-toggle" id="sidebarToggle" data-tip="收起侧栏" aria-label="收起/展开侧栏" onclick="toggleSidebar()">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2 L8 18.8 L19.5 12 Z"/></svg>
+  <div class="brand-divider" data-page-node-id="GlkGaDTCA0klNPjYtFGhTu"></div>
+  <button class="brand-toggle" id="sidebarToggle" data-tip="收起侧栏" aria-label="收起/展开侧栏" onclick="toggleSidebar()" data-page-node-id="CgqqVDu3QYnm2AYOWhUCVs">
+    <svg viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="yEnHe9hkCnsOQCceGEH1pl"><path d="M8 5.2 L8 18.8 L19.5 12 Z" data-page-node-id="HJPrDEPNzLFUZBb4aQhzvP"/></svg>
   </button>
-  <div class="brand-subsys" aria-label="Vomi · VO Manager">
-    <span class="brand-vomi-lockup"><img class="vomi-mark" src="assets/vomi-mark.svg?v=20260815g" alt="-Vomi-"/></span>
-    <span class="brand-slogan">包办 Vo, Mi 来打理</span>
+  <div class="brand-subsys" aria-label="Vomi · Vo Manager" data-page-node-id="RHlNQQiGHgt7TtudXR3Dbc">
+    <span class="brand-vomi-lockup" data-page-node-id="1cpHtDllps4aCWGMeNglFU"><img class="vomi-mark" src="assets/vomi-mark.svg?v=20260815g" alt="-Vomi-" data-page-node-id="RB0GAYov8zoY2KfnnnsCjC"/></span>
+    <span class="brand-slogan" data-page-node-id="pxcbDQ4wrfMOxmMbMEgViV">包办 Vo, Mi 来打理</span>
   </div>
 
-  <div class="brand-search">
-    <input type="text" placeholder="搜索任务、声优、GP Event、文件…" id="globalSearch"/>
+  <div class="brand-search" data-page-node-id="8iQg4e3tYB9K2HAaTEqulO">
+    <input type="text" placeholder="搜索任务、声优、GP Event、文件…" id="globalSearch" data-page-node-id="O6UWgRFWR8ucEoUu9evydd"/>
   </div>
-  <span class="brand-spacer"></span>
+  <span class="brand-spacer" data-page-node-id="wkLqod2187WmCEcFhvkfjZ"></span>
 
-  <div class="notification-wrap" id="notificationWrap">
-    <button class="brand-icon-btn" id="notifyBell" title="通知中心" aria-label="通知中心" aria-haspopup="dialog" aria-controls="notificationPopover" aria-expanded="false">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-      <span class="bell-dot" aria-hidden="true"></span>
+  <div class="notification-wrap" id="notificationWrap" data-page-node-id="ZYqVB3LMmmjjCWg0FiIXr1">
+    <button class="brand-icon-btn" id="notifyBell" title="通知中心" aria-label="通知中心" aria-haspopup="dialog" aria-controls="notificationPopover" aria-expanded="false" data-page-node-id="oxvohDAjBTRjHA5hD5UHC5">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="pgsfBd6IXJxZnaUleNdBkE"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" data-page-node-id="PEU7YBXCIdf25tT0EUeIi3"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" data-page-node-id="ObySyV1XOTheE5lkeq0ItX"/></svg>
+      <span class="bell-dot" aria-hidden="true" data-page-node-id="8c01APOMcKVTxa0mnKSVBd"></span>
     </button>
-    <section class="notification-popover" id="notificationPopover" role="dialog" aria-modal="false" aria-labelledby="notificationTitle" hidden>
-      <div class="notification-head">
-        <span class="notification-pulse" aria-hidden="true"></span>
-        <div class="notification-title" id="notificationTitle">REFINED · 通知中心</div>
-        <button class="notification-close" type="button" aria-label="关闭通知" onclick="closeNotification(true)">×</button>
+    <section class="notification-popover" id="notificationPopover" role="dialog" aria-modal="false" aria-labelledby="notificationTitle" hidden data-page-node-id="Ds6piYuVUihFeG2pZPwYnY">
+      <div class="notification-head" data-page-node-id="7B0obF7JKeJ46YAOM3bgD9">
+        <span class="notification-pulse" aria-hidden="true" data-page-node-id="vcmK0lVR1sv6vU4c4YljjO"></span>
+        <div class="notification-title" id="notificationTitle" data-page-node-id="cfLErEPgzfMi8ESaUZ0LHa">REFINED · 通知中心</div>
+        <button class="notification-close" type="button" aria-label="关闭通知" onclick="closeNotification(true)" data-page-node-id="wx18P45fcMU2n9DEWHP0Sl">×</button>
       </div>
-      <div class="notification-identity">
-        <span id="notificationIdentity"><strong>当前身份</strong></span>
-        <span class="notification-release" id="notificationRelease">Yang1</span>
+      <div class="notification-identity" data-page-node-id="BXeJdw4yFIELSTmGDSMN5c">
+        <span id="notificationIdentity" data-page-node-id="89waplhzWZQvOgT2ASvaAJ"><strong data-page-node-id="6sQNJkoiKjZAshsaR5kxyH">当前身份</strong></span>
+        <span class="notification-release" id="notificationRelease" data-page-node-id="dKxmaPi5giDi6u1KsNfLID">Yang1</span>
       </div>
-      <div class="notification-body" id="notificationBody"><div class="notification-loading">正在汇总当前事项…</div></div>
-      <div class="notification-actions">
-        <button class="notification-action" type="button" onclick="openNotificationView('demands')">查看需求汇总</button>
-        <button class="notification-action" type="button" onclick="openNotificationView('milestones')">查看版本节点</button>
+      <div class="notification-body" id="notificationBody" data-page-node-id="ag3Mo6zlpoAWfwz5H8PEr8"><div class="notification-loading" data-page-node-id="q5DEcQMZrJiZgt4lENZMAs">正在汇总当前事项…</div></div>
+      <div class="notification-actions" data-page-node-id="FN72QH7DKrWeIaU7oyB5pQ">
+        <button class="notification-action" type="button" onclick="openNotificationView('demands')" data-page-node-id="1jqNarcsXOaJVjs0ZOBopd">查看需求汇总</button>
+        <button class="notification-action" type="button" onclick="openNotificationView('milestones')" data-page-node-id="WfB2OMorxwYfPhRgEtUcn8">查看版本节点</button>
       </div>
     </section>
   </div>
-  <div class="share-wrap" id="shareWrap">
-    <button class="brand-icon-btn" id="shareBtn" title="分享" aria-label="分享" aria-haspopup="dialog" aria-controls="shareModal" aria-expanded="false" onclick="toggleShare(event)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+  <div class="share-wrap" id="shareWrap" data-page-node-id="gnJ15BBm6VriylcBnkQdwo">
+    <button class="brand-icon-btn" id="shareBtn" title="分享" aria-label="分享" aria-haspopup="dialog" aria-controls="shareModal" aria-expanded="false" onclick="toggleShare(event)" data-page-node-id="Q4FfdBDnYBNWrgqXYRryZD">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="dALlfNEp1hswR1iAD5Pzlv"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" data-page-node-id="6TidEPZzIAllOnGHyqjre9"/><polyline points="16 6 12 2 8 6" data-page-node-id="VlzmQDY5PqIVTCJZBtk3RE"/><line x1="12" y1="2" x2="12" y2="15" data-page-node-id="LrvX41uFJqxbMPNG4dwNsx"/></svg>
     </button>
 
 
     <!-- 分享面板：4 tab 内容模板 + 企业微信/复制链接 通道（与通知中心同款 popover，绝对定位，无遮罩） -->
-    <section class="share-popover" id="shareModal" role="dialog" aria-modal="false" aria-labelledby="shareTitle" hidden>
-      <div class="share-modal" role="document">
-        <div class="share-head">
-          <div>
-            <h2 id="shareTitle">SHARE · 分享面板</h2>
-            <div class="share-head-sub">选一种分享内容，再选一种通道，对方看到的预览如下</div>
-            <div class="share-eyebrow" id="shareEyebrow">—</div>
+    <section class="share-popover" id="shareModal" role="dialog" aria-modal="false" aria-labelledby="shareTitle" hidden data-page-node-id="xHz44g7dV83M3fCsIFEBPL">
+      <div class="share-modal" role="document" data-page-node-id="RqZdTT0jymU5VvEwBJJdZI">
+        <div class="share-head" data-page-node-id="2nUXKMsgXReGCRRoM65EjR">
+          <div data-page-node-id="SOE4o4n8uz2D66pcEJZBxI">
+            <h2 id="shareTitle" data-page-node-id="BYejOpeL1jqzVx0C9QYtep">SHARE · 分享面板</h2>
+            <div class="share-head-sub" data-page-node-id="TkuJYFOEhgq75sZtHXotOv">选一种分享内容，再选一种通道，对方看到的预览如下</div>
+            <div class="share-eyebrow" id="shareEyebrow" data-page-node-id="vVNQ6vPqMFn4mGASuXmQUy">—</div>
           </div>
-          <button class="share-close" type="button" aria-label="关闭" onclick="closeShare(true)">×</button>
+          <button class="share-close" type="button" aria-label="关闭" onclick="closeShare(true)" data-page-node-id="HCnC8Rkg07VoCgnBudkiUj">×</button>
         </div>
 
-        <div class="share-section-label">分享内容</div>
-        <div class="share-tabs" id="shareTabs">
-          <button class="share-tab active" type="button" data-tab="progress" onclick="selectShareTab('progress')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+        <div class="share-section-label" data-page-node-id="BZUYnRrDT55JeMwfRumiDb">分享内容</div>
+        <div class="share-tabs" id="shareTabs" data-page-node-id="JTXwJ7CRfvtAlJjJxMYRNH">
+          <button class="share-tab active" type="button" data-tab="progress" onclick="selectShareTab('progress')" data-page-node-id="hfXNh1Gfbks9eYku8VIxaz">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="YDFJF7BMhcRo1B4dHOkO01"><polyline points="3 17 9 11 13 15 21 7" data-page-node-id="HHebyw4V5AOXPfvzaZfLtQ"/><polyline points="14 7 21 7 21 14" data-page-node-id="5h8DaBGXzbV2Frhc9E83rn"/></svg>
             版本进度简报
           </button>
-          <button class="share-tab" type="button" data-tab="demands" onclick="selectShareTab('demands')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <button class="share-tab" type="button" data-tab="demands" onclick="selectShareTab('demands')" data-page-node-id="CSWJa4KCEe8PAsPfQVmAJU">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="1TQ1cF1slzmnP4S8RCbcSq"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" data-page-node-id="MmJlO4syxVjxo5Q5UDTHZf"/><polyline points="14 2 14 8 20 8" data-page-node-id="h2VxBdtAAGGUF4wkQixU2F"/></svg>
             需求汇总
           </button>
-          <button class="share-tab" type="button" data-tab="schedules" onclick="selectShareTab('schedules')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <button class="share-tab" type="button" data-tab="schedules" onclick="selectShareTab('schedules')" data-page-node-id="lLLDn6NsxwL03ZStQHYfsG">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="ajXw3wSigfBGGDkhI6pjNY"><rect x="3" y="4" width="18" height="18" rx="2" data-page-node-id="ifmwiEDdpRxw5iLkBExPOR"/><line x1="16" y1="2" x2="16" y2="6" data-page-node-id="LQXnbmKjYyWRiHguBNhH3v"/><line x1="8" y1="2" x2="8" y2="6" data-page-node-id="1vuK3HNks7QqmmR81fFkgR"/><line x1="3" y1="10" x2="21" y2="10" data-page-node-id="1P0wI1AcY0owcOHBm6y2cP"/></svg>
             录制档期
           </button>
-          <button class="share-tab" type="button" data-tab="nodes" onclick="selectShareTab('nodes')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M9 6h6a3 3 0 0 1 3 3v6"/></svg>
+          <button class="share-tab" type="button" data-tab="nodes" onclick="selectShareTab('nodes')" data-page-node-id="veWz8AQAHWz4UFLYSuTgcQ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="dB5bwhwM2NATTPgH7phGCm"><circle cx="6" cy="6" r="3" data-page-node-id="0QPPEq8KRzbsEIRNAGwixJ"/><circle cx="18" cy="18" r="3" data-page-node-id="TDMFrCLbMhjw2Nyh27Eq4w"/><path d="M9 6h6a3 3 0 0 1 3 3v6" data-page-node-id="O72s45PDl5CpSwPHC03XP4"/></svg>
             版本节点
           </button>
         </div>
 
-        <div class="share-section-label">分享通道</div>
-        <div class="share-channels">
-          <div class="share-channel" role="button" tabindex="0" onclick="sendShareToChat()" onkeydown="if(event.key==='Enter')sendShareToChat()">
-            <div class="share-channel-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <div class="share-section-label" data-page-node-id="ZHaloeK2ezsMu69BHyDFxV">分享通道</div>
+        <div class="share-channels" data-page-node-id="AU4FCzsG0wZ5FDoaC1oXGr">
+          <div class="share-channel" role="button" tabindex="0" onclick="sendShareToChat()" onkeydown="if(event.key==='Enter')sendShareToChat()" data-page-node-id="Vog7qbLue5vsgkRi33QELv">
+            <div class="share-channel-icon" data-page-node-id="UsfJgUA2OXAm5meQHvy5nQ">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="RteaOiTds3Qn8XxdGGm92i"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" data-page-node-id="ijwsiEWyZwDmquji0epCpx"/></svg>
             </div>
-            <div class="share-channel-label">企业微信</div>
-            <div class="share-channel-desc">发送到群或个人</div>
+            <div class="share-channel-label" data-page-node-id="TY77IQmIxFzzhwQjSZUX9X">企业微信</div>
+            <div class="share-channel-desc" data-page-node-id="NtnfYQ5dbgXwhsfEJ4F1i2">发送到群或个人</div>
           </div>
-          <div class="share-channel" role="button" tabindex="0" onclick="copyShareLink()" onkeydown="if(event.key==='Enter')copyShareLink()">
-            <div class="share-channel-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <div class="share-channel" role="button" tabindex="0" onclick="copyShareLink()" onkeydown="if(event.key==='Enter')copyShareLink()" data-page-node-id="G5QHobVlAS0zvmcNUsGqP5">
+            <div class="share-channel-icon" data-page-node-id="BEjUi4dHXC2qf4y1lnXHKh">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="eg4bVugtH2TAjZ1x2FIsIx"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" data-page-node-id="X2z3BaSsgBM9U1Yfxmfqgx"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" data-page-node-id="r3wCtwfyIftzgAgkNkjd6t"/></svg>
             </div>
-            <div class="share-channel-label">复制链接</div>
-            <div class="share-channel-desc">复制页面地址</div>
+            <div class="share-channel-label" data-page-node-id="O78vvszmBedOP1HPqfnPx7">复制链接</div>
+            <div class="share-channel-desc" data-page-node-id="rNRq7nMLS8JhBI9zqwkRJs">复制页面地址</div>
           </div>
         </div>
 
-        <div class="share-section-label"><span class="dot"></span>企微推送预览（对方收到的样子）</div>
-        <div class="share-preview-wrap">
-          <div class="share-preview-bar"><span class="dot"></span>预览示意 · 真实数据由下方卡片展示</div>
-          <div class="share-preview-stage" id="sharePreview">
-            <div class="share-loading"><span class="dot"></span>正在汇总数据…</div>
+        <div class="share-section-label" data-page-node-id="RBGRq0AoWZWh1YayTfR7Dk"><span class="dot" data-page-node-id="4xH7HcT6z8NyJ5tcblM79C"></span>企微推送预览（对方收到的样子）</div>
+        <div class="share-preview-wrap" data-page-node-id="LqVa4LB11SIOYJN2coEu3I">
+          <div class="share-preview-bar" data-page-node-id="MUlYMHZ9JSaxAbY6uveJzP"><span class="dot" data-page-node-id="9aBkyTEWt6IYptJmYAagCQ"></span>预览示意 · 真实数据由下方卡片展示</div>
+          <div class="share-preview-stage" id="sharePreview" data-page-node-id="DWlM0XGvAVSYPbEqbbAS2t">
+            <div class="share-loading" data-page-node-id="fW8lGfHxqp3w1d8IwRV1Xt"><span class="dot" data-page-node-id="Bom4G17b0R5EHPGumIcfoH"></span>正在汇总数据…</div>
           </div>
         </div>
 
-        <div style="margin-top:14px;font-size:11.5px;color:var(--c-text-dim);line-height:1.7">
-          <strong style="color:var(--c-primary)">原型说明</strong>：点击「企业微信」→ 弹联系选择面板（群+人混排，可搜索多选）→ 确认发送：先把摘要复制到剪贴板，再唤起企业微信客户端。<br>
+        <div style="margin-top:14px;font-size:11.5px;color:var(--c-text-dim);line-height:1.7" data-page-node-id="1pm9KVkgoCyfCbbj6oWgwy">
+          <strong style="color:var(--c-primary)" data-page-node-id="XATSgHt9oovRTOEPgGAl78">原型说明</strong>：点击「企业微信」→ 弹联系选择面板（群+人混排，可搜索多选）→ 确认发送：先把摘要复制到剪贴板，再唤起企业微信客户端。<br data-page-node-id="1Q2kNg9w9jN9WFXi4YXv7s">
           单选个人且该成员配了企微账号时直达其聊天窗；群聊或多选只唤起客户端，需自行选中会话后 Ctrl+V 粘贴。点击「复制链接」→ 直接复制当前页面 URL。
         </div>
       </div>
     </section>
 
     <!-- 联系选择面板（同款 popover，绝对定位覆盖在分享面板之上，无遮罩） -->
-    <section class="share-picker-popover" id="sharePicker" role="dialog" aria-modal="false" aria-labelledby="sharePickerTitle" hidden>
-      <div class="share-picker" role="document">
-        <div class="share-picker-head">
-          <h3 id="sharePickerTitle">选择发送对象</h3>
-          <button class="share-close" type="button" aria-label="关闭" onclick="closeSharePicker()" style="margin-left:auto">×</button>
+    <section class="share-picker-popover" id="sharePicker" role="dialog" aria-modal="false" aria-labelledby="sharePickerTitle" hidden data-page-node-id="jstFwEkbHrfWaTVH0SxrYz">
+      <div class="share-picker" role="document" data-page-node-id="HIRDNJAVZ4r5HdM2ajIyMb">
+        <div class="share-picker-head" data-page-node-id="eTWURQ1PeKZRkcuo6iFlAD">
+          <h3 id="sharePickerTitle" data-page-node-id="56AnOOXWs8JN1o3GwHvZIS">选择发送对象</h3>
+          <button class="share-close" type="button" aria-label="关闭" onclick="closeSharePicker()" style="margin-left:auto" data-page-node-id="xfLk4BVPHPugVFi556Ra5y">×</button>
         </div>
-        <div class="share-picker-search">
-          <input type="text" id="sharePickerSearch" placeholder="搜索联系人 / 群…" oninput="filterSharePicker()"/>
+        <div class="share-picker-search" data-page-node-id="Vykw0GOWpvIVIwNEHHmual">
+          <input type="text" id="sharePickerSearch" placeholder="搜索联系人 / 群…" oninput="filterSharePicker()" data-page-node-id="ZWujgrvcqqHFC4R0bb5VYQ"/>
         </div>
-        <div class="share-picker-list" id="sharePickerList">
+        <div class="share-picker-list" id="sharePickerList" data-page-node-id="HWlozfgKMrOZLHLsGJDHNQ">
           <!-- 动态填充：组（个人 / 群） + 可勾选项 -->
         </div>
-        <div class="share-picker-footer">
-          <span>已选 <strong id="sharePickerCount">0</strong> 项</span>
-          <div class="share-picker-actions">
-            <button class="btn btn-ghost" type="button" onclick="closeSharePicker()">取消</button>
-            <button class="btn btn-primary" type="button" id="sharePickerSend" onclick="confirmShareSend()" disabled>发送</button>
+        <div class="share-picker-footer" data-page-node-id="VSHDjLUB4uTYHI9O592MnU">
+          <span data-page-node-id="5yJwz9rCGYXQrZs77be4EX">已选 <strong id="sharePickerCount" data-page-node-id="O51t8QNzLzMLLDTPtYpQt6">0</strong> 项</span>
+          <div class="share-picker-actions" data-page-node-id="9ftXTdQhp0ftfxNmyNgJ7I">
+            <button class="btn btn-ghost" type="button" onclick="closeSharePicker()" data-page-node-id="Ar9Lj20sH0tb0MLwoZySbN">取消</button>
+            <button class="btn btn-primary" type="button" id="sharePickerSend" onclick="confirmShareSend()" disabled data-page-node-id="FEaEHnOh1fBuTIvNPGC0AI">发送</button>
           </div>
         </div>
       </div>
     </section>
   </div>
 
-<div class="brand-user" id="brandUser" title="点击切换预览身份（PM / ND）" onclick="cycleUser()">
-    <div class="av" id="buAvatar">L</div>
-    <div>
-      <div class="name" id="buName">lycheelli</div>
-      <div class="role" id="buRole">PM</div>
+<div class="brand-user" id="brandUser" title="点击切换预览身份（PM / ND）" onclick="cycleUser()" data-page-node-id="qhZTAnfkXjJSy35jvFdG8y">
+    <div class="av" id="buAvatar" data-page-node-id="BwjonKYGn8rIOgBbm1CC3b">L</div>
+    <div data-page-node-id="DuqFgZ8CY3M4ROJcQtE6A6">
+      <div class="name" id="buName" data-page-node-id="VomGdL8GWdP7nLtyFPbDPY">lycheelli</div>
+      <div class="role" id="buRole" data-page-node-id="R0BfMW5mrCCFYDelD7qNpI">PM</div>
     </div>
   </div>
 </header>
 
-<div class="layout">
-  <aside class="sidebar">
-    <div class="sec-label section-label active" data-section="mission" data-initial="M"><span class="section-sig" aria-hidden="true"></span><span class="sec-txt">MISSION</span></div>
-    <button class="nav-item active" data-view="demands" data-initial="D" title="需求汇总" onclick="switchView(this,'preview-需求汇总-精修版.html')">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <span class="label-text nav-label">需求汇总</span>
+<div class="layout" data-page-node-id="VC83fa35HJD0GbwAkEgiJD">
+  <aside class="sidebar" data-page-node-id="HOPR49jhYDPrEIZKkSonJt">
+    <div class="sec-label section-label active" data-section="mission" data-initial="M" data-page-node-id="obmA3NSxXLViqCDtjWY5fB"><span class="section-sig" aria-hidden="true" data-page-node-id="UcVCS7bda17DqRtOgBTRW5"></span><span class="sec-txt" data-page-node-id="KIvdk9U5i5ts0siUAgkipZ">MISSION</span></div>
+    <button class="nav-item active" data-view="demands" data-initial="D" title="需求汇总" onclick="switchView(this,'preview-需求汇总-精修版.html')" data-page-node-id="pkYyI0vGJ6xGccxDM1iHRj">
+      <svg viewBox="0 0 24 24" data-page-node-id="eQTY3dz5PXgjl6hGTzN7zo"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" data-page-node-id="QtGBuauYiRUJm6ig7vaGG7"/><polyline points="14 2 14 8 20 8" data-page-node-id="fUck9vOS2QvlJMQPkN8yxu"/></svg>
+      <span class="label-text nav-label" data-page-node-id="nJryYWKx4nDwkDBMSX0MOX">需求汇总</span>
     </button>
-    <div class="nav-sub label-text context-active" id="demandReleaseSubs">
-      <button class="nav-sub-item active" data-release="" onclick="switchDemandRelease(this,'')"><span class="dot"></span>加载中<span class="count" id="cnt-rel-current">—</span></button>
-      <button class="nav-sub-item" data-release="__archive__" onclick="switchDemandRelease(this,'__archive__')"><span class="dot"></span>历史归档<span class="count" id="cnt-rel-archive">—</span></button>
+    <div class="nav-sub label-text context-active" id="demandReleaseSubs" data-page-node-id="93cQA6yPTVLQp0RhGqt9Lj">
+      <button class="nav-sub-item active" data-release="" onclick="switchDemandRelease(this,'')" data-page-node-id="74fCudkRCAuBkCWuiAvoQd"><span class="dot" data-page-node-id="hF34N2ggsLMGXDt9lQcX6a"></span>加载中<span class="count" id="cnt-rel-current" data-page-node-id="tcHI6jUuoG7PAFW45ly6qu">—</span></button>
+      <button class="nav-sub-item" data-release="__archive__" onclick="switchDemandRelease(this,'__archive__')" data-page-node-id="JUJZdc7foovJsPBAScgd3f"><span class="dot" data-page-node-id="fzNEtCB4eH3VSDTPaFxAWf"></span>历史归档<span class="count" id="cnt-rel-archive" data-page-node-id="WwzA7F9XUKpyelLMExr6zk">—</span></button>
     </div>
 
-    <div class="sec-label section-label" data-section="roster" data-initial="T"><span class="section-sig" aria-hidden="true"></span><span class="sec-txt">TALENT</span></div>
-    <button class="nav-item" data-view="actors" data-initial="T" title="声优库" onclick="switchView(this,'preview-声优库-精修版.html')">
-      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <span class="label-text nav-label">声优库</span>
+    <div class="sec-label section-label" data-section="roster" data-initial="T" data-page-node-id="aZia4xpRlxZFNkxyj9hfxB"><span class="section-sig" aria-hidden="true" data-page-node-id="fgAwztRDQnzf4kJ5U557V2"></span><span class="sec-txt" data-page-node-id="TR9DOaLGAvBv0BT2Xh3c0J">TALENT</span></div>
+    <button class="nav-item" data-view="actors" data-initial="T" title="声优库" onclick="switchView(this,'preview-声优库-精修版.html')" data-page-node-id="TXq5UhDy31wo9mvjSNlz4W">
+      <svg viewBox="0 0 24 24" data-page-node-id="qySQATPnzU7S36rpkPglks"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" data-page-node-id="stAg4jNUEqGo9F8AU0ksLz"/><circle cx="9" cy="7" r="4" data-page-node-id="Fu5c6smAPCJE2GF9VDSGCN"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" data-page-node-id="GvmOjD7NXPXR4oHfbNb5c9"/><path d="M16 3.13a4 4 0 0 1 0 7.75" data-page-node-id="oIo9H9dt20rREEbne7Xwgp"/></svg>
+      <span class="label-text nav-label" data-page-node-id="J2hMC7huFIyxTwXUt4K3Tt">声优库</span>
     </button>
-    <div class="nav-sub label-text" id="rosterStatusSubs">
-      <button class="nav-sub-item active" data-status="" onclick="switchRosterStatus(this,'')"><span class="dot"></span>全部<span class="count" id="cnt-roster-all">—</span></button>
-      <button class="nav-sub-item" data-status="done" onclick="switchRosterStatus(this,'done')"><span class="dot" style="background:var(--c-primary);box-shadow:0 0 4px var(--c-primary);opacity:1"></span>已选角<span class="count" id="cnt-roster-done">—</span></button>
-      <button class="nav-sub-item" data-status="pending" onclick="switchRosterStatus(this,'pending')"><span class="dot" style="background:var(--c-warning);box-shadow:0 0 4px var(--c-warning);opacity:1"></span>待选角<span class="count" id="cnt-roster-pending">—</span></button>
+    <div class="nav-sub label-text" id="rosterStatusSubs" data-page-node-id="nqJVWIn3FbtrjSmvRlPMlr">
+      <button class="nav-sub-item active" data-status="" onclick="switchRosterStatus(this,'')" data-page-node-id="Dem3ZB4d9b2fMpsojCXGQc"><span class="dot" data-page-node-id="Pp3OzCDwf77HSeTyRB3zNf"></span>全部<span class="count" id="cnt-roster-all" data-page-node-id="syxy8d8AUyYJEARmRYtLjy">—</span></button>
+      <button class="nav-sub-item" data-status="done" onclick="switchRosterStatus(this,'done')" data-page-node-id="rnAUbg0YjXg62yCCyPEZAj"><span class="dot" style="background:var(--c-primary);box-shadow:0 0 4px var(--c-primary);opacity:1" data-page-node-id="gFXHtOfpBADCcG4Z0XbfmO"></span>已选角<span class="count" id="cnt-roster-done" data-page-node-id="SoppmQawHpOQRSAVMZulKZ">—</span></button>
+      <button class="nav-sub-item" data-status="pending" onclick="switchRosterStatus(this,'pending')" data-page-node-id="0mkwOhjA0Vbh17BBP1mxOr"><span class="dot" style="background:var(--c-warning);box-shadow:0 0 4px var(--c-warning);opacity:1" data-page-node-id="l2gzdNT5UzFnu5tABZ0dYI"></span>待选角<span class="count" id="cnt-roster-pending" data-page-node-id="I98eocPC8Y7X28vsojbgQO">—</span></button>
     </div>
 
-    <div class="sec-label section-label" data-section="schedule" data-initial="S"><span class="section-sig" aria-hidden="true"></span><span class="sec-txt">SCHEDULE</span></div>
-    <button class="nav-item" data-view="milestones" data-initial="M" title="版本节点" onclick="switchView(this,'preview-版本节点-精修版.html')">
-      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      <span class="label-text nav-label">版本节点</span>
+    <div class="sec-label section-label" data-section="schedule" data-initial="S" data-page-node-id="EI1s2JD2cXyT21qQ3naX4N"><span class="section-sig" aria-hidden="true" data-page-node-id="mwRJxP7d0USnuAg5q8hjOS"></span><span class="sec-txt" data-page-node-id="o84cF29kePXURTdYkKrblA">SCHEDULE</span></div>
+    <button class="nav-item" data-view="milestones" data-initial="M" title="版本节点" onclick="switchView(this,'preview-版本节点-精修版.html')" data-page-node-id="huv4qXeT0FAlqj4q8Sy8IG">
+      <svg viewBox="0 0 24 24" data-page-node-id="11BI5jjdqGrI3zJfyA2HIz"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" data-page-node-id="mALW6dUtqRNPCNxkA7L3wF"/></svg>
+      <span class="label-text nav-label" data-page-node-id="lCWs6aBwhELQSHiaFEFCVW">版本节点</span>
     </button>
-    <button class="nav-item" data-view="calendar" data-initial="S" title="录制档期" onclick="switchView(this,'preview-录制档期-精修版.html')">
-      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <span class="label-text nav-label">录制档期</span>
+    <button class="nav-item" data-view="calendar" data-initial="S" title="录制档期" onclick="switchView(this,'preview-录制档期-精修版.html')" data-page-node-id="hYCbkE7C2TgXaD4liNrJsJ">
+      <svg viewBox="0 0 24 24" data-page-node-id="8Hv6TDl0dFUqqjgL3DnQ53"><rect x="3" y="4" width="18" height="18" rx="2" data-page-node-id="dZhMd7KhK7xu1lZEJvfqAh"/><line x1="16" y1="2" x2="16" y2="6" data-page-node-id="VALdxJt5secKRsfSFjwo1i"/><line x1="8" y1="2" x2="8" y2="6" data-page-node-id="xu1kUosUZbkGq6NsKBzP1l"/><line x1="3" y1="10" x2="21" y2="10" data-page-node-id="B7BOjIge1aEn4ejcBcQ13c"/></svg>
+      <span class="label-text nav-label" data-page-node-id="PNyTRdvz1Wj2qmpTEhMBZV">录制档期</span>
     </button>
-    <div class="nav-sub label-text" id="calendarReleaseSubs">
-      <button class="nav-sub-item active" data-release="" onclick="switchCalendarRelease(this,'')"><span class="dot"></span>加载中<span class="count" id="cnt-cal-current">—</span></button>
-      <button class="nav-sub-item" data-release="__archive__" onclick="switchCalendarRelease(this,'__archive__')"><span class="dot"></span>历史归档<span class="count" id="cnt-cal-archive">—</span></button>
+    <div class="nav-sub label-text" id="calendarReleaseSubs" data-page-node-id="7oH22cYZM5iojypnRVyTVV">
+      <button class="nav-sub-item active" data-release="" onclick="switchCalendarRelease(this,'')" data-page-node-id="cfZIENWtwzpqLnL0ZM6dbb"><span class="dot" data-page-node-id="bUX1KPn6OYqy03WpoaXaEq"></span>加载中<span class="count" id="cnt-cal-current" data-page-node-id="VKIE2vHZSjr2egelN6l5Qc">—</span></button>
+      <button class="nav-sub-item" data-release="__archive__" onclick="switchCalendarRelease(this,'__archive__')" data-page-node-id="ajy4F46zxFPxlfVYEbxzHh"><span class="dot" data-page-node-id="fzzcsFtn1HgJOB9qiTZntm"></span>历史归档<span class="count" id="cnt-cal-archive" data-page-node-id="BN5pU7voZMGwM32EgUEFmY">—</span></button>
     </div>
 
-    <div class="sec-label section-label" data-section="hq" data-initial="H"><span class="section-sig" aria-hidden="true"></span><span class="sec-txt">HQ</span></div>
-    <button class="nav-item" data-view="ai" data-initial="V" title="Vo 智能助手" onclick="switchView(this,'preview-AI助手-精修版.html')">
-      <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
-      <span class="label-text nav-label">Vo 智能助手</span>
-      <span class="badge ai label-text">AI</span>
+    <div class="sec-label section-label" data-section="hq" data-initial="H" data-page-node-id="yqws9efb4DI4OLsrcfkn3x"><span class="section-sig" aria-hidden="true" data-page-node-id="9bqOldfoWGPaVclSSJsamC"></span><span class="sec-txt" data-page-node-id="uAzxlBTB2HFSG54JqNGkOe">HQ</span></div>
+    <button class="nav-item" data-view="ai" data-initial="V" title="Vo 智能助手" onclick="switchView(this,'preview-AI助手-精修版.html')" data-page-node-id="5P8ecDD9Vhh0Iz0UfgCrBx">
+      <svg viewBox="0 0 24 24" data-page-node-id="BAoXeBKBDLBC1KbQHMHetX"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" data-page-node-id="MdMUylNRCkdZYi93Aj9ZiU"/><circle cx="12" cy="12" r="3" data-page-node-id="rZNiHvj8FoWPUGmKLYhnSt"/></svg>
+      <span class="label-text nav-label" data-page-node-id="rX08tbMVO2GxpLvjRfjec1">Vo 智能助手</span>
+      <span class="badge ai label-text" data-page-node-id="jbNEVCLAlOHRB6LdCfUlJP">AI</span>
     </button>
   </aside>
 
-  <div class="viewport">
-    <iframe id="viewFrame" title="内容" onerror="var l=document.getElementById('loader');if(l)l.classList.add('timeout')"></iframe>
-    <div class="viewport-loader" id="loader">
-      <span class="dot"></span>LOADING...
-      <div class="loader-err" id="loaderErr">
-        <strong>页面加载失败</strong>
-        <span class="loader-err-sub">检测到通过文件协议(file://)直接打开，iframe 可能受限。<br>请改用本地服务器：<code>http://127.0.0.1:8088/vo-manager-refined.html</code></span>
+  <div class="viewport" data-page-node-id="5cX7dc1iDlT1uIGmXghWJ5">
+    <iframe id="viewFrame" title="内容" onerror="var l=document.getElementById('loader');if(l)l.classList.add('timeout')" data-page-node-id="KOKtQVjhGT4zAlVs0EfKhH"></iframe>
+    <div class="viewport-loader" id="loader" data-page-node-id="NyHv58lnAZx2DCeE1WPEDm">
+      <span class="dot" data-page-node-id="AfPgSN0ITv98v7rsUi2ADT"></span>LOADING...
+      <div class="loader-err" id="loaderErr" data-page-node-id="LC3Fv2meFfyvBVhNS69pg8">
+        <strong data-page-node-id="IvtUb8lHoixFOUYyKPrI00">页面加载失败</strong>
+        <span class="loader-err-sub" data-page-node-id="qedZ7F8fmbh7xYEeQiOvLX">检测到通过文件协议(file://)直接打开，iframe 可能受限。<br data-page-node-id="XDKyBJv9oqAXpu098sPsuj">请改用本地服务器：<code data-page-node-id="pFn1MQiF0oGOykVg6dAqzN">http://127.0.0.1:8088/vo-manager-refined.html</code></span>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Toast 容器：复用通知系统的 toast 风格 -->
-<div class="share-toast-host" id="shareToastHost"></div>
+<div class="share-toast-host" id="shareToastHost" data-page-node-id="5p4uBpaXe7KirrJP2enOUv"></div>
 
 <script src="assets/holiday-calendar.js?v=20260901a"></script>
 <script src="assets/release-calendar.js?v=20260901b"></script>
@@ -1267,8 +1267,8 @@ async function buildProgressBrief(){
   const cardHTML = `
     <div class="share-card">
       <div class="share-card-head">
-        <div class="share-app"><span class="share-app-v">V</span> Vomi · VO Manager</div>
-        <div class="share-card-sub">VO Manager<span class="share-card-time">刚刚</span></div>
+        <div class="share-app"><span class="share-app-v">V</span> Vomi · Vo Manager</div>
+        <div class="share-card-sub">Vo Manager<span class="share-card-time">刚刚</span></div>
       </div>
       <div class="share-card-body">
         <h3 class="share-card-title">${escHtml(release)} · 版本进度简报</h3>
@@ -1312,7 +1312,7 @@ function mdProgress(release, stats, ms){
   if(stats.clarification > 0){
     lines.push(`▲ ${stats.clarification} 条需求待澄清`);
   }
-  lines.push(`—— Vomi · VO Manager`);
+  lines.push(`—— Vomi · Vo Manager`);
   return lines.join('\n');
 }
 
@@ -1343,8 +1343,8 @@ async function buildDemandsBrief(){
   const cardHTML = `
     <div class="share-card">
       <div class="share-card-head">
-        <div class="share-app"><span class="share-app-v">V</span> Vomi · VO Manager</div>
-        <div class="share-card-sub">VO Manager<span class="share-card-time">刚刚</span></div>
+        <div class="share-app"><span class="share-app-v">V</span> Vomi · Vo Manager</div>
+        <div class="share-card-sub">Vo Manager<span class="share-card-time">刚刚</span></div>
       </div>
       <div class="share-card-body">
         <h3 class="share-card-title">${escHtml(release)} · 需求汇总简报</h3>
@@ -1379,7 +1379,7 @@ async function buildDemandsBrief(){
     } else {
       L.push('（暂无需求数据，先在需求汇总页同步 TAPD）');
     }
-    L.push('—— Vomi · VO Manager');
+    L.push('—— Vomi · Vo Manager');
     return L.join('\n');
   })();
   return { eyebrow:`${release} · 需求汇总简报`, cardHTML, summaryMd, detailUrl };
@@ -1416,8 +1416,8 @@ async function buildSchedulesBrief(){
   const cardHTML = `
     <div class="share-card">
       <div class="share-card-head">
-        <div class="share-app"><span class="share-app-v">V</span> Vomi · VO Manager</div>
-        <div class="share-card-sub">VO Manager<span class="share-card-time">刚刚</span></div>
+        <div class="share-app"><span class="share-app-v">V</span> Vomi · Vo Manager</div>
+        <div class="share-card-sub">Vo Manager<span class="share-card-time">刚刚</span></div>
       </div>
       <div class="share-card-body">
         <h3 class="share-card-title">${escHtml(release)} · 录制档期快照</h3>
@@ -1456,7 +1456,7 @@ async function buildSchedulesBrief(){
       L.push('');
       L.push('（暂无录制档期）');
     }
-    L.push('—— Vomi · VO Manager');
+    L.push('—— Vomi · Vo Manager');
     return L.join('\n');
   })();
   return { eyebrow:`${release} · 录制档期快照`, cardHTML, summaryMd, detailUrl };
@@ -1484,8 +1484,8 @@ async function buildNodesBrief(){
   const cardHTML = `
     <div class="share-card">
       <div class="share-card-head">
-        <div class="share-app"><span class="share-app-v">V</span> Vomi · VO Manager</div>
-        <div class="share-card-sub">VO Manager<span class="share-card-time">刚刚</span></div>
+        <div class="share-app"><span class="share-app-v">V</span> Vomi · Vo Manager</div>
+        <div class="share-card-sub">Vo Manager<span class="share-card-time">刚刚</span></div>
       </div>
       <div class="share-card-body">
         <h3 class="share-card-title">${escHtml(release)} · 版本节点时间轴</h3>
@@ -1510,7 +1510,7 @@ async function buildNodesBrief(){
       const cd = it.ms ? countdownDays(it.ms.date || it.ms.target_date || it.ms.at) : '';
       L.push(`${it.name}：${date}${cd ? '  ('+cd+')' : ''}`);
     });
-    L.push('—— Vomi · VO Manager');
+    L.push('—— Vomi · Vo Manager');
     return L.join('\n');
   })();
   return { eyebrow:`${release} · 版本节点时间轴`, cardHTML, summaryMd, detailUrl };

@@ -1284,8 +1284,8 @@ async function buildProgressBrief(){
           ${milestoneRowHTML('台词锁定',  ms.script_lock,'#7C3AED')}
           ${milestoneRowHTML('VO交付',    ms.vo_deliver, '#597D4F')}
         </div>
-        ${(stats.clarification > 0 || stats.unscripted > 0)
-          ? `<div class="share-risk"><span class="tri">▲</span>${stats.clarification} 条需求待澄清 · ${stats.unscripted} 条需求尚未关联台词表</div>`
+        ${stats.clarification > 0
+          ? `<div class="share-risk"><span class="tri">▲</span>${stats.clarification} 条需求待澄清</div>`
           : `<div class="share-risk ok"><span class="ok-dot"></span>暂无紧急风险</div>`}
         <div class="share-card-actions">
           <button class="btn btn-primary" type="button" onclick="copyShareCardAndLink()">
@@ -1309,8 +1309,8 @@ function mdProgress(release, stats, ms){
   if(ms.vo_lock)     lines.push(`Vo需求锁：${isoDate(ms.vo_lock.date || ms.vo_lock.target_date || ms.vo_lock.at)}${countdownDays(ms.vo_lock.date || ms.vo_lock.target_date || ms.vo_lock.at) ? ' ('+countdownDays(ms.vo_lock.date || ms.vo_lock.target_date || ms.vo_lock.at)+')' : ''}`);
   if(ms.script_lock) lines.push(`台词锁定：${isoDate(ms.script_lock.date || ms.script_lock.target_date || ms.script_lock.at)}${countdownDays(ms.script_lock.date || ms.script_lock.target_date || ms.script_lock.at) ? ' ('+countdownDays(ms.script_lock.date || ms.script_lock.target_date || ms.script_lock.at)+')' : ''}`);
   if(ms.vo_deliver)  lines.push(`VO交付：${isoDate(ms.vo_deliver.date || ms.vo_deliver.target_date || ms.vo_deliver.at)}${countdownDays(ms.vo_deliver.date || ms.vo_deliver.target_date || ms.vo_deliver.at) ? ' ('+countdownDays(ms.vo_deliver.date || ms.vo_deliver.target_date || ms.vo_deliver.at)+')' : ''}`);
-  if(stats.clarification > 0 || stats.unscripted > 0){
-    lines.push(`▲ ${stats.clarification} 条需求待澄清 · ${stats.unscripted} 条需求尚未关联台词表`);
+  if(stats.clarification > 0){
+    lines.push(`▲ ${stats.clarification} 条需求待澄清`);
   }
   lines.push(`—— Vomi · VO Manager`);
   return lines.join('\n');
@@ -1336,9 +1336,7 @@ async function buildDemandsBrief(){
     ? top.map((r,i)=>{
         const status = r.clarification
           ? `<span class="share-row-tag warn">待澄清</span>`
-          : r.script
-            ? `<span class="share-row-tag good">已关联</span>`
-            : `<span class="share-row-tag warn">未关联台词表</span>`;
+          : `<span class="share-row-tag good">已入库</span>`;
         return `<div class="share-row"><div class="share-row-rank">${i+1}</div><div class="share-row-name" title="${escHtml(r.area+' · '+r.name)}">${escHtml(r.area)} · ${escHtml(r.name)}</div>${status}</div>`;
       }).join('')
     : `<div class="share-empty-row">暂无需求数据 · 先在需求汇总页同步 TAPD</div>`;
@@ -1351,10 +1349,9 @@ async function buildDemandsBrief(){
       <div class="share-card-body">
         <h3 class="share-card-title">${escHtml(release)} · 需求汇总简报</h3>
         <p class="share-card-kicker">DELTA FORCE · ${sortedAreas.length} 个 Area · 共 ${stats.total} 条</p>
-        <div class="share-stats share-stats-4">
+        <div class="share-stats share-stats-3">
           ${statBoxHTML(String(stats.total), '总需求', 'var(--c-text)')}
           ${statBoxHTML(String(stats.clarification), '待澄清', '#d97706', 'warn')}
-          ${statBoxHTML(String(stats.unscripted), '未关联台词表', '#d97706', 'warn')}
           ${statBoxHTML(String(stats.areas), 'Area', 'var(--c-text-2)')}
         </div>
         <div class="share-rows">${rowsHtml}</div>
@@ -1372,11 +1369,11 @@ async function buildDemandsBrief(){
   const summaryMd = (()=>{
     const L = [];
     L.push(`【${release} · 需求汇总简报】`);
-    L.push(`${sortedAreas.length} 个 Area · 共 ${stats.total} 条需求 · 待澄清 ${stats.clarification} 条 · 未关联台词表 ${stats.unscripted} 条`);
+    L.push(`${sortedAreas.length} 个 Area · 共 ${stats.total} 条需求 · 待澄清 ${stats.clarification} 条`);
     L.push('');
     if(top.length){
       top.forEach((r,i)=>{
-        const s = r.clarification ? '待澄清' : (r.script ? '已关联' : '未关联台词表');
+        const s = r.clarification ? '待澄清' : '已入库';
         L.push(`${i+1}. [${r.area}] ${r.name} · ${s}`);
       });
     } else {
@@ -1860,10 +1857,10 @@ function buildNotificationModel(user, context){
   const missingDocs = demands.filter(row=>!String(row.script_doc_url || '').trim()).length;
   const unfinished = demands.filter(row=>!['done','closed','已完成','已关闭'].includes(String(row.status || row.v_status || '').trim().toLowerCase())).length;
   const tasksByRole = {
-    pm:[`核对 ${currentRelease} 的 ${demands.length} 条需求与负责人`,`跟进 ${missingDocs} 条未关联台词表的需求`,`协调 ${roster.pending} 位待选角角色与 ${schedules.length} 条已发布档期`],
+    pm:[`核对 ${currentRelease} 的 ${demands.length} 条需求与负责人`,`协调 ${roster.pending} 位待选角角色与 ${schedules.length} 条已发布档期`],
     project:[`推动 ${currentRelease} VO 流程与关键会议`,`同步提单截止、版本变更和阻塞事项`,`协助处理跨团队紧急修改`],
-    copy_pm:[`组织 ${currentRelease} 台词需求分配`,`跟进文案进度与声优确认`,`台词锁前完成分表完整性校验`],
-    writer:[`完成负责需求的台词、角色与句数填写`,`台词锁前完成分表自检`,`锁后修改统一进入版本汇总表`],
+    copy_pm:[`组织 ${currentRelease} 台词需求分配`,`跟进文案进度与声优确认`,`台词锁前完成汇总表完整性校验`],
+    writer:[`完成负责需求的台词、角色与句数填写`,`台词锁前完成汇总表自检`,`锁后修改统一进入版本汇总表`],
     audio:[`确认声优、录音棚与录制时间`,`跟进 ${roster.pending} 位待选角角色`,`推进 ${schedules.length} 条已发布档期与 VO 交付`],
     viewer:[`查看 ${currentRelease} 需求与关键节点`,`关注录制进度和风险变化`]
   };
@@ -1877,7 +1874,7 @@ function buildNotificationModel(user, context){
   if(!nodes.length) nodes = allNodes.slice(-2);
   const risks = [];
   if(context.unavailable) risks.push({text:`${context.unavailable} 项业务数据暂不可用，请稍后刷新`, level:'risk'});
-  if(demands.length && missingDocs) risks.push({text:`${missingDocs} 条需求尚未关联台词表`, level:'risk'});
+  // 2026-09-14 · 新链路：每个版本只维护一份汇总表格，不再关联每个需求的独立台词表 → 移除 "未关联台词表" 风险
   if(roster.pending) risks.push({text:`${roster.pending} 位角色的中/英配信息未齐`, level:'risk'});
   if(demands.length && !schedules.length) risks.push({text:`${currentRelease} 暂无已发布录制档期`, level:'risk'});
   if(!risks.length) risks.push({text:'当前未发现需要立即处理的风险', level:'calm'});

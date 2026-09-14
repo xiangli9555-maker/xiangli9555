@@ -694,7 +694,12 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-cols{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);padding:9px 14px;background:rgba(255,255,255,.028);border-bottom:1px solid rgba(15,247,150,.14);font:700 10.5px/1 var(--font-ui);letter-spacing:.5px;text-transform:none;color:var(--c-text-mute)}
 .actor-combined-wrap .act-cols>div{padding:0 8px}
 .actor-combined-wrap .act-cols .col-weeks{padding:0;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr)}
-.actor-combined-wrap .act-cols .col-weeks .wk{text-align:center;padding:2px 0;font-size:9.5px;border-left:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden;text-overflow:clip;white-space:nowrap;min-width:0;letter-spacing:.2px}
+.actor-combined-wrap .act-cols .col-weeks .wk{text-align:center;padding:2px 0;font-size:9.5px;border-left:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden;text-overflow:clip;white-space:nowrap;min-width:0;letter-spacing:.2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.1}
+.actor-combined-wrap .act-cols .col-weeks .wk .wk-lbl{font-size:10px;font-weight:700;letter-spacing:.3px;line-height:1}
+.actor-combined-wrap .act-cols .col-weeks .wk .wk-range{font-size:8.5px;font-weight:400;color:var(--c-text-dim);opacity:.85;letter-spacing:0;line-height:1;font-family:var(--font-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+.actor-combined-wrap .act-cols .col-weeks .wk.today .wk-range,
+.actor-combined-wrap .act-cols .col-weeks .wk.fix .wk-range,
+.actor-combined-wrap .act-cols .col-weeks .wk.vo .wk-range{color:rgba(10,16,21,.72);opacity:1}
 .actor-combined-wrap .act-cols .col-weeks .wk[data-phase="hist"]{color:var(--ph-hist);opacity:.75}
 .actor-combined-wrap .act-cols .col-weeks .wk[data-phase="sched"]{color:var(--ph-sched);opacity:.9}
 .actor-combined-wrap .act-cols .col-weeks .wk[data-phase="dev"]{color:var(--ph-dev);opacity:.85}
@@ -2555,7 +2560,10 @@ async function renderActorCombined(){
     if(i === todayIdx) cls.push('today');
     if(i === scIdx)    cls.push('fix');
     if(i === voIdx)    cls.push('vo');
-    return '<div class="'+cls.join(' ')+'" data-phase="'+w.phase+'" title="'+w.label+' · '+fmtDD(w.monday)+'">'+w.label+'</div>';
+    // 2026-09-14 · 每周下方补日期范围（M.D-M.D，周一到周日）
+    var sun = addDaysD(w.monday, 6);
+    var rangeStr = fmtDD(w.monday).replace(/^0/,'').replace('.0','.') + '-' + fmtDD(sun).replace(/^0/,'').replace('.0','.');
+    return '<div class="'+cls.join(' ')+'" data-phase="'+w.phase+'" title="'+w.label+' · '+fmtDD(w.monday)+'"><span class="wk-lbl">'+w.label+'</span><span class="wk-range">'+rangeStr+'</span></div>';
   }).join('');
   if(colsEl){
     colsEl.innerHTML = ''

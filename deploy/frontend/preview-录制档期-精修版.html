@@ -2344,6 +2344,8 @@ async function renderActorCombined(){
   var list = all.filter(function(a){
     if(ACTOR_STATE.lang !== 'all' && a.lang !== ACTOR_STATE.lang) return false;
     if(ACTOR_STATE.status !== 'all' && a.status !== ACTOR_STATE.status) return false;
+    // 2026-09-14 · 「仅看未预约」快捷筛选：a.status !== 'booked' 即为未预约（Pending）
+    if(ACTOR_STATE.pendingOnly && a.status === 'booked') return false;
     if(ACTOR_STATE.cat !== 'all'){
       var c = (a.category || '').trim();
       if(c !== ACTOR_STATE.cat) return false;

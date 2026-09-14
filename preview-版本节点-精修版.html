@@ -425,7 +425,8 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 /* ================================================================
    RIGHT PANEL — 本周聚焦 + 未来60天时间轴 + 版本进度
    ================================================================ */
-.right-panel{width:300px;flex-shrink:0;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:18px 14px;overflow:hidden;display:flex;flex-direction:column;gap:22px}
+/* 2026-09-14 · 用户明确要求：右侧栏（开发倒计时/未来60天/版本进度）不随外壳 sidebar 收起而拉宽；width 用 !important 锁定，覆盖下方所有媒体查询 */
+.right-panel{width:260px!important;flex:0 0 260px!important;flex-shrink:0;background:var(--c-bg);border-right:1px solid var(--c-hairline);padding:18px 14px;overflow:hidden;display:flex;flex-direction:column;gap:22px}
 .rp-section{display:flex;flex-direction:column;gap:12px}
 .rp-sec-title{font-size:15px!important;letter-spacing:.2px!important;color:transparent;font-family:var(--font-ui);font-weight:600!important;padding:1px 0 1px 33px;line-height:1.2!important;text-transform:none;position:relative;display:flex;align-items:center;min-height:24px;background:linear-gradient(90deg,#0FF89B 0%,rgba(15,248,155,.55) 35%,rgba(15,248,155,.22) 65%,rgba(15,248,155,0) 100%);-webkit-background-clip:text;background-clip:text}
 .rp-sec-title::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:24px;height:24px;background-color:#6bd995;-webkit-mask:url('assets/DeltaForceLogo-Triangle.png') no-repeat center/contain,linear-gradient(90deg,#000 45%,transparent 100%);mask:url('assets/DeltaForceLogo-Triangle.png') no-repeat center/contain,linear-gradient(90deg,#000 45%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}

@@ -776,6 +776,8 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="open"]{--bk-c:var(--c-rec-open)}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="done"]{--bk-c:var(--c-rec-done)}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="danger"]{--bk-c:var(--c-rec-danger)}
+/* 2026-09-14 · 预约周晚于「VO 资源交付周」→ 与 DEV 末周同为黄色警示 */
+.actor-combined-wrap .ar-weeks .booked-mark[data-rec="over"]{--bk-c:var(--c-brand-yellow)}
 /* 2026-09-14 · 中英配对应色板（cn=冷蓝 en=品牌绿，跟 LANG 列徽章 + 侧栏 lang pill 统一）——仅 open 态适用；danger 保留品牌黄（跨语种警戒），done 保留深灰（已过期不再强调语种） */
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="open"][data-lang="cn"]{--bk-c:#B8CBD8}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="open"][data-lang="en"]{--bk-c:var(--c-primary)}
@@ -2549,7 +2551,7 @@ async function renderActorCombined(){
       + '<div class="hd-legend">'
       +   '<span><i class="lg-open"></i>已排待录</span>'
       +   '<span><i class="lg-done"></i>录制完成</span>'
-      +   '<span><i class="lg-danger"></i>DEV末周</span>'
+      +   '<span><i class="lg-danger"></i>超交付周</span>'
       +   '<span><i class="lg-warn"></i>未排</span>'
       + '</div>';
   }
@@ -2645,6 +2647,8 @@ async function renderActorCombined(){
     var bd = pickScheduleDate(a);
     if(!bd) return 'open';
     if(bd < today) return 'done';
+    // 2026-09-14 · 超 VO 资源交付周：预约周晚于 voIdx → 黄色警示（优先于 DEV 末周判定）
+    if(voIdx >= 0 && weekIdxOfDate(bd) > voIdx) return 'over';
     if(devLastIdx >= 0 && weekIdxOfDate(bd) === devLastIdx) return 'danger';
     return 'open';
   }
@@ -2663,7 +2667,9 @@ async function renderActorCombined(){
       if(idx >= 0){
         var rec = recTypeOf(a);
         var left = idx/wkCount*100, width = 1/wkCount*100;
-        overlay += '<div class="booked-mark" data-rec="'+rec+'" data-lang="'+(a.lang||'cn')+'" style="left:'+left+'%;width:calc('+width+'% - 6px);margin-left:3px" title="'+escFn(fmtDD(bd))+'">'+DF_MARK+'</div>';
+        // 2026-09-14 · 超交付周的记号在 hover 里点明原因
+        var mkTip = fmtDD(bd) + (rec === 'over' ? ' · 超 VO 资源交付周' : '');
+        overlay += '<div class="booked-mark" data-rec="'+rec+'" data-lang="'+(a.lang||'cn')+'" style="left:'+left+'%;width:calc('+width+'% - 6px);margin-left:3px" title="'+escFn(mkTip)+'">'+DF_MARK+'</div>';
       }
     }
     return '<div class="ar-weeks">'+cells+overlay+'</div>';

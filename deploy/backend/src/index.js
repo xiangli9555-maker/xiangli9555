@@ -21,6 +21,7 @@ const {
 } = require('./security');
 const { pullLiveDemands, isLiveReady } = require('./tapd_live');
 const voiceEstimates = require('./voice_estimates');
+const scheduleRefresh = require('./schedule_refresh');
 
 const app = express();
 app.disable('x-powered-by');
@@ -97,6 +98,34 @@ app.get('/api/schedule-from-sheet', (req, res) => {
     } catch (e) {
       res.status(500).json({ ok: false, error: 'snapshot_invalid_json' });
     }
+  });
+});
+
+// ---------- 档期真源实时刷新（2026-09-14）：点页面按钮即回企微表格重拉 ----------
+// 容器内执行：wecom-cli sheet ranges get → CSV → pull_schedule_from_sheet.py → 覆写快照 JSON。
+// 凭证（机器人 Vomi）由 docker-compose 只读挂载，不入 Git、不入镜像。
+app.post('/api/schedule-from-sheet/refresh', async (req, res) => {
+  let result;
+  try {
+    result = await scheduleRefresh.refresh();
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: 'refresh_exception', hint: publicError(e) });
+  }
+  if (!result || !result.ok) {
+    const status = result && (result.error === 'wecom_cli_missing' || result.error === 'pull_script_missing') ? 503 : 502;
+    return res.status(status).json(result || { ok: false, error: 'refresh_failed' });
+  }
+  res.json(result);
+});
+
+// 自诊断：确认容器里 wecom-cli 与解析脚本就绪（只读，viewer 即可）
+app.get('/api/schedule-from-sheet/refresh/status', (req, res) => {
+  const p = scheduleRefresh.preflight();
+  res.json({
+    ok: p.ok,
+    ...p,
+    wecom_cli: scheduleRefresh.WECOM_CLI,
+    pull_script: scheduleRefresh.PULL_SCRIPT,
   });
 });
 

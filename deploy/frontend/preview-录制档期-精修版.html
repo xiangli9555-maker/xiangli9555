@@ -45,13 +45,12 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 
 .main{order:2;flex:1;padding:8px 22px 22px;overflow:hidden;display:flex;flex-direction:column;gap:12px}
 
-.tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid var(--c-hairline);position:relative}
+.tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--c-hairline);position:relative}
 .tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
-/* 2026-09-14 · 按钮浮在 tactical-header 下横线正中（跨界像素） */
+/* 2026-09-14 · 页头右侧收成一行：同步状态 + 同步按钮同排居中，按钮沉到标题基线上
+   去掉旧的「按钮悬浮下横线 + 独立 hint 空行」双层结构 —— 那条空行只有右侧一小行字，
+   在页头与 KPI 之间留下一整条约 35px 的视觉空带，是这一版要消掉的东西。 */
 .tactical-header .actions{position:static}
-.tactical-header #syncFromSummaryBtn{position:absolute;right:0;bottom:-16px;z-index:5}
-/* sync-hint row：位于 tactical-header 下横线之下、按钮之下（右对齐；top padding 避让按钮下半段） */
-.sync-hint-row{display:flex;justify-content:flex-end;padding:18px 0 2px}
 .title-block{display:flex;flex-direction:column;gap:6px}
 .eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
@@ -66,10 +65,14 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .page-title .deadline-meta .deadline-sep{margin:0 6px;opacity:.5}
 .page-title .deadline-meta .deadline-slash{font-family:var(--font-ui);font-weight:500;color:var(--c-text-mute);letter-spacing:1px;margin-right:6px;opacity:.7}
 .page-title .deadline-meta .deadline-calm{color:var(--c-primary);opacity:.7;font-weight:500;margin-left:4px}
-.actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.actions{display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:14px;flex-shrink:0}
 .actions .btn{width:auto}
-.sync-hint{font-size:10.5px;color:var(--c-text-mute);font-family:var(--font-ui);letter-spacing:.2px;display:inline-flex;align-items:baseline;gap:6px;line-height:1.4;max-width:260px;text-align:right}
-.sync-hint .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55);flex-shrink:0;align-self:center;animation:pulse 2.2s infinite}
+.sync-hint{font-size:10.5px;color:var(--c-text-mute);font-family:var(--font-ui);letter-spacing:.2px;display:inline-flex;align-items:center;gap:6px;line-height:1;white-space:nowrap}
+.sync-hint .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55);flex-shrink:0;animation:pulse 2.2s infinite}
+/* 状态文字与按钮之间的细竖分隔（去掉字重与按钮抢视觉） */
+.sync-hint::after{content:'';width:1px;height:14px;background:var(--c-hairline);margin-left:2px}
+/* 窄屏护栏：页头右侧那一行放不下时优先收掉状态文字（1470 设计宽度不受影响） */
+@media (max-width:1360px){.tactical-header .sync-hint{display:none}}
 .sync-spinner{display:inline-block;width:12px;height:12px;border:1.5px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:4px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn{border:none;font-family:inherit;cursor:pointer;font-size:12.5px;font-weight:600;border-radius:999px;padding:8px 16px;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.3px}
@@ -627,7 +630,7 @@ body.embed .main{flex:1;min-width:0}
 /* ============ D · KPI ============ */
 /* KPI 条 flex 容器（2026-09-11 加）：左 4 KPI 卡片自适应等宽，右挂「仅看未预约」按钮 */
 /* 2026-09-11：KPI 条移出 .actor-combined-wrap、提升到页头正下方（main 顶层），选择器去作用域 */
-.ac-kpi-strip{display:flex;align-items:stretch;gap:12px;margin:2px 0 14px}
+.ac-kpi-strip{display:flex;align-items:stretch;gap:12px;margin:4px 0 16px}
 .ac-kpi-strip > .ac-kpi-row{flex:1;min-width:0}
 .ac-kpi-strip > .risk-action{align-self:center;flex-shrink:0}
 .ac-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
@@ -730,8 +733,9 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-body::-webkit-scrollbar{width:6px}
 .actor-combined-wrap .act-body::-webkit-scrollbar-track{background:transparent}
 .actor-combined-wrap .act-body::-webkit-scrollbar-thumb{background:var(--c-hairline);background-clip:padding-box;border:1px solid transparent;border-radius:999px}
-.actor-combined-wrap .act-row{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);align-items:center;padding:7px 14px 7px 18px;border-bottom:1px solid rgba(255,255,255,.03);position:relative;transition:background .12s}
-.actor-combined-wrap .act-row::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:3px;background:var(--risk-c);opacity:.95;box-shadow:0 0 6px var(--risk-c)}
+/* 2026-09-14 · 行高 26px → 46px：行内时间条同步 24→30px，分隔线 .03→.06，左侧风险条由 16px 段改为 24px 段 */
+.actor-combined-wrap .act-row{display:grid;grid-template-columns:var(--col-cat) var(--col-lang) var(--col-role) var(--col-story) var(--col-lines) var(--col-weeks) var(--col-ddl);align-items:center;min-height:46px;padding:0 14px 0 18px;border-bottom:1px solid rgba(255,255,255,.06);position:relative;transition:background .12s}
+.actor-combined-wrap .act-row::before{content:'';position:absolute;left:0;top:11px;bottom:11px;width:3px;background:var(--risk-c);opacity:.95;box-shadow:0 0 6px var(--risk-c)}
 .actor-combined-wrap .act-row[data-risk="danger"]{--risk-c:var(--c-brand-yellow)}
 .actor-combined-wrap .act-row[data-risk="open"]{--risk-c:var(--c-rec-open)}
 .actor-combined-wrap .act-row[data-risk="done"]{--risk-c:var(--c-rec-done);opacity:.85}
@@ -756,7 +760,7 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .act-row .ar-ddl[data-status="done"]{--st-c:var(--c-text-mute)}
 
 /* 时间轴格子容器 */
-.actor-combined-wrap .ar-weeks{position:relative;height:24px;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr)}
+.actor-combined-wrap .ar-weeks{position:relative;height:30px;display:grid;grid-template-columns:repeat(var(--wk-count,13),1fr)}
 .actor-combined-wrap .ar-weeks .wcell{position:relative;border-left:1px solid rgba(255,255,255,.04);height:100%}
 .actor-combined-wrap .ar-weeks .wcell[data-phase="hist"]{background:rgba(76,90,100,.05)}
 .actor-combined-wrap .ar-weeks .wcell[data-phase="sched"]{background:rgba(15,247,150,.05)}
@@ -768,7 +772,7 @@ body.embed .main{flex:1;min-width:0}
 .actor-combined-wrap .ar-weeks .wcell.today::after{background:var(--c-primary);box-shadow:0 0 6px rgba(15,247,150,.55)}
 .actor-combined-wrap .ar-weeks .wcell.fix::after{background:var(--c-brand-yellow);box-shadow:0 0 4px rgba(255,210,76,.30)}
 .actor-combined-wrap .ar-weeks .wcell.vo-mark::after{background:var(--c-vo);box-shadow:0 0 6px rgba(214,153,190,.50)}
-.actor-combined-wrap .ar-weeks .booked-mark{position:absolute;top:3px;bottom:3px;background:var(--bk-c);clip-path:polygon(3px 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%,0 3px);z-index:3;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);margin-left:3px;margin-right:3px}
+.actor-combined-wrap .ar-weeks .booked-mark{position:absolute;top:4px;bottom:4px;background:var(--bk-c);clip-path:polygon(3px 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%,0 3px);z-index:3;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);margin-left:3px;margin-right:3px}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="open"]{--bk-c:var(--c-rec-open)}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="done"]{--bk-c:var(--c-rec-done)}
 .actor-combined-wrap .ar-weeks .booked-mark[data-rec="danger"]{--bk-c:var(--c-rec-danger)}
@@ -986,12 +990,9 @@ body.embed .main{flex:1;min-width:0}
         <h1 class="page-title" data-page-node-id="Aq1yqg4fMsX9lm7HpTKXUB">录制档期 <span class="deadline-meta" id="schedDeadlinePill" hidden data-page-node-id="pAjNhccbhD6dZyC2k0oqX1"><span class="deadline-slash" data-page-node-id="LRFrJhOgRcy7ymIZbJ5Qd8">//</span><span class="deadline-dates" id="schedDeadlineRange" data-page-node-id="njJflFPTGp10ry5V4xlbty">--.-- → --.--</span><span class="deadline-sep" data-page-node-id="E1mIVH5RM8ix4cm5Doroq2">·</span><span class="deadline-rel" id="schedDeadlineRel" data-page-node-id="VnCh7jpuUZtjHdZftmeNxd">--</span> 录制定档期<span class="deadline-calm" id="schedDeadlineCalm" hidden data-page-node-id="ulxg6zxq4vggacCAchGzxu">· 已完成</span></span></h1>
       </div>
       <div class="actions" data-page-node-id="Fgzyrvl55Bx0sGzgJyZDvf">
+        <div class="sync-hint" data-page-node-id="FKe7OmuBRyzdxVJVkHFYEx"><span class="sync-dot" data-page-node-id="FGjGjmv7HP0qgBQCIXEd8A"></span>手动同步 · 上次 <span id="syncHintLast">—</span></div>
         <button id="syncFromSummaryBtn" class="btn btn-primary" onclick="syncFromVersionSummary()" data-page-node-id="nAeOQeNzF8TEtaBugMm2Va"><svg viewBox="0 0 24 24" data-page-node-id="J6SJV4PEzEZPbhp2mAZFKd"><path d="M23 4v6h-6" data-page-node-id="71kJ0npTykZvA9uyym4zuK"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" data-page-node-id="wTA2mDR8pxfL9GJ3YCuH5s"/></svg>从 Vo 版本汇总表同步</button>
       </div>
-    </div>
-    <!-- 2026-09-14 · sync-hint 从 tactical-header 挪出：让文字显示在下横线之下，按钮悬浮在下横线上 -->
-    <div class="sync-hint-row" data-page-node-id="syncHintRow">
-      <div class="sync-hint" data-page-node-id="FKe7OmuBRyzdxVJVkHFYEx"><span class="sync-dot" data-page-node-id="FGjGjmv7HP0qgBQCIXEd8A"></span>手动同步 · 上次 <span id="syncHintLast">—</span></div>
     </div>
 
     <!-- KPI 条（2026-09-11 提升到 main 顶层） -->
@@ -2579,6 +2580,9 @@ async function renderActorCombined(){
   // 列名行
   // 2026-09-14 · 判断某周是否命中节假日（周一~周日任一天）
   function weekHoliday(monDate){
+    // 防御：holidayInfo 由后置 script 块挂到 window（见文件末尾注释）；缺失时降级为「无假期」，
+    // 不允许因一个假期标识把整张排期表渲染打断。
+    if(typeof holidayInfo !== 'function') return null;
     for(var k=0; k<7; k++){
       var d = addDaysD(monDate, k);
       var h = holidayInfo(d.getFullYear(), d.getMonth(), d.getDate());
@@ -3256,6 +3260,10 @@ function bookActor(role, lang){
     }
     return null;
   }
+  // 2026-09-14 · 本页拆成两个 <script> 块，上方 renderSched 里的 weekHoliday() 需要用到 holidayInfo。
+  // 原先只在后块用 function 声明 → 前块调用时抛 ReferenceError: holidayInfo is not defined，
+  // 整条 renderActorRollup 中断 → 表格不渲染。挂到 window 上让前块能按作用域链找到。
+  window.holidayInfo = holidayInfo;
   function demandNameFromId(id){
     var sid=String(id||'').trim(); if(!sid) return '';
     var hit=(DEMAND_OPTIONS||[]).find(function(d){ return String(d.id)===sid; });
@@ -3911,27 +3919,47 @@ function bookActor(role, lang){
   function mkSess(plan,vaType,lines,estHours,studio){ return {id:uid(),plan:plan,demandId:'',vaType:vaType,lines:lines,estHours:estHours,studio:studio,date:'',slot:'',status:'draft'}; }
   function toast(m,isConflict){ var t=document.createElement('div'); t.textContent=m; t.style.cssText='position:fixed;bottom:16px;right:20px;max-width:460px;font-family:var(--font-ui);font-size:11.5px;letter-spacing:.5px;background:var(--c-surface);border:1px solid '+(isConflict?'rgba(214,153,190,.55)':'var(--c-hairline)')+';padding:7px 12px;border-radius:4px;color:'+(isConflict?'#D699BE':'var(--c-primary)')+';z-index:500;transition:opacity .3s;opacity:1'; document.body.appendChild(t); setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},300);},isConflict?8000:2400); }
   // 从 Vo 版本汇总表手动同步：合并了旧「从台词库表格加载」按钮（2026-09-08 两按钮合一）。
+  // 2026-09-14 升级为「真·实时」：先 POST /api/schedule-from-sheet/refresh 让后端回企微表格重拉
+  // 「3.录制档期」页并覆写快照，再读快照；失败则回退上次快照并提示原因。
   // 同时刷新：① /api/schedules 已发布档期 ② /api/schedule-from-sheet 台词库表格快照 → 触发侧栏与主表全面重绘。
   window.syncFromVersionSummary=function(){
     var btn=document.getElementById('syncFromSummaryBtn');
     if(btn){ btn.disabled=true; btn.dataset.label=btn.dataset.label||btn.innerHTML; btn.innerHTML='<span class="sync-spinner"></span>同步中…'; }
-    toast('正在从 Vo 版本汇总表同步…');
     var release=(window.__INIT_RELEASE__||(document.querySelector('.eyebrow-release')&&document.querySelector('.eyebrow-release').textContent)||'Yang1.0').trim();
-    // 并行：正式档期 + 表格快照
-    var p1 = loadPublishedSchedules();
-    var p2 = fetch('/api/schedule-from-sheet?release='+encodeURIComponent(release), {cache:'no-store'})
-      .then(function(r){ return r.ok ? r.json() : {ok:false, records:[]}; })
-      .then(function(j){
-        if(j && j.ok && Array.isArray(j.records)){
-          if(window.ACTOR_STATE){ ACTOR_STATE.sheetSchedule = j.records; ACTOR_STATE.sheetFetchedAt = j.fetched_at||''; }
-          return j.records;
-        }
-        return [];
-      })
-      .catch(function(){ return []; });
-    return Promise.all([p1, p2]).then(function(res){
+    var isGuest = window.__VOMI_GUEST__ === true;
+    toast(isGuest ? '正在从 Vo 版本汇总表同步…' : '正在实时拉取「3.录制档期」…');
+    // 第 0 步：后端实时回企微表格重拉（预览模式/游客只读，跳过）
+    var p0 = isGuest
+      ? Promise.resolve({ status:0, body:{ ok:false, skipped:'guest' } })
+      : fetch('/api/schedule-from-sheet/refresh', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ release:release }) })
+          .then(function(r){
+            return r.json().catch(function(){ return { ok:false, error:'bad_response' }; })
+                    .then(function(j){ return { status:r.status, body:j||{} }; });
+          })
+          .catch(function(e){ return { status:0, body:{ ok:false, error:'network', hint:String((e&&e.message)||e) } }; });
+    return p0.then(function(r0){
+      var live = (r0 && r0.body) || {};
+      if(live.ok){
+        toast('已实时拉取「'+(live.sheet_name||'3.录制档期')+'」'+live.count+' 条');
+      }else if(!isGuest){
+        toast('实时拉取失败（'+(live.hint||live.error||('HTTP '+r0.status))+'）· 回退上次快照', true);
+      }
+      // 并行：正式档期 + 表格快照（快照此时已是刚拉取的新数据）
+      var p1 = loadPublishedSchedules();
+      var p2 = fetch('/api/schedule-from-sheet?release='+encodeURIComponent(release), {cache:'no-store'})
+        .then(function(r){ return r.ok ? r.json() : {ok:false, records:[]}; })
+        .then(function(j){
+          if(j && j.ok && Array.isArray(j.records)){
+            if(window.ACTOR_STATE){ ACTOR_STATE.sheetSchedule = j.records; ACTOR_STATE.sheetFetchedAt = j.fetched_at||''; }
+            return j.records;
+          }
+          return [];
+        })
+        .catch(function(){ return []; });
+      return Promise.all([p1, p2]);
+    }).then(function(res){
       var pub = res[0]||[], sheet = res[1]||[];
-      toast('已同步：已发布 '+pub.length+' 条 · 表格快照 '+sheet.length+' 条');
+      toast('已同步：已发布 '+pub.length+' 条 · 表格档期 '+sheet.length+' 条');
       // 回填「上次同步」时间戳到页头 hint
       if(typeof window.refreshSyncHint === 'function') try{ window.refreshSyncHint(); }catch(_){}
       // 同步刷新侧栏（renderSched 内部会调用 renderMidPanel）+ 主表演员卡

@@ -41,6 +41,8 @@ for f in Dockerfile package.json package-lock.json cw_doc_recipe_v6.js build_cw_
   [[ -f "$STAGE/deploy/backend/$f" ]] || continue
   cmp -s "$STAGE/deploy/backend/$f" "$DEPLOY/backend/$f" || BACKEND_CHANGED=1
 done
+# 2026-09-14：tools/（表格解析脚本）会被 Dockerfile COPY 进镜像，改动必须触发重建。
+if [[ -d "$STAGE/deploy/backend/tools" ]] && ! diff -qr "$STAGE/deploy/backend/tools" "$DEPLOY/backend/tools" >/dev/null 2>&1; then BACKEND_CHANGED=1; fi
 [[ -f "$STAGE/deploy/docker-compose.yml" ]] && ! cmp -s "$STAGE/deploy/docker-compose.yml" "$DEPLOY/docker-compose.yml" && COMPOSE_CHANGED=1
 [[ -f "$STAGE/deploy/nginx/default.conf" ]] && ! cmp -s "$STAGE/deploy/nginx/default.conf" "$DEPLOY/nginx/default.conf" && NGINX_CHANGED=1
 
@@ -59,6 +61,11 @@ printf '%s\n' "$COMMIT" > "$BACKUP/target-commit.txt"
 mkdir -p "$DEPLOY/frontend" "$DEPLOY/backend/src" "$DEPLOY/nginx"
 cp -a "$STAGE/deploy/frontend/." "$DEPLOY/frontend/"
 cp -a "$STAGE/deploy/backend/src/." "$DEPLOY/backend/src/"
+# 2026-09-14：tools/ 目录同步（Dockerfile 会 COPY 进镜像，缺失会导致 docker build 失败）。
+if [[ -d "$STAGE/deploy/backend/tools" ]]; then
+  mkdir -p "$DEPLOY/backend/tools"
+  cp -a "$STAGE/deploy/backend/tools/." "$DEPLOY/backend/tools/"
+fi
 for f in Dockerfile package.json package-lock.json cw_doc_recipe_v6.js build_cw_doc.js roster.json tapd-snapshot.js schedule_from_sheet.json .env.example; do
   [[ -f "$STAGE/deploy/backend/$f" ]] && cp -a "$STAGE/deploy/backend/$f" "$DEPLOY/backend/$f"
 done

@@ -44,9 +44,17 @@ services:
       HOLIDAY_CALENDAR_PATH: /app/holiday-calendar.js
       WECOM_CORPID: ${WECOM_CORPID:-}
       WECOM_CORPSECRET: ${WECOM_CORPSECRET:-}
+      # 档期实时刷新（POST /api/schedule-from-sheet/refresh）所需
+      WECOM_CLI_PATH: /usr/local/bin/wecom-cli
+      WECOM_HOME: /home/node
+      SCHEDULE_PULL_SCRIPT: /app/tools/pull_schedule_from_sheet.py
       TZ: Asia/Shanghai
     volumes:
       - audio_data:/data/audio
+      # 企微 CLI 二进制 + 机器人凭证：宿主机持久化、只读挂载，永不入 Git/镜像
+      - /root/.wecom/wecom-cli:/usr/local/bin/wecom-cli:ro
+      - /root/.config/wecom/credentials.enc:/home/node/.config/wecom/credentials.enc:ro
+      - /root/.config/wecom/.encryption_key:/home/node/.config/wecom/.encryption_key:ro
       # 让 refresh 直接读前端实时快照（与 vo-nginx 同源），避免每次重建 backend 后需手动 docker cp /app/tapd-snapshot.js
       - ./frontend/assets/tapd-snapshot.js:/app/tapd-snapshot.js:ro
       - ./frontend/assets/holiday-calendar.js:/app/holiday-calendar.js:ro

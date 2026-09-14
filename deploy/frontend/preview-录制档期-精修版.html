@@ -1273,6 +1273,8 @@ function setActorLang(lang, btn){
   // 侧栏预约进度胶囊同步
   document.querySelectorAll('[data-lang-pill]').forEach(b => b.classList.toggle('on', b.dataset.langPill === lang));
   renderActorRollup();
+  // 2026-09-14 · 语种切换同步刷新侧栏中栏（录制日历 + 即将录制 需按语种过滤）
+  try{ if(typeof window.renderSched === 'function') window.renderSched(); }catch(_){}
 }
 // 侧栏「预约进度」中的胶囊点击 → 联动主视图筛选
 function setActorLangFromPanel(lang, btn){
@@ -3396,9 +3398,16 @@ function bookActor(role, lang){
   }
   function renderMidPanel(rows){
     var safeRows = withMidPanelFallback(rows||[]);
+    // 2026-09-14 · 侧栏「预约进度 / 录制日历 / 即将录制」跟随 ACTOR_STATE.lang 联动
+    // 预约进度 3 条（中/英/总计）依然全量展示（用户参考），
+    // 但录制日历 + 即将录制根据当前选中语种过滤
+    var curLang = (window.ACTOR_STATE && window.ACTOR_STATE.lang) || 'all';
+    var langFiltered = (curLang === 'all')
+      ? safeRows
+      : safeRows.filter(function(r){ return r.lang === curLang; });
     renderMidProgress(safeRows);
-    renderMidCalendar(safeRows);
-    renderMidUpcoming(safeRows);
+    renderMidCalendar(langFiltered);
+    renderMidUpcoming(langFiltered);
   }
   function renderMidProgress(rows){
     var box=document.getElementById('mpProgress'); if(!box) return;

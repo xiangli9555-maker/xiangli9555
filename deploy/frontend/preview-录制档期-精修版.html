@@ -47,6 +47,11 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 
 .tactical-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid var(--c-hairline);position:relative}
 .tactical-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:var(--c-primary);opacity:0.6}
+/* 2026-09-14 · 按钮浮在 tactical-header 下横线正中（跨界像素） */
+.tactical-header .actions{position:static}
+.tactical-header #syncFromSummaryBtn{position:absolute;right:0;bottom:-16px;z-index:5}
+/* sync-hint row：位于 tactical-header 下横线之下、按钮之下（右对齐；top padding 避让按钮下半段） */
+.sync-hint-row{display:flex;justify-content:flex-end;padding:24px 0 6px}
 .title-block{display:flex;flex-direction:column;gap:6px}
 .eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:11px;color:var(--c-primary);letter-spacing:.6px;font-weight:500;text-transform:none;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif}
 .eyebrow .sig{width:6px;height:6px;background:var(--c-primary);border-radius:50%;box-shadow:0 0 8px var(--c-primary);animation:pulse 2s infinite}
@@ -972,8 +977,11 @@ body.embed .main{flex:1;min-width:0}
       </div>
       <div class="actions" data-page-node-id="Fgzyrvl55Bx0sGzgJyZDvf">
         <button id="syncFromSummaryBtn" class="btn btn-primary" onclick="syncFromVersionSummary()" data-page-node-id="nAeOQeNzF8TEtaBugMm2Va"><svg viewBox="0 0 24 24" data-page-node-id="J6SJV4PEzEZPbhp2mAZFKd"><path d="M23 4v6h-6" data-page-node-id="71kJ0npTykZvA9uyym4zuK"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" data-page-node-id="wTA2mDR8pxfL9GJ3YCuH5s"/></svg>从 Vo 版本汇总表同步</button>
-        <div class="sync-hint" data-page-node-id="FKe7OmuBRyzdxVJVkHFYEx"><span class="sync-dot" data-page-node-id="FGjGjmv7HP0qgBQCIXEd8A"></span>手动同步 · 上次 <span id="syncHintLast">—</span></div>
       </div>
+    </div>
+    <!-- 2026-09-14 · sync-hint 从 tactical-header 挪出：让文字显示在下横线之下，按钮悬浮在下横线上 -->
+    <div class="sync-hint-row" data-page-node-id="syncHintRow">
+      <div class="sync-hint" data-page-node-id="FKe7OmuBRyzdxVJVkHFYEx"><span class="sync-dot" data-page-node-id="FGjGjmv7HP0qgBQCIXEd8A"></span>手动同步 · 上次 <span id="syncHintLast">—</span></div>
     </div>
 
     <!-- KPI 条（2026-09-11 提升到 main 顶层） -->

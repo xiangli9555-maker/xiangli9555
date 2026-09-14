@@ -2447,7 +2447,9 @@ async function renderActorCombined(){
   // 时间轴自动向左延伸到覆盖 today，W 编号会自动扩展到 W-5/W-6/... 保证「今」竖线可见。
   var todayMon = isoMon(today);
   if(todayMon < winStart) winStart = todayMon;
-  var wkCount  = Math.round((winEnd - winStart) / (7*86400000)) + 1;
+  // 2026-09-14 · wkCount 用 winEnd 的周一算周数（不含 winEnd 当周之后的 pad 周）
+  // 原 Math.round((winEnd - winStart)/7) 会把 sunday 结束的窗口向上取整多出 1 周，导致 test W3 意外出现
+  var wkCount  = Math.round((isoMon(winEnd) - winStart) / (7*86400000)) + 1;
   if(wkCount < 4) wkCount = 4;
 
   // 相位

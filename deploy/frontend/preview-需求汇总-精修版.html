@@ -666,7 +666,7 @@ body.embed .mid{width:100%}
   <button class="brand-toggle" title="收起/展开侧栏" onclick="document.body.classList.toggle('sidebar-collapsed')" data-page-node-id="Dep9fFrA0fwCS4XF5UBRBp">
     <svg viewBox="0 0 24 24" data-page-node-id="7WCJcz1Z4IDKaPa4HpZhD2"><line x1="4" y1="7" x2="20" y2="7" data-page-node-id="VkmdJhjd9zqvuAsULGnruM"/><line x1="4" y1="12" x2="20" y2="12" data-page-node-id="Ng1fg6Q7WHgIsCZjRIaTLY"/><line x1="4" y1="17" x2="20" y2="17" data-page-node-id="dXuXWQBaFHn6lTPDK21LhJ"/></svg>
   </button>
-  <div class="brand-subsys" aria-label="Vomi · VO Manager" data-page-node-id="Hunlv3qzQ8PBaEpuXGCYaP">
+  <div class="brand-subsys" aria-label="Vomi · Vo Manager" data-page-node-id="Hunlv3qzQ8PBaEpuXGCYaP">
     <span class="brand-vomi-lockup" data-page-node-id="YkYm9QjpV6L553eWdISDNE"><img class="vomi-mark" src="assets/vomi-mark.svg?v=20260815g" alt="-Vomi-" data-page-node-id="wzJmJKDLwGurCPmmDUEnVY"/></span>
     <span class="brand-slogan" data-page-node-id="Orc5zKwqT7FCU74kAC759F">包办 Vo, Mi 来打理</span>
   </div>
@@ -878,7 +878,7 @@ const AREA_CLASS = {'AI':'AI','SOL':'SOL','大战场':'BF','系统':'SYS','干�
 const VS_OPTS = ['音画同步','无需视频'];
 
 // PM 定稿 2026-09-04：需求状态不再由 TAPD 状态自动映射驱动，改为纯人工维护。
-// 初始值恒为「待澄清」；文案推到「文案ing」后由 VO Manager 维护「已交稿 → Vo ing → Done」。
+// 初始值恒为「待澄清」；文案推到「文案ing」后由 Vo Manager 维护「已交稿 → Vo ing → Done」。
 function tapdStage(d){
   return '待澄清';
 }
@@ -1649,7 +1649,7 @@ function rowHTML(d){
   const manualCls = isManual ? ' va-manual' : '';
   const manualTitle = isManual
     ? '状态：🔒 已锁定（PM 手动定值）· 右键单元格清除后回到「待澄清」'
-    : '状态：初始「待澄清」；文案推到「文案ing → 已交稿」后，Vo ing / Done 由 VO Manager 维护';
+    : '状态：初始「待澄清」；文案推到「文案ing → 已交稿」后，Vo ing / Done 由 Vo Manager 维护';
   const stCls = CLARIFY_STATUS[effectiveStage] || 's-none';
   return `<tr data-stage="${esc(effectiveStage)}" data-id="${d.id}" data-area="${esc(d.area||'')}"${isManual?' data-manual="1"':''}${d._offlineDraft?' data-offline-draft="1"':''}>
     <td class="col-release"><span class="rp-tag">${esc(d.release_plan||'—')}</span></td>

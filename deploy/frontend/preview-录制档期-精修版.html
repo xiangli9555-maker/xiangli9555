@@ -2409,8 +2409,20 @@ async function renderActorCombined(){
   var fixDdl     = addWorkDaysND(scriptLock, 5);
   var recWinStart= vaLock;
   var recWinEnd  = fixDdl;
+  // 2026-09-14 · 对齐版本节点页 s-sched-win 真源：
+  //   VO 资源交付 = 开发倒数第二自然周 周五（若该周命中放假整周，向前找下一个有效周）
+  //   （原公式"TEST W3 Friday"是错的，Yang1 会算成 01-08，实际 PM 口径是 12-11）
+  var voDeliver = (function(){
+    var week = addDaysD(isoMon(YANG.dev.end), -7);   // 倒数第二自然周的周一
+    var cal = window.VOMI_HOLIDAY_CALENDAR;
+    var maxHop = 10;
+    while(cal && typeof cal.weekIsHoliday === 'function' && cal.weekIsHoliday(week) && maxHop-- > 0){
+      week = addDaysD(week, -7);
+    }
+    return addDaysD(week, 4);   // Friday
+  })();
+  // 时间轴右边界 = 覆盖 voDeliver + testW3（取更晚者）以留出上下文
   var testW3Mon  = addDaysD(isoMon(YANG.test.start), 2*7);
-  var voDeliver  = addDaysD(testW3Mon, 4);          // Friday
 
   // 时间轴窗口：声优锁那周 → 测试第3周 那周
   var winStart = isoMon(vaLock);

@@ -1156,7 +1156,7 @@ async function loadReleasePlans(){
 function renderTimeline(){
   const thead = document.getElementById('ycHead');
   const tbody = document.getElementById('ycBody');
-  const vers = VERSIONS.filter(filterVer);
+  const vers = visibleVers();
 
   // 列数由实际数据驱动：取全部渲染版本的最大开发周/测试周数（至少 4），避免周数超过 4 时丢失周（如 Ma5 测 5 周、Yang1 开 5 周）
   const maxDev  = Math.max(4, ...vers.map(v => (v.phases.find(p=>p.type==='dev')?.weeks) || 0));
@@ -1237,6 +1237,8 @@ function renderTimeline(){
 
     const tr = document.createElement('tr');
     if(ver.planned) tr.classList.add('planned');
+    // 前置版本行（非选中）：仅为承载选中版本的早期节点而渲染，样式与普通行完全一致
+    if(currentFilter instanceof Set && !currentFilter.has(ver.id)) tr.dataset.ctxRow = '1';
 
     // Column 1: 年度（每段首行插入一个 rowSpan 单元格，段内其余行不追加单元格；只显示 4 位年份，副标题「待确认」按 PM 要求全部去掉）
     if(yearRunSpan[vi] > 0){
@@ -1577,6 +1579,25 @@ function filterVer(ver){
   if(currentFilter === 'all') return true;
   if(currentFilter instanceof Set) return currentFilter.has(ver.id);
   return true;
+}
+
+// ★ 行范围（PM 2026-09-15）：选中某版本时，**一并渲染其相邻前一版本的行**作为时间锚。
+// 原因：该版本最早的节点（Vo需求锁 / 声优锁 = 关键节点公式「从开发末周向前推」得出的会议）
+//   在时间轴上落在上一版本的时段里，只渲染自身行会让链路头部整段消失。
+//   例：选 Yang1.0 → 需同时看到 Ma5.0 行（9.14 Yang1 Vo需求锁 / 10.26 Yang1 声优锁）
+//   与 Yang1.0 行（11.30 Yang1 VO资源交付）。
+// 注意：这里只扩大「行」，事件仍由 eventMatchesVer 限制为选中版本，
+//   因此前置行展示的是「在该版本时段内、属于选中版本的节点」，不会混入上一版本自己的节点。
+function visibleVers(){
+  if(!(currentFilter instanceof Set)) return VERSIONS.slice();
+  const keepIdx = new Set();
+  VERSIONS.forEach((v, i) => {
+    if(currentFilter.has(v.id)){
+      keepIdx.add(i);
+      if(i > 0) keepIdx.add(i - 1);   // 相邻前一版本行 = 链路头部的时间锚
+    }
+  });
+  return VERSIONS.filter((_, i) => keepIdx.has(i));
 }
 
 function buildFilterButtons(){

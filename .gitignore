@@ -106,3 +106,11 @@ release.local.*
 
 # 生产环境密钥
 deploy/.env.production
+
+# 缩略图缓存
+.thumbs/
+
+# 截图/对照临时产物（一次性核对用，不入库）
+*对照*.png
+*对照*.html
+vomi-story-12屏总览.png

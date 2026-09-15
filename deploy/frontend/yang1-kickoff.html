@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="zIivWxOmrb8YVMJKFHkKph">
+<head data-page-node-id="Ge1TfJXNLOemj9wTJAWYlu">
+<meta charset="UTF-8" data-page-node-id="dP8BtJahp7p5i6dGjY0X31">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="hDYgDi3hHOUMtnUyoAw044">
+<title>Yang1.0 · 事项梳理与会议安排</title>
+<style>
+:root{
+  --c-primary:#0FF796;
+  --c-yellow:#FFD24C;
+  --c-danger:#D699BE;
+  --bg:#0B1014;
+  --glass:rgba(15,23,28,.74);
+  --glass-2:rgba(18,27,33,.60);
+  --line:rgba(255,255,255,.09);
+  --line-2:rgba(255,255,255,.16);
+  --ink:#E8EEF1;
+  --ink-2:#A5B3BB;
+  --ink-3:#7C8A93;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --sans:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;
+  -webkit-font-smoothing:antialiased;letter-spacing:0}
+body::before{content:'';position:fixed;inset:0;z-index:-2;background:url('assets/bg-universal.png') center/cover no-repeat;opacity:.42}
+body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(1200px 620px at 10% -10%, rgba(15,247,150,.10), transparent 60%),
+    radial-gradient(900px 520px at 94% 6%, rgba(255,210,76,.055), transparent 62%),
+    linear-gradient(180deg, rgba(11,16,20,.60) 0%, rgba(11,16,20,.86) 45%, rgba(11,16,20,.96) 100%)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+a{color:var(--c-primary);text-decoration:none}
+
+/* 顶栏 */
+.topbar{position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(11,16,20,.78);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:18px;height:56px}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand .dot{width:7px;height:7px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 8px var(--c-primary)}
+.brand b{font-size:13.5px;letter-spacing:.06em}
+.brand .sub{font-size:12px;color:var(--ink-3);font-weight:400}
+.navlinks{display:flex;gap:3px;margin-left:auto;flex-wrap:wrap}
+.navlinks a{font-size:12.5px;color:var(--ink-2);padding:5px 11px;border-radius:7px;border:1px solid transparent;transition:.16s}
+.navlinks a:hover{color:var(--ink);background:rgba(255,255,255,.05);border-color:var(--line)}
+
+/* Hero */
+.hero{padding:60px 0 34px}
+.eyebrow{display:flex;align-items:center;gap:9px;font-size:11.5px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase}
+.eyebrow .sig{width:5px;height:5px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 8px var(--c-primary)}
+.chip-divider{width:1px;height:11px;background:var(--line-2)}
+.eyebrow-release{font-family:var(--mono);color:var(--c-primary);letter-spacing:.08em}
+h1{font-size:40px;line-height:1.22;margin:16px 0 12px;font-weight:800;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--c-primary)}
+.lede{font-size:16px;color:var(--ink-2);max-width:820px;margin:0}
+.lede b{color:var(--ink);font-weight:600}
+.stamp{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--ink-3)}
+.stamp span{padding:4px 11px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03)}
+.stamp span b{font-family:var(--mono);color:var(--ink-2);font-weight:500}
+
+/* 通用区块 */
+section{padding:44px 0}
+.sechead{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.sechead h2{font-size:23px;margin:0;font-weight:750;letter-spacing:-.005em}
+.sechead .note{font-size:12.5px;color:var(--ink-3)}
+.rule{height:1px;background:linear-gradient(90deg,var(--line-2),transparent);margin:0 0 26px}
+
+/* 时间轴 */
+.tl{display:grid;gap:0;border-left:1px solid var(--line-2);margin-left:8px}
+.tl-item{position:relative;padding:0 0 22px 26px}
+.tl-item::before{content:'';position:absolute;left:-5px;top:7px;width:9px;height:9px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--ink-3)}
+.tl-item.now::before{border-color:var(--c-primary);box-shadow:0 0 10px rgba(15,247,150,.7)}
+.tl-item.key::before{border-color:var(--c-yellow)}
+.tl-item.done::before{border-color:var(--ink-3);background:var(--ink-3)}
+.tl-d{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);letter-spacing:.02em}
+.tl-item.now .tl-d{color:var(--c-primary)}
+.tl-t{font-size:15.5px;font-weight:650;margin-top:1px}
+.tl-tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:5px;margin-left:9px;
+  border:1px solid var(--line-2);color:var(--ink-3);vertical-align:1.5px}
+.tl-tag.hot{border-color:rgba(15,247,150,.5);color:var(--c-primary);background:rgba(15,247,150,.08)}
+.tl-tag.warn{border-color:rgba(255,210,76,.45);color:var(--c-yellow);background:rgba(255,210,76,.07)}
+.tl-s{font-size:13px;color:var(--ink-2);margin-top:2px}
+
+/* 数字卡 */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.card .k{font-size:12px;color:var(--ink-3);letter-spacing:.03em}
+.card .v{font-family:var(--mono);font-size:32px;font-weight:700;line-height:1.15;margin-top:6px;font-variant-numeric:tabular-nums}
+.card .v small{font-size:14px;color:var(--ink-3);font-weight:500;margin-left:3px}
+.card .d{font-size:12.5px;color:var(--ink-2);margin-top:6px;line-height:1.55}
+.card.g .v{color:var(--c-primary)}
+.card.y .v{color:var(--c-yellow)}
+.card.p .v{color:var(--c-danger)}
+
+/* 表 */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--glass-2);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;backdrop-filter:blur(8px)}
+.tbl th{text-align:left;font-size:11.5px;letter-spacing:.09em;color:var(--ink-3);font-weight:600;
+  padding:11px 14px;border-bottom:1px solid var(--line-2);background:rgba(255,255,255,.025);white-space:nowrap}
+.tbl td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.07);min-width:70px;overflow:hidden;margin-top:5px}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--c-primary)}
+.bar i.y{background:var(--c-yellow)}
+.bar i.p{background:var(--c-danger)}
+
+/* 口径变更说明 */
+.modelnote{margin-top:14px;display:flex;align-items:flex-start;gap:10px;
+  background:rgba(255,210,76,.055);border:1px solid rgba(255,210,76,.22);border-radius:10px;
+  padding:11px 14px;font-size:12.8px;color:var(--ink-2);line-height:1.65}
+.modelnote .mn-k{flex-shrink:0;font-size:11px;letter-spacing:0;color:var(--c-yellow);
+  border:1px solid rgba(255,210,76,.35);border-radius:5px;padding:1px 8px;margin-top:1px}
+.modelnote b{color:var(--ink);font-weight:650}
+
+/* 会议卡 */
+.meet{background:var(--glass);border:1px solid var(--line);border-left:3px solid var(--c-primary);
+  border-radius:14px;padding:22px 24px;margin-bottom:18px;backdrop-filter:blur(8px)}
+.meet.m2{border-left-color:var(--c-yellow)}
+.meet.m3{border-left-color:var(--c-danger)}
+.meet-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.meet-h h3{margin:0;font-size:19px;font-weight:700}
+.meet-when{font-family:var(--mono);font-size:12.5px;color:var(--c-primary);padding:2px 10px;
+  border:1px solid rgba(15,247,150,.35);background:rgba(15,247,150,.07);border-radius:999px}
+.meet.m2 .meet-when{color:var(--c-yellow);border-color:rgba(255,210,76,.35);background:rgba(255,210,76,.07)}
+.meet.m3 .meet-when{color:var(--c-danger);border-color:rgba(214,153,190,.35);background:rgba(214,153,190,.07)}
+.meet-meta{display:flex;gap:22px;flex-wrap:wrap;margin:12px 0 4px;font-size:12.5px;color:var(--ink-3)}
+.meet-meta b{color:var(--ink-2);font-weight:600}
+.meet ol{margin:12px 0 0;padding-left:20px}
+.meet ol li{margin:7px 0;color:var(--ink-2);line-height:1.68}
+.meet ol li b{color:var(--ink);font-weight:650}
+.meet .out{margin-top:14px;padding:11px 14px;border-radius:9px;background:rgba(15,247,150,.055);
+  border:1px solid rgba(15,247,150,.18);font-size:13px;color:var(--ink-2)}
+.meet .out b{color:var(--c-primary)}
+
+/* 风险 */
+.risk{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.rk{background:var(--glass-2);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+.rk .lvl{font-size:10.5px;letter-spacing:.12em;padding:2px 8px;border-radius:5px;display:inline-block}
+.lvl.hi{color:var(--c-danger);background:rgba(214,153,190,.13);border:1px solid rgba(214,153,190,.35)}
+.lvl.md{color:var(--c-yellow);background:rgba(255,210,76,.11);border:1px solid rgba(255,210,76,.3)}
+.rk h4{margin:9px 0 5px;font-size:14.5px;font-weight:700}
+.rk p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.62}
+.rk p b{color:var(--ink);font-weight:650}
+
+/* 邀约 */
+.invite{background:var(--glass);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.invite-h{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.03)}
+.invite-h b{font-size:13.5px}
+.copy{margin-left:auto;font-size:12px;padding:5px 13px;border-radius:7px;cursor:pointer;
+  border:1px solid rgba(15,247,150,.4);background:rgba(15,247,150,.1);color:var(--c-primary);
+  font-family:var(--sans);transition:.15s}
+.copy:hover{background:rgba(15,247,150,.2)}
+.copy.ok{color:var(--c-primary);border-color:var(--c-primary)}
+.invite pre{margin:0;padding:18px 20px;font-family:var(--sans);font-size:13.5px;line-height:1.85;
+  color:var(--ink-2);white-space:pre-wrap;word-break:break-word}
+.invite pre b{color:var(--ink);font-weight:650}
+
+footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3)}
+footer b{color:var(--ink-2);font-weight:600}
+
+@media (max-width:760px){
+  h1{font-size:29px}
+  .wrap{padding:0 18px}
+  .navlinks{display:none}
+  .meet{padding:18px}
+}
+@media print{
+  body{background:#fff;color:#111}
+  body::before,body::after{display:none}
+  .topbar,.copy{display:none}
+  .card,.meet,.tbl,.rk,.invite{background:#fff;border-color:#ccc;backdrop-filter:none}
+  .tl-item::before{background:#fff}
+  h1,td,th,.tl-t,.meet h3,.rk h4{color:#111}
+  .lede,.tl-s,.card .d,.rk p,.meet ol li,.invite pre,footer{color:#444}
+}
+</style>
+</head>
+<body data-page-node-id="Ev2EuQ7zbzUv5XDFiSxQ5z">
+
+<div class="topbar" data-page-node-id="Rb1vdGIq7okFlmc7HsVw4Y">
+  <div class="wrap" data-page-node-id="IwBzor6fDVY4P9FmVTKYQ7">
+    <div class="brand" data-page-node-id="KIIAKDGRMy91DlMn4gQ7AA">
+      <span class="dot" data-page-node-id="YK1f3nSnGHSIAIQ9Wpy8ua"></span>
+      <b data-page-node-id="mOzfPpnZX17oFaSvNJOWGG">VO MANAGER</b><span class="sub" data-page-node-id="WJHWtvBiQGwGof5YnNrYKb">· Yang1.0 事项梳理</span>
+    </div>
+    <nav class="navlinks" data-page-node-id="S4XhjX54Ffnz55WnWhYtI2">
+      <a href="#timeline" data-page-node-id="aCwEj2NuM7QpnHSEaawH8t">节点时间轴</a>
+      <a href="#status" data-page-node-id="Jor7Ztto0mU9HEoDqwsV82">数据现状</a>
+      <a href="#meetings" data-page-node-id="WofLlM3flaI70VI4GcCVZj">会议安排</a>
+      <a href="#risks" data-page-node-id="AaePJ0ZlYLOYO4dWa2eNj2">风险与待决</a>
+      <a href="#invite" data-page-node-id="t7EHpp22xcLJEPcTJgFdCL">邀约文案</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero" data-page-node-id="47MrxKwLLVE4KU6s1ejGdA">
+  <div class="wrap" data-page-node-id="U1J1IIhDSlKURpoQ08ExsH">
+    <div class="eyebrow" data-page-node-id="wCwZPJMQAWsSRQNFwuNL1v">
+      <span class="sig" data-page-node-id="8thGVHSS3F0K16mBSefpEb"></span>YANG1 RELEASE KICKOFF<span class="chip-divider" data-page-node-id="FD6ilpCAR0MesKBqNqG5SK"></span>
+      <span class="eyebrow-release" data-page-node-id="KzfRtawMA2HEm5ynOpaClb">Yang1.0</span>
+    </div>
+    <h1 data-page-node-id="qGszNMWthYzKHfbGfcA7Jq">Yang1.0 进入 <em data-page-node-id="V8ksGsZAhD4i3MuWoBlhPb">Vo 需求锁</em><br data-page-node-id="CaLn3sY1hhNTiwYA6s8IBn">下一步：把 65 条需求分给文案策划</h1>
+    <p class="lede" data-page-node-id="gpumcAvNTIDOZSlCBnMakN">
+      Vo 需求锁 <b data-page-node-id="2kReZStuD39NczyK7SBJOY">9.14（今天）</b>已到，<b data-page-node-id="HQAyY90UbG5xK03em1Ol7Y">9.16 周三 11:30</b> 是系统排定的「Yang1 台词需求分配会」——这是文案策划进场的第一个硬卡点。
+      当前需求池 <b data-page-node-id="dzTqNZpkgDCbX7JWAl6aNT">69 条里 65 条没有文案负责人</b>；台词载体已统一为 <b data-page-node-id="fo4Yqz35A9TByUxa3WsEEw">1 份「Yang1.0 台词库总表」</b>，不再逐需求建表。本页用于会议对齐：节点、现状、议题、风险一次说清。
+    </p>
+    <div class="stamp" data-page-node-id="KYx3FwsplggdtnhmqmCAJM">
+      <span data-page-node-id="yeSZiz2h6pAnYExCmPchJt">数据时间 <b data-page-node-id="PLRrVvl3bPlWy7UGcSUMEP">2026-09-14</b></span>
+      <span data-page-node-id="5WvEDsxL4kBLJ1QtAVZxso">真源 <b data-page-node-id="2AUy15jN2DAIwMQmrCgH85">/api/demands · 版本节点页</b></span>
+      <span data-page-node-id="iIlAlN0fU0psGsVQysK9aU">需求池 <b data-page-node-id="NwVQsXd3UkCfQFb3ifemNc">69</b> 条</span>
+      <span data-page-node-id="YHgOTlYNib6Y3mYr0tURKP">建议会议 <b data-page-node-id="ySvfGMohlmSxG8dZXwvWmp">3</b> 场 + 周同步</span>
+    </div>
+  </div>
+</header>
+
+<section id="timeline" data-page-node-id="UlYYet3IlsDHYqMgFGaGIZ">
+  <div class="wrap" data-page-node-id="fCov1tE5R7phwuxrRTv0wT">
+    <div class="sechead" data-page-node-id="4VJdDvcc9jDb6G0g5Dicfx">
+      <h2 data-page-node-id="JzUHY4eABa7fBUrfm0qqhK">节点时间轴</h2>
+      <span class="note" data-page-node-id="yL01YRry0N2vwABASPYVXO">取自 Vomi 版本节点页（ holidays 已扣除，Yang1 Vo需求锁为 PM 手动锚定 2026-09-14 ）</span>
+    </div>
+    <div class="rule" data-page-node-id="mWgq8VFKazEJWLMfVvIAyP"></div>
+    <div class="tl" data-page-node-id="9bGyc7btlCTDMz0r7YHZFK">
+      <div class="tl-item done" data-page-node-id="XoPaffjdErtaYTxbqdEc1e">
+        <div class="tl-d" data-page-node-id="qDFLRtCLQPaV09uX1RKP9l">2026 / 9 / 14 · 周一</div>
+        <div class="tl-t" data-page-node-id="6Zu8t2wYpjVxY2MYGsNFMk">Yang1 Vo需求锁<span class="tl-tag hot" data-page-node-id="Ainukb3TpaTLQ1JtbNkH9x">今天</span></div>
+        <div class="tl-s" data-page-node-id="AXk4uRVd5O6fM4n7WBM7l5">需求池冻结口径：此后新增需求走变更流程，不再直接进池。</div>
+      </div>
+      <div class="tl-item now" data-page-node-id="AYfHNw4t9EwrbcreH8vGz6">
+        <div class="tl-d" data-page-node-id="7f3ony9Xs7R1io6906oxE9">2026 / 9 / 16 · 周三 11:30</div>
+        <div class="tl-t" data-page-node-id="mYisDVpKas5cy8piuDHACz">Yang1 台词需求分配会<span class="tl-tag hot" data-page-node-id="uE8QKByvfiFwG8jevYLpwU">2 天后 · 要拉的会</span></div>
+        <div class="tl-s" data-page-node-id="Yv2GioAiujl2oTcBP0U6j8">把 69 条需求确认归属 + 分给文案策划，锁定每批交稿日。参会：音频 PM、文案策划 <b data-page-node-id="DEvLVgMs67Iyg9wRKTlRD1">ukongwang（汪亚茜）</b>、各 area 策划代表。</div>
+      </div>
+      <div class="tl-item" data-page-node-id="xfDaXqIFMCPXSokPEUCAz6">
+        <div class="tl-d" data-page-node-id="uACR7ueHAOBugMgy80Dh6G">9 / 18 → 11 / 11</div>
+        <div class="tl-t" data-page-node-id="XfGm3tTDv8h5BjcIUEbuFC">文案 ING<span class="tl-tag" data-page-node-id="eIIXL9XobbB9SYfPnC1d8B">54 天</span></div>
+        <div class="tl-s" data-page-node-id="EWDnJhdKF7utq0FQHQL9Vx">台词撰写与修改窗口。倒排到 11.11 台词锁，中间需留至少 2 轮返修。</div>
+      </div>
+      <div class="tl-item key" data-page-node-id="CxELTjFGvxgfWin92uLlYu">
+        <div class="tl-d" data-page-node-id="3O90hBR4afrVS6jXa7YKly">2026 / 10 / 28 · 周三 11:30</div>
+        <div class="tl-t" data-page-node-id="aHwUwmUTZ4nKoq1t1pmQGH">Yang1 声优锁<span class="tl-tag warn" data-page-node-id="KMoC67nPglC9FIb9C1iYgW">会议 2</span></div>
+        <div class="tl-s" data-page-node-id="BouM7uXrwX0xQpaBEHcEZP">声优预估定稿 + 选角确认。当前预估仅覆盖 <b data-page-node-id="zljK4yUk50lUPWgxCKYZBm">4 / 69</b> 个需求，需在此前补齐。</div>
+      </div>
+      <div class="tl-item" data-page-node-id="EW36210Dyp5VJDE5GvNJDv">
+        <div class="tl-d" data-page-node-id="2o8UmddWoFDN1hqRyMau7C">10 / 28 → 11 / 11</div>
+        <div class="tl-t" data-page-node-id="zLMqfNYnKLJCpEzBnKkvbD">选角 ING<span class="tl-tag" data-page-node-id="2sabZ670vbAJBtRakH0IRd">10 工作日</span></div>
+        <div class="tl-s" data-page-node-id="SAh8IXirI6L8H3ZiJkCzjc">声优确认与档期预约并行推进。</div>
+      </div>
+      <div class="tl-item key" data-page-node-id="gyb7RdCyouIu9YEQwqvtxD">
+        <div class="tl-d" data-page-node-id="o5STAPlL7FitbTnYYFURKb">2026 / 11 / 11 · 周三 11:30</div>
+        <div class="tl-t" data-page-node-id="tJlpumisoDAECKvy3YWQOA">Yang1 台词锁<span class="tl-tag warn" data-page-node-id="7CunG2l3jgmj2cVIHJ2Bv8">会议 3</span></div>
+        <div class="tl-s" data-page-node-id="UpQvGGDzPb9XW9vbK5RVXJ">台词定稿冻结；版本只保留 1 份<b data-page-node-id="So0XhSWHg7uSKgimzGmWck">台词库总表</b>，锁后修改统一收口到它。</div>
+      </div>
+      <div class="tl-item" data-page-node-id="YNZSFSO1ht1Zttm9FuYVPc">
+        <div class="tl-d" data-page-node-id="489XCRHFNo9dKJaB1iBlkc">11 / 30 → 12 / 6</div>
+        <div class="tl-t" data-page-node-id="Ajdps4A7tyHnx3tZxsrdwk">Yang1 VO资源交付</div>
+        <div class="tl-s" data-page-node-id="b60yMeGggjbha8dxb9vmcE">音频资源全部交付。距转测 W1 · 12.21（版本结构 5+4+2 周）。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="status" data-page-node-id="xNIXes0dI9u18a4AO8HodQ">
+  <div class="wrap" data-page-node-id="CWbqHOjZmx5JAyJwOsZGTU">
+    <div class="sechead" data-page-node-id="L72yJO2CpVldh0zpvKQQl9">
+      <h2 data-page-node-id="jJA94Frpiw9J7vuGaWUWRA">数据现状</h2>
+      <span class="note" data-page-node-id="7ORfw9xbW53pgoCkZCA8eX">/api/demands?release=Yang1.0 · /api/voice-estimates?release=Yang1.0 · 2026-09-14 快照</span>
+    </div>
+    <div class="rule" data-page-node-id="Ua6FJ4NZBkMNehN0muLy65"></div>
+
+    <div class="cards" data-page-node-id="w4kVsmqvcxX8vVkZG93oTx">
+      <div class="card" data-page-node-id="PxfSnvxHYeq6CIOuHC9Hmv"><div class="k" data-page-node-id="z8kEisxX95v5ccipf0uQ4g">需求池总量</div><div class="v" data-page-node-id="aBAD2pXlnGELV8EI3t7dP1">69<small data-page-node-id="dUrK4eZagzamRHDE9bCZF8">条</small></div>
+        <div class="d" data-page-node-id="OWXKgl6WDAFq4q5VvliFD3">其中有效 Yang1 需求约 <b data-page-node-id="WzWkx5BUsXY6YqekDID0nq">49 条</b>（剔除 Ma5 命名 14、测试单 4、空标题 2）</div></div>
+      <div class="card p" data-page-node-id="jAIACOZlewI7fEN0CQc7CN"><div class="k" data-page-node-id="TdAeyHUW4hgBzOgsOCR9FT">未分配文案策划</div><div class="v" data-page-node-id="EHMw8Ih8urBx0VS0DOZzWG">65<small data-page-node-id="wUI2hAcAj5dQELiYEKHdYb">/69</small></div>
+        <div class="d" data-page-node-id="5Eo3HCM13szmbIjda0ahTm">占 <b data-page-node-id="FfVEBUP13aiJQAcYihd5GY">94%</b>。已分配的 4 条全是 Test 验证单，非真实生产需求</div></div>
+      <div class="card y" data-page-node-id="6nQbNHah3f81uSqgzTi6zU"><div class="k" data-page-node-id="2sW2QyDySbVPaZPrVO01go">台词库总表</div><div class="v" data-page-node-id="dU6qaCFfkPEehrZCm1QNZ6">1<small data-page-node-id="0hfYhuwabv3bR0jHblg1BW">份</small></div>
+        <div class="d" data-page-node-id="QhN07IZCbZy68zU8rncPvM">版本级唯一载体（需求汇总页汇总行「台词库」直达）；逐需求建表的旧口径作废</div></div>
+      <div class="card g" data-page-node-id="OkW7VcCuvuSwd5dz3BSfzm"><div class="k" data-page-node-id="kPJMekJjpHTxPPVTbsJB3D">声优预估</div><div class="v" data-page-node-id="jQeFvvjWKtmRojEdHsd8vl">1,043<small data-page-node-id="RSJg09RpWtNmHx4kY2ELse">句</small></div>
+        <div class="d" data-page-node-id="myfpct4jFZH1WC2JuNmFgk">21 个角色 · 仅中文 · 只覆盖 <b data-page-node-id="xz7k8EwUUKm35dEMLyvIG1">4 个需求</b>，英配 0 句</div></div>
+    </div>
+
+    <div class="modelnote" data-page-node-id="Tjhb6gGumpF2bXsNFGG3m8">
+      <span class="mn-k" data-page-node-id="oCAqewS3IIquPLSb4QCTIn">口径变更</span>
+      <span data-page-node-id="81dNT53r6cM5bnQLzl7kgx">台词载体已统一为<b data-page-node-id="noT2xqrUXP5mUwgNisY8oA">版本级 1 份「台词库总表」</b>（需求汇总页版本汇总行的「台词库」链接直达）。
+      原先「每个需求建一张台词表」的统计口径（2 / 69）<b data-page-node-id="NVDWECo2ssv81m4OIHn1Sd">作废</b>，下表也不再逐 area 统计建表数。</span>
+    </div>
+
+    <div style="height:22px" data-page-node-id="FuoutRGzqZga1nfUFmDl2v"></div>
+
+    <table class="tbl" data-page-node-id="pfrUulOoce3h9lWrbPJTOb">
+      <thead data-page-node-id="SJcDy2O23SPotrTC4GeFwB">
+        <tr data-page-node-id="5SownLTZ0ULtUnfvq404J0"><th data-page-node-id="nkBRwX5tfsTLulJpaf8DCA">AREA</th><th style="width:70px" data-page-node-id="DlArSk2SwcWvkaq2pg3RWc">需求数</th><th style="width:190px" data-page-node-id="OZMmNcsBTXLFbGL7wgGcRA">占比</th><th style="width:96px" data-page-node-id="Vwj16rvtUNBNvnmikpIPnY">未分配文案</th><th data-page-node-id="hIgHoDupPDF8Tim5DrnPKr">代表需求</th></tr>
+      </thead>
+      <tbody data-page-node-id="LjekFACnZsNMKwWtDQHm0c">
+        <tr data-page-node-id="3GSquT7OOp5c0BuPxqeJCX"><td data-page-node-id="4iWhbcBr8ScWQ48qERVNMN"><b data-page-node-id="ZWA0mnAa1yNF1egY77GFW5">SOL</b></td><td class="n" data-page-node-id="XGPuJgRI4SuOHvSrWHfMu2">26</td><td data-page-node-id="7qvHhVvzCO0s8NI0aAi8cP"><div class="bar" data-page-node-id="XbPY00Oae9LmyWOPunXUKN"><i style="width:100%" data-page-node-id="rpOWbDslfCMHgyn4qlpEQA"></i></div></td><td class="n" data-page-node-id="Bh4gzMgYkrAqO4qxBUgL77">25</td><td data-page-node-id="Ra1wOGaC7qT0LIpD8rDKVl">围城系列（哈夫克兵种 / 贫民区教父 boss / 入局演绎视频）</td></tr>
+        <tr data-page-node-id="2lw0FISXoZOV5R6Ubn5vYh"><td data-page-node-id="o5tx9G93Z5BbVzo3bLnRTw"><b data-page-node-id="P7M114wy0Z4jjpZQRQMDYX">系统</b></td><td class="n" data-page-node-id="Kw5SDDqYHrozmFSzyf1R46">13</td><td data-page-node-id="m1yaYEMmhNu5Cx3FAhCAj6"><div class="bar" data-page-node-id="BsuK7VccEF5SzAEvgDUSTn"><i style="width:50%" data-page-node-id="V9Uj3W43lnYKbkUhnAdGtj"></i></div></td><td class="n" data-page-node-id="703qLTfcfykPDC5wAlG3N7">11</td><td data-page-node-id="GpUtrWZ79Q6PQGErgbUxCH">Yang1 赛季任务演绎、二周年庆、蜂医小屋</td></tr>
+        <tr data-page-node-id="nKYlKtpAFX9Zprik0phCCr"><td data-page-node-id="OqOaqKFEn9CbQhK9CnbB4Z"><b data-page-node-id="tbV6xlMVqEEHcPLFpehwJB">大战场</b></td><td class="n" data-page-node-id="EwUg69H2CFYE6c35cJSlD1">10</td><td data-page-node-id="BcGU5ofRp99iFEgkAPABBZ"><div class="bar" data-page-node-id="8ulZZ5sIkPp2BGG9DVdEuy"><i style="width:38%" data-page-node-id="EBIoPOxNjkbgM5AOxUoGDD"></i></div></td><td class="n" data-page-node-id="spyyDf5FcHwA4QCVSnHqAD">10</td><td data-page-node-id="SKqlTELw4JhK5oYWgnmDGt">巨浪来袭 / 最后攻势 / 珠峰地图事件</td></tr>
+        <tr data-page-node-id="BJDPL5MfKOQyq7uC4D07AZ"><td data-page-node-id="22IQEXCpZqZkXrPEI1nY0f"><b data-page-node-id="YWMQsS95Ldj4qfpCDS2tDW">干员</b></td><td class="n" data-page-node-id="Zj6Vio7oyYqd2pXBusKbNn">7</td><td data-page-node-id="JX9EhmMGBHrrbDKAEYRkuB"><div class="bar" data-page-node-id="3RDrlci45VHJFITZQFVqQV"><i style="width:27%" data-page-node-id="mB4C2jY25dX8YILMgoPYHE"></i></div></td><td class="n" data-page-node-id="axZIDerxQCGf6PQEUui3i5">6</td><td data-page-node-id="3gBDWAhTF2Qcaz2Lq7iDxc">角斗士 C305、赌徒 C205（局内 500 条语音）</td></tr>
+        <tr data-page-node-id="cHcCjeoxlTbN5TVP97hmxb"><td data-page-node-id="WF6QGg2ngCunHeGFKcUHR3"><b data-page-node-id="ta9IpoISy8T4bYnYEYmsF2">商业化</b></td><td class="n" data-page-node-id="spimS4LKn9uHSXoQBLwFNF">6</td><td data-page-node-id="LW7N5JqEJmw8rRfnddJ6f0"><div class="bar" data-page-node-id="wlVVcfKWYhjX3VkGlRs6c3"><i style="width:23%" data-page-node-id="vBRwLPW7ZKzbLQg4ELHrMC"></i></div></td><td class="n" data-page-node-id="Tw61M5dwk5tinmS63HnD4C">6</td><td data-page-node-id="DWAmTw69lebSL7XQ2rLkCL">BP 橙皮（液氮 · 极地求生）、银翼 / 蜂医红皮</td></tr>
+        <tr data-page-node-id="x6UurT3Y06w6Tc9aZwY2Dj"><td data-page-node-id="dQlwDryYqXy8KEkeEaFrcg"><b data-page-node-id="4AcSKiGl0yVG2kGfXLR78J">爆破</b></td><td class="n" data-page-node-id="8FnQvVS7LENwjecuRU7qi9">5</td><td data-page-node-id="oAOjBgvv1y63jVPXjJ0E1o"><div class="bar" data-page-node-id="DQCTsA9L8alPJ7olm601jD"><i style="width:19%" data-page-node-id="WNSNRYq9jsKdbQbOPjhRIm"></i></div></td><td class="n" data-page-node-id="irIi8JuBATfG3HWa0JAclS">5</td><td data-page-node-id="1ifDL2eBIMEFWr8Gfi9uDH">通风管出生演绎、新手引导音频</td></tr>
+        <tr data-page-node-id="KsZMmpLCWtBb6MwTHEW7l3"><td data-page-node-id="VuZQwyqpl9mOt7LObZgedF"><b data-page-node-id="QOKlk490XuwACAoW6xqZxS">海外</b></td><td class="n" data-page-node-id="ouLCVvVoHSTIC38xeCifCx">2</td><td data-page-node-id="jGPm8hjcrvQAB8SW8gDcOl"><div class="bar" data-page-node-id="x0mFAag9cABtjBfTRlMiJU"><i class="y" style="width:8%" data-page-node-id="niA0JFD50wQYSwA7NExwy3"></i></div></td><td class="n" data-page-node-id="0zhiaAjzEGafGEalHLr8bT">2</td><td data-page-node-id="lhxZ8IRVo1FkuzCDp4Ezac">暖冬树下活动、唐吉的幸福研究（均为 Ma5 命名）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="meetings" data-page-node-id="IHuCck7yzVQXmgb10ikx05">
+  <div class="wrap" data-page-node-id="N05mKU5VCH6Y2sKtPvFGUF">
+    <div class="sechead" data-page-node-id="n8yUJi1H7My913100U99dB">
+      <h2 data-page-node-id="1a5jXbm30hxDQQQ8vR1cNF">会议安排</h2>
+      <span class="note" data-page-node-id="Hvn9by1NkPhWj9R2srorDh">会 1 为系统已排定的硬节点，会 2/3 为流程必过节点</span>
+    </div>
+    <div class="rule" data-page-node-id="GMAk6FmSY48lj3I3gfwr7v"></div>
+
+    <div class="meet" data-page-node-id="7r2KZpLwjPCPleqYOGTExw">
+      <div class="meet-h" data-page-node-id="3LpwAqr1gqYE5Au4k5P1SO">
+        <h3 data-page-node-id="cVDioFXVrA59CfHVlbaset">会 1 · Yang1 台词需求分配会</h3>
+        <span class="meet-when" data-page-node-id="ND4pDrHYWRtqNTK4qEibSF">9 / 16 周三 11:30 · 60 min</span>
+      </div>
+      <div class="meet-meta" data-page-node-id="zLGtBJIypxK8mvARVTyZXA">
+        <span data-page-node-id="dK8QozKxEXmzEEMVuik1hR"><b data-page-node-id="2p5o9zV1qFWGaMZGfFsxNU">主持</b> lycheelli（音频 PM）</span>
+        <span data-page-node-id="P0ua0IgHEzGu5ITvKlomSu"><b data-page-node-id="Di6Snuj2rjmvX0hbMHuxDD">必到</b> ukongwang 汪亚茜（文案策划）</span>
+        <span data-page-node-id="DoHp9KQ8x0XLLHDC7TOwBv"><b data-page-node-id="PlKZBHdBgjrKvbBAq9uwtE">列席</b> SOL / 系统 / 大战场 / 干员 / 商业化 各 area 策划代表</span>
+        <span data-page-node-id="w21QgGHgRb587VfKJwiaYp"><b data-page-node-id="IJ2XAz45Ql5SC1td4BEgTy">形式</b> 线上 + Vomi 需求汇总页投屏</span>
+      </div>
+      <ol data-page-node-id="cx3cVEi98IunQyYmcYw3x8">
+        <li data-page-node-id="OPXf6zWYrmxj63IBFHmM8l"><b data-page-node-id="bPz96lWpMA8NOdUZ1WQtBS">需求池口径确认（10 min）</b> — 69 条中：Ma5 命名 14 条是否留在 Yang1 池？测试单 4 条 + 空标题 2 条当场清理。目标：产出<b data-page-node-id="Ew7ypsAaNbeur7ap4NtPYw">有效 49 条</b>清单。</li>
+        <li data-page-node-id="3VpTI0v4C9explAhcVuYpB"><b data-page-node-id="O4u13SFpzcMeq7AF7cSvpl">文案分配（20 min）</b> — 65 条未分配需求按 area 与体量切给 ukongwang 及其余文案；明确<b data-page-node-id="vvEsVcnC4TC9CKg2FIMCYw">每人承接条数与预估句数</b>。重点大单先过：兵种19-C205 局内 500 条语音、围城系列 10+ 条、干员 C305。</li>
+        <li data-page-node-id="iRDcaNowZ0I301aehqb9ZR"><b data-page-node-id="l2RDMeUr7CiJCmBIeKhQEu">交稿批次倒排（15 min）</b> — 文案 ING 9.18→11.11 共 54 天，倒排 <b data-page-node-id="EgD5C6Cw9ZzglLi6Vuj1pF">3 批交稿日</b>（建议 10/10、10/31、11/7），每批留 1 周返修。</li>
+        <li data-page-node-id="QrtkPsjfizX565fxy4hQSv"><b data-page-node-id="acRhFKWkWPAzdtSIXUKjpH">台词库总表录入（10 min）</b> — 全版本只用 1 份台词库总表，不再逐需求建表；确认录入责任人、分批节奏与编辑权限归属。</li>
+        <li data-page-node-id="hSF7M1lAD2lyAA1sWgAEvH"><b data-page-node-id="PDRLfcW0dQpaUb3XNDAbpx">特殊项（5 min）</b> — 音画同步 2 条（需视频素材，提前锁定）；英配预估当前 0 句，是否本版启动。</li>
+      </ol>
+      <div class="out" data-page-node-id="DBnw2KAcdpITuoK1oFFNzW"><b data-page-node-id="GSsZSgjjjtdpGeOqsHiMCu">会议产出：</b>① Yang1 有效需求清单（49 条）② 需求 × 文案负责人分配表 ③ 三批交稿日与返修窗口 ④ 台词库总表录入责任人与批次</div>
+    </div>
+
+    <div class="meet m2" data-page-node-id="sYezPYQzRaryTawaWKgU73">
+      <div class="meet-h" data-page-node-id="SrQMRzzsiBnF2RWw3SO0ok">
+        <h3 data-page-node-id="2WFbEHZpTFHuowdcRTjSRp">会 2 · Yang1 声优锁评审会</h3>
+        <span class="meet-when" data-page-node-id="lqxOajlbBVSouaddEud5wx">10 / 28 周三 11:30 · 60 min</span>
+      </div>
+      <div class="meet-meta" data-page-node-id="puEsA8TAEgAtTD67w4Ocqf">
+        <span data-page-node-id="rHLaLB8MCpzNzaYQrDAv6q"><b data-page-node-id="8w0YMLJxslBhKr9Uonah5r">主持</b> lycheelli</span>
+        <span data-page-node-id="6GYvc33hFBne7Xyhp8cVyj"><b data-page-node-id="V1eCy7xpqfyFLpFqO4ZjiT">必到</b> 音频组、声优资源 / 外包负责人</span>
+        <span data-page-node-id="A9TAFiEExuDbvOh2k5kOkY"><b data-page-node-id="vyK6eUP9gzf1su9KPWhFx4">列席</b> ukongwang（台词量口径）</span>
+        <span data-page-node-id="9JixPHKbFO2DZoLHjAJT06"><b data-page-node-id="QzsD6N1bU2S8mWASB0Jp7n">前置</b> 10/21 前完成声优预估全量录入</span>
+      </div>
+      <ol data-page-node-id="UnXAgl8rGcjIAahDIMc1NS">
+        <li data-page-node-id="xMA07neCAqrB83ALZGvSBy"><b data-page-node-id="HdveY6recUy6mXHO0vz3uD">声优预估过稿（25 min）</b> — 当前仅 4 个需求 / 21 个角色 / 1,043 句，需补齐至全量 49 条需求；逐条确认角色归属与句数。</li>
+        <li data-page-node-id="kPEaRbweh0jbE2qlELAssQ"><b data-page-node-id="8U0tmhHZBnBJlVBEuLq86l">选角确认（20 min）</b> — 干员 / Boss 类优先锁定；确认复用既有声优还是新增。</li>
+        <li data-page-node-id="mpRN8nBRgv707jHGyQZbdy"><b data-page-node-id="i8jcICWioc9dDGFOT3qvAc">场次与档期（15 min）</b> — 按「录制次数」排场次，进入录制定档期窗口（10.28 → 11.11 后 5 工作日）。</li>
+      </ol>
+      <div class="out" data-page-node-id="iaUhKxXLqAGafePA5xj3kz"><b data-page-node-id="72vnPTNBXGgOOL9cZbtaKA">会议产出：</b>① 声优预估定稿 ② 选角名单 ③ 录制场次与档期初排</div>
+    </div>
+
+    <div class="meet m3" data-page-node-id="lVFNULyaPhpZF5A5f51o8P">
+      <div class="meet-h" data-page-node-id="NkejiOFI6LUgvUJzDc99sk">
+        <h3 data-page-node-id="OVKWHOjpogCA5HJphkm3mw">会 3 · Yang1 台词锁评审会</h3>
+        <span class="meet-when" data-page-node-id="ysHBQgyChgf9a0dHlL2YqY">11 / 11 周三 11:30 · 45 min</span>
+      </div>
+      <div class="meet-meta" data-page-node-id="IldvIRe77K5WAnPx3HtOBV">
+        <span data-page-node-id="pNBS77KGBMjjejJOrv22LX"><b data-page-node-id="JGblDFEImXsdlHWabyhDYR">主持</b> lycheelli</span>
+        <span data-page-node-id="Efe9GKf7K9hMJP0wK5kheX"><b data-page-node-id="DK4lJWffWOXJ8A240CL1S0">必到</b> ukongwang（文案）、音频组</span>
+        <span data-page-node-id="w8AGhMAoU56txUYZlJ2OLj"><b data-page-node-id="ZdZDE0Hh0wkUckFCo4e3eA">前置</b> 11/7 最后一批交稿 + 返修完成</span>
+      </div>
+      <ol data-page-node-id="FxvOUyFVXuZmEnC09G5Y4k">
+        <li data-page-node-id="20h3a4yxZYDvUM2n21hR4o"><b data-page-node-id="xfLwMMBjJ2hBo1Sn3Fh3B3">台词定稿确认（20 min）</b> — 49 条需求逐条过状态：已完成 / 遗留 / 砍量。</li>
+        <li data-page-node-id="umxBdpgAyDJ6OwPjluh20E"><b data-page-node-id="5EcGbE3BeB0GZNg7Qm9bxv">锁后变更规则（10 min）</b> — 明确锁后修改统一收口到版本唯一的<b data-page-node-id="M1B4zhaYx2oveZw5fdAtiR">台词库总表</b>；不再保留逐需求分表。</li>
+        <li data-page-node-id="hYVFiaMhfRXE827eEGuFCi"><b data-page-node-id="9J3Rs5yPsEWkLxoRvuY2RV">录制排期与交付倒排（15 min）</b> — 对齐 11.30–12.6 VO资源交付，倒排录制批次。</li>
+      </ol>
+      <div class="out" data-page-node-id="NGhRNFanCbQOPcKQpdh52q"><b data-page-node-id="dTMVMq9lJZjlE4euQIsMP1">会议产出：</b>① 台词冻结清单 ② 锁后变更口径 ③ 录制批次排期</div>
+    </div>
+
+    <div class="meet" style="border-left-color:var(--ink-3)" data-page-node-id="E8Er2GDFMzgzToKxichUQD">
+      <div class="meet-h" data-page-node-id="HvyXFoo6wKj7tOCHawn700">
+        <h3 data-page-node-id="UYEnI325qehEA49xd2tgpl">周同步（建议）</h3>
+        <span class="meet-when" style="color:var(--ink-2);border-color:var(--line-2);background:rgba(255,255,255,.04)" data-page-node-id="X5pIV4H69Nu77472pL1h8n">9/18 起每周三 11:30 · 15 min</span>
+      </div>
+      <div class="meet-meta" data-page-node-id="ECHAcLfE2LBUPTZbtrxpGo"><span data-page-node-id="OvRnhhC15iyBIM7ToPaIth"><b data-page-node-id="C4e4IsUqTCnfOXsjEzQYDc">目的</b> 盯 65 条分配落地与交稿批次，避免所有问题堆到 10/28 声优锁</span></div>
+      <ol data-page-node-id="DFAkOw2ab8QbhQcHSI6Rak">
+        <li data-page-node-id="JZiBDk9dyCjsxMCRzXIa46">上周交稿进度 vs 批次计划</li>
+        <li data-page-node-id="7xJZAlS7YtF3D991F5yKIC">阻塞项（缺素材 / 需求不明 / 音画同步待视频）</li>
+        <li data-page-node-id="a172hyNjDx0WpqhvRdTD0N">下周交付承诺</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="risks" data-page-node-id="DpXZPkAkDAxVFeyYMVRsHC">
+  <div class="wrap" data-page-node-id="DCAxz7q7SB5BVKLujZYNwj">
+    <div class="sechead" data-page-node-id="FpXTwCtwvGSHB2C94CYCgV">
+      <h2 data-page-node-id="iyHHrcQS1meiOZaF8Q2wpo">风险与待决事项</h2>
+      <span class="note" data-page-node-id="wh0nHoQ6ge7shXZD0HJvB9">会 1 上需要当场拍板的标「待决」</span>
+    </div>
+    <div class="rule" data-page-node-id="ibM8V6tOpErWksIT3Tc9ls"></div>
+    <div class="risk" data-page-node-id="mI58KNwGdauliZEZsUzMBZ">
+      <div class="rk" data-page-node-id="kjEnaD8m0m1Rri561oFF50">
+        <span class="lvl hi" data-page-node-id="XNWooAIENUEIOomGVUb7a0">高 · 待决</span>
+        <h4 data-page-node-id="UALgF6fMs5XBQRu53ojEDx">65 条需求没有文案负责人</h4>
+        <p data-page-node-id="hhvvaVewQ6LlQooyB80DKY">文案 ING <b data-page-node-id="1jjENkG4fR5kBCysVZQO7I">9.18 就启动</b>，只剩 2 个工作日。若 9/16 会没分完，整个 54 天窗口起步即滞后。建议会上直接按 area 切块到人。</p>
+      </div>
+      <div class="rk" data-page-node-id="NT38IKvEaxQkIhAAhALaqL">
+        <span class="lvl hi" data-page-node-id="nLnHdSiurOI494i38sfkzn">高 · 待决</span>
+        <h4 data-page-node-id="U0iGGDBGXgpoWuRJG7iXVJ">14 条「Ma5 命名」需求混在 Yang1 池</h4>
+        <p data-page-node-id="OeqzTvFVUK97OmZHSGJR3R">如「MA5巴克什阵营对抗-VO总单」「Ma5 赛季任务」「MA5大战场」等，而 <b data-page-node-id="4keYrKn9Sl8Eawj9DJwvJs">Ma5 VO资源交付 9/18</b>。需当场确认：改回 Ma5 池，还是确属 Yang1 内容。</p>
+      </div>
+      <div class="rk" data-page-node-id="Be31cFcMcp5VDKxo6bb3qy">
+        <span class="lvl md" data-page-node-id="NamLpwlPwq46rV5o8kcHqt">中</span>
+        <h4 data-page-node-id="EFtMAeJsMXjVloKGUWTcxa">4 条测试单 + 2 条空标题污染正式池</h4>
+        <p data-page-node-id="RoUPZX2YaIzUhMFCaBBpP6">Test 02/03/04/05（For Vo Manager）与 id 166、139 空标题。建议会后从 Yang1 视图过滤或标记，避免统计口径失真。</p>
+      </div>
+      <div class="rk" data-page-node-id="jO0FXiXI43jTfRSCeRjOVa">
+        <span class="lvl md" data-page-node-id="Z783mPGVgQA4hWNdjVqZEG">中</span>
+        <h4 data-page-node-id="Kd6efStHXDjmdzbLmJHcge">声优预估只覆盖 4 / 69 需求</h4>
+        <p data-page-node-id="ENpUFDBLT3kXxlG5OCQJYP">21 角色 / 1,043 句，且<b data-page-node-id="HettnzNNn8PGmszjBdkRKn">英配 0 句</b>。声优锁 10/28 前需全量补齐，否则选角与档期排不动。建议 10/21 设内部卡点。</p>
+      </div>
+      <div class="rk" data-page-node-id="joelcv2mLGtOAGqnFxNlyx">
+        <span class="lvl md" data-page-node-id="JvcbCJFbBvU5pGQ33JvTPI">中</span>
+        <h4 data-page-node-id="e27GU97F7MajKFT4wo45R5">台词库总表还没定录入责任人</h4>
+        <p data-page-node-id="JoYZaadNYfMUKDDUgnxExI">全版本只保留 <b data-page-node-id="NHgcuVVTaT4Ld6UAP9Dhba">1 份台词库总表</b>，不再逐需求建表。文案 9.18 开写，需在会 1 定清谁把 49 条有效需求录进总表、分几批、什么时候开始。</p>
+      </div>
+      <div class="rk" data-page-node-id="8mgZfhRnp5utNnQtQlLCsu">
+        <span class="lvl md" data-page-node-id="x194GKUIhjW87qrFgGWAY6">中</span>
+        <h4 data-page-node-id="AK9JMYss50DAwH3o1B6jLL">音画同步 2 条依赖视频素材</h4>
+        <p data-page-node-id="5GFeg9L8X161yJ3IQePOBr">「围城入局演绎视频 1/2」「珠峰 loading 演绎视频」等需视频先到位，建议单独列依赖并提前锁定。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="invite" data-page-node-id="8FtDRvgYc74ODUarHFWi3Z">
+  <div class="wrap" data-page-node-id="8H6U24Rw49vYBpoFXkOEmW">
+    <div class="sechead" data-page-node-id="aSYyvpAarclPdG08l0w8Py">
+      <h2 data-page-node-id="Cld2ZD12SlKzktw5K7EI5w">邀约文案</h2>
+      <span class="note" data-page-node-id="qmbpQCzlr3lAabM5SaIAw1">可直接复制到企微群 / 邮件发起会议</span>
+    </div>
+    <div class="rule" data-page-node-id="8KWo9Vy594bLYd31i1nBFB"></div>
+
+    <div class="invite" data-page-node-id="tK0o5TWEpm3FOccbOR7KYL">
+      <div class="invite-h" data-page-node-id="YBHB432nH8kDdNm56F1b0x"><b data-page-node-id="mAFgUShmxMmsgwapFmIwGw">会 1 · Yang1 台词需求分配会</b><button class="copy" data-t="t1" data-page-node-id="8iQEEl8IVdqweKGJgoH4S9">复制</button></div>
+      <pre id="t1" data-page-node-id="GyQi993YIX0sWMwDNZbUKE">【会议】Yang1.0 台词需求分配会
+【时间】9月16日（周三）11:30 - 12:30
+【地点】线上腾讯会议（会前发链接）
+【主持】李利（音频 PM）
+【必到】汪亚茜（文案策划）
+【列席】SOL / 系统 / 大战场 / 干员 / 商业化 各 area 策划代表
+
+【背景】
+Yang1 Vo 需求锁已于 9/14 生效，需求池共 69 条，目前 65 条还没有文案负责人。
+文案窗口 9.18 - 11.11（共 54 天），台词锁 11.11 11:30。
+
+【议题】
+1. 需求池口径：清理 Ma5 命名 14 条、测试单 4 条、空标题 2 条，确认有效清单（约 49 条）
+2. 文案分配：按 area 与体量切块到人，明确每人承接条数与预估句数
+3. 交稿节奏：倒排 3 批交稿日，每批留 1 周返修
+4. 台词库总表：确认「1 份总表」口径 + 录入责任人与时间点
+5. 特殊项：音画同步 2 条（依赖视频素材）、英配是否本版启动
+
+【会前准备】
+· 各 area 策划代表：确认本 area 需求范围与优先级，是否可砍量
+· 文案侧：预估可承接条数与开始时间
+
+【产出】有效需求清单 / 需求×文案分配表 / 三批交稿日 / 建表责任人</pre>
+    </div>
+
+    <div style="height:16px" data-page-node-id="teyWe0PabbjVReGJwVGajn"></div>
+
+    <div class="invite" data-page-node-id="7ZCnCckeLkPeUWz7K7zCOE">
+      <div class="invite-h" data-page-node-id="LLGm0ZNZg18rReTLNIpyfw"><b data-page-node-id="G860DTPcPkmpl2tRSbNBa6">会 1 简版（群内通知）</b><button class="copy" data-t="t2" data-page-node-id="mj46ivSq5mULaASMHDEvhx">复制</button></div>
+      <pre id="t2" data-page-node-id="UnDebkJWfMeW3OH032Nq5v">@所有人 Yang1 台词需求分配会：9/16（周三）11:30，线上。
+
+Yang1 Vo 需求锁 9/14 已生效，需求池 69 条，其中 65 条还没分文案。
+会上一件事：把需求分到人 + 定三批交稿日（文案窗口 9.18-11.11）。
+
+会前请各 area 确认：本 area 哪些需求本期必做、哪些可以砍。
+文案侧请带：可承接条数与最早开始时间。</pre>
+    </div>
+  </div>
+</section>
+
+<footer data-page-node-id="46GTKEQMKhE7eIvLGNoaFv">
+  <div class="wrap" data-page-node-id="SmBDrjeLmHVgPR5UXIQdHG">
+    <b data-page-node-id="O9TB4QZfEqW8wwSOnBmehf">真源说明：</b>节点日期取自 Vomi 版本节点页（含节假日扣除，Yang1 Vo需求锁为 PM 手动锚定 2026-09-14）；
+    需求与声优预估取自线上 <b data-page-node-id="mB7T9czUBQ0hygWE1m2clx">/api/demands?release=Yang1.0</b> 与 <b data-page-node-id="JOjYR3wP24LmAAOT74Vne3">/api/voice-estimates?release=Yang1.0</b>，为 2026-09-14 快照。<br data-page-node-id="KhifhW46FANsDFFdAr2sLZ">
+    页面改动请同步更新数据后再发会议。
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var id = btn.getAttribute('data-t');
+    var el = document.getElementById(id);
+    var txt = el ? el.textContent : '';
+    var done = function(){
+      var old = btn.textContent;
+      btn.textContent = '已复制';
+      btn.classList.add('ok');
+      setTimeout(function(){ btn.textContent = old; btn.classList.remove('ok'); }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done, function(){ fallback(txt, done); });
+    } else { fallback(txt, done); }
+  });
+});
+function fallback(txt, cb){
+  var ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta); cb();
+}
+</script>
+</body>
+</html>

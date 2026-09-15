@@ -66,7 +66,7 @@ if [[ -d "$STAGE/deploy/backend/tools" ]]; then
   mkdir -p "$DEPLOY/backend/tools"
   cp -a "$STAGE/deploy/backend/tools/." "$DEPLOY/backend/tools/"
 fi
-for f in Dockerfile package.json package-lock.json cw_doc_recipe_v6.js build_cw_doc.js roster.json tapd-snapshot.js schedule_from_sheet.json .env.example; do
+for f in Dockerfile package.json package-lock.json cw_doc_recipe_v6.js build_cw_doc.js roster.json tapd-snapshot.js schedule_from_sheet.json library_coverage.json .env.example; do
   [[ -f "$STAGE/deploy/backend/$f" ]] && cp -a "$STAGE/deploy/backend/$f" "$DEPLOY/backend/$f"
 done
 [[ -f "$STAGE/deploy/docker-compose.yml" ]] && cp -a "$STAGE/deploy/docker-compose.yml" "$DEPLOY/docker-compose.yml"

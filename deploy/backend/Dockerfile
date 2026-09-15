@@ -18,6 +18,7 @@ COPY --chown=node:node src ./src
 COPY --chown=node:node tools ./tools
 COPY --chown=node:node cw_doc_recipe_v6.js ./
 COPY --chown=node:node schedule_from_sheet.json ./
+COPY --chown=node:node library_coverage.json ./
 
 # /home/node/.config/wecom 由 compose 只读挂载凭证文件，cache 子目录需可写（node 用户）
 RUN mkdir -p /data/audio /home/node/.config/wecom/cache && chown -R node:node /app /data/audio /home/node/.config

@@ -576,7 +576,7 @@ body.sidebar-collapsed .brand-logo{margin-right:calc(var(--sb-col-w) + 16px)}
 <script src="assets/holiday-calendar.js?v=20260901a"></script>
 <script src="assets/release-calendar.js?v=20260901b"></script>
 <script>
-const __BUILD__ = '202609151046';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
+const __BUILD__ = '202609151227';  // 每次 iframe 源改动 → 手动 bump 一次，强制浏览器丢弃 iframe 缓存
 // 视图 → iframe 源 映射（与侧栏 nav-item 的 data-view 一一对应）
 const VIEW_SRC = {
   demands:'preview-需求汇总-精修版.html',
@@ -1166,19 +1166,18 @@ async function fetchSchedulesSafe(release){
 function computeDemandStats(demands){
   const list = demands || [];
   const total = list.length;
-  let clarification = 0, unscripted = 0, lines = 0, areas = new Set();
+  let clarification = 0, lines = 0, areas = new Set();
   list.forEach(d => {
     const st = String(d.status || d.manual_status || '').toLowerCase();
     const clar = String(d.clarification || '').trim();
     if(clar && /待澄清|澄清|clarif/i.test(clar)) clarification++;
-    if(!d.script_doc_url) unscripted++;
     if(d.area) areas.add(String(d.area));
     const cn = Number(d.progress_lines_cn || 0);
     const en = Number(d.progress_lines_en || 0);
     lines += (cn > 0 ? cn : 0) + (en > 0 ? en : 0);
   });
   const completion = total ? Math.round(((total - clarification) / total) * 100) : 0;
-  return { total, clarification, unscripted, lines, areas: areas.size, completion };
+  return { total, clarification, lines, areas: areas.size, completion };
 }
 
 // 节点：根据 release 的 plan 计算 4 个节点的日期（vo 锁 / 声优锁 / 台词锁 / VO 交付）
@@ -1854,13 +1853,12 @@ function buildNotificationModel(user, context){
   const demands = (context.demands || []).filter(releaseInScopeShell).filter(releaseMatch);
   const schedules = (context.schedules || []).filter(releaseInScopeShell).filter(releaseMatch);
   const roster = countRosterRows(context.talents || []);
-  const missingDocs = demands.filter(row=>!String(row.script_doc_url || '').trim()).length;
   const unfinished = demands.filter(row=>!['done','closed','已完成','已关闭'].includes(String(row.status || row.v_status || '').trim().toLowerCase())).length;
   const tasksByRole = {
     pm:[`核对 ${currentRelease} 的 ${demands.length} 条需求与负责人`,`协调 ${roster.pending} 位待选角角色与 ${schedules.length} 条已发布档期`],
     project:[`推动 ${currentRelease} VO 流程与关键会议`,`同步提单截止、版本变更和阻塞事项`,`协助处理跨团队紧急修改`],
-    copy_pm:[`组织 ${currentRelease} 台词需求分配`,`跟进文案进度与声优确认`,`台词锁前完成汇总表完整性校验`],
-    writer:[`完成负责需求的台词、角色与句数填写`,`台词锁前完成汇总表自检`,`锁后修改统一进入版本汇总表`],
+    copy_pm:[`组织 ${currentRelease} 台词需求分配`,`跟进文案进度与声优确认`,`台词锁前完成台词库总表完整性校验`],
+    writer:[`完成负责需求的台词、角色与句数填写`,`台词锁前完成台词库总表自检`,`锁后修改统一进入台词库总表`],
     audio:[`确认声优、录音棚与录制时间`,`跟进 ${roster.pending} 位待选角角色`,`推进 ${schedules.length} 条已发布档期与 VO 交付`],
     viewer:[`查看 ${currentRelease} 需求与关键节点`,`关注录制进度和风险变化`]
   };
@@ -1874,7 +1872,7 @@ function buildNotificationModel(user, context){
   if(!nodes.length) nodes = allNodes.slice(-2);
   const risks = [];
   if(context.unavailable) risks.push({text:`${context.unavailable} 项业务数据暂不可用，请稍后刷新`, level:'risk'});
-  // 2026-09-14 · 新链路：每个版本只维护一份汇总表格，不再关联每个需求的独立台词表 → 移除 "未关联台词表" 风险
+  // 2026-09-14 · 新链路：每个版本只维护一份「台词库总表」，不再关联每个需求的独立台词表 → 移除 "未关联台词表" 风险
   if(roster.pending) risks.push({text:`${roster.pending} 位角色的中/英配信息未齐`, level:'risk'});
   if(demands.length && !schedules.length) risks.push({text:`${currentRelease} 暂无已发布录制档期`, level:'risk'});
   if(!risks.length) risks.push({text:'当前未发现需要立即处理的风险', level:'calm'});

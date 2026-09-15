@@ -163,7 +163,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 /* 方案 C「悬浮铅笔 + Popover 卡片」· 2026-09-03 用户定稿（替换方案 A 的就地编辑）
    - 表格纯只读，阅读优先：不再给 td 任何「可编辑」视觉暗示
    - hover 行 → 行尾铅笔淡入；点击 → popover 编辑卡浮在行旁
-   - 仍需点击的特例单元（录制时间 / 性别 / 台词表）保留 pointer 光标 */
+   - 仍需点击的特例单元（录制时间 / 性别）保留 pointer 光标 */
 #rosterTable td.ed.rec-cell{cursor:pointer}
 #rosterTable td.ed.gender-cell{cursor:pointer}
 /* ── 点击整行打开编辑卡（无显式按钮 · 2026-09-03 四次定稿）──
@@ -922,7 +922,7 @@ async function loadRoster(){
 
 // ============ 落库工具层（声优库 ↔ 后端 voice_roles 表）============
 // 2026-09-02 改直写：单元格编辑 / 新建 / 导入 / 删除一律立刻写库，「保存到系统」按钮已移除。
-// 生成台词表时后端实时读 voice_roles，Tab1 的 A/B 列即可拿到最新声优库信息。
+// 生成台词库总表时后端实时读 voice_roles，Tab1 的 A/B 列即可拿到最新声优库信息。
 // 匹配键优先级 db_id → role_cn（绕开 roster.json id 与 DB id 不一致，同时支持 role_cn 改名）。
 function flashRoster(msg, ok){
   const el = document.getElementById('rosterSyncStatus');

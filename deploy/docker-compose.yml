@@ -51,6 +51,8 @@ services:
       WECOM_CLI_PATH: /usr/local/bin/wecom-cli
       WECOM_HOME: /home/node
       SCHEDULE_PULL_SCRIPT: /app/tools/pull_schedule_from_sheet.py
+      # 台词库总表「录入覆盖度」（GET /api/library-coverage、POST /refresh）
+      LIBRARY_COVERAGE_PULL_SCRIPT: /app/tools/pull_library_coverage.py
       TZ: Asia/Shanghai
     volumes:
       - audio_data:/data/audio

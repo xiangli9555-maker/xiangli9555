@@ -26,6 +26,7 @@ const {
 const { pullLiveDemands, isLiveReady } = require('./tapd_live');
 const voiceEstimates = require('./voice_estimates');
 const scheduleRefresh = require('./schedule_refresh');
+const libraryCoverage = require('./library_coverage');
 
 const app = express();
 app.disable('x-powered-by');
@@ -137,6 +138,10 @@ app.post('/api/schedule-from-sheet/refresh', async (req, res) => {
     const status = result && (result.error === 'wecom_cli_missing' || result.error === 'pull_script_missing') ? 503 : 502;
     return res.status(status).json(result || { ok: false, error: 'refresh_failed' });
   }
+  // 同一份总表 → 顺带刷新「录入覆盖度」，失败只记录、不影响档期刷新结果
+  libraryCoverage.refresh()
+    .then(r => { if (r && !r.ok) console.warn('[library-coverage] refresh failed:', r.error, r.hint || ''); })
+    .catch(e => console.warn('[library-coverage] refresh exception:', e && e.message));
   res.json(result);
 });
 
@@ -149,6 +154,53 @@ app.get('/api/schedule-from-sheet/refresh/status', (req, res) => {
     wecom_cli: scheduleRefresh.WECOM_CLI,
     pull_script: scheduleRefresh.PULL_SCRIPT,
   });
+});
+
+// ---------- 台词库总表「录入覆盖度」（2026-09-14）----------
+// 版本级唯一总表取代「逐需求建台词表」：覆盖度 = 总表 1.1+1.2 里出现过的需求 / 需求池。
+// 快照 library_coverage.json 由 wecom-cli 实时回读；比对在请求时与 demands 表做。
+app.get('/api/library-coverage', async (req, res) => {
+  const release = String(req.query.release || 'Yang1.0');
+  const snap = libraryCoverage.readSnapshot(release);
+  if (!snap.ok) return res.status(404).json({ ok: false, error: snap.error, release });
+
+  let rows = [];
+  try {
+    const [r] = await pool.query(
+      `SELECT id, task_name, area FROM demands WHERE story_type='音频' AND status!='suspended' AND release_plan=?`,
+      [release]
+    );
+    rows = r;
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: 'demands_query_failed', hint: publicError(e) });
+  }
+
+  const cov = libraryCoverage.computeCoverage(snap.data, rows);
+  res.json({
+    ok: true,
+    release,
+    source: snap.data.source || 'wecom_sheet',
+    docid_hint: snap.data.docid_hint || '',
+    fetched_at: snap.data.fetched_at || '',
+    sheets: snap.data.sheets || [],
+    story_count: snap.data.story_count || 0,
+    role_row_count: snap.data.role_row_count || 0,
+    ...cov,
+  });
+});
+
+app.post('/api/library-coverage/refresh', async (req, res) => {
+  let result;
+  try {
+    result = await libraryCoverage.refresh();
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: 'refresh_exception', hint: publicError(e) });
+  }
+  if (!result || !result.ok) {
+    const status = result && (result.error === 'wecom_cli_missing' || result.error === 'pull_script_missing') ? 503 : 502;
+    return res.status(status).json(result || { ok: false, error: 'refresh_failed' });
+  }
+  res.json(result);
 });
 
 // ---------- 统一日期引擎：节假日 / 调休 / 工作日 ----------

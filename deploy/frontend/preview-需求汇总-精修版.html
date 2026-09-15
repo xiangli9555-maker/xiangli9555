@@ -734,9 +734,9 @@ body.embed .mid{width:100%}
         <div class="kpi-meta" id="kpiStoriesMetaMain" data-page-node-id="ob1BeRw2JGCkYUwbJhVARS">—</div>
       </div>
       <div class="kpi kpi-info" data-page-node-id="DsAsvyPGLPR4ZPSf5jNZVX">
-        <div class="kpi-label" data-page-node-id="RXFC6zNfxG0gSp2uPK22Uh">LINES · 台词表</div>
-        <div class="kpi-value" data-page-node-id="b1dSAkCwT7egpMmLoDKi1C"><span id="kpiDocsMain" data-page-node-id="Q6YZpMyzgF2BPKqxE7q437">—</span><span class="unit" data-page-node-id="tuR623kwu9c6lSuV5AIScd">份</span></div>
-        <div class="kpi-meta" id="kpiDocsMetaMain" data-page-node-id="kLt5uJbR6xfvHAoSpF5ye9">—</div>
+        <div class="kpi-label" data-page-node-id="RXFC6zNfxG0gSp2uPK22Uh">LINES · 台词库总表</div>
+        <div class="kpi-value" data-page-node-id="b1dSAkCwT7egpMmLoDKi1C"><span id="kpiDocsMain" data-page-node-id="Q6YZpMyzgF2BPKqxE7q437">—</span><span class="unit" id="kpiDocsUnit" data-page-node-id="tuR623kwu9c6lSuV5AIScd">条</span></div>
+        <div class="kpi-meta" id="kpiDocsMetaMain" data-page-node-id="kLt5uJbR6xfvHAoSpF5ye9">读取总表…</div>
       </div>
       <div class="kpi kpi-warn" data-page-node-id="F24wlOal8Gpza4yk59iJJn">
         <div class="kpi-label" data-page-node-id="0ZWLNY1MdlJHTi3Dd9tfaD">PROGRESS · 完成度</div>
@@ -892,7 +892,7 @@ function releaseInScope(demand){
   return !!(window.VOMI_RELEASE_CALENDAR && window.VOMI_RELEASE_CALENDAR.isAtOrAfterCached(release, RELEASE_SCOPE_START));
 }
 const RELEASE_LIBRARY_KEY = 'release_script_libraries_v1';
-// 内置默认表格链路：Vomi 拥有的 release 实例台词库（母版 + 派生实例双层模型的实例层）。
+// 内置默认表格链路：Vomi 拥有的 release 实例台词库总表（母版 + 派生实例双层模型的实例层）。
 // 优先级：内置默认 > kv 远端 > localStorage。这样团队所有浏览器都能看到最新链接，
 // 不受个人 localStorage 旧值影响；用户想私有覆写时再登记到 kv 即可。
 const RELEASE_LIBRARY_DEFAULTS = {
@@ -1164,7 +1164,7 @@ function isBlankAreaClick(el){
   const tag = t.tagName;
   if(tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return false;
   if(tag === 'SVG' || tag === 'PATH' || tag === 'LINE' || tag === 'RECT' || tag === 'CIRCLE' || tag === 'POLYLINE' || tag === 'POLYGON' || tag === 'G') return false;
-  // 交互元素 → 不算空白（按钮/输入/链接/表头/筛选芯片/cw浮层/排序箭头/台词表图标）
+  // 交互元素 → 不算空白（按钮/输入/链接/表头/筛选芯片/cw浮层/排序箭头/文档图标）
   if(t.closest('button, input, select, textarea, a, th, thead, .chip-filter, .chip-status, .chip-cw, .filter-groups, .cw-pick, .vs, [data-fk], [data-rel], [onclick], #cwPop, .cw-pop, .popover, .sort-arrows, .header-filter-pop, .header-filter-btn, .brand-bar, .sidebar, .nav-item, .nav-sub-item, .vomi-tip-host-pop')) return false;
   // 表格内容区(tr/td/tbody/table/.table-wrap) → 也不算空白，避免点行内误复位
   if(t.closest('tr, td, tbody, table, .table-wrap')) return false;
@@ -1347,8 +1347,8 @@ function releaseLibraryDocCell(release){
   const rec = releaseLibraryRecord(release);
   const url = typeof rec==='string' ? rec : ((rec&&rec.url)||(rec&&rec.doc_url)||'');
   const svg = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18M15 9v12"/></svg>`;
-  if(url) return `<a class="release-library-link" href="${esc(url)}" target="_blank" rel="noopener" title="打开 ${esc(release)} 汇总智能台词库">${svg}<span>台词库</span></a>`;
-  return `<span class="release-library-link pending" title="该版本台词总表尚未登记">${svg}<span>待汇总</span></span>`;
+  if(url) return `<a class="release-library-link" href="${esc(url)}" target="_blank" rel="noopener" title="打开 ${esc(release)} 台词库总表">${svg}<span>台词库</span></a>`;
+  return `<span class="release-library-link pending" title="该版本台词库总表尚未登记">${svg}<span>待汇总</span></span>`;
 }
 // [已废弃 2026-08-14] 原"策划头像右键→为该策划每需求各建一份台词表"入口已删。
 // [已停用 2026-08-25] 顶部闪电一键汇总生成功能已移除。
@@ -1390,11 +1390,11 @@ async function pollCwJobs(){
     else if(_cwPollTimer){ clearInterval(_cwPollTimer); _cwPollTimer=null; }
   }catch(e){ /* 网络异常静默，下次轮询再试 */ }
 }
-// ② 同步声优预估：触发后端读取对应台词表文档的「声优预估」tab → 写回 demands.voice_estimates
+// ② 同步声优预估：触发后端读取对应需求台词文档的「声优预估」tab → 写回 demands.voice_estimates
 async function syncVoiceEstimates(){
   const release = filterRelease || currentReleasePlan() || 'Yang1.0';
   try{
-    flashInfo('⏳ 已提交声优预估同步任务，正在读取台词表文档…（完成后刷新查看）');
+    flashInfo('⏳ 已提交声优预估同步任务，正在读取需求台词文档…（完成后刷新查看）');
     const r = await fetch('/api/cw-doc/sync-voice-estimates', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ release })
@@ -1575,7 +1575,7 @@ async function saveVeCategory(){
   VE_CATEGORY.saving=true;document.getElementById('veCategoryPopover')?.setAttribute('data-saving','1');btn.disabled=true;btn.textContent='同步中…';if(note)note.textContent='正在同步腾讯文档，请稍候';
   try{
     const r=await fetch(`/api/demands/${encodeURIComponent(demandId)}/voice-estimates`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows})});
-    const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error==='release_library_not_registered'?'请先生成当前版本台词库':(j.error||'保存失败'));
+    const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error==='release_library_not_registered'?'请先登记当前版本台词库总表':(j.error||'保存失败'));
     allVoiceEstimates=allVoiceEstimates.filter(x=>String(x.demand_id)!==demandId).concat(j.rows||[]);rebuildVeEstimateIndex();
     closeVeCategory(true);requestAnimationFrame(()=>renderRows());flashOk(`声优预估已保存：新增 ${j.changes.added} · 更新 ${j.changes.updated} · 删除 ${j.changes.deleted}`);
   }catch(e){VE_CATEGORY.saving=false;document.getElementById('veCategoryPopover')?.removeAttribute('data-saving');flashErr(e.message||'声优预估保存失败');}finally{btn.disabled=false;btn.textContent='保存';if(note)note.textContent=oldNote;}
@@ -2110,12 +2110,51 @@ function toggleClarify(){
   if(b) b.classList.toggle('collapsed');
 }
 
+// ── 台词库总表「录入覆盖度」（2026-09-14）──
+// 台词载体已从「每个需求一张台词表」切换为「版本级 1 份台词库总表」，
+// 因此本卡不再统计 script_doc_url，改为：总表 1.1声优锁 + 1.2音画同步 里出现过的需求数 / 当前需求池。
+const LIB_COV = { key:'', state:'loading', data:null };  // state: loading | ok | error
+function renderLibraryCoverage(){
+  const main = document.getElementById('kpiDocsMain');
+  const unit = document.getElementById('kpiDocsUnit');
+  const meta = document.getElementById('kpiDocsMetaMain');
+  if(!main) return;
+  const total = (typeof allDemands!=='undefined' && Array.isArray(allDemands)) ? allDemands.length : 0;
+  if(unit) unit.textContent = `/ ${total}`;
+  if(LIB_COV.state==='ok' && LIB_COV.data){
+    const d = LIB_COV.data;
+    main.textContent = String(d.covered == null ? '—' : d.covered);
+    const pctTxt = (Math.round((Number(d.coverage)||0)*1000)/10).toFixed(1) + '%';
+    if(meta) meta.textContent = `覆盖 ${pctTxt} · 缺 ${d.missing} 条 · 版本级唯一总表`;
+  } else if(LIB_COV.state==='error'){
+    main.textContent = '—';
+    if(meta) meta.textContent = '总表快照未就绪 · 版本级唯一总表';
+  } else {
+    main.textContent = '—';
+    if(meta) meta.textContent = '读取总表…';
+  }
+}
+function ensureLibraryCoverage(rel){
+  if(LIB_COV.key === rel) return;
+  LIB_COV.key = rel; LIB_COV.state = 'loading'; LIB_COV.data = null;
+  renderLibraryCoverage();
+  fetch(`/api/library-coverage?release=${encodeURIComponent(rel)}`, {cache:'no-store'})
+    .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP '+r.status)))
+    .then(j => {
+      if(LIB_COV.key !== rel) return;      // 版本已切换，丢弃过期响应
+      if(!j || !j.ok) throw new Error((j && j.error) || 'coverage_failed');
+      LIB_COV.state = 'ok'; LIB_COV.data = j; renderLibraryCoverage();
+    })
+    .catch(() => {
+      if(LIB_COV.key !== rel) return;
+      LIB_COV.state = 'error'; LIB_COV.data = null; renderLibraryCoverage();
+    });
+}
+
 function updateKPI(){
   const total = allDemands.length;
   const areas = new Set(allDemands.map(d=>d.area).filter(Boolean));
   const copywriters = new Set(allDemands.map(d=>d.cn_lines_handler).filter(Boolean).map(s=>s.trim()));
-  // 台词表 KPI 按需求真实 script_doc_url 统计，不再按“策划硬编码表”推测。
-  const docsDone = allDemands.filter(d=>(d.script_doc_url||'').trim()).length;
   // 进度 · 需求粒度 5 态计数（纯人工维护：manual_status 优先，缺省待澄清）
   let cPend=0, cWrite=0, cHandover=0, cVo=0, cDone=0;
   allDemands.forEach(d=>{
@@ -2142,8 +2181,9 @@ function updateKPI(){
   if(ddlRelEl) ddlRelEl.textContent = `· 距离 ${rel}`;
   document.getElementById('kpiStoriesMain').textContent = fmt(total);
   document.getElementById('kpiStoriesMetaMain').textContent = `${areas.size} AREA · ${copywriters.size} Narrative Designer`;
-  document.getElementById('kpiDocsMain').textContent = fmt(docsDone);
-  document.getElementById('kpiDocsMetaMain').textContent = `已生成 ${docsDone} · 待生成 ${Math.max(0,total-docsDone)}`;
+  // 台词表 KPI 已退役：改为「台词库总表·录入覆盖度」，由总表快照异步填充（见 renderLibraryCoverage）
+  ensureLibraryCoverage(rel);
+  renderLibraryCoverage();   // 需求池变化时同步刷新分母
   document.getElementById('kpiPctMain').textContent = fmt(pct);
   document.getElementById('kpiProgMetaMain').textContent = `${cPend}待澄清 · ${cWrite}文案ing · ${cHandover}已交稿 · ${cVo}Vo ing · ${cDone}Done`;
 
@@ -2152,8 +2192,8 @@ function updateKPI(){
 
   // ── 隐藏旧元素（兼容）──
   document.getElementById('kpiStoriesMeta').textContent = `${areas.size} AREA · ${copywriters.size} Narrative Designer`;
-  document.getElementById('kpiDocs').textContent = `${docsDone}/${total}`;
-  document.getElementById('kpiDocsMeta').textContent = `已生成 ${docsDone} · 待生成 ${Math.max(0,total-docsDone)} · 共 ${total} 条需求`;
+  document.getElementById('kpiDocs').textContent = `${total}`;
+  document.getElementById('kpiDocsMeta').textContent = `台词库总表录入覆盖 · 共 ${total} 条需求`;
   document.getElementById('kpiProgMeta').textContent = `${cPend} 待澄清 · ${cWrite} 文案ing · ${cHandover} 已交稿 · ${cVo} Vo ing · ${cDone} Done`;
   document.getElementById('kpiDdlMeta').innerHTML = `<span class="delta-down">进行中未完成</span> · 需关注`;
   // 状态芯片计数（4 态分别统计，随当前 area/release 筛选动态更新）
@@ -2344,7 +2384,8 @@ async function cycleVs(id, el){
   vsSaveQueue.set(key, current);
   try{ await current; } finally{ if(vsSaveQueue.get(key)===current) vsSaveQueue.delete(key); }
 }
-// （原 editDocUrl 与按策划硬编码文档链接均已废弃；v6 每需求 1 doc，只认真实 script_doc_url。）
+// （原 editDocUrl 与按策划硬编码文档链接均已废弃。2026-09-14 起台词载体统一为版本级「台词库总表」，
+//  逐需求 script_doc_url 只作为历史字段保留，不再作为任何 KPI 的口径。）
 
 // 提示
 function flashOk(m='已保存'){ const t=document.getElementById('toastArea'); if(t){t.textContent=`✓ ${m}`;t.style.color='var(--c-primary)';clearTimeout(window.__ft);window.__ft=setTimeout(()=>t.textContent='',3500);} }
@@ -2540,7 +2581,7 @@ async function kvInitDemandPage(){
       localStorage.setItem(CLARIFY_SCHEMA_KEY, '2');
     }
   }catch(_){}
-  // ② 发布计划汇总智能台词库登记：{release:{url,file_id,updated_at}}
+  // ② 发布计划台词库总表登记：{release:{url,file_id,updated_at}}
   try{
     const remote = await kvPull(RELEASE_LIBRARY_KEY);
     if(remote){

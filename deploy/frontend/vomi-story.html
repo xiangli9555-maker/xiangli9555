@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vomi · 工作方式升级 · DF 音频 VO</title>
+<link rel="icon" href="assets/DeltaForceLogo-IconOnly.png">
+<style>
+/* ============ 基础 ============ */
+:root{
+  --c-primary:#0FF796;
+  --c-yellow:#FFD24C;
+  --c-danger:#D699BE;
+  --bg:#0B1014;
+  --glass:rgba(15,23,28,.74);
+  --glass-2:rgba(18,27,33,.62);
+  --line:rgba(255,255,255,.09);
+  --line-2:rgba(255,255,255,.14);
+  --ink:#E8EEF1;
+  --ink-2:#A5B3BB;
+  --ink-3:#7C8A93;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --sans:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
+  --barh:58px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:17px;line-height:1.8;-webkit-font-smoothing:antialiased;
+  letter-spacing:0;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:-2;
+  background:url('assets/vomi-story/bg.jpg') center/cover no-repeat;
+  opacity:.5;
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(1200px 620px at 12% -8%, rgba(15,247,150,.10), transparent 60%),
+    radial-gradient(900px 520px at 92% 8%, rgba(255,210,76,.06), transparent 62%),
+    linear-gradient(180deg, rgba(11,16,20,.62) 0%, rgba(11,16,20,.86) 45%, rgba(11,16,20,.95) 100%);
+}
+img{display:block;max-width:100%}
+a{color:var(--c-primary);text-decoration:none}
+.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1280px;margin:0 auto;padding:0 88px;width:100%}
+
+/* ============ 顶栏 ============ */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(11,16,20,.72);border-bottom:1px solid var(--line);
+}
+.topbar .wrap{display:flex;align-items:center;gap:24px;height:var(--barh);padding:0 88px}
+.brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.brand img{height:20px;width:auto}
+.brand .dot{width:7px;height:7px;border-radius:50%;background:var(--c-primary);box-shadow:0 0 8px var(--c-primary)}
+.brand span{font-size:14.5px;font-weight:700;letter-spacing:.06em;color:var(--ink)}
+.navlinks{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.navlinks a{
+  font-size:13.5px;color:var(--ink-2);padding:7px 13px;border-radius:8px;
+  border:1px solid transparent;transition:.16s;white-space:nowrap;
+}
+.navlinks a:hover{color:var(--ink);background:rgba(255,255,255,.05);border-color:var(--line)}
+.golink{
+  flex-shrink:0;font-size:13.5px;font-weight:600;color:var(--c-primary);
+  border:1px solid rgba(15,247,150,.34);background:rgba(15,247,150,.08);
+  padding:8px 16px;border-radius:8px;transition:.16s;
+}
+.golink:hover{background:rgba(15,247,150,.16);border-color:rgba(15,247,150,.6)}
+
+/* ============ 整屏 ============ */
+.deck{width:100%}
+.slide{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  padding:104px 0 88px;position:relative;scroll-margin-top:var(--barh);
+}
+.slide + .slide{border-top:1px solid rgba(255,255,255,.055)}
+.slide-num{
+  position:absolute;top:calc(var(--barh) + 26px);right:88px;
+  font-family:var(--mono);font-size:12.5px;color:var(--ink-3);letter-spacing:.18em;
+}
+
+/* ============ 通用块 ============ */
+.eyebrow{
+  font-family:var(--mono);font-size:13px;letter-spacing:.22em;color:var(--c-primary);
+  text-transform:uppercase;display:flex;align-items:center;gap:14px;margin-bottom:20px;
+}
+.eyebrow::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(15,247,150,.42),transparent)}
+h2.sec{
+  font-size:clamp(30px,3.4vw,44px);font-weight:800;line-height:1.3;
+  margin:0 0 16px;letter-spacing:0;
+}
+h2.sec .hl{color:var(--c-primary)}
+.lede{color:var(--ink-2);font-size:19px;max-width:900px;margin:0 0 44px;line-height:1.75}
+
+/* ============ 01 封面 ============ */
+.cover{
+  background:radial-gradient(ellipse at 50% 42%,rgba(15,247,150,.08) 0%,transparent 62%),transparent;
+  align-items:center;text-align:center;
+}
+.cover-mark{
+  width:96px;height:96px;margin:0 auto 34px;display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(15,247,150,.55);border-radius:24px;box-shadow:0 0 40px rgba(15,247,150,.22);
+  background:rgba(15,247,150,.05);
+}
+.cover-mark img{width:60px;height:60px;object-fit:contain}
+.cover h1{
+  font-size:clamp(42px,5.8vw,76px);font-weight:900;letter-spacing:0;margin:0 0 14px;line-height:1.16;
+}
+.cover .subtitle{font-size:clamp(19px,1.9vw,26px);color:var(--ink-2);font-weight:400;margin-bottom:56px}
+.cover-meta{display:flex;gap:48px;align-items:center;justify-content:center;flex-wrap:wrap}
+.cover-meta .mi{display:flex;flex-direction:column;align-items:center;gap:6px}
+.cover-meta .mn{
+  font-family:var(--mono);font-size:46px;font-weight:700;color:var(--c-primary);
+  line-height:1;font-variant-numeric:tabular-nums;
+}
+.cover-meta .ml{font-size:15px;color:var(--ink-2);letter-spacing:.06em}
+.cover-div{width:1px;height:64px;background:var(--line-2)}
+.cover-author{margin-top:56px;font-size:15px;color:var(--ink-3);letter-spacing:.08em}
+
+/* ============ 02 痛点 ============ */
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+@media (max-width:1000px){.pain-grid{grid-template-columns:1fr}}
+.pain-card{
+  background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:38px 34px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:.24s;
+}
+.pain-card:hover{border-color:rgba(214,153,190,.5);transform:translateY(-4px)}
+.pain-ico{
+  width:56px;height:56px;border-radius:14px;background:rgba(214,153,190,.12);
+  display:flex;align-items:center;justify-content:center;margin-bottom:24px;
+}
+.pain-ico svg{width:28px;height:28px;stroke:var(--c-danger);fill:none;stroke-width:2}
+.pain-card h3{font-size:22px;font-weight:700;margin:0 0 12px;letter-spacing:0}
+.pain-card .pd{font-size:16px;color:var(--ink-2);line-height:1.8;margin:0 0 6px}
+.pain-points{list-style:none;margin:18px 0 0;padding:0}
+.pain-points li{
+  font-size:16px;color:var(--ink-2);padding:7px 0 7px 22px;position:relative;line-height:1.75;
+}
+.pain-points li::before{
+  content:'×';position:absolute;left:0;top:6px;color:var(--c-danger);font-weight:700;font-size:18px;
+}
+
+/* ============ 03 一句话结论 ============ */
+.verdict{
+  background:linear-gradient(100deg,rgba(15,247,150,.10),rgba(255,210,76,.05) 60%,transparent);
+  border:1px solid rgba(15,247,150,.24);border-left:3px solid var(--c-primary);
+  border-radius:18px;padding:48px 52px;
+}
+.verdict p{margin:0;font-size:clamp(21px,2.1vw,30px);line-height:1.85}
+.verdict p b{color:var(--c-primary);font-weight:700}
+.verdict .by{font-size:15px;color:var(--ink-3);margin-top:26px}
+
+/* ============ 04 全景对比 ============ */
+.tablewrap{
+  background:var(--glass);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+table.cmp{width:100%;border-collapse:collapse;font-size:17px}
+table.cmp th,table.cmp td{
+  padding:20px 26px;text-align:left;vertical-align:top;
+  border-bottom:1px solid rgba(255,255,255,.06);line-height:1.75;
+}
+table.cmp thead th{
+  font-size:13px;letter-spacing:.12em;color:var(--ink-3);font-weight:700;
+  background:rgba(255,255,255,.028);text-transform:uppercase;
+}
+table.cmp th:first-child,table.cmp td:first-child{width:15%;color:var(--ink);font-weight:600;white-space:nowrap}
+table.cmp td:nth-child(2){width:42%;color:var(--ink-2)}
+table.cmp td:nth-child(3){width:43%;color:var(--ink)}
+table.cmp tbody tr:last-child th,table.cmp tbody tr:last-child td{border-bottom:none}
+table.cmp tbody tr:hover{background:rgba(255,255,255,.022)}
+td.bad{position:relative}
+td.bad::before{
+  content:'';position:absolute;left:0;top:20px;bottom:20px;width:2px;
+  background:var(--c-danger);opacity:.5;border-radius:2px;
+}
+td.good{position:relative}
+td.good::before{
+  content:'';position:absolute;left:0;top:20px;bottom:20px;width:2px;
+  background:var(--c-primary);opacity:.65;border-radius:2px;
+}
+mark.y{background:rgba(255,210,76,.14);color:var(--c-yellow);padding:1px 5px;border-radius:4px;font-weight:600}
+mark.g{background:rgba(15,247,150,.13);color:var(--c-primary);padding:1px 5px;border-radius:4px;font-weight:600}
+
+/* ============ 05-09 场景对比 ============ */
+.ba-top{text-align:center;margin-bottom:44px}
+.ba-top .ba-no{font-family:var(--mono);font-size:14px;color:var(--c-primary);letter-spacing:.2em;margin-bottom:12px}
+.ba-top h2{font-size:clamp(28px,3vw,40px);font-weight:800;margin:0 0 14px;letter-spacing:0}
+.ba-top h2 .hl{color:var(--c-primary)}
+.ba-top p{font-size:18px;color:var(--ink-2);max-width:720px;margin:0 auto;line-height:1.75}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:880px){.ba{grid-template-columns:1fr}}
+.pane{
+  background:var(--glass-2);border:1px solid var(--line);border-radius:18px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:flex;flex-direction:column;min-height:430px;cursor:zoom-in;
+  transition:.2s;overflow:hidden;
+}
+.pane:hover{transform:translateY(-3px)}
+.pane.before{border-color:rgba(214,153,190,.22)}
+.pane.before:hover{border-color:rgba(214,153,190,.55);box-shadow:0 18px 50px rgba(214,153,190,.10)}
+.pane.after{border-color:rgba(15,247,150,.24)}
+.pane.after:hover{border-color:rgba(15,247,150,.55);box-shadow:0 18px 50px rgba(15,247,150,.10)}
+.pane-top{
+  padding:16px 26px;font-size:13.5px;font-weight:700;letter-spacing:.06em;
+  display:flex;align-items:center;gap:11px;
+}
+.pane.before .pane-top{background:rgba(214,153,190,.08);color:var(--c-danger);border-bottom:1px solid rgba(214,153,190,.16)}
+.pane.after  .pane-top{background:rgba(15,247,150,.08);color:var(--c-primary);border-bottom:1px solid rgba(15,247,150,.16)}
+.pane-top .badge{
+  width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0;
+}
+.pane.before .pane-top .badge{background:rgba(214,153,190,.16)}
+.pane.after  .pane-top .badge{background:rgba(15,247,150,.16)}
+.pane ul{
+  list-style:none;margin:0;padding:30px 32px 26px;font-size:17px;color:var(--ink-2);
+  line-height:1.9;flex:1;
+}
+.pane.after ul{color:var(--ink)}
+.pane ul li{padding:9px 0 9px 26px;position:relative}
+.pane ul li::before{
+  content:'';position:absolute;left:0;top:19px;width:9px;height:9px;border-radius:2px;opacity:.6;
+}
+.pane.before ul li::before{background:var(--c-danger)}
+.pane.after  ul li::before{background:var(--c-primary)}
+.shots{display:none}
+.shot-hint{
+  display:flex;align-items:center;gap:10px;font-size:15px;color:var(--ink-3);
+  border-top:1px solid rgba(255,255,255,.08);padding:17px 32px;transition:.2s;
+}
+.shot-hint svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.pane.before:hover .shot-hint{color:var(--c-danger)}
+.pane.after:hover  .shot-hint{color:var(--c-primary)}
+.pane-foot{padding:17px 32px;border-top:1px solid rgba(255,255,255,.07);font-size:15.5px;font-weight:700}
+.pane.before .pane-foot{color:var(--c-danger);background:rgba(214,153,190,.045)}
+.pane.after  .pane-foot{color:var(--c-primary);background:rgba(15,247,150,.045)}
+
+/* ============ 10 受益角色 ============ */
+.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
+@media (max-width:900px){.role-grid{grid-template-columns:1fr}}
+.role-card{
+  background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:38px 36px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:.24s;
+}
+.role-card:hover{border-color:rgba(15,247,150,.45);transform:translateY(-4px)}
+.r-head{display:flex;align-items:center;gap:15px;margin-bottom:20px}
+.r-avatar{
+  width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:25px;flex-shrink:0;
+}
+.role-card:nth-child(1) .r-avatar{background:rgba(15,247,150,.12)}
+.role-card:nth-child(2) .r-avatar{background:rgba(143,184,255,.12)}
+.role-card:nth-child(3) .r-avatar{background:rgba(255,210,76,.12)}
+.role-card:nth-child(4) .r-avatar{background:rgba(214,153,190,.12)}
+.r-name{font-size:21px;font-weight:800;letter-spacing:0}
+.r-role{font-size:14.5px;color:var(--ink-3);margin-top:3px}
+.r-gain{font-size:17px;color:var(--ink-2);line-height:1.9}
+.r-gain b{color:var(--c-primary);font-weight:700}
+
+/* ============ 11 总结 ============ */
+.summary-card{
+  background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:56px 56px 52px;
+  text-align:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.sum-ico{
+  width:72px;height:72px;border-radius:50%;background:rgba(15,247,150,.10);
+  border:2px solid rgba(15,247,150,.3);display:flex;align-items:center;justify-content:center;
+  margin:0 auto 26px;
+}
+.sum-ico svg{width:34px;height:34px;stroke:var(--c-primary);fill:none;stroke-width:2.5}
+.summary-card h2{font-size:clamp(26px,2.8vw,38px);font-weight:800;margin:0 0 18px;letter-spacing:0}
+.sum-desc{font-size:18px;color:var(--ink-2);line-height:1.8;max-width:760px;margin:0 auto}
+.sum-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:48px;text-align:left}
+@media (max-width:900px){.sum-stats{grid-template-columns:1fr}}
+.sum-item{
+  padding:32px 30px;border-radius:14px;background:rgba(255,255,255,.022);border:1px solid var(--line);
+}
+.sum-item .si-no{font-family:var(--mono);font-size:15px;color:var(--c-primary);letter-spacing:.16em;margin-bottom:14px}
+.sum-item .si-title{font-size:22px;font-weight:800;margin-bottom:10px;letter-spacing:0}
+.sum-item .si-desc{font-size:16px;color:var(--ink-2);line-height:1.8}
+
+/* ============ 12 结束 ============ */
+.end{
+  background:radial-gradient(ellipse at center,rgba(15,247,150,.07) 0%,transparent 62%),transparent;
+  align-items:center;text-align:center;
+}
+.end-slogan h1{
+  font-size:clamp(38px,5.2vw,68px);font-weight:900;letter-spacing:.06em;margin:0;line-height:1.3;
+  background:linear-gradient(100deg,#075C3E 0%,#0FF796 26%,#E6FFEF 52%,#0FF796 76%,#075C3E 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+}
+.end-sub{margin-top:28px;font-size:19px;color:var(--ink-3);letter-spacing:.05em}
+
+/* ============ 页脚 ============ */
+footer{padding:64px 0 88px;border-top:1px solid rgba(255,255,255,.06);color:var(--ink-3);font-size:14.5px}
+footer .fl{display:flex;gap:30px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+footer a{font-size:15px}
+.note{
+  background:rgba(255,255,255,.028);border:1px solid var(--line);border-radius:12px;
+  padding:20px 22px;line-height:1.9;color:var(--ink-3);font-size:13.5px;
+}
+
+/* ============ 灯箱 ============ */
+.lb{
+  position:fixed;inset:0;z-index:200;background:rgba(6,9,11,.95);
+  display:none;align-items:center;justify-content:center;padding:72px 96px;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.lb.on{display:flex}
+.lb img{
+  max-width:100%;max-height:calc(100vh - 190px);border-radius:12px;
+  border:1px solid var(--line-2);box-shadow:0 30px 90px rgba(0,0,0,.6);
+}
+.lb .x{position:absolute;top:24px;right:32px;font-size:30px;color:var(--ink-2);cursor:pointer;line-height:1;z-index:3}
+.lb .x:hover{color:var(--c-primary)}
+.lb .nav{
+  position:absolute;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;
+  background:rgba(255,255,255,.06);border:1px solid var(--line-2);color:var(--ink-2);
+  font-size:26px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;
+  transition:.16s;z-index:3;font-family:var(--sans);
+}
+.lb .nav:hover{background:rgba(15,247,150,.14);border-color:rgba(15,247,150,.5);color:var(--c-primary)}
+.lb .nav.on{display:flex}
+.lb .nav.prev{left:26px}
+.lb .nav.next{right:26px}
+.lb .cap2{position:absolute;bottom:38px;left:0;right:0;text-align:center;color:var(--ink-2);font-size:15px;padding:0 120px;line-height:1.7}
+.lb .cnt{position:absolute;bottom:38px;right:32px;font-family:var(--mono);font-size:13.5px;color:var(--ink-3);letter-spacing:.15em}
+
+/* ============ 入场 ============ */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+/* ============ 打印 / 导出 PDF（转浅色） ============ */
+@media print{
+  body::before,body::after{display:none}
+  html{scroll-behavior:auto}
+  body{background:#fff;color:#15191c;font-size:11.5pt}
+  .topbar,.golink,.lb,.slide-num{display:none !important}
+  .rv{opacity:1 !important;transform:none !important}
+  .slide{min-height:0;padding:26px 0;break-inside:avoid;border-top:none}
+  .wrap{padding:0 24px}
+  .cover h1,.end-slogan h1{font-size:26pt;color:#0b1014}
+  .end-slogan h1{background:none !important;-webkit-text-fill-color:#0b1014 !important;color:#0b1014 !important}
+  .cover .subtitle,.end-sub{color:#4a555c;font-size:11pt}
+  h2.sec{font-size:17pt;color:#0b1014}
+  .lede,.ba-top p,.sum-desc,.pain-card .pd,.r-gain,.si-desc,.note,footer{color:#4a555c}
+  .eyebrow,.ba-no,.si-no{color:#067a4a}
+  .eyebrow::after{background:#c9d3d8}
+  .pain-card,.tablewrap,.pane,.role-card,.verdict,.summary-card,.sum-item,.note{
+    background:#fff !important;border-color:#d5dde1 !important;backdrop-filter:none !important;
+  }
+  .cover-mark,.sum-ico{border-color:#0F8F5E !important;background:#e5f7ee !important;box-shadow:none !important}
+  .verdict{border-left-color:#0F8F5E !important}
+  .cover-meta .mn{color:#067a4a}
+  table.cmp th,table.cmp td{border-bottom-color:#e3e9ec;color:#15191c}
+  table.cmp thead th{background:#f3f6f7;color:#5b666d}
+  mark.y{background:#fff3cf;color:#8a6100}
+  mark.g{background:#dff5e9;color:#067a4a}
+  .pane.before .pane-top{color:#a1527f;background:#fbeef4;border-color:#e6c6d6}
+  .pane.after  .pane-top{color:#067a4a;background:#e5f7ee;border-color:#b9e5cf}
+  .pane.before .pane-foot{color:#a1527f;background:#fff}
+  .pane.after  .pane-foot{color:#067a4a;background:#fff}
+  .pain-ico svg,.pain-points li::before{color:#a1527f;stroke:#a1527f}
+  .role-card,.sum-item,.pain-card{break-inside:avoid}
+  .shot-hint{display:none}
+  .shots{display:grid;gap:10px;margin:0 32px 16px;padding:0}
+  .shots.c2{grid-template-columns:1fr 1fr}
+  .shots img{width:100%;border-radius:9px;border:1px solid #d5dde1}
+  a{color:#067a4a}
+}
+</style>
+<noscript><style>.rv{opacity:1 !important;transform:none !important}</style></noscript>
+</head>
+<body>
+
+<!-- ============ 顶栏 ============ -->
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <img src="assets/vomi-mark.svg" alt="Vomi" onerror="this.style.display='none'">
+      <span class="dot"></span>
+      <span>VOMI · 工作方式升级</span>
+    </div>
+    <nav class="navlinks">
+      <a href="#pain">之前的痛</a>
+      <a href="#verdict">一句话</a>
+      <a href="#compare">全景对比</a>
+      <a href="#s1">五个场景</a>
+      <a href="#roles">谁受益</a>
+      <a href="#summary">总结</a>
+    </nav>
+    <a class="golink" href="http://lycheelli-any1.devcloud.woa.com/vo-manager-refined.html#calendar/Yang1.0" target="_blank" rel="noopener">打开 Vomi →</a>
+  </div>
+</div>
+
+<div class="deck">
+
+<!-- ============ 01 · 封面 ============ -->
+<section class="slide cover" id="cover">
+  <div class="slide-num">01 / 12</div>
+  <div class="wrap">
+    <div class="cover-mark">
+      <img src="assets/DeltaForceLogo-IconOnly.png" alt="Delta Force" onerror="this.style.display='none'">
+    </div>
+    <h1>工作方式升级</h1>
+    <div class="subtitle">从 散装管理局 到 AI 自治区</div>
+    <div class="cover-meta">
+      <div class="mi"><div class="mn">5</div><div class="ml">大流程在线化</div></div>
+      <div class="cover-div"></div>
+      <div class="mi"><div class="mn">4</div><div class="ml">类角色全覆盖</div></div>
+      <div class="cover-div"></div>
+      <div class="mi"><div class="mn">1</div><div class="ml">份数据真源</div></div>
+    </div>
+    <div class="cover-author">音频 PM · Vomi 实践分享</div>
+  </div>
+</section>
+
+<!-- ============ 02 · 痛点 ============ -->
+<section class="slide" id="pain">
+  <div class="slide-num">02 / 12</div>
+  <div class="wrap">
+    <div class="eyebrow">01 · 痛点</div>
+    <h2 class="sec">之前的管理 <span class="hl">有多痛</span></h2>
+    <p class="lede">信息散落在多个 Excel 和群里，靠手动复制粘贴，出错多、进度不透明。</p>
+    <div class="pain-grid">
+      <div class="pain-card rv">
+        <div class="pain-ico"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg></div>
+        <h3>信息散落</h3>
+        <p class="pd">没有统一入口。</p>
+        <ul class="pain-points">
+          <li>各文案各一张台词表</li>
+          <li>需求靠复制粘贴汇总</li>
+        </ul>
+      </div>
+      <div class="pain-card rv">
+        <div class="pain-ico"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+        <h3>100% 手动维护</h3>
+        <p class="pd">全靠手填手算。</p>
+        <ul class="pain-points">
+          <li>句数手填，名字常对不上</li>
+          <li>节假日手动顺延，容易算错</li>
+        </ul>
+      </div>
+      <div class="pain-card rv">
+        <div class="pain-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <h3>进度不透明</h3>
+        <p class="pd">只能靠口头追问。</p>
+        <ul class="pain-points">
+          <li>不知道需求何时能完成</li>
+          <li>不清楚哪些中 / 英配还没约</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 · 一句话 ============ -->
+<section class="slide" id="verdict">
+  <div class="slide-num">03 / 12</div>
+  <div class="wrap">
+    <div class="eyebrow">02 · Bottom line</div>
+    <h2 class="sec">从人肉引擎到自动驾驶</h2>
+    <div class="verdict rv">
+      <p>
+        以前是<b>人在同步数据</b>：复制粘贴、手动推算、群里催收。<br>
+        现在是<b>系统在同步数据</b>：需求、节点、档期、风险自动到位——人只做判断。
+      </p>
+      <div class="by">—— 音频 PM 视角的实测总结</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 · 全景对比 ============ -->
+<section class="slide" id="compare">
+  <div class="slide-num">04 / 12</div>
+  <div class="wrap">
+    <div class="eyebrow">03 · Before / After</div>
+    <h2 class="sec">七个环节，前后对照</h2>
+    <p class="lede">左边是真实的过去（表格《DF音频-Vo》，12 张子表），右边是 Vomi 的做法。</p>
+    <div class="tablewrap rv">
+      <table class="cmp">
+        <thead>
+          <tr><th>环节</th><th>以前</th><th>现在</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>需求收集</td>
+            <td class="bad">每个版本的需求<mark class="y">手动复制粘贴</mark>汇总</td>
+            <td class="good">TAPD 需求<mark class="g">自动同步</mark>进 Vomi</td>
+          </tr>
+          <tr>
+            <td>预估句数</td>
+            <td class="bad">手填，常<mark class="y">名字对不上</mark>（一个角色多个绰号）</td>
+            <td class="good">声优库统一角色名，<mark class="g">由真源算</mark>句数</td>
+          </tr>
+          <tr>
+            <td>声优与选角</td>
+            <td class="bad">表格维护，选角资料<mark class="y">散落在各个群里</mark></td>
+            <td class="good">网页上<mark class="g">直接创建</mark>，文档存进系统</td>
+          </tr>
+          <tr>
+            <td>版本节点</td>
+            <td class="bad">手动推算，节假日<mark class="y">靠人脑排除</mark></td>
+            <td class="good">从版本日历<mark class="g">自动推导</mark>，自动跳过节假日</td>
+          </tr>
+          <tr>
+            <td>台词</td>
+            <td class="bad">每位文案各一张表，需<mark class="y">专人整理</mark></td>
+            <td class="good">每版本<mark class="g">一份台词库总表</mark>，锁后只读</td>
+          </tr>
+          <tr>
+            <td>录制档期</td>
+            <td class="bad">散落表格，<mark class="y">不知需求何时完成</mark></td>
+            <td class="good">表格填档期 → <mark class="g">实时回灌网页</mark>，中英未约一眼可见</td>
+          </tr>
+          <tr>
+            <td>对外协作</td>
+            <td class="bad">在群里<mark class="y">一个个收集</mark></td>
+            <td class="good">一份汇总表，<mark class="g">GA 五语 + 日语</mark>自取</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 · SCENARIO 01 需求汇总 ============ -->
+<section class="slide" id="s1">
+  <div class="slide-num">05 / 12</div>
+  <div class="wrap">
+    <div class="eyebrow">04 · 场景对比</div>
+    <div class="ba-top">
+      <div class="ba-no">SCENARIO 01</div>
+      <h2>VO 需求汇总 · <span class="hl">从表格到网页</span></h2>
+      <p>各版本需求统一管理，告别手动复制粘贴。</p>
+    </div>
+    <div class="ba">
+      <div class="pane before">
+        <div class="pane-top"><span class="badge">—</span><span>BEFORE · Excel 分散管理</span></div>
+        <ul>
+          <li>各版本需求汇总在 Excel 表里</li>
+          <li>每次版本更新手动复制粘贴</li>
+          <li>句数手填，名字常对不上</li>
+        </ul>
+        <div class="shots">
+          <img src="assets/vomi-story/before-demand.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_911980_HwTLwy9LphAs1jgn_1789386633?w=3311&h=1441&type=image/png" alt="旧 VO 需求汇总表"
+               data-cap="旧：VO 需求汇总表，277 行 × 13 列，靠手填与复制粘贴维护">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 1 张现场截图</div>
+        <div class="pane-foot">痛点：信息分散 · 同步慢 · 口径不统一</div>
+      </div>
+      <div class="pane after">
+        <div class="pane-top"><span class="badge">+</span><span>AFTER · Vomi 统一管理</span></div>
+        <ul>
+          <li>所有版本需求统一在 Vomi 展示</li>
+          <li>需求自动汇总，无需复制粘贴</li>
+          <li>与文案在线对齐，减少反复沟通</li>
+        </ul>
+        <div class="shots c2">
+          <img src="assets/vomi-story/after-demand-1.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_769264_zJGvX-zjeI_BafdN_1789386763?w=3429&h=578&type=image/png" alt="Vomi 需求汇总"
+               data-cap="新：Vomi 需求汇总，按版本与 AREA 聚合">
+          <img src="assets/vomi-story/after-demand-2.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_237537_cSfILrLfFt6bX8p9_1789386779?w=3476&h=958&type=image/png" alt="Vomi 需求汇总"
+               data-cap="新：声优库统一角色名，需求句数由此计算">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 2 张现场截图</div>
+        <div class="pane-foot">收益：信息集中 · 自动同步 · 口径统一</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 · SCENARIO 02 声优库 ============ -->
+<section class="slide" id="s2">
+  <div class="slide-num">06 / 12</div>
+  <div class="wrap">
+    <div class="eyebrow">04 · 场景对比</div>
+    <div class="ba-top">
+      <div class="ba-no">SCENARIO 02</div>
+      <h2>声优库管理 · <span class="hl">从群文件到网页档案</span></h2>
+      <p>选角资料集中存储，与需求自动关联。</p>
+    </div>
+    <div class="ba">
+      <div class="pane before">
+        <div class="pane-top"><span class="badge">—</span><span>BEFORE · 群文件散落</span></div>
+        <ul>
+          <li>选角资料散落在各个群里</li>
+          <li>需要时翻聊天记录找文件</li>
+          <li>没有统一的声优档案</li>
+        </ul>
+        <div class="shots c2">
+          <img src="assets/vomi-story/before-talent.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_657630_flwi3yp1-htidg89_1789386877?w=2201&h=1607&type=image/png" alt="旧声优整理表"
+               data-cap="旧：声优整理表，中英文演员 / 地点 / 棚逐格手填">
+          <img src="assets/vomi-story/before-talent-chat.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_437086_6nWJ8qmGsZEFItvs_1789387169?w=611&h=918&type=image/png" alt="选角资料散落在群里"
+               data-cap="旧：选角资料以文件形式散落在群聊里">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 2 张现场截图</div>
+        <div class="pane-foot">痛点：资料分散 · 查找困难 · 无版本管理</div>
+      </div>
+      <div class="pane after">
+        <div class="pane-top"><span class="badge">+</span><span>AFTER · Vomi 网页档案</span></div>
+        <ul>
+          <li>在 Vomi 网页直接创建声优档案</li>
+          <li>选角资料、录音样本集中存储</li>
+          <li>与需求、排期自动关联</li>
+        </ul>
+        <div class="shots c2">
+          <img src="assets/vomi-story/after-talent-1.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_403375_Pm0uHJ8sbMpd1UXj_1789386837?w=574&h=715&type=image/png" alt="Vomi 声优库"
+               data-cap="新：Vomi 声优库，角色信息在网页上直接创建与编辑">
+          <img src="assets/vomi-story/after-talent-2.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_245332_mFXk6dmmTBgTUI1V_1789386847?w=3516&h=849&type=image/png" alt="Vomi 声优库"
+               data-cap="新：声优库列表，一处维护全站引用">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 2 张现场截图</div>
+        <div class="pane-foot">收益：资料集中 · 随时可查 · 与流程打通</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 · SCENARIO 03 版本节点 ============ -->
+<section class="slide" id="s3">
+  <div class="slide-num">07 / 12</div>
+  <div class="wrap">
+    <div class="eyebrow">04 · 场景对比</div>
+    <div class="ba-top">
+      <div class="ba-no">SCENARIO 03</div>
+      <h2>版本节点 &amp; 排期推算 · <span class="hl">从手算到自动</span></h2>
+      <p>时间节点自动拉取，节假日智能排除。</p>
+    </div>
+    <div class="ba">
+      <div class="pane before">
+        <div class="pane-top"><span class="badge">—</span><span>BEFORE · 手动推导</span></div>
+        <ul>
+          <li>版本时间节点靠手动推算</li>
+          <li>要排国内外节假日，计算复杂</li>
+          <li>容易漏算时间窗口</li>
+        </ul>
+        <div class="shots">
+          <img src="assets/vomi-story/before-node.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_210855_Hj3AqViQjBWMqlig_1789386979?w=1588&h=1457&type=image/png" alt="旧版本节点排期"
+               data-cap="旧：版本节点排期，逐周手工填写与推算">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 1 张现场截图</div>
+        <div class="pane-foot">痛点：计算耗时 · 易出错 · 职责不清晰</div>
+      </div>
+      <div class="pane after">
+        <div class="pane-top"><span class="badge">+</span><span>AFTER · Vomi 自动排期</span></div>
+        <ul>
+          <li>节点从版本日历自动拉取</li>
+          <li>自动跳过国内外节假日，倒推零出错</li>
+          <li>关键节点自动提醒、自动预约会议</li>
+        </ul>
+        <div class="shots">
+          <img src="assets/vomi-story/after-node.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_638651_Xu7ebNpOouI1ar28_1789386954?w=3437&h=1768&type=image/png" alt="Vomi 版本节点"
+               data-cap="新：Vomi 版本节点，从版本日历自动推导、自动跳过节假日">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 1 张现场截图</div>
+        <div class="pane-foot">收益：零手算 · 零遗漏 · 职责清晰</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 · SCENARIO 04 台词库总表 ============ -->
+<section class="slide" id="s4">
+  <div class="slide-num">08 / 12</div>
+  <div class="wrap">
+    <div class="eyebrow">04 · 场景对比</div>
+    <div class="ba-top">
+      <div class="ba-no">SCENARIO 04</div>
+      <h2>台词库总表 &amp; 多语言同步 · <span class="hl">从分散到统一</span></h2>
+      <p>统一台词锁，全链路追踪，多语言自动同步。</p>
+    </div>
+    <div class="ba">
+      <div class="pane before">
+        <div class="pane-top"><span class="badge">—</span><span>BEFORE · 分散管理</span></div>
+        <ul>
+          <li>每个文案都有自己的台词表</li>
+          <li>台词散落在不同文档里</li>
+          <li>需专人逐一手动整理汇总</li>
+        </ul>
+        <div class="shots c2">
+          <img src="assets/vomi-story/after-script-1.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_710853_gZO0pAhyHexQr7zh_1789387136?w=898&h=919&type=image/png" alt="旧台词表"
+               data-cap="旧：各文案各自的台词表，格式不一、分散存放">
+          <img src="assets/vomi-story/after-script-2.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_220512_XZobOwr5lr0KhO1u_1789387148?w=886&h=906&type=image/png" alt="旧台词表"
+               data-cap="旧：多语言各自收集、无统一入口">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 2 张现场截图</div>
+        <div class="pane-foot">痛点：1 人专职整理 · 多语言分别收集</div>
+      </div>
+      <div class="pane after">
+        <div class="pane-top"><span class="badge">+</span><span>AFTER · Vomi 统一锁定</span></div>
+        <ul>
+          <li>每个版本只用一份台词库总表</li>
+          <li>台词锁后只读，版本可控</li>
+          <li>全链路追踪：声优 → 句数 → 交付 → 档期</li>
+        </ul>
+        <div class="shots">
+          <img src="assets/vomi-story/before-script.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_93894_imAsgGqat3LCPQ0Y_1789387101?w=3642&h=1902&type=image/png" alt="台词库总表"
+               data-cap="新：台词库总表统一收口、锁后只读，并同步多语言">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 1 张现场截图</div>
+        <div class="pane-foot">收益：零人工整理 · 多语言自动同步</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 · SCENARIO 05 录制档期 ============ -->
+<section class="slide" id="s5">
+  <div class="slide-num">09 / 12</div>
+  <div class="wrap">
+    <div class="eyebrow">04 · 场景对比</div>
+    <div class="ba-top">
+      <div class="ba-no">SCENARIO 05</div>
+      <h2>录制档期追踪 · <span class="hl">从散乱到实时</span></h2>
+      <p>录制档期统一汇总，完成时间一目了然。</p>
+    </div>
+    <div class="ba">
+      <div class="pane before">
+        <div class="pane-top"><span class="badge">—</span><span>BEFORE · 表格散落</span></div>
+        <ul>
+          <li>录制时间填在各个分散的表格里</li>
+          <li>不知道需求最终何时完成</li>
+          <li>不清楚哪些中 / 英配还没约</li>
+        </ul>
+        <div class="shots">
+          <img src="assets/vomi-story/before-schedule.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_725130_Om4LhjPw_FIynNUJ_1789387363?w=2575&h=849&type=image/png" alt="旧声优档期表"
+               data-cap="旧：声优档期表，录制时间逐格手填，全局进度靠人肉统计">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 1 张现场截图</div>
+        <div class="pane-foot">痛点：信息孤岛 · 进度盲区 · 人工汇总</div>
+      </div>
+      <div class="pane after">
+        <div class="pane-top"><span class="badge">+</span><span>AFTER · Vomi 统一档期</span></div>
+        <ul>
+          <li>档期统一填写，实时渲染回网页</li>
+          <li>需求完成时间一目了然</li>
+          <li>中 / 英配未预约自动标出</li>
+        </ul>
+        <div class="shots">
+          <img src="assets/vomi-story/after-schedule.jpg" data-remote="https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1NzI2MTQyNzE4Mg_748428_LqDDcM5WZSwml8BO_1789387189?w=3428&h=1857&type=image/png" alt="Vomi 录制档期"
+               data-cap="新：Vomi 录制档期，按周视图 + 中英进度自动汇总">
+        </div>
+        <div class="shot-hint"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/></svg>点击查看 1 张现场截图</div>
+        <div class="pane-foot">收益：实时同步 · 盲区清零 · 零人工</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 · 谁受益 ============ -->
+<section class="slide" id="roles">
+  <div class="slide-num">10 / 12</div>
+  <div class="wrap">
+    <div class="eyebrow">05 · 受益角色</div>
+    <h2 class="sec">谁从中 <span class="hl">受益</span></h2>
+    <p class="lede">让每个角色都少做重复劳动，只需跟 Vomi 的节奏着跑。</p>
+    <div class="role-grid">
+      <div class="role-card rv">
+        <div class="r-head">
+          <div class="r-avatar">🎧</div>
+          <div><div class="r-name">音频 PM</div><div class="r-role">从人肉引擎到自动驾驶</div></div>
+        </div>
+        <div class="r-gain"><b>零手动维护</b>：需求、声优、排期、台词、档期全在网页。<br><b>自动提醒</b>：关键节点自动提醒并预约会议。</div>
+      </div>
+      <div class="role-card rv">
+        <div class="r-head">
+          <div class="r-avatar">🎙️</div>
+          <div><div class="r-name">音频同学</div><div class="r-role">从拼车问路到专车直达</div></div>
+        </div>
+        <div class="r-gain"><b>省去专人整理台词</b>：锁定后自动汇总。<br><b>档期实时可见</b>：预约与完成时间一目了然。</div>
+      </div>
+      <div class="role-card rv">
+        <div class="r-head">
+          <div class="r-avatar">📝</div>
+          <div><div class="r-name">文案 / 需求策划</div><div class="r-role">从盲区行驶到路牌导航</div></div>
+        </div>
+        <div class="r-gain"><b>录制时间直观</b>：中英配分别何时录制，网页直接看。<br><b>进度透明</b>：需求在哪个阶段随时可查。</div>
+      </div>
+      <div class="role-card rv">
+        <div class="r-head">
+          <div class="r-avatar">🌐</div>
+          <div><div class="r-name">合作方 / 多语言</div><div class="r-role">从追着问到看着走</div></div>
+        </div>
+        <div class="r-gain"><b>零沟通成本</b>：GA 五语 + 日语看汇总表自取。<br><b>风险可见</b>：进度一目了然。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 · 总结 ============ -->
+<section class="slide" id="summary">
+  <div class="slide-num">11 / 12</div>
+  <div class="wrap">
+    <div class="summary-card rv">
+      <div class="sum-ico"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <h2>信息透明 · 集中管理 · 省人省心</h2>
+      <p class="sum-desc">VO 全流程从需求到交付，在线化、自动化、透明化。</p>
+      <div class="sum-stats">
+        <div class="sum-item">
+          <div class="si-no">01</div>
+          <div class="si-title">信息透明</div>
+          <div class="si-desc">需求、排期、台词、档期实时可见，不靠私下沟通</div>
+        </div>
+        <div class="sum-item">
+          <div class="si-no">02</div>
+          <div class="si-title">集中管理</div>
+          <div class="si-desc">需求到交付全链路闭环，零表格散落</div>
+        </div>
+        <div class="sum-item">
+          <div class="si-no">03</div>
+          <div class="si-title">省人省心</div>
+          <div class="si-desc">省去整理台词、推算节点、反复同步进度等重复劳动；2000 万 Vo 预算花在刀刃上</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12 · 结束 ============ -->
+<section class="slide end" id="end">
+  <div class="slide-num">12 / 12</div>
+  <div class="wrap">
+    <div class="end-slogan rv">
+      <h1>包办 Vo，Mi 来打理</h1>
+      <div class="end-sub">Vomi · Delta Force 音频 VO 工作流</div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /deck -->
+
+<!-- ============ 页脚 ============ -->
+<footer>
+  <div class="wrap">
+    <div class="fl">
+      <a href="http://lycheelli-any1.devcloud.woa.com/vo-manager-refined.html#calendar/Yang1.0" target="_blank" rel="noopener">打开 Vomi 站点 →</a>
+      <span>需求 / 台词 / 声优 / 档期 / 版本节点，一站可达</span>
+    </div>
+    <div class="note">
+      资料来源：工作记录文档《Vomi 助力》、旧流程表格《DF音频-Vo》（12 张子表）、线上系统 Vomi（VO Manager）。<br>
+      页面截图均来自真实工作记录。
+    </div>
+  </div>
+</footer>
+
+<!-- ============ 灯箱 ============ -->
+<div class="lb" id="lb">
+  <span class="x" id="lbx">✕</span>
+  <button class="nav prev" id="lbp" aria-label="上一张">‹</button>
+  <img id="lbi" src="" alt="">
+  <button class="nav next" id="lbn" aria-label="下一张">›</button>
+  <div class="cap2" id="lbc"></div>
+  <div class="cnt" id="lbcount"></div>
+</div>
+
+<script>
+(function(){
+  // 图片兜底：本地 assets 缺失时回落到企微图床原图
+  document.addEventListener('error', function(e){
+    var t = e.target;
+    if (t && t.tagName === 'IMG' && !t.dataset.fb) {
+      var remote = t.getAttribute('data-remote');
+      if (remote) { t.dataset.fb = '1'; t.src = remote; }
+    }
+  }, true);
+
+  // 入场
+  var rvs = document.querySelectorAll('.rv');
+  if (window.IntersectionObserver) {
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+    rvs.forEach(function(el){ io.observe(el); });
+  } else {
+    rvs.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  // 灯箱：点面板 → 弹出该面板的现场截图（多张时左右可翻）
+  var lb = document.getElementById('lb'),
+      lbi = document.getElementById('lbi'),
+      lbc = document.getElementById('lbc'),
+      lbcnt = document.getElementById('lbcount'),
+      lbp = document.getElementById('lbp'),
+      lbn = document.getElementById('lbn');
+  var group = [], gi = 0;
+
+  function render(){
+    var it = group[gi];
+    lbi.dataset.fb = '';
+    lbi.setAttribute('data-remote', it.remote || '');
+    lbi.alt = it.alt || '';
+    lbi.src = it.src;
+    lbc.textContent = it.cap || '';
+    lbcnt.textContent = group.length > 1 ? (gi + 1) + ' / ' + group.length : '';
+    lbp.classList.toggle('on', group.length > 1);
+    lbn.classList.toggle('on', group.length > 1);
+  }
+  function open(g){
+    group = g; gi = 0; render();
+    lb.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    lb.classList.remove('on'); lbi.removeAttribute('src');
+    document.body.style.overflow = '';
+  }
+  function step(d){
+    if (group.length < 2) return;
+    gi = (gi + d + group.length) % group.length;
+    render();
+  }
+
+  document.addEventListener('click', function(e){
+    var pane = e.target.closest ? e.target.closest('.pane') : null;
+    if (pane) {
+      var imgs = pane.querySelectorAll('.shots img');
+      if (!imgs.length) return;
+      var g = [];
+      for (var i = 0; i < imgs.length; i++) {
+        g.push({
+          src: imgs[i].getAttribute('src') || '',
+          remote: imgs[i].getAttribute('data-remote') || '',
+          alt: imgs[i].getAttribute('alt') || '',
+          cap: imgs[i].getAttribute('data-cap') || ''
+        });
+      }
+      open(g);
+      return;
+    }
+    if (e.target === lb || e.target.id === 'lbx') close();
+    if (e.target.id === 'lbp') step(-1);
+    if (e.target.id === 'lbn') step(1);
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (!lb.classList.contains('on')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+})();
+</script>
+</body>
+</html>

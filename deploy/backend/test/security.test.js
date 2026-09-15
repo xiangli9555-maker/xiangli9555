@@ -18,7 +18,16 @@ process.env.API_TOKENS_JSON = JSON.stringify([
   { token: TOKENS.admin, subject: 'admin-user', role: 'admin' },
 ]);
 
-const { apiAuth, corsGuard, methodRbac, secureHeaders } = require('../src/security');
+const {
+  apiAuth,
+  checkOwnerKey,
+  corsGuard,
+  issueOwnerToken,
+  methodRbac,
+  OWNER_SUBJECT,
+  secureHeaders,
+  verifyOwnerToken,
+} = require('../src/security');
 
 function responseMock() {
   return {
@@ -32,18 +41,59 @@ function responseMock() {
   };
 }
 
-function authenticate(token) {
-  const req = { headers: { authorization: `Bearer ${token}` } };
+function authenticate(token, extraHeaders) {
+  const req = { headers: { authorization: `Bearer ${token}`, ...(extraHeaders || {}) } };
   const res = responseMock();
   let passed = false;
   apiAuth(req, res, () => { passed = true; });
   return { req, res, passed };
 }
 
-test('open-access mode resolves every request as admin', () => {
-  const { req, passed } = authenticate('not-valid');
+// 2026-09-14：站点默认只读，只有 lycheelli 的编辑令牌才能写。
+test('anonymous request resolves as read-only visitor', () => {
+  const req = { headers: {} };
+  const res = responseMock();
+  let passed = false;
+  apiAuth(req, res, () => { passed = true; });
   assert.equal(passed, true);
-  assert.deepEqual(req.auth, { subject: 'open-access', role: 'admin' });
+  assert.equal(req.auth.role, 'viewer');
+  assert.equal(req.auth.subject, 'visitor');
+});
+
+test('guest share header resolves as viewer', () => {
+  const { req } = authenticate('', { 'x-vomi-role': 'guest' });
+  assert.equal(req.auth.role, 'viewer');
+  assert.equal(req.auth.subject, 'guest');
+});
+
+test('owner session token elevates to admin and is tamper proof', () => {
+  const token = issueOwnerToken(OWNER_SUBJECT);
+  assert.equal(verifyOwnerToken(token), OWNER_SUBJECT);
+  assert.equal(verifyOwnerToken(`${token}x`), null);
+  assert.equal(verifyOwnerToken('garbage.signature'), null);
+  assert.equal(verifyOwnerToken(''), null);
+
+  const { req } = authenticate('', { 'x-vomi-editor': token });
+  assert.equal(req.auth.role, 'admin');
+  assert.equal(req.auth.subject, OWNER_SUBJECT);
+  assert.equal(req.auth.via, 'owner-session');
+});
+
+test('expired owner session token is rejected', () => {
+  const token = issueOwnerToken(OWNER_SUBJECT, -1000);
+  assert.equal(verifyOwnerToken(token), null);
+});
+
+test('owner key check accepts configured key only', () => {
+  assert.equal(checkOwnerKey('vomi-owner-2026'), true);
+  assert.equal(checkOwnerKey('nope'), false);
+  assert.equal(checkOwnerKey(''), false);
+});
+
+test('service bearer token keeps its own role', () => {
+  const { req } = authenticate(TOKENS.editor);
+  assert.equal(req.auth.role, 'editor');
+  assert.equal(req.auth.subject, 'editor-user');
 });
 
 test('viewer role guard still blocks writes when called directly', () => {

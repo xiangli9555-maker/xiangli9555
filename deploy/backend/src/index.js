@@ -11,13 +11,17 @@ const releasePlan = require('./releasePlan');
 const { reconcileMissingTapdDemands } = require('./tapd_snapshot_sync');
 const {
   apiAuth,
+  checkOwnerKey,
   corsGuard,
+  issueOwnerToken,
   methodRbac,
+  OWNER_SUBJECT,
   positiveInt,
   publicError,
   rateLimit,
   requireRole,
   secureHeaders,
+  verifyOwnerToken,
 } = require('./security');
 const { pullLiveDemands, isLiveReady } = require('./tapd_live');
 const voiceEstimates = require('./voice_estimates');
@@ -30,10 +34,28 @@ app.use(secureHeaders);
 app.use(corsGuard);
 app.use(rateLimit({ windowMs: 60_000, max: Number(process.env.RATE_LIMIT_PER_MINUTE || 180) }));
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '2mb', strict: true }));
-app.use('/api', (req, res, next) => req.path === '/health' ? next() : apiAuth(req, res, next));
-app.use('/api', (req, res, next) => req.path === '/health' ? next() : methodRbac(req, res, next));
+// 这两个路径必须绕过写权限中间件：health 是探活，session/unlock 是「只读 → 申请编辑权限」的入口，
+// 否则只读访客连申请权限的请求都会被 403。
+const PUBLIC_API_PATHS = new Set(['/health', '/session/unlock']);
+app.use('/api', (req, res, next) => PUBLIC_API_PATHS.has(req.path) ? next() : apiAuth(req, res, next));
+app.use('/api', (req, res, next) => PUBLIC_API_PATHS.has(req.path) ? next() : methodRbac(req, res, next));
 app.use('/audio', apiAuth, requireRole('viewer'));
-app.get('/api/auth/me', (req, res) => res.json({ ok:true, user:req.auth.subject, role:req.auth.role }));
+app.get('/api/auth/me', (req, res) => res.json({
+  ok: true,
+  user: req.auth.subject,
+  role: req.auth.role,
+  canEdit: req.auth.role === 'admin' || req.auth.role === 'editor',
+  applyTo: (req.auth.role === 'admin' || req.auth.role === 'editor') ? null : OWNER_SUBJECT,
+}));
+
+// 编辑权限解锁：提交编辑口令 → 返回签名令牌（前端存 localStorage，之后带 X-Vomi-Editor）
+app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), (req, res) => {
+  const key = String((req.body && req.body.key) || '');
+  if (!checkOwnerKey(key)) {
+    return res.status(401).json({ ok: false, error: 'bad_key', message: `口令不正确，请找 ${OWNER_SUBJECT} 索取` });
+  }
+  res.json({ ok: true, subject: OWNER_SUBJECT, token: issueOwnerToken(OWNER_SUBJECT), expiresIn: 30 * 24 * 3600 });
+});
 
 // 音频文件上传 · 存 /data/audio
 const AUDIO_DIR = process.env.AUDIO_DIR || '/data/audio';

@@ -68,22 +68,32 @@ test('cleanTitle 剥【】后与 build_snapshot.py clean_title 同口径（折�
   assert.equal(items[0].task_name, '蜂医小屋 专属交互物', '多空白应折叠为单空格并去首尾');
 });
 
-test('toSnapshotItems task_name 剥空/「-」时回退父需求名（Cutscene 子单）', () => {
+test('toSnapshotItems task_name 剥空/「-」时读【】内全部内容（Cutscene 子单 · PM 2026-09-15 口径）', () => {
   const stories = [
     // 父需求（needParents=1 附带，type=父需求 不会作为独立行产出）
     { id: '1020421949137284414', parent_id: '0', name: '【手游|PC|主机】【父需求】【Cutscene】【SOL】【场景：大坝】【Yang1版本赛季任务演绎桥段】 - 音频制作', type: '父需求', status: 'new', release_id: null },
-    // 子单：标题全是【】标签，剥后残留「-」→ 回退父名
+    // 子单：标题全是【】标签，剥后残留「-」→ 读【】内全部内容（剔除角色拆分标签）
     { id: '1020421949137999994', parent_id: '1020421949137284414', name: '【手游|PC|主机】【音频】【Cutscene】【SOL】【场景：大坝】【Yang1版本赛季任务演绎桥段】 - 【Vo.语音-中】', type: '音频', status: 'new', release_id: YANG1 },
   ];
   const items = toSnapshotItems(stories);
   assert.equal(items.length, 1, '父需求不应产出独立行');
-  assert.equal(items[0].task_name, '音频制作', '剥空后应回退父需求名（去【】+首尾分隔符）');
+  assert.equal(items[0].task_name, '手游|PC|主机 音频 Cutscene SOL 场景：大坝 Yang1版本赛季任务演绎桥段', '剥空后应读【】内全部内容并剔除角色拆分标签');
 });
 
-test('toSnapshotItems task_name 剥空且无父需求名时保留「-」', () => {
+test('toSnapshotItems task_name 剥空且【】内仅角色标签时回退父需求名', () => {
+  const stories = [
+    { id: '1020421949137284414', parent_id: '0', name: '【手游|PC|主机】【父需求】【Cutscene】【SOL】【场景：大坝】【Yang1版本赛季任务演绎桥段】 - 音频制作', type: '父需求', status: 'new', release_id: null },
+    { id: '1020421949137999996', parent_id: '1020421949137284414', name: '【语音-中】', type: '音频', status: 'new', release_id: YANG1 },
+  ];
+  const items = toSnapshotItems(stories);
+  assert.equal(items.length, 1, '父需求不应产出独立行');
+  assert.equal(items[0].task_name, '音频制作', '【】内仅剩角色标签时应回退父需求名（去【】+首尾分隔符）');
+});
+
+test('toSnapshotItems task_name 剥空、【】仅角色标签且无父需求名时保留「-」', () => {
   const items = toSnapshotItems([
-    { id: '1020421949137999993', parent_id: '1020421949139999999', name: '【音频】【语音-中】【Cutscene】', type: '音频', status: 'new', release_id: YANG1 },
+    { id: '1020421949137999993', parent_id: '1020421949139999999', name: '【语音-中】【台词-中】', type: '音频', status: 'new', release_id: YANG1 },
   ]);
   assert.equal(items.length, 1);
-  assert.equal(items[0].task_name, '-', '无父需求名可回退时应保留「-」');
+  assert.equal(items[0].task_name, '-', '无父需求名且【】无可读内容时应保留「-」');
 });

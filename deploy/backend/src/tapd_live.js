@@ -40,6 +40,28 @@ function cleanTitle(name) {
   return n.replace(/\s+/g, ' ').trim();
 }
 
+// 兜底：剥【】后为空/「-」（Cutscene 子单标题几乎全是【】标签，正文为空）→ 读取【】内的全部内容作为标题。
+// 口径（PM 2026-09-15）：标题读全，只剔除角色/工种拆分标签（语音-x / 台词-x / 选角 / Vo.语音-x / 音效 / bgm），
+// 其余描述性标签按出现顺序空格连接。例：
+//   「【手游|PC】【音频】【Cutscene】【玩法：大战场/SOL】【零号大坝】【MA5跨年烟花秀】【Sequence】 - 【台词-中】」
+//     → 「手游|PC 音频 Cutscene 玩法：大战场/SOL 零号大坝 MA5跨年烟花秀 Sequence」
+const ROLE_TAG_HEAD = '(?:语音|台词|选角|Vo\\.?|VO|音效|bgm音乐|BGM)';
+function isRoleTag(seg) {
+  return new RegExp('^' + ROLE_TAG_HEAD, 'i').test(String(seg || ''));
+}
+function bracketTitle(name) {
+  const raw = String(name || '');
+  const re = new RegExp(B_OPEN + '([^' + B_CLOSE + ']*)' + B_CLOSE, 'g');
+  const parts = [];
+  let m;
+  while ((m = re.exec(raw)) !== null) {
+    const seg = String(m[1] || '').trim();
+    if (!seg || isRoleTag(seg)) continue;
+    parts.push(seg);
+  }
+  return parts.join(' ').replace(/\s{2,}/g, ' ').trim();
+}
+
 // 父需求名兜底清洗：在 cleanTitle 基础上再剥首尾分隔符（- — – 及空白）。
 // 父名剥【】后常残留「- 音频制作」这类悬空前缀，去掉后更接近正文（与前端 cleanTaskName 同口径）。
 function cleanParentName(name) {
@@ -116,8 +138,10 @@ function toSnapshotItems(stories) {
     const rel = RELEASE_MAP[String(s.release_id)] || '';
     if (!rel) continue; // 不在关注版本内（如 Yang2 尚未纳入）则跳过
 
-    // task_name：剥【】后可能为空或「-」（Cutscene 子单标题全是【】标签）；此时回退显示父需求名
+    // task_name：剥【】后可能为空或「-」（Cutscene 子单标题全是【】标签）；
+    //   ① 先读【】内的全部内容（剔除角色拆分标签）② 再回退父需求名 ③ 最后 '-'
     let taskName = cleanTitle(name);
+    if (!taskName || taskName === '-') taskName = bracketTitle(name);
     if (!taskName || taskName === '-') {
       const pname = parentNameById.get(pid);
       if (pname && String(pname).trim()) {

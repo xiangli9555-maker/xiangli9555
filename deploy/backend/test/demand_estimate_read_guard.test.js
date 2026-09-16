@@ -76,7 +76,7 @@ function harness() {
   run(block('let allDemands = [];', "const RELEASE_SCOPE_START =") + '\n' +
       // 2026-09-16：声优预估门禁改为「声优锁当天 18:00」，需把版本节点引擎与门禁函数一并载入沙箱。
       block('// 双 DDL 与版本节点页共用同一份节假日及调休数据。', 'async function loadReleasePlans()') + '\n' +
-      block('// ★ 声优预估编辑门禁（PM 定稿 2026-09-16）', 'function renderDualDdl') + '\n' +
+      block('// 验证周口径（2026-09-16 PM）', 'function renderDualDdl') + '\n' +
       block("const VE_CATEGORIES=", "document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('veCategoryPopover')") + '\n' +
       block('async function loadDemands(){', '// 「从 TAPD 刷新」'));
   // 默认给一个「声优锁尚未到」的版本节点（远期 dev.end），使预估处于可编辑窗口。

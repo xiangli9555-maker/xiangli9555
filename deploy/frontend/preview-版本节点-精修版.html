@@ -918,7 +918,15 @@ function computeEvents(){
   for(const v of VERSIONS){
     const devPh = v.phases.find(p=>p.type==='dev');
     if(!devPh) continue;
-    const devEnd = d(devPh.end);
+    // 验证周口径（2026-09-16 PM）：DFAI 把「验证周」拆在 dev.end 与 test.start 之间，节点计算时视同开发周
+    // → 有效开发结束日 = test.start 前一天（空档 2~29 天才扩展，防脏数据）。
+    let devEnd = d(devPh.end);
+    const testPh = v.phases.find(p=>p.type==='test');
+    if(testPh && testPh.start){
+      const ts = d(testPh.start);
+      const gapDays = Math.round((ts - devEnd)/86400000);
+      if(gapDays > 1 && gapDays <= 29) devEnd = new Date(ts.getTime()-86400000);
+    }
     // Vo需求锁：默认按 "dev最后周含当周向前第11有效周周一" 计算；
     // 若在 VO_NEED_LOCK_OVERRIDE 里为该版本 id 显式声明 override（YYYY-MM-DD），则用 override（PM 手动锚定，跳过公式）
     const overrideIso = v.voNeedLockOverride || VO_NEED_LOCK_OVERRIDE[v.id] || '';

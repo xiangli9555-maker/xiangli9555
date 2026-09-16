@@ -156,8 +156,21 @@
     return addDays(week, 4);
   }
 
+  // 验证周口径（2026-09-16 PM）：dev.end 与 test.start 之间的验证周视同开发周，
+  // 有效开发结束日 = test.start 前一天（空档 2~29 天才扩展，防脏数据）。
+  function effectiveDevEnd(phases){
+    const raw = parseDay(phases && phases.dev && phases.dev.end);
+    if(!raw) return null;
+    const testStart = parseDay(phases && phases.test && phases.test.start);
+    if(testStart){
+      const gapDays = Math.round((testStart - raw)/86400000);
+      if(gapDays > 1 && gapDays <= 29) return new Date(testStart.getTime() - 86400000);
+    }
+    return raw;
+  }
+
   function vomiMilestones(plan, holidayCalendar){
-    const devEnd = parseDay(plan && plan.phases && plan.phases.dev && plan.phases.dev.end);
+    const devEnd = effectiveDevEnd(plan && plan.phases);
     if(!devEnd) return [];
     const demandLock = nthValidWeekBackwardInclusive(devEnd, 11, holidayCalendar);
     const talentLock = addDays(shiftValidWeeksAfter(demandLock, 3, holidayCalendar), 3);

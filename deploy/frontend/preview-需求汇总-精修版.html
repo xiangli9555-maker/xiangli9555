@@ -1000,10 +1000,22 @@ async function loadReleasePlans(){
 //   声优锁 = 锁周之后第3个有效周 周四11:30
 //   台词锁 = 声优锁周之后第2个有效周 周四11:30（文案DDL）
 //   VO资源交付 = 开发倒数第二周周五；该周无效则提前至前一个有效周周五
+// 验证周口径（2026-09-16 PM）：DFAI 把「验证周」从开发期拆出，落在 dev.end 与 test.start 之间；
+// 节点计算时验证周视同开发周 → 有效开发结束日 = test.start 前一天（空档 2~29 天才扩展，防脏数据）。
+function ddlEffectiveDevEnd(ph){
+  if(!ph||!ph.dev||!ph.dev.end) return null;
+  let end=ddlDate(ph.dev.end);
+  const ts=(ph.test&&ph.test.start)?ddlDate(ph.test.start):null;
+  if(ts){
+    const gapDays=Math.round((ts-end)/86400000);
+    if(gapDays>1&&gapDays<=29) end=new Date(ts.getTime()-86400000);
+  }
+  return end;
+}
 function scriptLockAt(release){
   const plan=findReleasePlan(release), ph=plan&&plan.phases;
   if(!ph||!ph.dev||!ph.dev.end) return null;
-  const devEnd=ddlDate(ph.dev.end);
+  const devEnd=ddlEffectiveDevEnd(ph);
   const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
   const estimateThu=ddlThursday(ddlShiftValidWeeksAfter(lockDay,3));
   const scriptThu=ddlThursday(ddlShiftValidWeeksAfter(estimateThu,2));
@@ -1020,7 +1032,7 @@ function isScriptLocked(release, now=new Date()){
 function estimateLockAt(release){
   const plan=findReleasePlan(release), ph=plan&&plan.phases;
   if(!ph||!ph.dev||!ph.dev.end) return null;
-  const devEnd=ddlDate(ph.dev.end);
+  const devEnd=ddlEffectiveDevEnd(ph);
   const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
   const estimateThu=ddlThursday(ddlShiftValidWeeksAfter(lockDay,3));
   const at=new Date(estimateThu); at.setHours(18,0,0,0);
@@ -1041,7 +1053,7 @@ function renderDualDdl(release){
   if(!copyEl||!voEl) return;
   const plan=findReleasePlan(release), ph=plan&&plan.phases;
   if(!ph||!ph.dev||!ph.dev.end){ copyEl.textContent=voEl.textContent='—'; copyDate.textContent=voDate.textContent='无匹配版本节点'; return; }
-  const devEnd=ddlDate(ph.dev.end);
+  const devEnd=ddlEffectiveDevEnd(ph);
   const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
   const estimateThu=ddlThursday(ddlShiftValidWeeksAfter(lockDay,3));
   const scriptThu=ddlThursday(ddlShiftValidWeeksAfter(estimateThu,2));

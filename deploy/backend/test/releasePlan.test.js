@@ -565,3 +565,24 @@ test('外壳收起态为 Logo、折叠按钮和后续品牌信息预留安全间
     );
   });
 });
+
+// ── 验证周口径守卫（2026-09-16 PM）：dev.end 与 test.start 之间的验证周视同开发周 ──
+// 有效开发结束日 = test.start 前一天（空档 2~29 天才扩展，防脏数据）。节点公式所有落点必须走该口径。
+test('验证周口径：三处节点计算与自动化脚本均按 test.start-1 扩展开发结束日', () => {
+  const demand = readProjectFile('preview-需求汇总-精修版.html');
+  assert.equal(/function ddlEffectiveDevEnd\(ph\)\{/.test(demand), true, '需求汇总页缺少 ddlEffectiveDevEnd 助手');
+  assert.equal(/const devEnd=ddlEffectiveDevEnd\(ph\);/.test(demand), true, '需求汇总页存在未走验证周口径的 devEnd 计算');
+  assert.equal(/ddlDate\(ph\.dev\.end\);\s*\n\s*const lockDay=ddlNthValidWeekBackwardInclusive/.test(demand), false, '需求汇总页 scriptLockAt/estimateLockAt 仍在裸用 ph.dev.end');
+
+  const node = readProjectFile('preview-版本节点-精修版.html');
+  assert.equal(/验证周口径（2026-09-16 PM）[\s\S]{0,400}if\(gapDays > 1 && gapDays <= 29\) devEnd = new Date\(ts\.getTime\(\)-86400000\);/.test(node), true, '版本节点页 computeEvents 未并入验证周');
+
+  const calendar = readProjectFile('assets/release-calendar.js');
+  assert.equal(/function effectiveDevEnd\(phases\)\{/.test(calendar), true, 'release-calendar.js 缺少 effectiveDevEnd');
+  assert.equal(/const devEnd = effectiveDevEnd\(plan && plan\.phases\);/.test(calendar), true, 'release-calendar.js vomiMilestones 未走验证周口径');
+
+  const syncSrc = readProjectFile('.workbuddy/automations/automation-1787028270062/sync.js');
+  assert.equal(/验证周口径/.test(syncSrc) && /devEndIso = `/.test(syncSrc), true, '录制定档 sync.js 未并入验证周');
+  const checkSrc = readProjectFile('.workbuddy/automations/automation-1787028270062/check.js');
+  assert.equal(/验证周口径/.test(checkSrc) && /devEndIso=`/.test(checkSrc), true, '录制定档 check.js 未并入验证周');
+});

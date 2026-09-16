@@ -586,3 +586,17 @@ test('验证周口径：三处节点计算与自动化脚本均按 test.start-1 
   const checkSrc = readProjectFile('.workbuddy/automations/automation-1787028270062/check.js');
   assert.equal(/验证周口径/.test(checkSrc) && /devEndIso=`/.test(checkSrc), true, '录制定档 check.js 未并入验证周');
 });
+
+// ── 点事件归属去重守卫（2026-09-16 PM）：一个节点只画在一个里程碑行 ──
+// 背景：Ma5 海外发布周 11.9-11.15 与 Yang1 开发 W1 同期，台词锁 11.11 曾两行各画一次。
+test('节点归属去重：版本节点页点事件按自身版本行优先，避免同一节点跨行重复渲染', () => {
+  const node = readProjectFile('preview-版本节点-精修版.html');
+  assert.equal(/const ownerCoversPoint = \(ev\) => \{/.test(node), true, '版本节点页缺少 ownerCoversPoint 去重助手');
+  assert.equal(/if\(ownerCoversPoint\(ev\)\) return ver\.id === ev\.forVer;/.test(node), true, '点事件筛选未走自身版本行优先');
+  // 旧逻辑（只按 phase 时段筛选）必须被收口，不能单独留下
+  assert.equal(
+    /\/\/ 点事件按落在本 phase 时段筛选（会议往前推的落到上一版本行）\s*\n\s*return ev\.date >= phStart2 && ev\.date <= phEnd2;/.test(node),
+    false,
+    '版本节点页仍存在未去重的点事件筛选分支',
+  );
+});

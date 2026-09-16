@@ -1239,6 +1239,20 @@ function renderTimeline(){
     }
   }
 
+  // 点事件归属去重（2026-09-16）：一个节点只画在一个里程碑行。
+  // 背景：Ma5 海外发布周 11.9-11.15 与 Yang1 开发 W1 11.9-11.15 是同一日历周（数据源真实重叠），
+  // 台词锁 11.11 曾同时落在 Ma5 行与 Yang1 行 → 重复渲染两次。
+  // 规则：自身版本行在本次渲染范围内、且事件日期落在自身版本 phase 总跨度内 → 只归属自身版本行；
+  //      自身行不覆盖（需求锁/声优锁往前推，落在上一版本时段）→ 回退到 phase 覆盖该日期的行。
+  const renderedVerIds = new Set(vers.map(v=>v.id));
+  const ownerCoversPoint = (ev) => {
+    if(!renderedVerIds.has(ev.forVer)) return false;
+    const ov = vers.find(v=>v.id===ev.forVer) || (typeof VERSIONS!=='undefined' ? VERSIONS.find(v=>v.id===ev.forVer) : null);
+    if(!ov || !ov.phases || !ov.phases.length || !ev.date) return false;
+    const s = d(ov.phases[0].start), e = d(ov.phases[ov.phases.length-1].end);
+    return ev.date >= s && ev.date <= e;
+  };
+
   for(let vi=0; vi<vers.length; vi++){
     const ver = vers[vi];
     const relYear = verYears[vi];
@@ -1346,7 +1360,8 @@ function renderTimeline(){
           // 区间事件仅归属其自身版本（forVer 对齐当前 ver 行），避免跨版本行泛滥
           return ev.forVer === ver.id;
         }
-        // 点事件按落在本 phase 时段筛选（会议往前推的落到上一版本行）
+        // 点事件：自身版本行覆盖该日期 → 只画在自身版本行（去重）；否则按落在本 phase 时段筛选（会议往前推的落到上一版本行）
+        if(ownerCoversPoint(ev)) return ver.id === ev.forVer;
         return ev.date >= phStart2 && ev.date <= phEnd2;
       });
       // 节假日标签：所有与节假日相交的周一律显示黄框标签（即便当周有会议/节点，也不计入事项/时间）

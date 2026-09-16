@@ -222,8 +222,9 @@ for (const [index, page] of demandPages.entries()) {
     assert.equal(/\.page-title \.deadline-meta/.test(page), false, '不应再保留 .page-title .deadline-meta CSS');
   });
 
-  test(`需求汇总页 ${index + 1} 空数据行跨越真实 15 列（6 类直接编辑）`, () => {
-    assert.equal(/<td colspan="15"[^>]*>[\s\S]{0,160}当前筛选下无数据/.test(page), true, '空数据行未使用真实 15 列');
+  // 2026-09-16：状态列随「取消状态维护」移除，总列数 15 → 14
+  test(`需求汇总页 ${index + 1} 空数据行跨越真实 14 列（6 类直接编辑）`, () => {
+    assert.equal(/<td colspan="14"[^>]*>[\s\S]{0,160}当前筛选下无数据/.test(page), true, '空数据行未使用真实 14 列');
     assert.equal(/<th colspan="6" class="sortable th-ve-group"/.test(page), true, '声优预估组应覆盖与声优库一致的 6 大类');
     assert.doesNotMatch(page, /class="th-ve-edit|class="col-ve-edit|class="ve-edit-btn/, '不应保留独立编辑列');
   });
@@ -266,9 +267,11 @@ for (const [index, page] of demandPages.entries()) {
   });
 
   test(`需求汇总页 ${index + 1} 历史归档 STATUS 行 → RELEASE chip 行（2026-09-04 方案 A）`, () => {
-    // 1) 两个筛选行都存在，releaseRow 默认隐藏
+    // 1) releaseRow 默认隐藏；STATUS 筛选行已随状态维护取消而移除（2026-09-16）
     // 2026-09-14：同上，容忍标签内 data-page-node-id 等额外属性。
-    assert.equal(/<div class="filter-row status-row" id="statusRow"[^>]*>/.test(page), true, '缺少 STATUS 筛选行');
+    // 2026-09-16：状态流转只在 TAPD，页面不再维护 5 态状态 → statusRow 与状态 chip 一并删除。
+    assert.equal(/<div class="filter-row status-row" id="statusRow"/.test(page), false, 'STATUS 筛选行应随状态维护取消而移除');
+    assert.equal(/data-fk="status"/.test(page), false, '不应再保留 data-fk="status" 状态筛选 chip');
     assert.equal(/id="releaseRow"[^>]*style="display:none"/.test(page), true, '缺少默认隐藏的 RELEASE 筛选行');
     assert.equal(/data-fk="archive-rel" data-fv=""[^>]*>全部/.test(page), true, 'RELEASE 行缺少「全部」chip');
     // 2) 局部子筛选变量 + 持久化字段
@@ -276,7 +279,8 @@ for (const [index, page] of demandPages.entries()) {
     assert.equal(/archiveRelease:archiveSubRelease/.test(page), true, 'saveFilters 未持久化 archiveRelease');
     // 3) 渲染函数 + 行切换逻辑
     assert.equal(/function renderReleaseChips\(\)\{/.test(page), true, '缺少 renderReleaseChips 渲染函数');
-    assert.equal(/statusRow\.style\.display = inArchive \? 'none' : ''/.test(page), true, 'renderReleaseChips 未隐藏 STATUS 行');
+    // 2026-09-16：STATUS 行已移除，renderReleaseChips 不再切换 statusRow
+    assert.equal(/statusRow\.style\.display/.test(page), false, 'renderReleaseChips 不应再操作已删除的 STATUS 行');
     assert.equal(/releaseRow\.style\.display = inArchive \? '' : 'none'/.test(page), true, 'renderReleaseChips 未显示 RELEASE 行');
     // 4) 匹配过滤与点击处理
     assert.equal(/if\(archiveSubRelease && normRelease\(d\.release_plan\) !== normRelease\(archiveSubRelease\)\) return false/.test(page), true, 'matchFilter 未按 archiveSubRelease 过滤');

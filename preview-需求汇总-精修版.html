@@ -548,6 +548,8 @@ body.embed .mid{width:100%}
   .release-summary-row .rp-tag,.release-summary-row .area{color:var(--c-text);font-weight:600}
   .release-summary-row .creator-cell,.release-summary-row .max-date-cell{color:var(--c-text)}
   .release-summary-story{color:var(--c-text);font-weight:600;letter-spacing:.1px;white-space:normal;line-height:1.5}
+  /* 2026-09-16：台词库入口移入汇总行 Story 单元格（与「· N 条需求」同排） */
+  .release-summary-story .release-library-link{margin-left:8px;vertical-align:middle}
   .release-summary-link{color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:color .12s ease,border-color .12s ease}
   .release-summary-link:hover{color:var(--c-primary);border-bottom-color:var(--c-primary)}
   .release-summary-meta{display:block;margin-top:4px;font-size:12px;color:var(--c-text-2);font-weight:500}
@@ -738,7 +740,8 @@ body.embed .mid{width:100%}
         <div class="kpi-value" data-page-node-id="b1dSAkCwT7egpMmLoDKi1C"><span id="kpiDocsMain" data-page-node-id="Q6YZpMyzgF2BPKqxE7q437">—</span><span class="unit" id="kpiDocsUnit" data-page-node-id="tuR623kwu9c6lSuV5AIScd">条</span></div>
         <div class="kpi-meta" id="kpiDocsMetaMain" data-page-node-id="kLt5uJbR6xfvHAoSpF5ye9">读取总表…</div>
       </div>
-      <div class="kpi kpi-warn" data-page-node-id="F24wlOal8Gpza4yk59iJJn">
+      <!-- 2026-09-16：需求状态维护取消（流转只在 TAPD），完成度 KPI 无数据源 → 整卡隐藏 -->
+      <div class="kpi kpi-warn" style="display:none" data-page-node-id="F24wlOal8Gpza4yk59iJJn">
         <div class="kpi-label" data-page-node-id="0ZWLNY1MdlJHTi3Dd9tfaD">PROGRESS · 完成度</div>
         <div class="kpi-value" data-page-node-id="KnuhIF8VpsQYiDDrJIRsc2"><span id="kpiPctMain" data-page-node-id="pSY6Cn5aORBJaQ2mvYX11a">—</span><span class="unit" data-page-node-id="gkhuPAtlOv6rsFsoBdEn3y">%</span></div>
         <div class="kpi-meta" id="kpiProgMetaMain" data-page-node-id="uK8j1oIaDfStqIAby1Hulh">—</div>
@@ -763,16 +766,6 @@ body.embed .mid{width:100%}
 
     <!-- 筛选区（三行分组：状态 / 分类 / 文案策划）· 2026-07-24 排版整理 -->
     <div class="filter-groups" data-page-node-id="UZBIU1dbEDiJLzQXQUSQwC">
-      <!-- 状态：5 态工业战术色板（2026-09-07 回退 9.4/9.5 圆点+药丸格式，选项保持 5 态） -->
-      <div class="filter-row status-row" id="statusRow" data-page-node-id="ul4EenpNKzEHvEkczV61oe">
-        <span class="flabel" data-page-node-id="XABMetkq4f4tRzGr9dkpGG">STATUS</span>
-        <div class="chip-filter on" data-fk="status" data-fv="" data-page-node-id="p8YJ95PEygc2ztInLzEUMa">全部<span class="chip-num" id="cnt-status-all" data-page-node-id="MfJ58KlqLQv2fkzpjUhict">—</span></div>
-        <div class="chip-status chip-prog chip-prog-pending"  data-fk="status" data-fv="待澄清" data-page-node-id="2XxEBttN69ETLBCNOZcL3m"><i data-page-node-id="in7pdCX78yUE7s6vFTKlZ7"></i>待澄清<span class="chip-num" id="cnt-pending" data-page-node-id="bmbBapiqHvLlZdkOwQ5ZSA">—</span></div>
-        <div class="chip-status chip-prog chip-prog-writing"  data-fk="status" data-fv="文案ing" data-page-node-id="09ozGPmty83wvXU6dE42CR"><i data-page-node-id="kXUA2HAlJTZGaXoHbR89sC"></i>文案ing<span class="chip-num" id="cnt-writing" data-page-node-id="ReMgDAg3T9qoRYAXE5L7aY">—</span></div>
-        <div class="chip-status chip-prog chip-prog-handover" data-fk="status" data-fv="已交稿" data-page-node-id="reIh8kSd7vqEFBXCIZIW34"><i data-page-node-id="xAjTdT4Cotr4qdCMN7CLgT"></i>已交稿<span class="chip-num" id="cnt-handover" data-page-node-id="qDhE7Ndgc3DgCSjrXNkEQq">—</span></div>
-        <div class="chip-status chip-prog chip-prog-vo"       data-fk="status" data-fv="Vo ing" data-page-node-id="9Guo0OkXopWMWLAOEJZ23P"><i data-page-node-id="u4xFl1KMVJTUFh0xgmIGSm"></i>Vo ing<span class="chip-num" id="cnt-vo" data-page-node-id="VZo3QG4uZICr7fcvmqXDdI">—</span></div>
-        <div class="chip-status chip-prog chip-prog-done"     data-fk="status" data-fv="Done" data-page-node-id="9r3fEpTI4cY0W3D6jhfI8c"><i data-page-node-id="VnIFb0aKatcvLyu2B8oYof"></i>Done<span class="chip-num" id="cnt-done" data-page-node-id="HmEqa3LFiom8Dim8ObV0tf">—</span></div>
-      </div>
       <!-- 历史归档：STATUS 行整行 → 动态 RELEASE chip 行（2026-09-04 方案 A；仅 filterRelease==='__archive__' 时显示） -->
       <div class="filter-row release-row" id="releaseRow" style="display:none" data-page-node-id="Nd5TuTp2v8Edc1aA8dRiIO">
         <span class="flabel" data-page-node-id="2Aq1lNO3TUxboxvXqxVv5z">RELEASE</span>
@@ -799,7 +792,7 @@ body.embed .mid{width:100%}
       <div class="table-wrap" data-page-node-id="NzDsGoaOQoKxsh1bGipGjL">
         <table class="demand-table" data-page-node-id="wjyzmXPCQZxfc5svFZ0Srx">
           <colgroup data-page-node-id="DDZhAkqzq9RcKOrJiz2Bdk">
-            <col style="width:76px" data-page-node-id="CURkCU8k97p5AR4nTU91xX"><col style="width:72px" data-page-node-id="FabOICihgmpxJq5PXNag3R"><col class="col-story-flex" data-page-node-id="N3h2EVHA8oM2F6OdLFPeZt"><col style="width:96px" data-page-node-id="u44dugCBFHnAAWgxt6EKLF"><col style="width:138px" data-page-node-id="3ButxH6ldwjDxmNi5vvhyl"><col style="width:116px" data-page-node-id="MTNhBqh9xhjQdnqIeky1A9"><col style="width:220px" data-page-node-id="hm6GmCrZQIlm9bTiLzHXPk">
+            <col style="width:76px" data-page-node-id="CURkCU8k97p5AR4nTU91xX"><col style="width:72px" data-page-node-id="FabOICihgmpxJq5PXNag3R"><col class="col-story-flex" data-page-node-id="N3h2EVHA8oM2F6OdLFPeZt"><col style="width:96px" data-page-node-id="u44dugCBFHnAAWgxt6EKLF"><col style="width:116px" data-page-node-id="MTNhBqh9xhjQdnqIeky1A9"><col style="width:220px" data-page-node-id="hm6GmCrZQIlm9bTiLzHXPk">
             <col style="width:150px" data-page-node-id="84c8Al1da43kZNrPR1DV61"><col style="width:150px" data-page-node-id="VF58Rz4EdA9QUbO3HkiDb9"><col style="width:150px" data-page-node-id="aeZvGIsqU1mKBpGwF6LmFJ"><col style="width:150px" data-page-node-id="XIgw0uMcbAQAf3Rq5ilRVD"><col style="width:150px" data-page-node-id="eQ7sBm09ck3GJiFW7exIja"><col style="width:150px" data-page-node-id="NjnrZ1VDC8fXMVewh6wnrB">
             <col style="width:116px" data-page-node-id="KiKsEADBTLmaDjJN1IJ8C9"><col style="width:116px" data-page-node-id="aF15QCWuxEiTwHCLIQ30sW">
           </colgroup>
@@ -809,7 +802,6 @@ body.embed .mid{width:100%}
               <th rowspan="2" class="sortable col-area" data-sort="area" onclick="toggleSort('area',this)" data-page-node-id="xboDXBXOTqtMkFAA6bx2qo">AREA<button class="header-filter-btn" onclick="openHeaderFilter(event,'area')" title="筛选 AREA" data-page-node-id="jD0UCQUiAY8t9XERJ3ycYL"><svg viewBox="0 0 16 16" data-page-node-id="uFFyZZeDWnKQWR22c0mkld"><path d="M2 3h12L9.5 8v4l-3 1V8z" data-page-node-id="fX6bmAj9SwMmAQDxbzrtLy"/></svg></button><span class="sort-arrows" data-page-node-id="wMVFIlNzqREBlVwTwX7STS"><svg class="arr-up" viewBox="0 0 12 12" data-page-node-id="A6Iyz57xMTxxwtWD78n61r"><path d="M6 8V3M4 5l2-2 2 2" data-page-node-id="dN6GJdUIm9BFo1hgH7o5At"/></svg><svg class="arr-down" viewBox="0 0 12 12" data-page-node-id="OegXVDniIGmdeOcfr0fPBl"><path d="M6 4v5M4 7l2 2 2-2" data-page-node-id="FFTF1ryDQ0dQl1RTNBQDIZ"/></svg></span></th>
               <th rowspan="2" class="col-story" data-page-node-id="kswaJaWtm4yyjHrkXqcBxf">Story</th>
               <th rowspan="2" class="sortable col-creator" data-sort="creator" onclick="toggleSort('creator',this)" data-page-node-id="MxXJzzp2DbQavOEZDENKqK">创建人<button class="header-filter-btn" onclick="openHeaderFilter(event,'creator')" title="筛选创建人" data-page-node-id="o9PwWSr1PdciBq1SPoJGQT"><svg viewBox="0 0 16 16" data-page-node-id="PtKGv4lsHhjJWkhF8UW5ws"><path d="M2 3h12L9.5 8v4l-3 1V8z" data-page-node-id="GWPRmfu5g9NcaXlhB7yjN1"/></svg></button><span class="sort-arrows" data-page-node-id="lAi25jrldllHqwcKriroRz"><svg class="arr-up" viewBox="0 0 12 12" data-page-node-id="sh16Gt8ch0hes18lS5wAHq"><path d="M6 8V3M4 5l2-2 2 2" data-page-node-id="05QSGbbV8cue7z3UsFRqMx"/></svg><svg class="arr-down" viewBox="0 0 12 12" data-page-node-id="DCGLBrNxlZugSFEG4TwJaO"><path d="M6 4v5M4 7l2 2 2-2" data-page-node-id="eHW99MDgkXmrg3NdACfOWD"/></svg></span></th>
-              <th rowspan="2" class="sortable col-status" data-sort="status" onclick="toggleSort('status',this)" data-page-node-id="flLlLpIiRvbP6W82sbwx6V">状态<button class="header-filter-btn" onclick="openHeaderFilter(event,'status')" title="筛选状态" data-page-node-id="bqD8R6io7WlvAU4zRVCCwH"><svg viewBox="0 0 16 16" data-page-node-id="cdydIrZTi4hs0KJg5PWcal"><path d="M2 3h12L9.5 8v4l-3 1V8z" data-page-node-id="MlxcSMdm6G2YNt47boCM2c"/></svg></button><span class="sort-arrows" data-page-node-id="po8E3ALo9pdsgJQcu0aK8z"><svg class="arr-up" viewBox="0 0 12 12" data-page-node-id="lABr5fRr4Cs3vSiAH3BqCw"><path d="M6 8V3M4 5l2-2 2 2" data-page-node-id="RHzYehv2xd611NIdUH6iEE"/></svg><svg class="arr-down" viewBox="0 0 12 12" data-page-node-id="7sez5OBXYZhQzSEn9RZTl4"><path d="M6 4v5M4 7l2 2 2-2" data-page-node-id="aQtfqC4yHaDqC1tGTm7PyC"/></svg></span></th>
               <th rowspan="2" class="sortable col-video" data-sort="video_sync" onclick="toggleSort('video_sync',this)" data-page-node-id="iY8zTW0OuUr4c0tnw6leHa">音画同步<button class="header-filter-btn" onclick="openHeaderFilter(event,'video_sync')" title="筛选音画同步" data-page-node-id="tP5tsmvJ1xNAXiJJYUNaCy"><svg viewBox="0 0 16 16" data-page-node-id="vctFPwqAcWNPj4yWKcULq1"><path d="M2 3h12L9.5 8v4l-3 1V8z" data-page-node-id="NaD64kc4CIvgt5NYDwHYy0"/></svg></button><span class="sort-arrows" data-page-node-id="jhKGO83DDt9NY1YbslznPy"><svg class="arr-up" viewBox="0 0 12 12" data-page-node-id="0wvBQafZiPGAuJs9AvgPYS"><path d="M6 8V3M4 5l2-2 2 2" data-page-node-id="0E7aGwZXFwADVasuRaQS6x"/></svg><svg class="arr-down" viewBox="0 0 12 12" data-page-node-id="rzSiBUbbEG3IH0yKNZkTjy"><path d="M6 4v5M4 7l2 2 2-2" data-page-node-id="oE4Z6jqiEsfBLGuVUHqyIk"/></svg></span></th>
               <th rowspan="2" class="sortable col-cw" data-sort="cn_lines_handler" onclick="toggleSort('cn_lines_handler',this)" data-page-node-id="S4bR4RdVyLkprXzZcrwbQ0">ND<button class="header-filter-btn" onclick="openHeaderFilter(event,'cn_lines_handler')" title="筛选 Narrative Designer" data-page-node-id="mPAjow1ymrVkJsyDQJYhAw"><svg viewBox="0 0 16 16" data-page-node-id="6LgYQiSjthQ7lVFpxvAEmT"><path d="M2 3h12L9.5 8v4l-3 1V8z" data-page-node-id="V7Arx0JOSKIw6B88lUSnsl"/></svg></button><span class="sort-arrows" data-page-node-id="DAg3YH7paF0TicJzGalbGm"><svg class="arr-up" viewBox="0 0 12 12" data-page-node-id="KZmtcEjCLXDaOp6z5MDzrL"><path d="M6 8V3M4 5l2-2 2 2" data-page-node-id="V9AJQmRXpZbZrCG8RZ9TQB"/></svg><svg class="arr-down" viewBox="0 0 12 12" data-page-node-id="W04SIgRqEkpEF7x2EEOdM9"><path d="M6 4v5M4 7l2 2 2-2" data-page-node-id="12Fgesi3HOAeNdLZB3XoGr"/></svg></span></th>
               <th colspan="6" class="sortable th-ve-group" data-sort="veCount" onclick="toggleSort('veCount',this)" data-page-node-id="lgnf73qA5YeG2CjY6QL1qi">声优预估<span class="sort-arrows" data-page-node-id="cEygNlMcW191lVJblVRpuU"><svg class="arr-up" viewBox="0 0 12 12" data-page-node-id="r4tmQ4J1DqdlPEwdN2HGlA"><path d="M6 8V3M4 5l2-2 2 2" data-page-node-id="RGAT5HTTJScyO8stB47k5F"/></svg><svg class="arr-down" viewBox="0 0 12 12" data-page-node-id="nTAfBjrYzsif0hcMqF0JHF"><path d="M6 4v5M4 7l2 2 2-2" data-page-node-id="3rM3R58sMYTHy93BU5iHCL"/></svg></span></th>
@@ -885,6 +877,7 @@ function tapdStage(d){
 
 let allDemands = [];
 let allVoiceEstimates = [];
+const VE_ESTIMATE_STATE={status:'idle',generation:0,hasBaseline:false};
 let VE_ROSTER = [];
 const RELEASE_SCOPE_START = 'Yang1.0';
 function releaseInScope(demand){
@@ -1021,6 +1014,26 @@ function scriptLockAt(release){
 function isScriptLocked(release, now=new Date()){
   const t=scriptLockAt(release);
   return !!(t && now.getTime()>=t.getTime());
+}
+// ★ 声优预估编辑门禁（PM 定稿 2026-09-16）：对应版本「声优锁」当天 18:00 前可编辑，18:00 起只读。
+// 取代旧 manual_status 五态门禁；版本节点缺失时保守判定为不可编辑。
+function estimateLockAt(release){
+  const plan=findReleasePlan(release), ph=plan&&plan.phases;
+  if(!ph||!ph.dev||!ph.dev.end) return null;
+  const devEnd=ddlDate(ph.dev.end);
+  const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
+  const estimateThu=ddlThursday(ddlShiftValidWeeksAfter(lockDay,3));
+  const at=new Date(estimateThu); at.setHours(18,0,0,0);
+  return at;
+}
+function estimateEditable(release, now=new Date()){
+  const t=estimateLockAt(release);
+  return !!(t && now.getTime()<t.getTime());
+}
+function estimateDeadlineNotice(release){
+  const t=estimateLockAt(release);
+  if(!t) return '该版本无版本节点，声优预估不可编辑';
+  return `声优锁 ${ddlFmt(t)} 18:00 后已截止，声优预估只读`;
 }
 function renderDualDdl(release){
   const copyEl=document.getElementById('kpiCopyDdl'), voEl=document.getElementById('kpiVoDdl');
@@ -1459,12 +1472,28 @@ function veActorCount(d){ return new Set(veUnified(d).map(r=>r.role).filter(Bool
 function veTotalLines(d){ return veUnified(d).reduce((s,r)=>s+(Number(r.est_lines)||0),0); }
 function veCategoryCount(d,cat){ return new Set(veUnified(d).filter(r=>r.category===cat).map(r=>r.role).filter(Boolean)).size; }
 function veCategoryLines(d,cat){ return veUnified(d).filter(r=>r.category===cat).reduce((s,r)=>s+(Number(r.est_lines)||0),0); }
-function veCanEdit(d){ return ['待澄清','文案ing'].includes(d&&d.manual_status||tapdStage(d)); }
+function veEstimateNotice(){
+  if(VE_ESTIMATE_STATE.status==='error')return '声优预估读取失败，暂不可编辑，请重试';
+  if(VE_ESTIMATE_STATE.status==='loading')return '声优预估读取中，暂不可编辑';
+  if(VE_ESTIMATE_STATE.status!=='ready')return '声优预估未加载，暂不可编辑，请刷新';
+  return '';
+}
+function veCanEdit(d){
+  if(VE_ESTIMATE_STATE.status!=='ready') return false;
+  return estimateEditable(d&&d.release_plan);
+}
+// 只读态给用户的具体原因：预估数据问题优先，其次才是截止时间门禁。
+function veReadonlyReason(d){
+  const notice=veEstimateNotice();
+  if(notice) return notice;
+  return estimateDeadlineNotice(d&&d.release_plan);
+}
 function veCell(d,cat){
-  const rows=veUnified(d).filter(r=>r.category===cat);
-  if(!rows.length) return '';
+  const rows=veUnified(d).filter(r=>r.category===cat),notice=veEstimateNotice();
+  const unavailable=notice?`<span class="ve-role" title="${esc(notice)}">${VE_ESTIMATE_STATE.hasBaseline?'旧数据 · ':''}${VE_ESTIMATE_STATE.status==='error'?'读取失败':VE_ESTIMATE_STATE.status==='loading'?'读取中':'未加载'}</span>`:'';
+  if(!rows.length)return unavailable;
   const color=VE_CAT_COLORS[cat]||'#7A8A96';
-  return `<div class="ve-stack">${rows.map(r=>`<span class="ve-chip"><span class="ve-role">${esc(r.role)}</span><b class="ve-x">×${Number(r.est_lines)||0}</b></span>`).join('')}</div>`;
+  return `<div class="ve-stack">${unavailable}${rows.map(r=>`<span class="ve-chip"><span class="ve-role">${esc(r.role)}</span><b class="ve-x">×${Number(r.est_lines)||0}</b></span>`).join('')}</div>`;
 }
 function veCells(d){
   return VE_CATEGORIES.map(cat=>{
@@ -1477,7 +1506,16 @@ function aggregateReleaseVoiceEstimates(rows){
   return veUnified({_releaseSummary:true,_releaseRows:rows||[]});
 }
 
-let VE_CATEGORY={demand:null,cat:'',readonly:false,draft:new Map(),anchor:null,saving:false};
+let VE_CATEGORY={demand:null,cat:'',readonly:false,draft:new Map(),anchor:null,saving:false,generation:null};
+function guardVeCategoryBaseline(){
+  if(!VE_CATEGORY.demand)return;
+  if(VE_ESTIMATE_STATE.status==='ready'&&VE_CATEGORY.generation===VE_ESTIMATE_STATE.generation)return;
+  VE_CATEGORY.readonly=true;
+  const readonly=document.getElementById('veCategoryReadonly');
+  if(readonly){readonly.hidden=false;readonly.textContent=veEstimateNotice()||'声优预估已刷新，请关闭后重新打开编辑';}
+  const save=document.getElementById('veCategorySave');if(save)save.hidden=true;
+  renderVeCategoryRoles();
+}
 async function ensureVeRoster(){
   if(VE_ROSTER.length) return VE_ROSTER;
   const r=await fetch('/api/talents',{cache:'no-store'});if(!r.ok)throw new Error('声优库读取失败');
@@ -1493,16 +1531,22 @@ function positionVeCategory(anchor){
   pop.style.left=Math.round(left)+'px';pop.style.top=Math.round(top)+'px';
 }
 async function openVeCategory(demandId,cat,anchor){
+  if(VE_CATEGORY.saving)return;
   const d=allDemands.find(x=>String(x.id)===String(demandId));if(!d||!VE_CATEGORIES.includes(cat))return;
+  const generation=VE_ESTIMATE_STATE.generation;
+  if(veEstimateNotice()&&!VE_ESTIMATE_STATE.hasBaseline){flashErr(veEstimateNotice());return;}
   try{await ensureVeRoster();}catch(e){flashErr(e.message);return;}
+  if(generation!==VE_ESTIMATE_STATE.generation){flashErr(veEstimateNotice()||'声优预估已刷新，请重新打开编辑');return;}
+  if(VE_CATEGORY.saving)return;
   closeVeCategory();
-  VE_CATEGORY={demand:d,cat,readonly:!veCanEdit(d),draft:new Map(),anchor,saving:false};
+  VE_CATEGORY={demand:d,cat,readonly:!veCanEdit(d),draft:new Map(),anchor,saving:false,generation};
   veUnified(d).forEach(r=>VE_CATEGORY.draft.set(veDraftKey(r.role),{role_name:r.role,role_id:r.role_id,category:r.category,language:'cn',estimated_lines:Number(r.est_lines)||0,actual_lines:Number(r.actual_lines)||0}));
   const pop=document.getElementById('veCategoryPopover'),color=VE_CAT_COLORS[cat],ink=VE_CAT_INKS[cat]||color;
   pop.style.setProperty('--cat-color',color);pop.style.setProperty('--cat-ink',ink);
   document.getElementById('veCategoryTitle').textContent=cat+' · 声优预估';
   document.getElementById('veCategorySub').textContent=d.task_name||'需求';
   document.getElementById('veCategoryReadonly').hidden=!VE_CATEGORY.readonly;
+  document.getElementById('veCategoryReadonly').textContent=veReadonlyReason(d);
   document.getElementById('veCategorySave').hidden=VE_CATEGORY.readonly;
   document.getElementById('veCategorySearch').value='';
   pop.classList.add('open');anchor.setAttribute('aria-expanded','true');renderVeCategoryRoles();
@@ -1569,16 +1613,25 @@ function renderVeCategoryRoles(){
   }).join('')}</div>`;
 }
 async function saveVeCategory(){
-  if(!VE_CATEGORY.demand||VE_CATEGORY.readonly||VE_CATEGORY.saving)return;
-  const demand=VE_CATEGORY.demand,demandId=String(demand.id),rows=[...VE_CATEGORY.draft.values()].filter(r=>VE_CATEGORIES.includes(r.category));
+  if(!VE_CATEGORY.demand||VE_CATEGORY.saving)return;
+  if(VE_ESTIMATE_STATE.status!=='ready'||VE_CATEGORY.generation!==VE_ESTIMATE_STATE.generation){
+    guardVeCategoryBaseline();flashErr(veEstimateNotice()||'声优预估已刷新，请关闭后重新打开编辑');return;
+  }
+  if(VE_CATEGORY.readonly||!veCanEdit(allDemands.find(d=>String(d.id)===String(VE_CATEGORY.demand.id))))return;
+  const generation=VE_CATEGORY.generation,demand=VE_CATEGORY.demand,demandId=String(demand.id),rows=[...VE_CATEGORY.draft.values()].filter(r=>VE_CATEGORIES.includes(r.category));
   const btn=document.getElementById('veCategorySave'),note=document.querySelector('.ve-category-note'),oldNote=note?note.textContent:'';
   VE_CATEGORY.saving=true;document.getElementById('veCategoryPopover')?.setAttribute('data-saving','1');btn.disabled=true;btn.textContent='同步中…';if(note)note.textContent='正在同步腾讯文档，请稍候';
   try{
     const r=await fetch(`/api/demands/${encodeURIComponent(demandId)}/voice-estimates`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows})});
-    const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error==='release_library_not_registered'?'请先登记当前版本台词库总表':(j.error||'保存失败'));
-    allVoiceEstimates=allVoiceEstimates.filter(x=>String(x.demand_id)!==demandId).concat(j.rows||[]);rebuildVeEstimateIndex();
+    const j=await r.json();if(!r.ok||!j||j.ok!==true||!Array.isArray(j.rows))throw new Error(j&&j.error==='release_library_not_registered'?'请先登记当前版本台词库总表':(j&&j.error||'保存失败'));
+    if(generation!==VE_ESTIMATE_STATE.generation){
+      // 刷新与保存交叠时无法确认读取先后，保留现有数据显示但撤销可写基线。
+      ++VE_ESTIMATE_STATE.generation;VE_ESTIMATE_STATE.status='idle';
+      guardVeCategoryBaseline();renderRows();flashErr('声优预估已保存，请刷新预估后继续编辑');return;
+    }
+    allVoiceEstimates=allVoiceEstimates.filter(x=>String(x.demand_id)!==demandId).concat(j.rows);rebuildVeEstimateIndex();
     closeVeCategory(true);requestAnimationFrame(()=>renderRows());flashOk(`声优预估已保存：新增 ${j.changes.added} · 更新 ${j.changes.updated} · 删除 ${j.changes.deleted}`);
-  }catch(e){VE_CATEGORY.saving=false;document.getElementById('veCategoryPopover')?.removeAttribute('data-saving');flashErr(e.message||'声优预估保存失败');}finally{btn.disabled=false;btn.textContent='保存';if(note)note.textContent=oldNote;}
+  }catch(e){flashErr(e.message||'声优预估保存失败');}finally{VE_CATEGORY.saving=false;document.getElementById('veCategoryPopover')?.removeAttribute('data-saving');btn.disabled=false;btn.textContent='保存';if(note)note.textContent=oldNote;}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('veCategoryPopover').classList.contains('open'))closeVeCategory();});
 document.addEventListener('click',e=>{const pop=document.getElementById('veCategoryPopover');if(pop&&pop.classList.contains('open')&&!pop.contains(e.target)&&e.target!==VE_CATEGORY.anchor)closeVeCategory();});
@@ -1614,15 +1667,12 @@ function buildReleaseSummaryRows(){
   });
 }
 function releaseSummaryRowHTML(d){
-  const cVa=clarifyOf(d.id);
-  const effectiveStage=(cVa&&cVa.status)?cVa.status:'待澄清';
   const rows=d._releaseRows||[];
-  return `<tr class="release-summary-row" data-stage="${esc(effectiveStage)}" data-id="${esc(d.id)}" data-area="ALL">
+  return `<tr class="release-summary-row" data-id="${esc(d.id)}" data-area="ALL">
     <td class="col-release"><span class="rp-tag">${esc(d.release_plan)}</span></td>
     <td class="col-area"><span class="area">ALL</span></td>
-    <td class="col-story"><div class="release-summary-story">${(() => { const u = releaseSummaryUrl(d.release_plan); return u ? `<a class="release-summary-link" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(d.task_name)}</a>` : esc(d.task_name); })()} · ${rows.length} 条需求</div></td>
+    <td class="col-story"><div class="release-summary-story">${(() => { const u = releaseSummaryUrl(d.release_plan); return u ? `<a class="release-summary-link" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(d.task_name)}</a>` : esc(d.task_name); })()} · ${rows.length} 条需求${releaseLibraryDocCell(d.release_plan)}</div></td>
     <td class="col-creator creator-cell" title="汇总负责人">Vomi</td>
-    <td class="col-status">${releaseLibraryDocCell(d.release_plan)}</td>
     <td class="col-video"><span class="release-summary-text">${esc(d.video_sync)} 音画</span></td>
     <td class="col-cw"><span class="release-summary-text">${esc(d.cn_lines_handler)}</span></td>
     ${veCells(d)}
@@ -1643,20 +1693,11 @@ function fmtStoryTitle(name){
 function rowHTML(d){
   const storyUrl = parentStoryUrl(d);
   const storyTitle = fmtStoryTitle(d.task_name);
-  // MySQL manual_status 优先；为空时回退初始「待澄清」。离线草稿已由applyOfflineDrafts叠加。
-  const effectiveStage = d.manual_status || tapdStage(d);
-  const isManual = !!d.manual_status;
-  const manualCls = isManual ? ' va-manual' : '';
-  const manualTitle = isManual
-    ? '状态：🔒 已锁定（PM 手动定值）· 右键单元格清除后回到「待澄清」'
-    : '状态：初始「待澄清」；文案推到「文案ing → 已交稿」后，Vo ing / Done 由 Vo Manager 维护';
-  const stCls = CLARIFY_STATUS[effectiveStage] || 's-none';
-  return `<tr data-stage="${esc(effectiveStage)}" data-id="${d.id}" data-area="${esc(d.area||'')}"${isManual?' data-manual="1"':''}${d._offlineDraft?' data-offline-draft="1"':''}>
+  return `<tr data-id="${d.id}" data-area="${esc(d.area||'')}"${d._offlineDraft?' data-offline-draft="1"':''}>
     <td class="col-release"><span class="rp-tag">${esc(d.release_plan||'—')}</span></td>
     <td class="col-area"><span class="area">${esc(d.area||'—')}</span></td>
     <td class="col-story"><div class="story-cell">${storyUrl?`<a class="story-title" href="${esc(storyUrl)}" target="_blank" rel="noopener" title="点击打开该 Story 的 TAPD 父需求：${esc(d.task_name||'')}">${storyTitle||'—'}</a>`:`<span class="story-title" title="该 Story 暂无父需求链接">${storyTitle||'—'}</span>`}</div></td>
     <td class="col-creator creator-cell" title="TAPD 创建人：${esc((d.creator||'').replace(/;+$/,''))}">${esc(fmtCreator(d.creator))}</td>
-    <td class="col-status" oncontextmenu="return clearManualStage('${d.id}',event)"><select class="va-status${manualCls} ${stCls}" style="${STATUS_STYLE[effectiveStage]||STATUS_STYLE['待澄清']}" onchange="saveClarify('${d.id}','status',this.value,this)" title="${manualTitle}">${STATUS_LIST.map(s=>`<option value="${s}" ${effectiveStage===s?'selected':''}>${s}</option>`).join('')}</select></td>
     <td class="col-video">${vsBadge(d.video_sync||'无需视频',d.id)}</td>
     <td class="col-cw"><span class="cw-pick" data-id="${d.id}" onclick="event.stopPropagation();toggleCwPop(this)" title="Narrative Designer：点击选择（固定名单）">${cwBadge((d.cn_lines_handler||'').trim())}</span></td>
     ${veCells(d)}
@@ -1831,10 +1872,10 @@ function renderRows(){
   const bodyHTML = summaryRows.map(releaseSummaryRowHTML).join('') + rows.map(rowHTML).join('');
   tb.innerHTML = bodyHTML
     ? bodyHTML
-    : `<tr>      <td colspan="15" style="text-align:center;padding:36px;color:var(--c-text-mute)">
+    : `<tr>      <td colspan="14" style="text-align:center;padding:36px;color:var(--c-text-mute)">
         ${allDemands.length===0?'加载中...或后端暂无音频需求':'当前筛选下无数据'}
       </td></tr>`;
-  // colspan=15：发布计划/AREA/Story/创建人/状态/音画同步/文案策划 + 声优预估6分类 + Max中/英
+  // colspan=14：发布计划/AREA/Story/创建人/音画同步/文案策划 + 声优预估6分类 + Max中/英
   updateResultBar(rows.length, allDemands.length);
   updateHeaderFilterState();
   // 兼容旧引用（隐藏元素，保持存在）
@@ -1899,12 +1940,11 @@ function updateChipCounts(){
   const ev=document.getElementById('cnt-vo');       if(ev) ev.textContent=fmt(stVo);
   const ed=document.getElementById('cnt-done');     if(ed) ed.textContent=fmt(stDone);
 }
-// 历史归档：STATUS 行 ↔ RELEASE chip 行切换 + 动态渲染发布计划芯片（2026-09-04 方案 A）
+// 历史归档：RELEASE chip 行显示 + 动态渲染发布计划芯片（2026-09-04 方案 A）
+// 2026-09-16：STATUS 行随状态维护取消而移除，此处不再切换它。
 function renderReleaseChips(){
-  const statusRow = document.getElementById('statusRow');
   const releaseRow = document.getElementById('releaseRow');
   const inArchive = filterRelease === '__archive__';
-  if(statusRow) statusRow.style.display = inArchive ? 'none' : '';
   if(!releaseRow) return;
   releaseRow.style.display = inArchive ? '' : 'none';
   if(!inArchive) return;
@@ -2481,9 +2521,9 @@ function onChipClick(e){
   saveFilters();
   renderRows();
 }
-// 页面加载后一次性给静态芯片（状态 5 + 全部 cw + 全部 area）+ 搜索框绑事件；动态 area/cw 头像 chip 由 updateKPI 内部绑
+// 页面加载后一次性给静态芯片（全部 cw + 全部 area）+ 搜索框绑事件；动态 area/cw 头像 chip 由 updateKPI 内部绑
+// 2026-09-16：状态 chip 随状态维护取消而移除，不再绑定状态筛选点击事件。
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('[data-fk="status"]').forEach(c => c.addEventListener('click', onChipClick));
   // 静态"全部 文案策划"chip（动态头像 chip 之外单独一个）
   const allCw = document.querySelector('.chip-filter[data-fk="cw"][data-fv=""]');
   if(allCw && !allCw.__bound){ allCw.addEventListener('click', onChipClick); allCw.__bound = true; }
@@ -2504,13 +2544,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadDemands(){
+  const generation=++VE_ESTIMATE_STATE.generation;
+  VE_ESTIMATE_STATE.status='loading';
+  guardVeCategoryBaseline();
+  renderRows();
   try{
     const r = await fetch('/api/demands', {cache:'no-store'});
     if(!r.ok) throw new Error('http '+r.status);
-    allDemands = applyOfflineDrafts(await r.json()).filter(releaseInScope);
+    const rows=await r.json();
+    if(generation!==VE_ESTIMATE_STATE.generation)return;
+    allDemands = applyOfflineDrafts(rows).filter(releaseInScope);
     await flushOfflineDrafts();
+    if(generation!==VE_ESTIMATE_STATE.generation)return;
     setSyncStatus(r.headers.get('X-Data-Source'), r.headers.get('X-Data-At'));
   }catch(e){
+    if(generation!==VE_ESTIMATE_STATE.generation)return;
     if(!window.__snapshotFallbackLogged){
       console.info('%c[Vo Manager] 后端未连接，使用最近一次 TAPD 快照','color:#0FF796;font-weight:bold');
       window.__snapshotFallbackLogged = true;
@@ -2521,10 +2569,19 @@ async function loadDemands(){
   try{
     const veResp=await fetch('/api/voice-estimates',{cache:'no-store'});
     const veJson=await veResp.json();
-    allVoiceEstimates=veResp.ok&&veJson&&Array.isArray(veJson.rows)?veJson.rows:[];
-  }catch(_){allVoiceEstimates=[];}
-  rebuildVeEstimateIndex();
+    if(generation!==VE_ESTIMATE_STATE.generation)return;
+    if(!veResp.ok||!veJson||veJson.ok!==true||!Array.isArray(veJson.rows))throw new Error('声优预估响应无效');
+    allVoiceEstimates=veJson.rows;
+    rebuildVeEstimateIndex();
+    VE_ESTIMATE_STATE.status='ready';VE_ESTIMATE_STATE.hasBaseline=true;
+  }catch(_){
+    if(generation!==VE_ESTIMATE_STATE.generation)return;
+    VE_ESTIMATE_STATE.status='error';
+    flashErr(veEstimateNotice());
+  }
+  guardVeCategoryBaseline();
   await loadRecordingMax();
+  if(generation!==VE_ESTIMATE_STATE.generation)return;
   normalizeCopywriters();
   updateKPI();
   renderRows();

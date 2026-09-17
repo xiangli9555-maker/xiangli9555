@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <title>Preview · 版本节点精修版</title>
 <link rel="stylesheet" href="assets/project-fonts.css?v=20260817c"/>
-<script src="assets/guest-mode.js?v=20260914"></script>
+<script src="assets/guest-mode.js?v=20260917a"></script>
 <style>
 :root{--c-primary:#0FF89B;--c-primary-dark:#0BD980;--c-primary-glow:rgba(15,248,155,0.18);
   --c-bg:#0F171C;--c-bg-0:#0F171C;--c-surface:#1B2526;--c-surface-2:#26333C;--c-surface-3:#2E3B45;
@@ -726,6 +726,7 @@ html.embed .layout{padding-left:0}
 <div class="tt" id="tooltip"></div>
 
 <script src="assets/holiday-calendar.js?v=20260901a"></script>
+<script src="assets/release-calendar.js?v=20260917a"></script>
 <script>
 // ── embed 模式检测：嵌在外壳 iframe 内时隐藏自身顶栏+侧栏 ──
 (function(){
@@ -911,8 +912,14 @@ function deliveryFriday(devEnd){
 }
 
 // 2026-09-11 · PM 手动锚定：Yang1 Vo需求锁 = 2026-09-14（跳过 dev.end-11 有效周公式）
-// 后续版本追加：VO_NEED_LOCK_OVERRIDE[versionId] = 'YYYY-MM-DD'
-const VO_NEED_LOCK_OVERRIDE = { 'yang1': '2026-09-14' };
+// 2026-09-17 抽成公共口径：真源在 assets/release-calendar.js 的 VO_NEED_LOCK_OVERRIDE，
+// 版本节点页 / 需求汇总页 / 录制档期页 / 自动化四处统一从这里取，新增锚定只改那一个文件。
+const voLockRules = (typeof VOMI_RELEASE_CALENDAR !== 'undefined' && VOMI_RELEASE_CALENDAR) || null;
+function voNeedLockOverrideOf(version){
+  if(!voLockRules) return '';
+  return voLockRules.voNeedLockOverrideFor(version && version.id) ||
+         voLockRules.voNeedLockOverrideFor(version && version.name) || '';
+}
 
 // 4 关键节点 + 5 个未来60天过程事项（PM 权威规则 · 2026-08-20）
 function computeEvents(){
@@ -931,7 +938,7 @@ function computeEvents(){
     }
     // Vo需求锁：默认按 "dev最后周含当周向前第11有效周周一" 计算；
     // 若在 VO_NEED_LOCK_OVERRIDE 里为该版本 id 显式声明 override（YYYY-MM-DD），则用 override（PM 手动锚定，跳过公式）
-    const overrideIso = v.voNeedLockOverride || VO_NEED_LOCK_OVERRIDE[v.id] || '';
+    const overrideIso = v.voNeedLockOverride || voNeedLockOverrideOf(v) || '';
     const lockDay     = overrideIso ? mondayOf(d(overrideIso.replace(/-/g,'/'))) : nthValidWeekBackwardInclusive(devEnd,11);
     const estimateDay = wednesdayOf(shiftValidWeeksAfter(lockDay,3));
     const scriptDay   = wednesdayOf(shiftValidWeeksAfter(estimateDay,2));
@@ -1297,7 +1304,9 @@ function renderTimeline(){
     // Column 2: 里程碑 = 版本名 + N+M+K 公式
     const devW = ver.phases.find(p=>p.type==='dev')?.weeks || 0;
     const testW = ver.phases.find(p=>p.type==='test')?.weeks || 0;
-    const relW = ver.phases.find(p=>p.type==='release')?.weeks || 1;
+    // 年历只渲染发布期第一周（海外第二周恒等于下一版本开发 W1，已按 PM 要求取消该列）
+    // → 里程碑公式同步为 N+M+1，与屏幕上实际列数保持一致
+    const relW = 1;
     const tdMs = document.createElement('td');
     tdMs.className = 'yc-ms';
     tdMs.innerHTML = `<div class="ms-ver">${ver.name}</div><div class="ms-eq">${devW}+${testW}+${relW}</div>`;

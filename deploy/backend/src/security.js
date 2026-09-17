@@ -23,6 +23,166 @@ const ALLOWED_ORIGINS = new Set(
     .filter(Boolean)
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 2026-09-16 职能组权限（PM 拍板）
+//   · 只有两个组：copy（文案，含文案 PM）/ audio（音频，含音频 PM）
+//   · 文案组：除「录制档期」以外的页面都能编辑 → 除 schedule 域外的写请求都放行
+//   · 音频组：全部 5 个页面都能编辑 → 所有域都放行
+//   · 删除不再是特权：任意 editor 都能删，前端负责二次确认（assets/guest-mode.js）
+//   名单可用 VOMI_USERS_JSON 整体覆盖（数组或 {account:{name,group,title,role}}）；
+//   未配则用下面的内置名单（与企微账号一致）。
+// ─────────────────────────────────────────────────────────────────────────────
+const GROUP_LABELS = Object.freeze({ copy: '文案', audio: '音频' });
+const SCOPE_LABELS = Object.freeze({ schedule: '录制档期' });
+const SCOPE_GROUPS = Object.freeze({ schedule: Object.freeze(['audio']) });
+const DEFAULT_USERS = Object.freeze([
+  // 文案 PM
+  { account: 'ukongwang', name: '汪亚茜', group: 'copy', title: 'pm' },
+  // 文案
+  { account: 'archili', name: '李光源', group: 'copy' },
+  { account: 'bojackgguan', name: '关学院', group: 'copy' },
+  { account: 'hayden', name: 'HAYDEN PATRICK CAREY', group: 'copy' },
+  { account: 'jiejwluo', name: '罗婧文', group: 'copy' },
+  { account: 'julianxie', name: '谢佳洺', group: 'copy' },
+  { account: 'julyyyhu', name: '胡瑞璋', group: 'copy' },
+  { account: 'kaiyuanyang', name: '杨开元', group: 'copy' },
+  { account: 'luxxchen', name: '陈晨', group: 'copy' },
+  { account: 'rickiecai', name: '蔡曦锐', group: 'copy' },
+  { account: 'tinozheng', name: '郑懿', group: 'copy' },
+  { account: 'elliexiong', name: '熊雯玥', group: 'copy' },
+  // 音频 PM（站点负责人，保留 admin 以执行同步 / 还原等维护动作）
+  { account: 'lycheelli', name: '李想', group: 'audio', title: 'pm', role: 'admin' },
+  // 音频
+  { account: 'axuanzhang', name: '张娴', group: 'audio' },
+  { account: 'azuzhu', name: '朱光祖', group: 'audio' },
+  { account: 'chengzhenli', name: '李成桢', group: 'audio' },
+  { account: 'cyntiajiang', name: '姜欣钰', group: 'audio' },
+  { account: 'diyayang', name: '杨迪雅', group: 'audio' },
+  { account: 'gretchenhou', name: '侯晓菲', group: 'audio' },
+  { account: 'haibiaoli', name: '李海标', group: 'audio' },
+  { account: 'lukexlwang', name: '王祥礼', group: 'audio' },
+  { account: 'merlechen', name: '陈小荣', group: 'audio' },
+  { account: 'scarletxia', name: '夏誉嘉', group: 'audio' },
+  { account: 'shellymao', name: '毛润坤', group: 'audio' },
+  { account: 'twinkyli', name: '李莹莹', group: 'audio' },
+  { account: 'v_jnanmo', name: '莫江楠', group: 'audio' },
+  { account: 'v_pzknpan', name: '潘梓宽', group: 'audio' },
+  { account: 'veigarjiang', name: '姜彦成', group: 'audio' },
+  { account: 'yumuchen', name: '陈骏枫', group: 'audio' },
+]);
+
+function normAccount(value) {
+  return String(value == null ? '' : value).trim().toLowerCase();
+}
+
+function parseUsers() {
+  const raw = String(process.env.VOMI_USERS_JSON || '').trim();
+  let source = DEFAULT_USERS;
+  if (raw) {
+    try {
+      source = JSON.parse(raw);
+    } catch (_) {
+      throw new Error('VOMI_USERS_JSON must be valid JSON');
+    }
+  }
+  const rows = Array.isArray(source)
+    ? source
+    : Object.entries(source).map(([account, value]) => ({ account, ...(typeof value === 'string' ? { name: value } : value) }));
+  const map = new Map();
+  for (const row of rows) {
+    const account = normAccount(row && row.account);
+    if (!account) continue;
+    if (!SUBJECT_PATTERN.test(account)) throw new Error(`Invalid user account: ${account}`);
+    const group = String((row && row.group) || '').trim().toLowerCase();
+    if (group !== 'copy' && group !== 'audio') throw new Error(`Unsupported user group: ${group}`);
+    map.set(account, {
+      account,
+      subject: account,
+      name: String((row && row.name) || account),
+      // 可选：按账号单独发口令；留空则沿用全站共享的编辑口令
+      key: String((row && row.key) || ''),
+      group,
+      title: String((row && row.title) || '').trim().toLowerCase() === 'pm' ? 'pm' : 'member',
+      role: String((row && row.role) || '').trim().toLowerCase() === 'admin' ? 'admin' : 'editor',
+    });
+  }
+  return map;
+}
+
+const USERS = parseUsers();
+
+// 可选：VOMI_USER_KEYS_JSON='{"archili":"...","ukongwang":"..."}' 给指定账号单独发口令。
+// ⚠️ 目前默认是「共享编辑口令 + 自己填账号」，拿到口令的人可以填别人的账号冒充。
+//    对内工具可接受；要收紧时给每人发独立口令即可，无需改代码。
+const USER_KEYS = new Map();
+(() => {
+  const raw = String(process.env.VOMI_USER_KEYS_JSON || '').trim();
+  if (!raw) return;
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (_) {
+    throw new Error('VOMI_USER_KEYS_JSON must be valid JSON');
+  }
+  for (const [account, key] of Object.entries(parsed || {})) {
+    const name = normAccount(account);
+    const value = String(key || '');
+    if (name && value) USER_KEYS.set(name, value);
+  }
+})();
+
+// 口令即身份（2026-09-16）：站点拿不到企微登录态（IP + 裸 HTTP，做不了 OAuth，也读不到
+// 浏览器里的企微身份），所以退一步——给每个人派生一把专属口令，输口令即等于报身份，
+// 既不用手填账号，也无法冒充别人。只要 master 口令不泄露，外人推不出别人的口令。
+// 开启方式：CVM .env 里 VOMI_PER_ACCOUNT_KEYS=true（配合强 VOMI_OWNER_KEY）。
+const PER_ACCOUNT_KEYS = String(process.env.VOMI_PER_ACCOUNT_KEYS || '').toLowerCase() === 'true';
+
+function deriveAccountKey(account) {
+  return b64url(
+    crypto.createHmac('sha256', OWNER_KEY).update(`vomi-acct:${normAccount(account)}`).digest()
+  ).slice(0, 16);
+}
+
+/** 该账号的口令：① 名单/环境变量显式配的 ② 开启后按 master 口令派生 ③ '' = 走共享口令。 */
+function accountKeyFor(account) {
+  const user = USERS.get(normAccount(account));
+  const explicit = (user && user.key) || USER_KEYS.get(normAccount(account)) || '';
+  if (explicit) return explicit;
+  return PER_ACCOUNT_KEYS ? deriveAccountKey(account) : '';
+}
+
+/** 口令 → 账号反查（免填账号解锁）。要求全局唯一命中，撞口令一律拒绝。 */
+function accountForKey(key) {
+  const given = String(key || '');
+  if (!given) return null;
+  let hit = null;
+  for (const user of USERS.values()) {
+    const expected = accountKeyFor(user.account);
+    if (!expected || !safeEqual(given, expected)) continue;
+    if (hit) return null;
+    hit = user.account;
+  }
+  return hit;
+}
+
+/** 解锁校验：账号有专属口令就只认专属口令，否则认共享编辑口令。 */
+function checkAccountKey(account, key) {
+  const perAccount = accountKeyFor(account);
+  if (perAccount) return safeEqual(String(key || ''), perAccount);
+  return checkOwnerKey(key);
+}
+
+/** 企微账号 → 身份（{account,subject,name,group,title,role,key}），不在名单返回 null。 */
+function resolveIdentity(account) {
+  const user = USERS.get(normAccount(account));
+  return user ? { ...user } : null;
+}
+
+/** 名单里的所有人（供 /api/auth/me 等只读用途）。 */
+function listUsers() {
+  return Array.from(USERS.values()).map((row) => ({ ...row }));
+}
+
 function parseCredentials() {
   const credentials = [];
   const raw = String(process.env.API_TOKENS_JSON || '').trim();
@@ -108,15 +268,34 @@ function checkOwnerKey(key) {
   return safeEqual(String(key || ''), OWNER_KEY);
 }
 
-/** 签发 lycheelli 的编辑令牌：`<base64url(payload)>.<hmac>`。 */
+/**
+ * 签发编辑令牌：`<base64url(payload)>.<hmac>`。
+ * 2026-09-16：payload 带上 group / title / role，使后端能按职能组做 scope 鉴权。
+ * 名单外的 subject 只给 editor 且不带组（等价于「能写但受域限制」）。
+ */
 function issueOwnerToken(subject = OWNER_SUBJECT, ttlMs = OWNER_SESSION_TTL_MS) {
+  const identity = resolveIdentity(subject);
   const now = Date.now();
-  const body = b64url(Buffer.from(JSON.stringify({ sub: String(subject), iat: now, exp: now + ttlMs })));
+  const payload = identity
+    ? {
+        sub: identity.account,
+        name: identity.name,
+        group: identity.group,
+        title: identity.title,
+        role: identity.role,
+        iat: now,
+        exp: now + ttlMs,
+      }
+    : { sub: String(subject), name: String(subject), group: '', title: 'member', role: 'editor', iat: now, exp: now + ttlMs };
+  const body = b64url(Buffer.from(JSON.stringify(payload)));
   return `${body}.${signPayload(body)}`;
 }
 
-/** 校验编辑令牌，通过返回 subject，否则 null。 */
-function verifyOwnerToken(token) {
+/**
+ * 校验编辑令牌，通过返回身份对象 {subject,name,group,title,role}，否则 null。
+ * 名单是权限真源：账号被移出名单后，旧令牌里的 group/role 不再生效。
+ */
+function verifySessionToken(token) {
   const raw = String(token || '').trim();
   const dot = raw.indexOf('.');
   if (dot <= 0 || dot === raw.length - 1) return null;
@@ -128,10 +307,27 @@ function verifyOwnerToken(token) {
   try {
     const payload = JSON.parse(Buffer.from(body.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));
     if (!payload || !payload.sub || !Number.isFinite(payload.exp) || payload.exp < Date.now()) return null;
-    return String(payload.sub);
+    const identity = resolveIdentity(payload.sub);
+    if (identity) return identity;
+    // 名单外的主体：只认 payload 自带的最小权限（默认 editor，无组）
+    const role = ROLE_LEVEL[String(payload.role)] ? String(payload.role) : 'editor';
+    return {
+      account: String(payload.sub),
+      subject: String(payload.sub),
+      name: String(payload.name || payload.sub),
+      group: '',
+      title: 'member',
+      role,
+    };
   } catch (_) {
     return null;
   }
+}
+
+/** 校验编辑令牌，通过返回 subject，否则 null（旧签名保留，内部转调 verifySessionToken）。 */
+function verifyOwnerToken(token) {
+  const identity = verifySessionToken(token);
+  return identity ? identity.subject : null;
 }
 
 // 只看 socket 层的对端地址（不看 req.ip）：req.ip 会被 X-Forwarded-For 影响，
@@ -158,10 +354,10 @@ function apiAuth(req, res, next) {
     return next();
   }
 
-  // 2) 已解锁的 lycheelli：X-Vomi-Editor 带有效 HMAC 令牌 → admin（唯一可写身份）。
-  const owner = verifyOwnerToken(req.headers['x-vomi-editor']);
-  if (owner) {
-    req.auth = { subject: owner, role: 'admin', via: 'owner-session' };
+  // 2) 已解锁的成员：X-Vomi-Editor 带有效 HMAC 令牌 → 按名单解析出 role + 职能组。
+  const session = verifySessionToken(req.headers['x-vomi-editor']);
+  if (session) {
+    req.auth = { ...session, via: 'owner-session' };
     return next();
   }
 
@@ -204,8 +400,37 @@ function requireRole(minimumRole) {
 
 function methodRbac(req, res, next) {
   if (req.method === 'GET' || req.method === 'HEAD') return requireRole('viewer')(req, res, next);
-  if (req.method === 'DELETE') return requireRole('admin')(req, res, next);
+  // 2026-09-16 PM 拍板：删除不再是特权（admin-only 会让文案 / 音频都删不动），
+  // 降为 editor，由前端统一弹二次确认兜底。
   return requireRole('editor')(req, res, next);
+}
+
+/** 当前身份能否写某个资源域；无 group（回环作业 / 服务端令牌）或 admin 一律放行。 */
+function hasScope(req, scope) {
+  const allowed = SCOPE_GROUPS[scope];
+  if (!allowed) return true;
+  const auth = (req && req.auth) || {};
+  if (auth.role === 'admin') return true;
+  if (!auth.group) return true;
+  return allowed.includes(auth.group);
+}
+
+/** 资源域写权限中间件：例 requireScope('schedule') → 仅音频组可改档期。 */
+function requireScope(scope) {
+  const allowed = SCOPE_GROUPS[scope];
+  if (!allowed) throw new Error(`Unsupported scope: ${scope}`);
+  return (req, res, next) => {
+    if (hasScope(req, scope)) return next();
+    const groups = allowed.map((g) => GROUP_LABELS[g] || g).join(' / ');
+    res.setHeader('X-Vomi-Apply-To', OWNER_SUBJECT);
+    return res.status(403).json({
+      ok: false,
+      error: 'scope_forbidden',
+      scope,
+      required_group: allowed.slice(),
+      message: `「${SCOPE_LABELS[scope] || scope}」只有 ${groups} 组可以修改，请找 ${OWNER_SUBJECT} 申请`,
+    });
+  };
 }
 
 const rateBuckets = new Map();
@@ -250,16 +475,28 @@ function positiveInt(value) {
 
 module.exports = {
   apiAuth,
+  accountForKey,
+  accountKeyFor,
+  checkAccountKey,
+  deriveAccountKey,
   checkOwnerKey,
   corsGuard,
+  hasScope,
   issueOwnerToken,
+  listUsers,
   methodRbac,
   OWNER_SUBJECT,
   DENY_MESSAGE,
+  GROUP_LABELS,
+  SCOPE_GROUPS,
+  SCOPE_LABELS,
   positiveInt,
   publicError,
   rateLimit,
   requireRole,
+  requireScope,
+  resolveIdentity,
   secureHeaders,
   verifyOwnerToken,
+  verifySessionToken,
 };

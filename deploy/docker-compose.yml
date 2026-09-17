@@ -37,6 +37,9 @@ services:
       # 编辑口令：站点默认只读，只有输入正确口令才解锁写权限（留空则用内置默认口令）
       VOMI_OWNER_KEY: ${VOMI_OWNER_KEY:-}
       VOMI_SESSION_SECRET: ${VOMI_SESSION_SECRET:-}
+      # 权限名单（企微账号 → 职能组 copy 文案 / audio 音频）。留空则用 security.js 内置名单。
+      # 覆盖格式：[{"account":"xxx","name":"张三","group":"audio","title":"pm|member","role":"admin|editor"}]
+      VOMI_USERS_JSON: ${VOMI_USERS_JSON:-}
       RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-180}
       MAX_AUDIO_BYTES: ${MAX_AUDIO_BYTES:-104857600}
       MAX_STORAGE_BYTES: ${MAX_STORAGE_BYTES:-10737418240}

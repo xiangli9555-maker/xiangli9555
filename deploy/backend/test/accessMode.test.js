@@ -44,5 +44,31 @@ test('后端：无凭据请求默认 viewer（不是 admin）', () => {
 test('后端：解锁接口注册在写权限中间件白名单里', () => {
   assert.match(INDEX, /PUBLIC_API_PATHS\s*=\s*new Set\(\['\/health',\s*'\/session\/unlock'\]\)/);
   assert.match(INDEX, /app\.post\('\/api\/session\/unlock'/);
-  assert.match(INDEX, /issueOwnerToken\(OWNER_SUBJECT\)/);
+  // 2026-09-16：解锁改成「企微账号 + 编辑口令」，令牌按账号所属职能组签发
+  assert.match(INDEX, /resolveIdentity\(account\)/);
+  assert.match(INDEX, /issueOwnerToken\(identity\.account\)/);
+  assert.match(INDEX, /unknown_account/);
+  assert.match(INDEX, /account_required/);
+});
+
+test('后端：录制档期写接口只对音频组开放（scope 鉴权）', () => {
+  for (const route of [
+    "app.post('/api/schedules', requireScope('schedule')",
+    "app.post('/api/schedules/publish', requireScope('schedule')",
+    "app.patch('/api/schedules/:id', requireScope('schedule')",
+    "app.delete('/api/schedules/:id', requireScope('schedule')",
+    "app.post('/api/schedule-from-sheet/refresh', requireScope('schedule')",
+  ]) {
+    assert.ok(INDEX.includes(route), `缺少 scope 守卫：${route}`);
+  }
+  assert.match(SECURITY, /const\s+SCOPE_GROUPS\s*=\s*Object\.freeze\(\{\s*schedule:\s*Object\.freeze\(\['audio'\]\)/);
+  // 删除不再是 admin 特权
+  assert.doesNotMatch(SECURITY, /req\.method === 'DELETE'\) return requireRole\('admin'\)/);
+});
+
+test('前端：解锁弹窗收集企微账号，删除走二次确认', () => {
+  assert.match(GUEST, /vomi-unlock-account/);
+  assert.match(GUEST, /body:\s*JSON\.stringify\(\{\s*account:/);
+  assert.match(GUEST, /__VOMI_IDENTITY__/);
+  assert.match(GUEST, /确认删除|删除后不可恢复/);
 });

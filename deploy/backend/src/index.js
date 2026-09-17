@@ -10,9 +10,11 @@ const calendar = require('./calendar');
 const releasePlan = require('./releasePlan');
 const { reconcileMissingTapdDemands } = require('./tapd_snapshot_sync');
 const {
+  accountForKey,
   apiAuth,
-  checkOwnerKey,
+  checkAccountKey,
   corsGuard,
+  hasScope,
   issueOwnerToken,
   methodRbac,
   OWNER_SUBJECT,
@@ -20,8 +22,10 @@ const {
   publicError,
   rateLimit,
   requireRole,
+  requireScope,
+  resolveIdentity,
+  GROUP_LABELS,
   secureHeaders,
-  verifyOwnerToken,
 } = require('./security');
 const { pullLiveDemands, isLiveReady } = require('./tapd_live');
 const voiceEstimates = require('./voice_estimates');
@@ -41,21 +45,60 @@ const PUBLIC_API_PATHS = new Set(['/health', '/session/unlock']);
 app.use('/api', (req, res, next) => PUBLIC_API_PATHS.has(req.path) ? next() : apiAuth(req, res, next));
 app.use('/api', (req, res, next) => PUBLIC_API_PATHS.has(req.path) ? next() : methodRbac(req, res, next));
 app.use('/audio', apiAuth, requireRole('viewer'));
-app.get('/api/auth/me', (req, res) => res.json({
-  ok: true,
-  user: req.auth.subject,
-  role: req.auth.role,
-  canEdit: req.auth.role === 'admin' || req.auth.role === 'editor',
-  applyTo: (req.auth.role === 'admin' || req.auth.role === 'editor') ? null : OWNER_SUBJECT,
-}));
+const WRITE_SCOPES = ['schedule'];
+app.get('/api/auth/me', (req, res) => {
+  const canEdit = req.auth.role === 'admin' || req.auth.role === 'editor';
+  const scopes = {};
+  for (const scope of WRITE_SCOPES) scopes[scope] = hasScope(req, scope);
+  res.json({
+    ok: true,
+    user: req.auth.subject,
+    name: req.auth.name || req.auth.subject,
+    role: req.auth.role,
+    group: req.auth.group || '',
+    groupLabel: GROUP_LABELS[req.auth.group] || '',
+    title: req.auth.title || '',
+    canEdit,
+    scopes,
+    applyTo: canEdit ? null : OWNER_SUBJECT,
+  });
+});
 
-// 编辑权限解锁：提交编辑口令 → 返回签名令牌（前端存 localStorage，之后带 X-Vomi-Editor）
+// 编辑权限解锁：提交「企业微信账号 + 编辑口令」→ 返回带职能组的签名令牌
+// （前端存 localStorage，之后每个请求带 X-Vomi-Editor）
 app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), (req, res) => {
   const key = String((req.body && req.body.key) || '');
-  if (!checkOwnerKey(key)) {
+  // 账号可留空：专属口令能反查出唯一账号时，输口令即可，不必手填账号。
+  const account = String((req.body && req.body.account) || '').trim() || accountForKey(key) || '';
+  if (!account) {
+    return res.status(400).json({
+      ok: false,
+      error: 'account_required',
+      message: '请输入你的企业微信账号，或直接输入你的专属口令',
+    });
+  }
+  if (!checkAccountKey(account, key)) {
     return res.status(401).json({ ok: false, error: 'bad_key', message: `口令不正确，请找 ${OWNER_SUBJECT} 索取` });
   }
-  res.json({ ok: true, subject: OWNER_SUBJECT, token: issueOwnerToken(OWNER_SUBJECT), expiresIn: 30 * 24 * 3600 });
+  const identity = resolveIdentity(account);
+  if (!identity) {
+    return res.status(403).json({
+      ok: false,
+      error: 'unknown_account',
+      message: `账号 ${account} 不在权限名单里，请找 ${OWNER_SUBJECT} 添加`,
+    });
+  }
+  res.json({
+    ok: true,
+    subject: identity.account,
+    name: identity.name,
+    group: identity.group,
+    groupLabel: GROUP_LABELS[identity.group] || '',
+    title: identity.title,
+    role: identity.role,
+    token: issueOwnerToken(identity.account),
+    expiresIn: 30 * 24 * 3600,
+  });
 });
 
 // 音频文件上传 · 存 /data/audio
@@ -127,7 +170,7 @@ app.get('/api/schedule-from-sheet', (req, res) => {
 // ---------- 档期真源实时刷新（2026-09-14）：点页面按钮即回企微表格重拉 ----------
 // 容器内执行：wecom-cli sheet ranges get → CSV → pull_schedule_from_sheet.py → 覆写快照 JSON。
 // 凭证（机器人 Vomi）由 docker-compose 只读挂载，不入 Git、不入镜像。
-app.post('/api/schedule-from-sheet/refresh', async (req, res) => {
+app.post('/api/schedule-from-sheet/refresh', requireScope('schedule'), async (req, res) => {
   let result;
   try {
     result = await scheduleRefresh.refresh();
@@ -838,7 +881,8 @@ const TAPD_DEMAND_FIELDS = [
   'description', 'creator', 'developer', 'handler', 'status',
   'story_type', 'sync_source', 'last_synced_at'
 ];
-app.post('/api/refresh', requireRole('admin'), async (req, res) => {
+// 2026-09-16：需求汇总页的「刷新」按钮所有编辑者都要能用，从 admin 降为 editor。
+app.post('/api/refresh', requireRole('editor'), async (req, res) => {
   try {
     await DEMANDS_READY;
     const fs = require('fs');
@@ -1088,11 +1132,11 @@ async function publishScheduleDraft(b, conn){
   const [hit]=await db.query('SELECT * FROM recording_schedules WHERE id=?',[r.insertId]);
   return {row:hit[0],created:true};
 }
-app.post('/api/schedules', async (req,res) => {
+app.post('/api/schedules', requireScope('schedule'), async (req,res) => {
   try{ await SCHEDULES_READY; const out=await publishScheduleDraft(req.body||{}); res.json({ok:true,...out}); }
   catch(e){ res.status(e.status||500).json({ok:false,error:publicError(e)}); }
 });
-app.post('/api/schedules/publish', async (req,res) => {
+app.post('/api/schedules/publish', requireScope('schedule'), async (req,res) => {
   try{
     await SCHEDULES_READY;
     const drafts=Array.isArray(req.body&&req.body.drafts)?req.body.drafts:[];
@@ -1117,7 +1161,7 @@ app.post('/api/schedules/publish', async (req,res) => {
     }
   }catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
-app.patch('/api/schedules/:id', async (req,res) => {
+app.patch('/api/schedules/:id', requireScope('schedule'), async (req,res) => {
   try{
     await SCHEDULES_READY;
     const allowed=['record_date','language','gp_audio_event','duration_hours','status','demand_id','release_plan','studio','time_slot','line_count','voice_actor_id'];
@@ -1126,7 +1170,7 @@ app.patch('/api/schedules/:id', async (req,res) => {
     await pool.query(`UPDATE recording_schedules SET ${sets.join(',')} WHERE id=?`,vals); res.json({ok:true});
   }catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });
-app.delete('/api/schedules/:id', async (req,res) => {
+app.delete('/api/schedules/:id', requireScope('schedule'), async (req,res) => {
   try{ await SCHEDULES_READY; await pool.query('DELETE FROM recording_schedules WHERE id=?',[req.params.id]); res.json({ok:true}); }
   catch(e){ res.status(500).json({ok:false,error:publicError(e)}); }
 });

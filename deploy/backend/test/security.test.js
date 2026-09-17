@@ -20,13 +20,21 @@ process.env.API_TOKENS_JSON = JSON.stringify([
 
 const {
   apiAuth,
+  accountForKey,
+  accountKeyFor,
+  checkAccountKey,
   checkOwnerKey,
   corsGuard,
+  hasScope,
   issueOwnerToken,
+  listUsers,
   methodRbac,
   OWNER_SUBJECT,
+  requireScope,
+  resolveIdentity,
   secureHeaders,
   verifyOwnerToken,
+  verifySessionToken,
 } = require('../src/security');
 
 function responseMock() {
@@ -114,10 +122,11 @@ test('viewer role guard still blocks writes when called directly', () => {
   req.method = 'DELETE';
   methodRbac(req, deleteRes, () => assert.fail('viewer delete should not pass'));
   assert.equal(deleteRes.statusCode, 403);
-  assert.equal(deleteRes.body.required_role, 'admin');
+  // 2026-09-16 PM 拍板：删除不再是 admin 特权，降为 editor + 前端二次确认。
+  assert.equal(deleteRes.body.required_role, 'editor');
 });
 
-test('editor can write but cannot delete', () => {
+test('editor can write and delete (delete is confirmed on the client)', () => {
   const req = { auth: { subject: 'editor-user', role: 'editor' } };
   req.method = 'PATCH';
   let passed = false;
@@ -125,9 +134,104 @@ test('editor can write but cannot delete', () => {
   assert.equal(passed, true);
 
   req.method = 'DELETE';
+  let deletePassed = false;
+  methodRbac(req, responseMock(), () => { deletePassed = true; });
+  assert.equal(deletePassed, true);
+});
+
+// ── 2026-09-16 职能组 / scope 鉴权 ─────────────────────────────────────────
+test('roster resolves 文案 / 音频 groups', () => {
+  const copy = resolveIdentity('archili');
+  assert.ok(copy);
+  assert.equal(copy.group, 'copy');
+  assert.equal(copy.role, 'editor');
+  assert.equal(copy.name, '李光源');
+
+  const copyPm = resolveIdentity('UKONGWANG');
+  assert.equal(copyPm.group, 'copy');
+  assert.equal(copyPm.title, 'pm');
+
+  const audioPm = resolveIdentity('lycheelli');
+  assert.equal(audioPm.group, 'audio');
+  assert.equal(audioPm.role, 'admin');
+
+  assert.equal(resolveIdentity('nobody-here'), null);
+  assert.equal(resolveIdentity(''), null);
+
+  // 名单完整性（2026-09-16 PM 名单 + 后续增补）
+  const users = listUsers();
+  assert.equal(users.length, 29);
+  assert.equal(users.filter((u) => u.group === 'copy').length, 12);
+  assert.equal(users.filter((u) => u.group === 'audio').length, 17);
+  assert.equal(resolveIdentity('twinkyli').name, '李莹莹'); // 不是 twinkli
+  assert.equal(resolveIdentity('twinkli'), null);
+  assert.equal(resolveIdentity('elliexiong').name, '熊雯玥');
+  assert.equal(resolveIdentity('elliexiong').group, 'copy');
+});
+
+test('session token carries group and is honoured by scope guard', () => {
+  const copyToken = issueOwnerToken('archili');
+  const copySession = verifySessionToken(copyToken);
+  assert.equal(copySession.group, 'copy');
+  assert.equal(copySession.role, 'editor');
+
+  const copyReq = { headers: { 'x-vomi-editor': copyToken } };
+  apiAuth(copyReq, responseMock(), () => {});
+  assert.equal(copyReq.auth.group, 'copy');
+  assert.equal(hasScope(copyReq, 'schedule'), false);
+
   const res = responseMock();
-  methodRbac(req, res, () => assert.fail('editor delete should not pass'));
+  requireScope('schedule')(copyReq, res, () => assert.fail('copy group must not write schedule'));
   assert.equal(res.statusCode, 403);
+  assert.equal(res.body.error, 'scope_forbidden');
+
+  const audioToken = issueOwnerToken('axuanzhang');
+  const audioReq = { headers: { 'x-vomi-editor': audioToken } };
+  apiAuth(audioReq, responseMock(), () => {});
+  assert.equal(audioReq.auth.group, 'audio');
+  assert.equal(hasScope(audioReq, 'schedule'), true);
+  let schedulePassed = false;
+  requireScope('schedule')(audioReq, responseMock(), () => { schedulePassed = true; });
+  assert.equal(schedulePassed, true);
+});
+
+test('unlock falls back to the shared key unless a per-account key exists', () => {
+  // 名单里没配专属口令 → 用共享编辑口令
+  assert.equal(accountKeyFor('archili'), '');
+  assert.equal(checkAccountKey('archili', 'vomi-owner-2026'), true);
+  assert.equal(checkAccountKey('archili', 'nope'), false);
+  assert.equal(checkAccountKey('nobody-here', 'vomi-owner-2026'), true); // 账号存在性由上层另行判 403
+  // 未开启专属口令时，口令反查不可用（保持旧的「账号 + 共享口令」行为）
+  assert.equal(accountForKey('vomi-owner-2026'), null);
+});
+
+test('per-account key derives from master key and reverse-resolves to the account', () => {
+  const securityPath = path.resolve(__dirname, '../src/security');
+  const env = { ...process.env, NODE_ENV: 'test', VOMI_PER_ACCOUNT_KEYS: 'true', VOMI_OWNER_KEY: 'test-master-key' };
+  const script = `
+    const s = require(${JSON.stringify(securityPath)});
+    const k = s.accountKeyFor('archili');
+    process.stdout.write(JSON.stringify({
+      stable: k === s.deriveAccountKey('archili'),
+      differs: k !== s.accountKeyFor('lycheelli'),
+      reverse: s.accountForKey(k),
+      sharedRejected: s.checkAccountKey('archili', 'vomi-owner-2026'),
+      unknown: s.accountForKey('definitely-not-a-key')
+    }));
+  `;
+  const result = spawnSync(process.execPath, ['-e', script], { env, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  const out = JSON.parse(String(result.stdout || '').trim());
+  assert.equal(out.stable, true);
+  assert.equal(out.differs, true);
+  assert.equal(out.reverse, 'archili');
+  assert.equal(out.sharedRejected, false);
+  assert.equal(out.unknown, null);
+});
+
+test('auditor without group (loopback / service token) keeps schedule write', () => {
+  assert.equal(hasScope({ auth: { subject: 'loopback', role: 'admin' } }, 'schedule'), true);
+  assert.equal(hasScope({ auth: { subject: 'editor-user', role: 'editor' } }, 'schedule'), true);
 });
 
 test('admin can delete', () => {

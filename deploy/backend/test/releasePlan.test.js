@@ -395,8 +395,9 @@ test('共享版本日历按权威有效周规则生成 VO 四个关键节点', (
 
   assert.deepEqual(nodes.map((node) => [node.key, node.date]), [
     ['demand-lock', '2026-09-14'],
-    ['talent-lock', '2026-10-29'],
-    ['script-lock', '2026-11-12'],
+    // 2026-09-16 PM 拍板：声优锁 / 台词锁都是周三（+2），与需求汇总页、录制档期页一致
+    ['talent-lock', '2026-10-28'],
+    ['script-lock', '2026-11-11'],
     ['vo-delivery', '2026-12-11'],
   ]);
 });

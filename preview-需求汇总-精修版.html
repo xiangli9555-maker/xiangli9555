@@ -4,7 +4,7 @@
 <meta charset="UTF-8" data-page-node-id="T5OUhW1qsjV6fDK3mKOKUO"/>
 <title>Preview · 需求汇总精修版 · Vo Manager</title>
 <link rel="stylesheet" href="assets/project-fonts.css?v=20260817c" data-page-node-id="L9LgoWURMDUgAQhS0ljej7"/>
-<script src="assets/guest-mode.js?v=20260914"></script>
+<script src="assets/guest-mode.js?v=20260917a"></script>
 <style>
 :root{
   --c-primary:#0FF796; --c-primary-dark:#0BD980; --c-primary-glow:rgba(15,247,150,0.18);
@@ -862,7 +862,7 @@ body.embed .mid{width:100%}
 <script src="assets/roster.js?v=20260815a"></script>
 <script src="assets/tapd-snapshot.js?v=20260730ck"></script>
 <script src="assets/holiday-calendar.js?v=20260901a"></script>
-<script src="assets/release-calendar.js?v=20260901a"></script>
+<script src="assets/release-calendar.js?v=20260917a"></script>
 <script>
 (function(){
   try{
@@ -1031,11 +1031,22 @@ function ddlEffectiveDevEnd(ph){
   }
   return end;
 }
+// Vo需求锁当天（周一）：优先取公共口径里的 PM 手动锚定，否则走公式。
+// 真源 = assets/release-calendar.js 的 VO_NEED_LOCK_OVERRIDE（2026-09-17 抽成公共口径；
+// 在此之前需求汇总页完全没有 override 分支，与版本节点页可能算出不同的需求锁）。
+function ddlVoNeedLockDay(release, devEnd){
+  const rules=(typeof VOMI_RELEASE_CALENDAR!=='undefined'&&VOMI_RELEASE_CALENDAR)||null;
+  if(rules&&typeof rules.voNeedLockOverrideFor==='function'){
+    const iso=rules.voNeedLockOverrideFor(release);
+    if(iso) return ddlMonday(new Date(String(iso).replace(/-/g,'/')));
+  }
+  return ddlNthValidWeekBackwardInclusive(devEnd,11);
+}
 function scriptLockAt(release){
   const plan=findReleasePlan(release), ph=plan&&plan.phases;
   if(!ph||!ph.dev||!ph.dev.end) return null;
   const devEnd=ddlEffectiveDevEnd(ph);
-  const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
+  const lockDay=ddlVoNeedLockDay(release,devEnd);
   const estimateDay=ddlWednesday(ddlShiftValidWeeksAfter(lockDay,3));
   const scriptDay=ddlWednesday(ddlShiftValidWeeksAfter(estimateDay,2));
   const lockAt=new Date(scriptDay);
@@ -1052,7 +1063,7 @@ function estimateLockAt(release){
   const plan=findReleasePlan(release), ph=plan&&plan.phases;
   if(!ph||!ph.dev||!ph.dev.end) return null;
   const devEnd=ddlEffectiveDevEnd(ph);
-  const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
+  const lockDay=ddlVoNeedLockDay(release,devEnd);
   const estimateDay=ddlWednesday(ddlShiftValidWeeksAfter(lockDay,3));
   const at=new Date(estimateDay); at.setHours(18,0,0,0);
   return at;
@@ -1073,7 +1084,7 @@ function renderDualDdl(release){
   const plan=findReleasePlan(release), ph=plan&&plan.phases;
   if(!ph||!ph.dev||!ph.dev.end){ copyEl.textContent=voEl.textContent='—'; copyDate.textContent=voDate.textContent='无匹配版本节点'; return; }
   const devEnd=ddlEffectiveDevEnd(ph);
-  const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
+  const lockDay=ddlVoNeedLockDay(release,devEnd);
   const estimateDay=ddlWednesday(ddlShiftValidWeeksAfter(lockDay,3));
   const scriptDay=ddlWednesday(ddlShiftValidWeeksAfter(estimateDay,2));
   const voDeliver=ddlDeliveryFriday(devEnd);

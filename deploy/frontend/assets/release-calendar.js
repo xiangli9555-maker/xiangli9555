@@ -169,12 +169,53 @@
     return raw;
   }
 
+  // ── Vo需求锁手动锚定（PM 拍板 · 跳过公式）────────────────────────────
+  // 2026-09-11 PM 手动锚定 Yang1 Vo需求锁 = 2026-09-14：公式（dev.end 向前第 11 个有效周周一）
+  // 算出的日期与 PM 口径不一致，故显式声明。后续版本继续走公式。
+  // 历史：这张表原先只在「版本节点页」内联存在，「录制档期页」另有一份副本，
+  // 「需求汇总页」和本文件完全没有 override 分支 → 2026-09-17 抽成公共口径，四处统一从这里取。
+  const VO_NEED_LOCK_OVERRIDE = Object.freeze({ yang1: '2026-09-14' });
+
+  // 版本 key 强归一化：大小写 /【】/ 空格 / 下划线 / 末尾 .0 全部抹平
+  // 例：'【Yang_1.0】' / 'Yang_1.0' / 'Yang1' / 'yang1' → 'yang1'
+  function normReleaseKey(value){
+    return String(value == null ? '' : value)
+      .trim().toLowerCase()
+      .replace(/[【】\s_]/g, '')
+      .replace(/\.0$/, '');
+  }
+
+  // 入参：版本名字符串，或 release plan / version 对象（依次试 id/release/name/label/release_plan）
+  function voNeedLockOverrideFor(target){
+    if(target == null || target === '') return '';
+    if(typeof target === 'string') return VO_NEED_LOCK_OVERRIDE[normReleaseKey(target)] || '';
+    const candidates = [target.id, target.release, target.name, target.label, target.release_plan];
+    for(const c of candidates){
+      const hit = VO_NEED_LOCK_OVERRIDE[normReleaseKey(c)];
+      if(hit) return hit;
+    }
+    return '';
+  }
+
+  // Vo需求锁当天（周一）：有 override 就用 override，否则走公式。
+  // 日期串统一转成 'YYYY/MM/DD' 再解析，避免 new Date('YYYY-MM-DD') 按 UTC 午夜解析导致东八区差一天。
+  function voNeedLockDay(planOrName, devEnd, holidayCalendar){
+    const overrideIso = voNeedLockOverrideFor(planOrName);
+    if(overrideIso){
+      const raw = parseDay(String(overrideIso).replace(/-/g, '/'));
+      if(raw) return mondayOf(raw);
+    }
+    return nthValidWeekBackwardInclusive(devEnd, 11, holidayCalendar);
+  }
+
   function vomiMilestones(plan, holidayCalendar){
     const devEnd = effectiveDevEnd(plan && plan.phases);
     if(!devEnd) return [];
-    const demandLock = nthValidWeekBackwardInclusive(devEnd, 11, holidayCalendar);
-    const talentLock = addDays(shiftValidWeeksAfter(demandLock, 3, holidayCalendar), 3);
-    const scriptLock = addDays(shiftValidWeeksAfter(talentLock, 2, holidayCalendar), 3);
+    const demandLock = voNeedLockDay(plan, devEnd, holidayCalendar);
+    // 2026-09-16 PM 拍板：声优锁 / 台词锁都是**周三**（+2，+3 是周四，旧口径）。
+    // 声优锁当天 18:00 是「声优预估编辑截止」，锁点本身仍是 11:30。
+    const talentLock = addDays(shiftValidWeeksAfter(demandLock, 3, holidayCalendar), 2);
+    const scriptLock = addDays(shiftValidWeeksAfter(talentLock, 2, holidayCalendar), 2);
     const delivery = deliveryFriday(devEnd, holidayCalendar);
     return [
       { key:'demand-lock', label:'Vo需求锁', date:keyOf(demandLock, holidayCalendar), roles:['pm','writer'] },
@@ -208,6 +249,10 @@
     clampFrom,
     clampFromCached,
     vomiMilestones,
+    VO_NEED_LOCK_OVERRIDE,
+    normReleaseKey,
+    voNeedLockOverrideFor,
+    voNeedLockDay,
     load,
     setPlans
   };

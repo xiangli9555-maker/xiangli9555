@@ -264,10 +264,11 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .yc-cell.ph-release{background:#12382E}
 /* 发布期不再特化 .yc-range 字号/颜色，与其他格保持一致 */
 .yc-cell.ph-release .yc-note{color:var(--c-primary);font-weight:700;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-size:10px}
-.yc-cell.this-week:not(.empty):not(.overflow):not(.is-holiday){outline:2px solid var(--c-primary);outline-offset:-2px;background:rgba(15,248,155,0.08)!important}
+.yc-cell.this-week:not(.empty):not(.overflow):not(.is-holiday):not(.blank-dup){outline:2px solid var(--c-primary);outline-offset:-2px;background:rgba(15,248,155,0.08)!important}
 .yc-cell.empty{background:var(--c-bg)!important;opacity:1}
 .yc-cell.overflow{background:var(--c-bg)!important;opacity:1}
-.yc-cell.past-week:not(.empty):not(.overflow):not(.is-holiday){opacity:.42}
+.yc-cell.blank-dup{background:var(--c-bg)!important;opacity:1}
+.yc-cell.past-week:not(.empty):not(.overflow):not(.is-holiday):not(.blank-dup){opacity:.42}
 .yc-cell.overflow .yc-range{background:transparent;color:var(--c-text-mute)}
 /* 连续空/越界/节假日格视觉合并：若当前格是深底空格类，且右邻也是同类，
    消掉自己右侧的 1px 内阴影分隔线（仅保留下边线，最外圈边框仍存） */
@@ -1338,6 +1339,15 @@ function renderTimeline(){
       const wkMon = new Date(phStart.getTime() + slot.idx*7*86400000);
       const spanCount = (slotHolOverlap[si] ? slotMerge[si].span : 1);
       const wkSun = new Date(wkMon.getTime() + (spanCount*7 - 1)*86400000);
+      // 发布期重复周留空（PM 2026-09-16）：发布期格的周若与渲染顺序中下一版本的总跨度相交，
+      // 同一日期范围已在下一版本行（如 Yang1 开发 W1 = 11.9-11.15 = Ma5 海外发布周）显示 →
+      // 本行该格按空白占位处理（对齐 PM 提供的空白格样式），只保留开发/转测侧的显示，消除屏上重复
+      const nextVer = vers[vi+1] || null;
+      let relDupBlank = false;
+      if(slot.phase === 'release' && nextVer && nextVer.phases && nextVer.phases.length){
+        const ns = d(nextVer.phases[0].start), ne = d(nextVer.phases[nextVer.phases.length-1].end);
+        relDupBlank = (wkMon <= ne && wkSun >= ns);
+      }
       const isThisWeek = wkMon.getTime() === VIEW_START.getTime();
       const isPast = wkSun < TODAY && !isThisWeek;
       const isHol = !!slotHolOverlap[si];
@@ -1345,6 +1355,7 @@ function renderTimeline(){
       if(isThisWeek) cls += ' this-week';
       if(isPast)     cls += ' past-week';
       if(isOverflow) cls += ' overflow';
+      if(relDupBlank) cls += ' blank-dup';
       // 所有节假日周 → 统一深底节假日格（不计入事项/时间）
       if(isHol) cls += ' is-holiday';
       td.className = cls;
@@ -1461,17 +1472,18 @@ function renderTimeline(){
         evtHtml = rows.map(ev => `<div class="yc-row yc-row-single">${chipOf(ev)}</div>`).join('');
       }
       // 越界格（本版本 dev/test 周数不足）：不显示日期/事件，仅作为对齐占位，避免与相邻真格日期重复
-      if(isOverflow){
+      // 发布期重复周（relDupBlank）：与下一版本行重复的周，无事项时整格留空；有事项时仅去掉重复的日期范围
+      if(isOverflow || (relDupBlank && !wkEvents.length)){
         td.innerHTML = '';
       } else if(isHol){
         // 节假日周：深底 + 日期 + 黄框标签，事项一律不计入/不显示
         td.innerHTML = `<div class="yc-cell-body">`
-          + `<div class="yc-range">${rangeStr}</div>`
+          + (relDupBlank ? '' : `<div class="yc-range">${rangeStr}</div>`)
           + (note ? `<div class="yc-note holiday">${note}</div>` : '')
           + `</div>`;
       } else {
         td.innerHTML = `<div class="yc-cell-body">`
-          + `<div class="yc-range">${rangeStr}</div>`
+          + (relDupBlank ? '' : `<div class="yc-range">${rangeStr}</div>`)
           + (note ? `<div class="yc-note holiday">${note}</div>` : '')
           + evtHtml
           + `</div>`;

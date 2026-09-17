@@ -600,3 +600,18 @@ test('节点归属去重：版本节点页点事件按自身版本行优先，�
     '版本节点页仍存在未去重的点事件筛选分支',
   );
 });
+
+// ── 发布期重复周留空守卫（2026-09-16 PM）：发布期周与下一版本行重复 → 空白占位格 ──
+// 背景：Ma5 海外发布周 11.9-11.15 = Yang1 开发 W1、Yang1 海外 1.25-1.31 = Yang2 开发 W1，
+// 同一日期范围在屏上出现两次；PM 裁定保留开发周侧，发布期侧整格留空（对齐空白格样式）。
+test('发布期重复周留空：版本节点页发布期格与下一版本总跨度相交时按空白占位渲染', () => {
+  const node = readProjectFile('preview-版本节点-精修版.html');
+  assert.equal(/发布期重复周留空（PM 2026-09-16）/.test(node), true, '版本节点页缺少发布期重复周留空逻辑注释');
+  assert.equal(/let relDupBlank = false;/.test(node), true, '版本节点页缺少 relDupBlank 判定');
+  assert.equal(/relDupBlank = \(wkMon <= ne && wkSun >= ns\);/.test(node), true, '发布期重复周判定未按下一版本总跨度相交计算');
+  assert.equal(/if\(isOverflow \|\| \(relDupBlank && !wkEvents\.length\)\)\{\s*\n\s*td\.innerHTML = '';/.test(node), true, '发布期重复周格未按空白占位渲染');
+  assert.equal(/\.yc-cell\.blank-dup\{background:var\(--c-bg\)!important;opacity:1\}/.test(node), true, '版本节点页缺少 .blank-dup 空白格样式');
+  // 本周高亮 / 过往周减淡不得作用于空白占位格
+  assert.equal(/\.yc-cell\.this-week:not\(\.empty\):not\(\.overflow\):not\(\.is-holiday\):not\(\.blank-dup\)\{/.test(node), true, 'this-week 高亮未排除 blank-dup');
+  assert.equal(/\.yc-cell\.past-week:not\(\.empty\):not\(\.overflow\):not\(\.is-holiday\):not\(\.blank-dup\)\{/.test(node), true, 'past-week 减淡未排除 blank-dup');
+});

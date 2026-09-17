@@ -260,6 +260,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 /* 4 类 phase 单元底色 · 与表头分组同色系，色块统一 α=.10 保持体感一致 */
 .yc-cell.ph-w0     {background:rgba(27,37,38,0.48)}
 .yc-cell.ph-dev    {background:#1C2D3A}
+.yc-cell.ph-verify {background:#1C2D3A}
 .yc-cell.ph-test   {background:#303126}
 .yc-cell.ph-release{background:#12382E}
 /* 发布期不再特化 .yc-range 字号/颜色，与其他格保持一致 */
@@ -1168,10 +1169,29 @@ function renderTimeline(){
   const tbody = document.getElementById('ycBody');
   const vers = visibleVers();
 
+  // 验证周（PM 2026-09-17）：dev.end 与 test.start 之间的空档（与「验证周视同开发周」节点口径一致，空档 2~29 天才扩展），
+  // 在日历中作为独立列显示（与开发期同色），列数取全部渲染版本的最大验证周数（至少 1 列，无空档的版本留空占位）
+  const isoDate = dt => dt.getFullYear() + '/' + (dt.getMonth() + 1) + '/' + dt.getDate();
+  const verifyPhaseOf = v => {
+    const dev = v.phases.find(p=>p.type==='dev'), test = v.phases.find(p=>p.type==='test');
+    if(!dev || !test) return null;
+    const gap = Math.round((d(test.start) - d(dev.end)) / 86400000) - 1; // dev.end 次日起到 test.start 前一天
+    if(gap < 2 || gap > 29) return null;
+    return {
+      type: 'verify',
+      start: isoDate(new Date(d(dev.end).getTime() + 86400000)),
+      end: isoDate(new Date(d(test.start).getTime() - 86400000)),
+      weeks: Math.ceil(gap / 7),
+    };
+  };
+  // 统一取 phase：verify 用虚拟 phase（start=dev.end+1, end=test.start-1），其余走原始数据
+  const phaseOf = (v, type) => type === 'verify' ? verifyPhaseOf(v) : v.phases.find(p=>p.type===type);
+
   // 列数由实际数据驱动：取全部渲染版本的最大开发周/测试周数（至少 4），避免周数超过 4 时丢失周（如 Ma5 测 5 周、Yang1 开 5 周）
   const maxDev  = Math.max(4, ...vers.map(v => (v.phases.find(p=>p.type==='dev')?.weeks) || 0));
   const maxTest = Math.max(4, ...vers.map(v => (v.phases.find(p=>p.type==='test')?.weeks) || 0));
-  const totalCols = 1 + 1 + maxDev + maxTest + 1 + 1; // 年度+里程碑+dev+test+release(1 周)+工作日
+  const maxVerify = Math.max(1, ...vers.map(v => (verifyPhaseOf(v)?.weeks) || 0));
+  const totalCols = 1 + 1 + maxDev + maxVerify + maxTest + 1 + 1; // 年度+里程碑+dev+验证周+test+release(1 周)+工作日
 
   if(!vers.length){
     thead.innerHTML = '';
@@ -1179,15 +1199,16 @@ function renderTimeline(){
     updateStats(); return;
   }
 
-  // 固定列数：开发期 maxDev 周 / 转测期 maxTest 周 / 发布期 1 周（maxDev/maxTest 由上方数据驱动计算）
+  // 固定列数：开发期 maxDev 周 / 验证周 maxVerify 周 / 转测期 maxTest 周 / 发布期 1 周（maxDev/maxTest 由上方数据驱动计算）
 
   // --- Colgroup：控制列宽比例（固定列紧凑 + 周列均分剩余空间） ---
-  // table-layout:fixed + colgroup → 固定列给精确 px，所有周列（dev/test/release 国内海外）统一宽度
+  // table-layout:fixed + colgroup → 固定列给精确 px，所有周列（dev/verify/test/release）统一宽度
   const WEEK_W = 88; // 所有周列宽（px）· dev/test/release 全部一致
   let cg = '<colgroup>';
   cg += '<col style="width:56px">';   // 年度
   cg += '<col style="width:92px">';    // 里程碑
   for(let i=0; i<maxDev; i++)  cg += `<col style="width:${WEEK_W}px">`;   // 开发期各周（严格等宽）
+  for(let i=0; i<maxVerify; i++) cg += `<col style="width:${WEEK_W}px">`; // 验证周
   for(let i=0; i<maxTest; i++) cg += `<col style="width:${WEEK_W}px">`;   // 转测期各周
   cg += `<col style="width:${WEEK_W}px">`;    // 发布期（单周）
   cg += '<col style="width:76px">';    // 工作日
@@ -1199,6 +1220,7 @@ function renderTimeline(){
     + '<th class="yc-th-year" rowspan="2">年度</th>'
     + '<th class="yc-th-ms" rowspan="2">里程碑</th>'
     + `<th class="yc-th-group yc-grp-dev" colspan="${maxDev}">开发期</th>`
+    + `<th class="yc-th-group yc-grp-dev" colspan="${maxVerify}">验证周</th>`
     + `<th class="yc-th-group yc-grp-test" colspan="${maxTest}">转测期</th>`
     + '<th class="yc-th-group yc-grp-rel" colspan="1">发布期</th>'
     + '<th class="yc-th-days" rowspan="2">开发工作日</th>'
@@ -1207,6 +1229,7 @@ function renderTimeline(){
   const CN = ['零','一','二','三','四','五','六','七','八','九','十','十一','十二','十三'];
   let hRow2 = '<tr>';
   for(let i=0; i<maxDev; i++)  hRow2 += `<th class="yc-th-week yc-grp-dev">第${CN[i+1]||i+1}周</th>`;
+  for(let i=0; i<maxVerify; i++) hRow2 += `<th class="yc-th-week yc-grp-dev">验证周</th>`;
   for(let i=0; i<maxTest; i++) hRow2 += `<th class="yc-th-week yc-grp-test">第${CN[i+1]||i+1}周</th>`;
   hRow2 += `<th class="yc-th-week yc-grp-rel">发布周</th>`;
   hRow2 += '</tr>';
@@ -1280,16 +1303,18 @@ function renderTimeline(){
     tdMs.innerHTML = `<div class="ms-ver">${ver.name}</div><div class="ms-eq">${devW}+${testW}+${relW}</div>`;
     tr.appendChild(tdMs);
 
-    // Weeks 顺序：dev[0..maxDev-1] + test[0..maxTest-1] + release[发布周]（海外周已按 PM 要求取消）
+    // Weeks 顺序：dev[0..maxDev-1] + verify[0..maxVerify-1] + test[0..maxTest-1] + release[发布周]
+    // 验证周 = dev.end 与 test.start 之间的空档（独立列，与开发期同色）；无空档的版本该列留空占位
     // maxDev/maxTest 已由全部版本最大周数驱动，故不再有周数溢出/挤占；周数不足的版本以空格对齐，不截断、不丢周
     const slots = [];
     for(let i=0;i<maxDev;i++)  slots.push({phase:'dev', idx:i});
+    for(let i=0;i<maxVerify;i++) slots.push({phase:'verify', idx:i});
     for(let i=0;i<maxTest;i++) slots.push({phase:'test', idx:i});
     slots.push({phase:'release', idx:0}); // 发布周（仅第一周）
 
     // 预先计算每个 slot 对应周是否与 HOLIDAYS 相交（全量判定：无论是否有事件/节点/倒数周，只要相交即算节假日）
     const slotHolOverlap = slots.map(slot => {
-      const ph2 = ver.phases.find(p=>p.type===slot.phase);
+      const ph2 = phaseOf(ver, slot.phase);
       if(!ph2 || slot.idx >= ph2.weeks) return null;
       if(slot.phase === 'release') return null;
       const ph2Start = d(ph2.start);
@@ -1307,8 +1332,11 @@ function renderTimeline(){
     for(let s=0; s<slots.length; s++){
       const h = slotHolOverlap[s]; if(!h) continue;
       if(slotMerge[s].skip) continue;
+      // 验证周是独立列（PM 2026-09-17），不作为合并头，也不被相邻组的节假日合并吞并 → 组边界永不跨列
+      if(slots[s].phase === 'verify') continue;
       let span = 1;
       for(let t=s+1; t<slots.length; t++){
+        if(slots[t].phase === 'verify') break;  // 合并不跨验证周边界
         const h2 = slotHolOverlap[t]; if(!h2) break;  // 遇到非节假日周即终止合并
         span++;
         slotMerge[t].skip = true;
@@ -1320,7 +1348,7 @@ function renderTimeline(){
       const slot = slots[si];
       if(slotMerge[si].skip) continue; // 被前一个节假日格合并了
       const td = document.createElement('td');
-      const ph = ver.phases.find(p=>p.type===slot.phase);
+      const ph = phaseOf(ver, slot.phase);
       if(!ph){
         td.className = 'yc-cell empty';
         tr.appendChild(td);

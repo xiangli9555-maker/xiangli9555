@@ -1158,7 +1158,8 @@ async function loadReleasePlans(){
 
 // ================================================================
 // YEAR CALENDAR — 里程碑 × 阶段分组周表（对齐 dfai 年度版本节奏）
-// 列结构：年度 | 里程碑 | 开发期(maxDev) | 转测期(maxTest) | 发布期(国内+海外) | 工作日
+// 列结构：年度 | 里程碑 | 开发期(maxDev) | 转测期(maxTest) | 发布期(1 周) | 工作日
+// 发布期原为「国内+海外」两列；PM 2026-09-17：海外周恒等于下一版本开发 W1（屏上重复且内容为空）→ 取消第二列，只保留发布第一周
 // 每版本 dev/test 周数不同 → 列数按全局 max(dev)/max(test) 补齐；表头周序号「第N周」各阶段独立从第一周起算
 //   （开发第一~N周 / 转测第一~M周 / 发布第一~二周，各自独立编号）
 // ================================================================
@@ -1170,7 +1171,7 @@ function renderTimeline(){
   // 列数由实际数据驱动：取全部渲染版本的最大开发周/测试周数（至少 4），避免周数超过 4 时丢失周（如 Ma5 测 5 周、Yang1 开 5 周）
   const maxDev  = Math.max(4, ...vers.map(v => (v.phases.find(p=>p.type==='dev')?.weeks) || 0));
   const maxTest = Math.max(4, ...vers.map(v => (v.phases.find(p=>p.type==='test')?.weeks) || 0));
-  const totalCols = 1 + 1 + maxDev + maxTest + 2 + 1; // 年度+里程碑+dev+test+release(国内+海外)+工作日
+  const totalCols = 1 + 1 + maxDev + maxTest + 1 + 1; // 年度+里程碑+dev+test+release(1 周)+工作日
 
   if(!vers.length){
     thead.innerHTML = '';
@@ -1178,7 +1179,7 @@ function renderTimeline(){
     updateStats(); return;
   }
 
-  // 固定列数：开发期 maxDev 周 / 转测期 maxTest 周 / 发布期 2 周（maxDev/maxTest 由上方数据驱动计算）
+  // 固定列数：开发期 maxDev 周 / 转测期 maxTest 周 / 发布期 1 周（maxDev/maxTest 由上方数据驱动计算）
 
   // --- Colgroup：控制列宽比例（固定列紧凑 + 周列均分剩余空间） ---
   // table-layout:fixed + colgroup → 固定列给精确 px，所有周列（dev/test/release 国内海外）统一宽度
@@ -1188,8 +1189,7 @@ function renderTimeline(){
   cg += '<col style="width:92px">';    // 里程碑
   for(let i=0; i<maxDev; i++)  cg += `<col style="width:${WEEK_W}px">`;   // 开发期各周（严格等宽）
   for(let i=0; i<maxTest; i++) cg += `<col style="width:${WEEK_W}px">`;   // 转测期各周
-  cg += `<col style="width:${WEEK_W}px">`;    // 发布-国内
-  cg += `<col style="width:${WEEK_W}px">`;    // 发布-海外
+  cg += `<col style="width:${WEEK_W}px">`;    // 发布期（单周）
   cg += '<col style="width:76px">';    // 工作日
   cg += '</colgroup>';
 
@@ -1200,7 +1200,7 @@ function renderTimeline(){
     + '<th class="yc-th-ms" rowspan="2">里程碑</th>'
     + `<th class="yc-th-group yc-grp-dev" colspan="${maxDev}">开发期</th>`
     + `<th class="yc-th-group yc-grp-test" colspan="${maxTest}">转测期</th>`
-    + '<th class="yc-th-group yc-grp-rel" colspan="2">发布期</th>'
+    + '<th class="yc-th-group yc-grp-rel" colspan="1">发布期</th>'
     + '<th class="yc-th-days" rowspan="2">开发工作日</th>'
     + '</tr>';
   // 周序号放在表头第二行（各阶段各自从第一周起算：开发/转测/发布均从「第一周」开始独立编号）
@@ -1208,8 +1208,7 @@ function renderTimeline(){
   let hRow2 = '<tr>';
   for(let i=0; i<maxDev; i++)  hRow2 += `<th class="yc-th-week yc-grp-dev">第${CN[i+1]||i+1}周</th>`;
   for(let i=0; i<maxTest; i++) hRow2 += `<th class="yc-th-week yc-grp-test">第${CN[i+1]||i+1}周</th>`;
-  hRow2 += `<th class="yc-th-week yc-grp-rel">第一周</th>`;
-  hRow2 += `<th class="yc-th-week yc-grp-rel">第二周</th>`;
+  hRow2 += `<th class="yc-th-week yc-grp-rel">发布周</th>`;
   hRow2 += '</tr>';
   // 注入 colgroup（控制列宽比例）+ thead 内容
   const tableEl = document.getElementById('ycTable');
@@ -1281,13 +1280,12 @@ function renderTimeline(){
     tdMs.innerHTML = `<div class="ms-ver">${ver.name}</div><div class="ms-eq">${devW}+${testW}+${relW}</div>`;
     tr.appendChild(tdMs);
 
-    // Weeks 顺序：dev[0..maxDev-1] + test[0..maxTest-1] + release[国内, 海外]
+    // Weeks 顺序：dev[0..maxDev-1] + test[0..maxTest-1] + release[发布周]（海外周已按 PM 要求取消）
     // maxDev/maxTest 已由全部版本最大周数驱动，故不再有周数溢出/挤占；周数不足的版本以空格对齐，不截断、不丢周
     const slots = [];
     for(let i=0;i<maxDev;i++)  slots.push({phase:'dev', idx:i});
     for(let i=0;i<maxTest;i++) slots.push({phase:'test', idx:i});
-    slots.push({phase:'release', idx:0}); // 国内
-    slots.push({phase:'release', idx:1}); // 海外
+    slots.push({phase:'release', idx:0}); // 发布周（仅第一周）
 
     // 预先计算每个 slot 对应周是否与 HOLIDAYS 相交（全量判定：无论是否有事件/节点/倒数周，只要相交即算节假日）
     const slotHolOverlap = slots.map(slot => {

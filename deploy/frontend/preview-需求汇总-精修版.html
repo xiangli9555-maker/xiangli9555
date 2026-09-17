@@ -474,6 +474,20 @@ body.embed .mid{width:100%}
   .ve-category-sub::before{content:'>';color:var(--c-primary);opacity:.7;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;flex:0 0 auto}
   .ve-category-close{width:26px;height:26px;border:1px solid var(--c-hairline);border-radius:0;background:transparent;color:var(--c-text-2);cursor:pointer;font-size:16px;line-height:1;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);transition:all .12s;flex-shrink:0}
   .ve-category-close:hover{border-color:var(--c-primary);color:var(--c-primary)}
+  .ve-sel-all{display:flex;align-items:center;gap:10px;margin-left:auto;margin-right:12px;flex:0 0 auto}
+  .ve-sel-pick{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
+  .ve-sel-pick input{position:absolute;opacity:0;margin:0;width:14px;height:14px;cursor:pointer}
+  .ve-sel-pick{position:relative}
+  .ve-sel-pick .ve-pick-box{position:relative;width:14px;height:14px;flex:0 0 auto;border:1.5px solid var(--c-border-strong,#475660);background:transparent;transition:border-color .12s,background .12s}
+  .ve-sel-pick input:checked + .ve-pick-box{border-color:var(--c-primary);background:var(--c-primary)}
+  .ve-sel-pick input:checked + .ve-pick-box::after{content:'';position:absolute;left:3px;top:2px;width:5px;height:9px;border:solid #0A1015;border-width:0 1.8px 1.8px 0;transform:rotate(45deg)}
+  .ve-sel-text{font-size:12px;color:var(--c-text-2);letter-spacing:0;white-space:nowrap}
+  .ve-sel-pick:hover .ve-pick-box{border-color:var(--c-text-mute)}
+  .ve-sel-pick input:checked ~ .ve-sel-text{color:var(--c-primary)}
+  .ve-sel-lines{width:64px;background:#0A1015;border:1px solid var(--c-hairline);border-radius:0;color:var(--c-text);padding:5px 8px;text-align:right;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:12px;font-weight:500;appearance:textfield;clip-path:polygon(3px 0,100% 0,100% calc(100% - 3px),calc(100% - 3px) 100%,0 100%,0 3px);transition:border-color .12s}
+  .ve-sel-lines::-webkit-inner-spin-button,.ve-sel-lines::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .ve-sel-lines::placeholder{color:var(--c-text-dim)}
+  .ve-sel-lines:focus{outline:none;border-color:var(--c-primary)}
   .ve-category-tools{padding:10px 14px;border-bottom:1px solid var(--c-hairline);display:flex;align-items:center;gap:10px}
   .ve-category-search{width:100%;background:#0B1216;border:1px solid var(--c-hairline);border-radius:0;color:var(--c-text);padding:8px 10px;font-family:inherit;font-size:12.5px;letter-spacing:0;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);transition:border-color .12s}
   .ve-category-search::placeholder{color:var(--c-text-dim);letter-spacing:0}
@@ -828,6 +842,10 @@ body.embed .mid{width:100%}
 <section class="ve-category-popover" id="veCategoryPopover" role="dialog" aria-modal="false" aria-labelledby="veCategoryTitle" tabindex="-1" data-page-node-id="LmXck1aY2zF6OiC6o87dqr">
   <header class="ve-category-head" data-page-node-id="CT4gHCX68KNgjNRpcIJlLY">
     <div data-page-node-id="brQU1b1tQUWt4zsWwHctA6"><div class="ve-category-title" id="veCategoryTitle" data-page-node-id="ktBtGPCyjZgZwFF7fwNhpe">声优预估</div><div class="ve-category-sub" id="veCategorySub" data-page-node-id="TssiNknvxwPj45fLkpfIwl">点击角色右侧输入句数</div></div>
+    <div class="ve-sel-all" id="veSelAllWrap" hidden>
+      <label class="ve-sel-pick" title="全选编号干员（名字以数字开头）"><input type="checkbox" id="veSelAll" onchange="veToggleSelectAll(this)"/><span class="ve-pick-box"></span><span class="ve-sel-text">全选</span></label>
+      <input class="ve-sel-lines" id="veSelAllLines" type="number" min="0" max="999999" inputmode="numeric" placeholder="句数" aria-label="全选统一句数" oninput="veApplySelectAllLines(this)" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"/>
+    </div>
     <button class="ve-category-close" type="button" onclick="closeVeCategory()" aria-label="关闭声优预估框" data-page-node-id="5JCGWJGqjnORiiTeoEk0NM">×</button>
   </header>
   <div class="ve-category-tools" data-page-node-id="gQAdAs9q5UjDd8yQ5aunAB">
@@ -934,6 +952,7 @@ async function loadHolidaysAuto(){
 }
 function ddlDate(s){ const p=String(s||'').split(/[/\-]/).map(Number); return new Date(p[0],(p[1]||1)-1,p[2]||1); }
 function ddlMonday(date){ const r=new Date(date); const dw=(r.getDay()+6)%7; r.setDate(r.getDate()-dw); r.setHours(0,0,0,0); return r; }
+function ddlWednesday(date){ const r=ddlMonday(date); r.setDate(r.getDate()+2); return r; }
 function ddlThursday(date){ const r=ddlMonday(date); r.setDate(r.getDate()+3); return r; }
 function ddlFriday(date){ const r=ddlMonday(date); r.setDate(r.getDate()+4); return r; }
 // 与版本节点页同源：国内放假区间任一日或圣诞节12/25命中，整周无效。
@@ -997,8 +1016,8 @@ async function loadReleasePlans(){
 }
 // 双 DDL 以版本节点页为权威口径（2026-08-20）：
 //   Vo需求锁 = 从开发最后周含当周向前数第11个有效周 周一
-//   声优锁 = 锁周之后第3个有效周 周四11:30
-//   台词锁 = 声优锁周之后第2个有效周 周四11:30（文案DDL）
+//   声优锁 = 锁周之后第3个有效周 周三11:30（PM 2026-09-14 由周四调整为周三，2026-09-17 再次确认）
+//   台词锁 = 声优锁周之后第2个有效周 周三11:30（文案DDL，同为周三）
 //   VO资源交付 = 开发倒数第二周周五；该周无效则提前至前一个有效周周五
 // 验证周口径（2026-09-16 PM）：DFAI 把「验证周」从开发期拆出，落在 dev.end 与 test.start 之间；
 // 节点计算时验证周视同开发周 → 有效开发结束日 = test.start 前一天（空档 2~29 天才扩展，防脏数据）。
@@ -1017,10 +1036,10 @@ function scriptLockAt(release){
   if(!ph||!ph.dev||!ph.dev.end) return null;
   const devEnd=ddlEffectiveDevEnd(ph);
   const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
-  const estimateThu=ddlThursday(ddlShiftValidWeeksAfter(lockDay,3));
-  const scriptThu=ddlThursday(ddlShiftValidWeeksAfter(estimateThu,2));
-  const lockAt=new Date(scriptThu);
-  lockAt.setHours(11,30,0,0); // 台词锁时间：周四 11:30
+  const estimateDay=ddlWednesday(ddlShiftValidWeeksAfter(lockDay,3));
+  const scriptDay=ddlWednesday(ddlShiftValidWeeksAfter(estimateDay,2));
+  const lockAt=new Date(scriptDay);
+  lockAt.setHours(11,30,0,0); // 台词锁时间：周三 11:30
   return lockAt;
 }
 function isScriptLocked(release, now=new Date()){
@@ -1034,8 +1053,8 @@ function estimateLockAt(release){
   if(!ph||!ph.dev||!ph.dev.end) return null;
   const devEnd=ddlEffectiveDevEnd(ph);
   const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
-  const estimateThu=ddlThursday(ddlShiftValidWeeksAfter(lockDay,3));
-  const at=new Date(estimateThu); at.setHours(18,0,0,0);
+  const estimateDay=ddlWednesday(ddlShiftValidWeeksAfter(lockDay,3));
+  const at=new Date(estimateDay); at.setHours(18,0,0,0);
   return at;
 }
 function estimateEditable(release, now=new Date()){
@@ -1055,14 +1074,14 @@ function renderDualDdl(release){
   if(!ph||!ph.dev||!ph.dev.end){ copyEl.textContent=voEl.textContent='—'; copyDate.textContent=voDate.textContent='无匹配版本节点'; return; }
   const devEnd=ddlEffectiveDevEnd(ph);
   const lockDay=ddlNthValidWeekBackwardInclusive(devEnd,11);
-  const estimateThu=ddlThursday(ddlShiftValidWeeksAfter(lockDay,3));
-  const scriptThu=ddlThursday(ddlShiftValidWeeksAfter(estimateThu,2));
+  const estimateDay=ddlWednesday(ddlShiftValidWeeksAfter(lockDay,3));
+  const scriptDay=ddlWednesday(ddlShiftValidWeeksAfter(estimateDay,2));
   const voDeliver=ddlDeliveryFriday(devEnd);
   const now=new Date();
-  const copyLeft=ddlWorkdaysLeft(now,scriptThu), voLeft=ddlWorkdaysLeft(now,voDeliver);
+  const copyLeft=ddlWorkdaysLeft(now,scriptDay), voLeft=ddlWorkdaysLeft(now,voDeliver);
   copyEl.textContent=copyLeft>=0?copyLeft:`逾期${Math.abs(copyLeft)}`;
   voEl.textContent=voLeft>=0?voLeft:`逾期${Math.abs(voLeft)}`;
-  copyDate.textContent=`台词锁周四 · ${ddlFmt(scriptThu)}`;
+  copyDate.textContent=`台词锁周三 · ${ddlFmt(scriptDay)}`;
   voDate.textContent=`VO资源交付周五 · ${ddlFmt(voDeliver)}`;
 }
 // 排序状态（默认按状态 stage 升序，与旧行为一致）
@@ -1561,6 +1580,7 @@ async function openVeCategory(demandId,cat,anchor){
   document.getElementById('veCategoryReadonly').textContent=veReadonlyReason(d);
   document.getElementById('veCategorySave').hidden=VE_CATEGORY.readonly;
   document.getElementById('veCategorySearch').value='';
+  const selLines=document.getElementById('veSelAllLines');if(selLines)selLines.value='';
   pop.classList.add('open');anchor.setAttribute('aria-expanded','true');renderVeCategoryRoles();
   requestAnimationFrame(()=>{positionVeCategory(anchor);pop.focus({preventScroll:true});});
 }
@@ -1623,6 +1643,53 @@ function renderVeCategoryRoles(){
     const picked=VE_CATEGORY.draft.get(veDraftKey(r.role_cn)),value=picked?Number(picked.estimated_lines)||0:'',isOn=value>0;
     return `<div class="ve-role-row${isOn?' filled':''}" onclick="veRowClick(event,this)"><label class="ve-role-pick" onclick="event.stopPropagation()"><input type="checkbox" data-role="${esc(r.role_cn)}" data-role-id="${r.id||''}" ${isOn?'checked':''} onchange="vePickRole(this)" aria-label="${esc(r.role_cn)}选中"${disabled}/><span class="ve-pick-box"></span></label><span class="ve-role-name">${esc(r.role_cn)}</span><input data-role="${esc(r.role_cn)}" data-role-id="${r.id||''}" data-actual="${picked?Number(picked.actual_lines)||0:0}" type="number" min="0" max="999999" inputmode="numeric" value="${value}" placeholder="句数" oninput="veChangeLines(this)" onclick="event.stopPropagation()" onfocus="this.select()" onkeydown="veLineKeydown(event,this)" aria-label="${esc(r.role_cn)}预估句数"${disabled}/></div>`;
   }).join('')}</div>`;
+  veSyncSelectAll();
+}
+// ── 全选编号干员（PM 2026-09-17）：名字以数字开头的干员批量勾选 + 统一句数 ──
+// 判定：角色名以 1~4 位数字开头（01红狼 / 18维罗妮卡… / 10无名）；哈夫克系、平民、Sulis 等无编号角色不受影响
+function veIsNumberedRole(name){ return /^[0-9０-９]{1,4}/.test(String(name||'')); }
+// 全选作用域 = 当前弹窗大类 + 当前搜索过滤后的可见列表（所见即所得）
+function veSelectAllTargets(){
+  if(!VE_CATEGORY.demand)return [];
+  const q=veNorm(document.getElementById('veCategorySearch')?.value||'');
+  const source=VE_ROSTER_BY_CAT.get(VE_CATEGORY.cat)||[];
+  const roles=q?source.filter(r=>veNorm(r.role_cn).includes(q)||veNorm(r.role_en).includes(q)):source;
+  return roles.filter(r=>veIsNumberedRole(r.role_cn));
+}
+function veApplyDraftLines(role,roleId,lines){
+  const key=veDraftKey(role),old=VE_CATEGORY.draft.get(key);
+  if(lines>0){
+    if(old)old.estimated_lines=lines;
+    else VE_CATEGORY.draft.set(key,{role_name:role,role_id:Number(roleId)||null,category:VE_CATEGORY.cat,language:'cn',estimated_lines:lines,actual_lines:0});
+  }else if(old)VE_CATEGORY.draft.delete(key);
+}
+function veToggleSelectAll(cb){
+  if(VE_CATEGORY.readonly||VE_CATEGORY.saving){cb.checked=!cb.checked;return;}
+  const box=document.getElementById('veSelAllLines');
+  const lines=Math.max(0,Math.floor(Number(box?.value)||0));
+  const applied=lines>0?lines:1; // 句数框为空时按 1 句勾选（与单行勾选行为一致）
+  const targets=veSelectAllTargets();
+  for(const r of targets){
+    if(cb.checked)veApplyDraftLines(r.role_cn,r.id,applied);
+    else veApplyDraftLines(r.role_cn,r.id,0); // 取消全选只清编号干员，手动勾过的非编号角色不动
+  }
+  renderVeCategoryRoles();
+}
+function veApplySelectAllLines(input){
+  const cb=document.getElementById('veSelAll');
+  if(!cb||!cb.checked||VE_CATEGORY.readonly||VE_CATEGORY.saving)return;
+  const lines=Math.max(0,Math.floor(Number(input.value)||0));
+  if(lines<=0)return; // 空白/0 不批量动作，避免误清已填句数
+  for(const r of veSelectAllTargets())veApplyDraftLines(r.role_cn,r.id,lines);
+  renderVeCategoryRoles();
+}
+function veSyncSelectAll(){
+  const wrap=document.getElementById('veSelAllWrap'),cb=document.getElementById('veSelAll');
+  if(!wrap||!cb)return;
+  if(VE_CATEGORY.readonly){wrap.hidden=true;return;}
+  wrap.hidden=false;
+  const targets=veSelectAllTargets();
+  cb.checked=targets.length>0&&targets.every(r=>{const d=VE_CATEGORY.draft.get(veDraftKey(r.role_cn));return d&&(Number(d.estimated_lines)||0)>0;});
 }
 async function saveVeCategory(){
   if(!VE_CATEGORY.demand||VE_CATEGORY.saving)return;
@@ -2239,7 +2306,7 @@ function updateKPI(){
   document.getElementById('kpiPctMain').textContent = fmt(pct);
   document.getElementById('kpiProgMetaMain').textContent = `${cPend}待澄清 · ${cWrite}文案ing · ${cHandover}已交稿 · ${cVo}Vo ing · ${cDone}Done`;
 
-  // 双 DDL 与版本节点同源：台词终锁定周四 / VO资源交付周五，按工作日倒数。
+  // 双 DDL 与版本节点同源：台词终锁定周三 / VO资源交付周五，按工作日倒数。
   renderDualDdl(rel);
 
   // ── 隐藏旧元素（兼容）──

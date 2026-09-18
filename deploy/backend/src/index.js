@@ -23,6 +23,7 @@ const {
   positiveInt,
   publicError,
   rateLimit,
+  requireLogin,
   requireRole,
   requireScope,
   resolveIdentity,
@@ -44,10 +45,12 @@ app.use(secureHeaders);
 app.use(corsGuard);
 app.use(rateLimit({ windowMs: 60_000, max: Number(process.env.RATE_LIMIT_PER_MINUTE || 180) }));
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '2mb', strict: true }));
-// 这两个路径必须绕过写权限中间件：health 是探活，session/unlock 是「只读 → 申请编辑权限」的入口，
-// 否则只读访客连申请权限的请求都会被 403。
+// 这两个路径必须绕过鉴权链：health 是探活，session/unlock 是「进站登录」的入口，
+// 否则没登录的人连登录请求都会被 401 挡住。
+// 2026-09-18 PM 拍板：其余业务接口一律要求登录态（requireLogin 在 methodRbac 之前）。
 const PUBLIC_API_PATHS = new Set(['/health', '/session/unlock']);
 app.use('/api', (req, res, next) => PUBLIC_API_PATHS.has(req.path) ? next() : apiAuth(req, res, next));
+app.use('/api', (req, res, next) => PUBLIC_API_PATHS.has(req.path) ? next() : requireLogin(req, res, next));
 app.use('/api', (req, res, next) => PUBLIC_API_PATHS.has(req.path) ? next() : methodRbac(req, res, next));
 app.use('/audio', apiAuth, requireRole('viewer'));
 const WRITE_SCOPES = ['schedule'];
@@ -69,9 +72,10 @@ app.get('/api/auth/me', (req, res) => {
   });
 });
 
-// 编辑权限解锁：2026-09-17 起**名单即授权** —— 只填企业微信账号，命中名单就按职能组
-// 签发令牌（前端存 localStorage，之后每个请求带 X-Vomi-Editor）。
-// 只有当 CVM 配了 VOMI_UNLOCK_KEY / 开启 VOMI_PER_ACCOUNT_KEYS 时才重新要求口令。
+// 进站登录（2026-09-18）：**名单即授权** —— 输入企业微信账号，命中名单就按职能组
+// 签发六个月令牌（前端存 localStorage，之后每个请求带 X-Vomi-Editor）。
+// 成功登录先落一条登录统计再返回令牌；只有当 CVM 配了 VOMI_UNLOCK_KEY /
+// 开启 VOMI_PER_ACCOUNT_KEYS 时才重新要求口令。
 app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), async (req, res) => {
   const key = String((req.body && req.body.key) || '');
   // 账号容错：粘贴「twinkyli(李莹莹)」、带邮箱后缀、只写中文名都能认出来。

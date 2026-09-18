@@ -6,11 +6,14 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const ALLOW_INSECURE_DEV = process.env.ALLOW_INSECURE_DEV === 'true';
 const ROLE_LEVEL = Object.freeze({ viewer: 1, editor: 2, admin: 3 });
 
-// 名单即授权：默认只读；成员输入企微账号后按 copy/audio 组获得权限。
-// HMAC 令牌记住六个自然月，存 localStorage，每次请求带 X-Vomi-Editor。
+// 进站必须登录（2026-09-18 PM 拍板）：没登录业务接口一律 401；成员输入企微账号
+// 后按 copy/audio 组获得权限，HMAC 令牌记住六个自然月，存 localStorage，每次请求带 X-Vomi-Editor。
 // 身份是本站声明账号，不是企微 OAuth 身份认证；签名密钥由环境变量配置。
 const OWNER_SUBJECT = 'lycheelli';
 const DENY_MESSAGE = '请找 lycheelli 申请权限';
+// 2026-09-18 PM 拍板：站点改为「进站必须登录」——没登录连业务数据都读不到，
+// 不再有「匿名只读浏览」这一层（只读分享链接也只在登录后生效）。
+const LOGIN_MESSAGE = '请先输入企业微信账号登录';
 const DEFAULT_OWNER_KEY = 'vomi-owner-2026';
 const OWNER_KEY = String(process.env.VOMI_OWNER_KEY || DEFAULT_OWNER_KEY);
 const SESSION_SECRET = String(process.env.VOMI_SESSION_SECRET || OWNER_KEY || 'vomi-session-secret');
@@ -387,19 +390,17 @@ function safeEqual(actual, expected) {
 }
 
 function apiAuth(req, res, next) {
-  // ★ 2026-09-14 权限收口（PM 拍板）：**默认只读**。
-  //   优先级：guest 头 → lycheelli 编辑令牌 → 服务端 Bearer 令牌 → 本机回环 → viewer。
-  //   1) 分享链接（X-Vomi-Role: guest）恒为 viewer，写请求由 methodRbac 拒 403。
-  const guestHeader = String(req.headers['x-vomi-role'] || '').toLowerCase();
-  if (guestHeader === 'guest') {
-    req.auth = { subject: 'guest', role: 'viewer' };
-    return next();
-  }
-
-  // 2) 已解锁的成员：X-Vomi-Editor 带有效 HMAC 令牌 → 按名单解析出 role + 职能组。
+  // ★ 2026-09-14 权限收口（PM 拍板）：默认只读；2026-09-18 升级为**进站必须登录**。
+  //   优先级：已登录浏览器令牌 → 服务端 Bearer 令牌 → 本机回环 → 分享只读头 → 匿名。
+  //   1) 已登录成员：X-Vomi-Editor 带有效 HMAC 令牌 → 按名单解析出 role + 职能组。
+  //      同时带 X-Vomi-Role: guest（已登录的人打开只读分享链接）时降级为 viewer，
+  //      但身份必须保留，否则会被当成匿名、连数据都读不到，也记不到到访。
   const session = verifySessionToken(req.headers['x-vomi-editor']);
   if (session) {
-    req.auth = { ...session, via: 'owner-session' };
+    const isGuestView = String(req.headers['x-vomi-role'] || '').toLowerCase() === 'guest';
+    req.auth = isGuestView
+      ? { ...session, role: 'viewer', via: 'owner-session', guest: true }
+      : { ...session, via: 'owner-session' };
     return next();
   }
 
@@ -412,15 +413,44 @@ function apiAuth(req, res, next) {
     return next();
   }
 
-  // 4) 容器内回环调用（定时任务 / 冒烟脚本）维持 admin，避免现有内部作业被误伤。
+  // 3) 容器内回环调用（定时任务 / 冒烟脚本）维持 admin，避免现有内部作业被误伤。
   if (isLoopbackRequest(req)) {
     req.auth = { subject: 'loopback', role: 'admin', via: 'loopback' };
     return next();
   }
 
-  // 5) 其余一律只读浏览：GET 正常，写请求被 methodRbac 拒 403（提示请找 lycheelli 申请权限）。
+  // 4) 只读分享头（X-Vomi-Role: guest）本身不是身份：没人登录时它依然是匿名。
+  const guestHeader = String(req.headers['x-vomi-role'] || '').toLowerCase();
+  if (guestHeader === 'guest') {
+    req.auth = { subject: 'guest', role: 'viewer', via: 'guest-header' };
+    return next();
+  }
+
+  // 5) 其余一律匿名：登录门禁会挡在 methodRbac 之前，业务数据一律 401 login_required。
   req.auth = { subject: 'visitor', role: 'viewer', via: 'default' };
   return next();
+}
+
+/** 请求是否带真实身份（已登录成员 / 服务端凭据 / 容器内部作业）。 */
+function isAuthenticated(req) {
+  const auth = req && req.auth;
+  if (!auth) return false;
+  return auth.via === 'owner-session' || auth.via === 'token' || auth.via === 'loopback';
+}
+
+/**
+ * 进站登录门禁（2026-09-18）：业务接口一律要求登录态；health 与登录入口本身必须放行。
+ * 前端同样会在未登录时直接弹登录层，这里只是第二层——防止绕过 JS 直接拉数据。
+ */
+function requireLogin(req, res, next) {
+  if (isAuthenticated(req)) return next();
+  res.setHeader('X-Vomi-Login-Required', '1');
+  res.setHeader('X-Vomi-Apply-To', OWNER_SUBJECT);
+  return res.status(401).json({
+    ok: false,
+    error: 'login_required',
+    message: LOGIN_MESSAGE,
+  });
 }
 
 function requireRole(minimumRole) {
@@ -536,6 +566,7 @@ module.exports = {
   positiveInt,
   publicError,
   rateLimit,
+  requireLogin,
   requireRole,
   requireScope,
   resolveIdentity,

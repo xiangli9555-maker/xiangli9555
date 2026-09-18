@@ -16,10 +16,11 @@ const GUEST = read('assets/guest-mode.js');
 const SECURITY = read('deploy/backend/src/security.js');
 const INDEX = read('deploy/backend/src/index.js');
 
-test('前端：默认只读，写请求被拦并提示找 lycheelli 申请权限', () => {
+test('前端：未登录即只读，写请求被拦并提示找 lycheelli 申请权限', () => {
   assert.match(GUEST, /请找 lycheelli 申请权限/);
   assert.match(GUEST, /window\.__VOMI_READONLY__\s*=\s*READONLY/);
-  assert.match(GUEST, /READONLY\s*=\s*!TOKEN/);
+  // 2026-09-18：只读 = 未登录 OR 打开只读分享链接；身份头与写态分开判断。
+  assert.match(GUEST, /READONLY\s*=\s*FORCED_GUEST \|\| !SIGNED_IN/);
   assert.match(GUEST, /var\s+WRITE_METHODS\s*=\s*\{[^}]*POST:\s*1[^}]*DELETE:\s*1/);
   assert.match(GUEST, /headers\.set\('X-Vomi-Role',\s*'guest'\)/);
   assert.match(GUEST, /headers\.set\('X-Vomi-Editor',\s*TOKEN\)/);
@@ -75,6 +76,19 @@ test('后端：录制档期写接口只对音频组开放（scope 鉴权）', ()
   assert.match(SECURITY, /const\s+SCOPE_GROUPS\s*=\s*Object\.freeze\(\{\s*schedule:\s*Object\.freeze\(\['audio'\]\)/);
   // 删除不再是 admin 特权
   assert.doesNotMatch(SECURITY, /req\.method === 'DELETE'\) return requireRole\('admin'\)/);
+});
+
+test('前端：进站即登录，未登录自动弹登录层且无取消出口', () => {
+  assert.match(GUEST, /function ensureLogin\(\)/);
+  assert.match(GUEST, /if \(SIGNED_IN \|\| IN_FRAME\) return;/);
+  assert.match(GUEST, /登录 Vomi/);
+  assert.match(GUEST, /登录<\/button>/);
+  assert.doesNotMatch(GUEST, /申请编辑权限/);
+  assert.doesNotMatch(GUEST, /vomi-guest-banner/);
+  assert.doesNotMatch(GUEST, /vomi-unlock-cancel/);
+  // 后端判定登录失效后重新要求登录
+  assert.match(GUEST, /login_required/);
+  assert.match(GUEST, /openUnlock\('登录已失效/);
 });
 
 test('前端：解锁弹窗收集企微账号，删除走二次确认', () => {

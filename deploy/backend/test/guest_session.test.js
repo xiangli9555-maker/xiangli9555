@@ -1,54 +1,46 @@
 'use strict';
+/**
+ * 身份记忆与跨标签同步（2026-09-18 更新）
+ * 站点已改为「进站必须登录」：没有只读浏览横幅这个中间态，未登录直接弹登录层。
+ * 这里只钉住「记住身份」相关的行为：六个月免输入、分享链接、跨标签同步、过期清理。
+ * 门禁本身的行为见 login_gate.test.js。
+ */
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const vm = require('node:vm');
-const fs = require('node:fs');
-const path = require('node:path');
-const script = fs.readFileSync(path.resolve(__dirname, '../../../assets/guest-mode.js'), 'utf8');
-function run({ token, url = 'http://vomi.test/', guest = '1' } = {}) {
-  const local = new Map(token ? [['vomi_owner_token_v1', token]] : []);
-  const session = new Map(guest ? [['vomi_guest_mode', guest]] : []);
-  const events = {};
-  const nodes = new Map();
-  const storage = map => ({ getItem: k => map.get(k) || null, setItem: (k,v) => map.set(k,v), removeItem: k => map.delete(k) });
-  const doc = { readyState: 'loading', documentElement: {}, addEventListener: (k,f) => { (events[k] ||= []).push(f); },
-    getElementById: k => nodes.get(k) || null,
-    querySelectorAll: () => [],
-    createElement: () => ({ style: {}, set innerHTML(v) { this.html = v; nodes.set('vomi-unlock-btn', {}); nodes.set('vomi-guest-banner-close', {}); } }),
-    body: { appendChild: n => nodes.set(n.id,n), style: { setProperty() {} } } };
-  const win = { location: { href: url, reload() { win.reloaded = true; } }, addEventListener: (k,f) => { events[k] = [f]; } };
-  win.top = win.self = win;
-  vm.runInNewContext(script, { window: win, document: doc, location: win.location, URL, Date, localStorage: storage(local), sessionStorage: storage(session), atob: s => Buffer.from(s,'base64').toString('binary'), setTimeout() {}, clearTimeout() {}, MutationObserver: class { observe() {} } });
-  (events.DOMContentLoaded || []).forEach(f => f());
-  return { win, events, local, banner: nodes.has('vomi-guest-banner') };
-}
-const encode = p => Buffer.from(JSON.stringify(p)).toString('base64url') + '.test-signature';
-const p = { sub: 'twinkyli', name: '李莹莹', group: 'audio', role: 'editor', iat: Date.now(), exp: Date.now() + 36525 * 86400000 };
-test('remembered member has no banner even in explicit read-only share, writes stay disabled', () => {
-  const r = run({ token: encode(p), url: 'http://vomi.test/?role=guest' });
-  assert.equal(r.banner, false);
-  assert.equal(r.win.__VOMI_READONLY__, true);
+const { runGuest, encode, memberPayload } = require('./helpers/guest_vm');
+
+const DAY = 86400000;
+
+test('remembered member enters directly, also on explicit read-only share links', () => {
+  const shared = runGuest({ token: encode(memberPayload()), url: 'http://vomi.test/?role=guest' });
+  assert.equal(shared.mask, null, '已登录不该再被要求登录');
+  assert.equal(shared.banner, null);
+  assert.equal(shared.win.__VOMI_READONLY__, true, '分享链接仍保留写保护');
+
+  const normal = runGuest({ token: encode(memberPayload()) });
+  assert.equal(normal.mask, null);
+  assert.equal(normal.win.__VOMI_READONLY__, false);
 });
-test('guest flag never overrides remembered identity on normal links', () => {
-  const r = run({ token: encode(p) });
-  assert.equal(r.banner, false);
+
+test('stale guest flag never overrides remembered identity on normal links', () => {
+  const r = runGuest({ token: encode(memberPayload()), guestFlag: '1' });
+  assert.equal(r.mask, null);
   assert.equal(r.win.__VOMI_READONLY__, false);
 });
-test('anonymous visitor still sees permission entry', () => {
-  const r = run();
-  assert.equal(r.banner, true);
-  assert.equal(r.win.__VOMI_READONLY__, true);
+
+test('front-end caps legacy sessions to six months and clears expired identity', () => {
+  const stale = runGuest({ token: encode(memberPayload({ iat: Date.now() - 210 * DAY })) });
+  assert.ok(stale.mask, '超过六个月必须重新登录');
+  assert.equal(stale.local.has('vomi_owner_token_v1'), false, '过期令牌要清掉，不能反复弹');
+
+  const broken = runGuest({ token: encode({ sub: 'twinkyli' }) });
+  assert.ok(broken.mask, '缺 iat/exp 的令牌不算登录态');
 });
-test('front-end caps legacy sessions to six months, rejects missing expiry', () => {
-  const r = run({ token: encode({ ...p, iat: Date.now() - 210 * 86400000 }) });
-  assert.equal(r.win.__VOMI_READONLY__, true);
-  assert.equal(r.banner, true);
-  const bad = run({ token: encode({ sub: 'twinkyli' }) });
-  assert.equal(bad.win.__VOMI_READONLY__, true);
-});
-test('another tab login makes already-open page re-evaluate permissions', () => {
-  const r = run();
+
+test('another tab login or logout makes already-open page re-evaluate', () => {
+  const r = runGuest();
+  assert.ok(r.mask, '未登录先弹登录层');
   assert.ok(r.events.storage, 'must subscribe to storage changes');
-  r.events.storage[0]({ key: 'vomi_owner_token_v1', oldValue: null, newValue: encode(p) });
+  r.events.storage[0]({ key: 'vomi_owner_token_v1', oldValue: null, newValue: encode(memberPayload()) });
   assert.equal(r.win.reloaded, true);
 });

@@ -1,33 +1,32 @@
 'use strict';
 /**
- * Vomi 访问模式 · 默认只读 / 成员解锁
+ * Vomi 访问模式 · 进站登录门禁
  * ------------------------------------------------------------------
- * 2026-09-14 PM 拍板：站点默认对所有人「只读浏览」——可以看、可以点、可以试填，
- * 但任何写请求都不会落库，并提示「请找 lycheelli 申请权限」。
+ * 2026-09-18 PM 拍板：**打开网站必须先登录** —— 输入企业微信账号，命中权限名单
+ * 才进得去；没登录连业务数据都读不到（后端 /api 一律 401 login_required），
+ * 也就不再有「匿名只读浏览」这个中间态，那条黄色横幅随之取消。
+ * 登录一次记住六个自然月：同地址同浏览器再打开直接进入；换人/退出用 __vomiLogout()。
  *
- * 2026-09-16 升级为职能组鉴权：解锁填企业微信账号，后端按名单签发带 group
- * （copy 文案 / audio 音频）的令牌。
+ * 身份 = 职能组（2026-09-16）：后端按名单签发带 group（copy 文案 / audio 音频）的令牌。
  *   · 文案组：除「录制档期」外都能编辑
  *   · 音频组：全部页面都能编辑
  *   · 删除不设特权，但前端统一二次确认
  *
- * 2026-09-17 简化为**名单即授权**：只填企微账号，命中名单即解锁，不必输口令
+ * 名单即授权（2026-09-17）：只填企微账号，不必输口令
  * （账号容错：'twinkyli(李莹莹)' / 'twinkyli@xx' / '李莹莹' 都能认）。
  * 需要口令的场合由后端 VOMI_UNLOCK_KEY / VOMI_PER_ACCOUNT_KEYS 开启，此时前端
  * 才把口令框显示出来。
  *
  * 三层保护（缺一层都能被绕过，所以都留着）：
- *   1) 前端拦截：fetch / XHR 的 POST·PUT·PATCH·DELETE 直接返回 403 假响应 + toast，
- *      压根不发网络请求（避免写一半）。
- *   2) 请求头标记：只读态每个请求带 X-Vomi-Role: guest，后端 apiAuth 降为 viewer，
- *      就算有人绕过 JS（控制台里 fetch / curl）写接口也会被 methodRbac 拒 403。
- *   3) 后端默认 viewer + scope 鉴权：security.js 里无凭据请求一律 viewer；
+ *   1) 前端门禁：未登录直接铺满登录层，没有取消 / 点遮罩关闭 / Esc 关闭的出口；
+ *      接口返回 401 login_required 时清掉本地身份并重新要求登录。
+ *   2) 前端拦截：只读态下 fetch / XHR 的 POST·PUT·PATCH·DELETE 直接返回 403 假响应
+ *      + toast，压根不发网络请求（避免写一半）。
+ *   3) 后端门禁 + scope 鉴权：/api 除 health 与登录入口外一律 requireLogin（401）；
  *      X-Vomi-Editor 携带有效令牌才升为 editor/admin，并按 group 校验资源域。
  *
- * 解锁：顶部横幅「申请编辑权限」→ 输入企微账号 → POST /api/session/unlock
- *       → 返回 token 存 localStorage（六个自然月）→ 之后所有请求带 X-Vomi-Editor。
- *       同一地址同一浏览器六个月内再打开不用重输；换人/退出用 __vomiLogout()。
- * 强制只读分享：URL 带 ?role=guest（或 hash 里 role=guest）→ 即使已解锁也按只读渲染。
+ * 只读分享：URL 带 ?role=guest（或 hash 里 role=guest）→ **已登录**的人能看，
+ * 写请求被拦。没人登录时它同样要求登录（分享头本身不是身份）。
  * 兼容：仍导出 window.__VOMI_GUEST__（= 只读且由 guest 链接触发），老代码不用改。
  */
 (function () {
@@ -94,8 +93,13 @@
 
   var REMEMBERED_TOKEN = readToken();
   var FORCED_GUEST = forcedGuest();
-  var TOKEN = FORCED_GUEST ? '' : REMEMBERED_TOKEN;
-  var READONLY = !TOKEN;
+  // 2026-09-18：进站必须登录。身份（REMEMBERED_TOKEN）与写态（READONLY）分开：
+  //   未登录         → 自动弹登录层；请求不带身份，后端业务接口一律 401 login_required
+  //   已登录         → 正常读写（仍按职能组 scope 限制）
+  //   已登录 + guest → 能看，写请求被拦（对外分享链接）
+  var SIGNED_IN = !!REMEMBERED_TOKEN;
+  var TOKEN = REMEMBERED_TOKEN;
+  var READONLY = FORCED_GUEST || !SIGNED_IN;
   window.__VOMI_READONLY__ = READONLY;
   window.__VOMI_GUEST__ = READONLY && FORCED_GUEST;
   window.__VOMI_OWNER__ = !READONLY;
@@ -117,7 +121,7 @@
   }
   window.__VOMI_IDENTITY__ = IDENTITY;
   window.__VOMI_CAN__ = function (scope) {
-    if (!IDENTITY) return false;
+    if (!IDENTITY || READONLY) return false;
     if (IDENTITY.role === 'admin') return true;
     var allowed = SCOPE_GROUPS[scope];
     if (!allowed) return true;
@@ -157,35 +161,6 @@
   }
   window.__vomiGuestToast = toast;
 
-  // ---------- 顶部横幅（只在顶层窗口渲染，避免每个 iframe 叠一条） ----------
-  function installBanner() {
-    // 已记住身份即不再展示黄色申请横幅；显式分享链接仍保留只读拦截。
-    if (REMEMBERED_TOKEN || !READONLY || IN_FRAME) return;
-    if (document.getElementById('vomi-guest-banner')) return;
-    var bar = document.createElement('div');
-    bar.id = 'vomi-guest-banner';
-    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99998;background:#FFD24C;color:#0A1015;padding:7px 16px;font:600 12px/1.4 "Microsoft YaHei UI","PingFang SC",sans-serif;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(0,0,0,.45);border-bottom:1px solid rgba(10,16,21,.35)';
-    bar.innerHTML =
-      '<span style="font-family:\'JetBrains Mono\',monospace;font-weight:700;letter-spacing:.6px;background:#0A1015;color:#FFD24C;padding:2px 7px">' +
-      (FORCED_GUEST ? '[PREVIEW]' : '[只读]') + '</span>' +
-      '<span>浏览模式 · 你可以查看和试填，但改动不会保存 · 需要编辑权限请联系 <b>' + OWNER + '</b></span>' +
-      '<button type="button" id="vomi-unlock-btn" style="background:#0A1015;border:1px solid rgba(10,16,21,.55);color:#FFD24C;padding:3px 12px;font:600 11px inherit;cursor:pointer;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)">申请编辑权限</button>' +
-      '<button type="button" id="vomi-guest-banner-close" title="收起（仅本次浏览）" aria-label="收起横幅" style="background:transparent;border:1px solid rgba(10,16,21,.55);color:#0A1015;padding:3px 10px;font:600 11px inherit;cursor:pointer;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)">收起</button>';
-    document.body.appendChild(bar);
-    document.body.style.setProperty('padding-top', '32px', 'important');
-
-    document.getElementById('vomi-guest-banner-close').onclick = function () {
-      bar.style.display = 'none';
-      document.body.style.paddingTop = '';
-    };
-    document.getElementById('vomi-unlock-btn').onclick = openUnlock;
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', installBanner);
-  } else {
-    installBanner();
-  }
-
   // ---------- 账号输入容错（2026-09-17）----------
   // 同事习惯从通讯录复制「twinkyli(李莹莹)」或直接写中文名：这里归一成名单里的英文账号；
   // 全中文时原样交给后端按姓名反查（名单内唯一命中才认）。
@@ -199,25 +174,26 @@
     return s.replace(/\s+/g, '');
   }
 
-  // ---------- 解锁 / 申请权限弹层 ----------
-  function openUnlock() {
+  // ---------- 登录弹层（2026-09-18：进站必须登录，没有取消/关闭出口）----------
+  function openUnlock(hint) {
     if (document.getElementById('vomi-unlock-mask')) return;
     var mask = document.createElement('div');
     mask.id = 'vomi-unlock-mask';
-    mask.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(6,10,13,.72);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center';
+    mask.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(6,10,13,.94);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center';
     mask.innerHTML =
       '<div style="width:min(380px,92vw);background:#0F171C;border:1px solid rgba(15,247,150,.35);box-shadow:0 18px 48px rgba(0,0,0,.6);clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);padding:20px 22px;font:400 13px/1.6 \'Microsoft YaHei UI\',\'PingFang SC\',sans-serif;color:#D3DFDD">' +
         '<style>#vomi-unlock-account::placeholder{color:#5F7078;font-size:12px;letter-spacing:.3px}</style>' +
-        '<div style="font:700 13px/1.4 inherit;color:#0FF796;letter-spacing:.4px;margin-bottom:10px">编辑权限</div>' +
-        '<div style="color:#8FA0A8;font-size:12px;margin-bottom:12px">输入企业微信账号</div>' +
+        '<div style="font:700 13px/1.4 inherit;color:#0FF796;letter-spacing:.4px;margin-bottom:10px">登录 Vomi</div>' +
+        '<div style="color:#8FA0A8;font-size:12px;margin-bottom:12px">' +
+          (hint ? hint : '输入企业微信账号') +
+        '</div>' +
         '<input id="vomi-unlock-account" type="text" placeholder="Vomi（温米）" autocomplete="off" autocapitalize="off" spellcheck="false" ' +
           'style="width:100%;box-sizing:border-box;background:#0A1015;border:1px solid rgba(255,255,255,.14);color:#E9E6DF;padding:9px 11px;font:400 13px inherit;outline:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)">' +
         '<input id="vomi-unlock-input" type="password" placeholder="编辑口令" autocomplete="off" ' +
           'style="display:none;width:100%;box-sizing:border-box;margin-top:8px;background:#0A1015;border:1px solid rgba(255,255,255,.14);color:#E9E6DF;padding:9px 11px;font:400 13px inherit;outline:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)">' +
         '<div id="vomi-unlock-err" style="color:#D699BE;font-size:12px;min-height:18px;margin-top:8px"></div>' +
         '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">' +
-          '<button type="button" id="vomi-unlock-cancel" style="background:transparent;border:1px solid rgba(255,255,255,.18);color:#8FA0A8;padding:6px 14px;font:600 12px inherit;cursor:pointer;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)">取消</button>' +
-          '<button type="button" id="vomi-unlock-ok" style="background:#0FF796;border:none;color:#0A1015;padding:6px 16px;font:700 12px inherit;cursor:pointer;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)">解锁</button>' +
+          '<button type="button" id="vomi-unlock-ok" style="background:#0FF796;border:none;color:#0A1015;padding:6px 16px;font:700 12px inherit;cursor:pointer;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)">登录</button>' +
         '</div>' +
       '</div>';
     (document.body || document.documentElement).appendChild(mask);
@@ -226,12 +202,10 @@
     var input = document.getElementById('vomi-unlock-input');
     var err = document.getElementById('vomi-unlock-err');
     function close() { mask.remove(); }
-    document.getElementById('vomi-unlock-cancel').onclick = close;
-    mask.addEventListener('click', function (e) { if (e.target === mask) close(); });
+    // 登录层不可取消：点遮罩、按 Esc 都不关，必须登录或关掉页面。
     [accountInput, input].forEach(function (el) {
       el.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') submit();
-        if (e.key === 'Escape') close();
       });
     });
     function submit() {
@@ -275,6 +249,18 @@
     setTimeout(function () { try { accountInput.focus(); } catch (_) {} }, 30);
   }
   window.__vomiOpenUnlock = openUnlock;
+
+  // ---------- 进站门禁（2026-09-18）：没登录就先登录，不看业务内容 ----------
+  // iframe 子页不自己弹（父页已经挡住，避免叠两层）；已记住身份的人直接进入。
+  function ensureLogin() {
+    if (SIGNED_IN || IN_FRAME) return;
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { openUnlock(); });
+    } else {
+      openUnlock();
+    }
+  }
+  ensureLogin();
 
   // 同域其他标签页解锁/退出后同步当前页；相同 token 不重载，避免相互刷新。
   window.addEventListener('storage', function (e) {
@@ -334,6 +320,18 @@
     return window.confirm('确认删除？\n' + (label ? label + '\n' : '') + '删除后不可恢复。');
   }
 
+  // 登录态失效（过期 / 被移出名单 / 换人）→ 清掉本地身份并重新要求登录。
+  function handleUnauthorized(res) {
+    try {
+      res.clone().json().then(function (j) {
+        if (!j || j.error !== 'login_required') return;
+        try { localStorage.removeItem(TOKEN_KEY); } catch (_) {}
+        openUnlock('登录已失效，请重新输入企业微信账号');
+      }).catch(function () {});
+    } catch (_) {}
+    return res;
+  }
+
   // ---------- fetch ----------
   var _fetch = window.fetch ? window.fetch.bind(window) : null;
   if (_fetch) {
@@ -344,6 +342,9 @@
       if (!method && typeof input === 'object' && input && input.method) method = input.method;
       method = String(method || 'GET').toUpperCase();
       var headers = new Headers(init.headers || (typeof input === 'object' && input ? input.headers : undefined) || {});
+      // 已登录就始终带身份头；只读态（未登录或分享链接）额外带 guest 头，
+      // 后端据此降级为 viewer —— 未登录时没有身份头，业务接口直接 401。
+      if (TOKEN) headers.set('X-Vomi-Editor', TOKEN);
       if (READONLY) {
         headers.set('X-Vomi-Role', 'guest');
         if (isWrite(method)) {
@@ -351,16 +352,14 @@
           init.headers = headers;
           return Promise.resolve(denyResponse());
         }
-      } else if (TOKEN) {
-        headers.set('X-Vomi-Editor', TOKEN);
-        if (method === 'DELETE' && !headers.get('X-Vomi-Skip-Confirm') && !confirmDelete(input)) {
-          toast('已取消删除');
-          return Promise.resolve(cancelResponse());
-        }
-        headers.delete('X-Vomi-Skip-Confirm');
+      } else if (method === 'DELETE' && !headers.get('X-Vomi-Skip-Confirm') && !confirmDelete(input)) {
+        toast('已取消删除');
+        return Promise.resolve(cancelResponse());
       }
+      headers.delete('X-Vomi-Skip-Confirm');
       init.headers = headers;
       return _fetch(input, init).then(function (res) {
+        if (res && res.status === 401) return handleUnauthorized(res);
         if (res && res.status === 403) {
           // 后端现在会给出具体原因（权限不足 / 只有某组能改），优先展示它
           try {
@@ -417,7 +416,8 @@
     };
     XMLHttpRequest.prototype.send = function () {
       try {
-        XHRsetReq.call(this, READONLY ? 'X-Vomi-Role' : 'X-Vomi-Editor', READONLY ? 'guest' : TOKEN);
+        if (TOKEN) XHRsetReq.call(this, 'X-Vomi-Editor', TOKEN);
+        if (READONLY) XHRsetReq.call(this, 'X-Vomi-Role', 'guest');
       } catch (_) {}
       if (READONLY && isWrite(this.__vomi_method)) {
         toast(DENY_MSG);

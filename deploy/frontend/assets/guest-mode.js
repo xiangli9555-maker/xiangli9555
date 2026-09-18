@@ -42,6 +42,18 @@
   var GUIDE_PAGE = 'Vomi-身份操作指引-C版-高音谱号.html';
   var GUIDE_VER = '20260918f';   // 指引页内容更新时 bump，强制丢弃 iframe 缓存
   var GUIDE_SEEN_KEY = 'vomi_guide_seen_v1';
+  // 2026-09-18 全员强制重新登录：这个戳一改，本地旧身份立刻作废，必须重走门禁。
+  // 后端另有 VOMI_TOKEN_EPOCH 令牌世代兜底（旧令牌一律判无效），这里是前端这一侧，
+  // 让人一打开就重新登录，而不是等第一次接口 401 才弹窗。
+  var RELOGIN_KEY = 'vomi_relogin_stamp_v1';
+  var RELOGIN_STAMP = '20260918';
+  function forceReloginOnce() {
+    try {
+      if (localStorage.getItem(RELOGIN_KEY) === RELOGIN_STAMP) return;
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.setItem(RELOGIN_KEY, RELOGIN_STAMP);
+    } catch (_) {}
+  }
 
   // ---------- 身份判定 ----------
   var TOKEN_PAYLOAD = null;
@@ -96,6 +108,7 @@
     return false;
   }
 
+  forceReloginOnce();
   var REMEMBERED_TOKEN = readToken();
   var FORCED_GUEST = forcedGuest();
   // 2026-09-18：进站必须登录。身份（REMEMBERED_TOKEN）与写态（READONLY）分开：
@@ -196,6 +209,10 @@
           'style="width:100%;box-sizing:border-box;background:#0A1015;border:1px solid rgba(255,255,255,.14);color:#E9E6DF;padding:9px 11px;font:400 13px inherit;outline:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)">' +
         '<input id="vomi-unlock-input" type="password" placeholder="编辑口令" autocomplete="off" ' +
           'style="display:none;width:100%;box-sizing:border-box;margin-top:8px;background:#0A1015;border:1px solid rgba(255,255,255,.14);color:#E9E6DF;padding:9px 11px;font:400 13px inherit;outline:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)">' +
+        // 2026-09-18 保密问题：只有不在权限名单里的账号才会看到这一块
+        '<div id="vomi-unlock-q" style="display:none;color:#FFD24C;font-size:12px;margin-top:12px"></div>' +
+        '<input id="vomi-unlock-answer" type="text" placeholder="答案" autocomplete="off" autocapitalize="off" spellcheck="false" ' +
+          'style="display:none;width:100%;box-sizing:border-box;margin-top:8px;background:#0A1015;border:1px solid rgba(255,210,76,.4);color:#E9E6DF;padding:9px 11px;font:400 13px inherit;outline:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)">' +
         '<div id="vomi-unlock-err" style="color:#D699BE;font-size:12px;min-height:18px;margin-top:8px"></div>' +
         '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">' +
           '<button type="button" id="vomi-unlock-ok" style="background:#0FF796;border:none;color:#0A1015;padding:6px 16px;font:700 12px inherit;cursor:pointer;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)">登录</button>' +
@@ -205,10 +222,12 @@
 
     var accountInput = document.getElementById('vomi-unlock-account');
     var input = document.getElementById('vomi-unlock-input');
+    var qBox = document.getElementById('vomi-unlock-q');
+    var answerInput = document.getElementById('vomi-unlock-answer');
     var err = document.getElementById('vomi-unlock-err');
     function close() { mask.remove(); }
     // 登录层不可取消：点遮罩、按 Esc 都不关，必须登录或关掉页面。
-    [accountInput, input].forEach(function (el) {
+    [accountInput, input, answerInput].forEach(function (el) {
       el.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') submit();
       });
@@ -216,13 +235,14 @@
     function submit() {
       var account = cleanAccount(accountInput.value);
       var key = String(input.value || '').trim();
+      var answer = String(answerInput.value || '').trim();
       // 名单即授权：只填账号就能解锁；口令框默认隐藏，只有后端要求时才出现。
       if (!account) { err.textContent = '请输入企业微信账号'; accountInput.focus(); return; }
       err.textContent = '校验中…';
       var req = (window.__vomiRawFetch || window.fetch).call(window, '/api/session/unlock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ account: account, key: key })
+        body: JSON.stringify({ account: account, key: key, answer: answer })
       });
       Promise.resolve(req).then(function (r) { return r.json(); }).then(function (j) {
         if (j && j.ok && j.token) {
@@ -243,6 +263,16 @@
           if (j && (j.error === 'key_required' || j.error === 'bad_key')) {
             input.style.display = 'block';
             if (j.error === 'key_required') { err.textContent = ''; input.focus(); return; }
+          }
+          // 2026-09-18 保密问题：账号不在名单里 → 显示题目，答对才放行（只读）
+          if (j && (j.error === 'question_required' || j.error === 'bad_answer')) {
+            qBox.style.display = 'block';
+            answerInput.style.display = 'block';
+            if (j.question) qBox.textContent = '保密问题：' + j.question;
+            if (j.error === 'question_required') { err.textContent = ''; answerInput.focus(); return; }
+            err.textContent = (j && j.message) || '不足为外人道也~';
+            answerInput.focus();
+            return;
           }
           err.textContent = (j && j.message) || ('账号不在权限名单里，请找 ' + OWNER + ' 添加');
         }

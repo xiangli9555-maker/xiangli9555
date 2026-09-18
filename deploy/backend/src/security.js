@@ -17,6 +17,9 @@ const LOGIN_MESSAGE = '请先输入企业微信账号登录';
 const DEFAULT_OWNER_KEY = 'vomi-owner-2026';
 const OWNER_KEY = String(process.env.VOMI_OWNER_KEY || DEFAULT_OWNER_KEY);
 const SESSION_SECRET = String(process.env.VOMI_SESSION_SECRET || OWNER_KEY || 'vomi-session-secret');
+// 令牌世代：改一次这个值，所有已签发的令牌立刻失效（用于全员强制重新登录）。
+// 2026-09-18 引入，配合「名单即授权 + 名单外答保密问题」新门禁。
+const TOKEN_EPOCH = String(process.env.VOMI_TOKEN_EPOCH || '').trim() || '1';
 const SUBJECT_PATTERN = /^[\w.@()\-\u4e00-\u9fff]{1,64}$/;
 const ALLOWED_ORIGINS = new Set(
   String(process.env.ALLOWED_ORIGINS || '')
@@ -33,8 +36,12 @@ const ALLOWED_ORIGINS = new Set(
 //   · 删除不再是特权：任意 editor 都能删，前端负责二次确认（assets/guest-mode.js）
 //   名单可用 VOMI_USERS_JSON 整体覆盖（数组或 {account:{name,group,title,role}}）；
 //   未配则用下面的内置名单（与企微账号一致）。
+//
+// 2026-09-18 新增第三档 guest（只读查看者，PM 拍板）：
+//   · 名单里的 guest 成员可以正常看全站，但没有任何写权限（role 强制 viewer）。
+//   · 不在名单里的人走「保密问题」：答对才以访客身份只读进入，答错一律看不到数据。
 // ─────────────────────────────────────────────────────────────────────────────
-const GROUP_LABELS = Object.freeze({ copy: '文案', audio: '音频' });
+const GROUP_LABELS = Object.freeze({ copy: '文案', audio: '音频', guest: '访客' });
 const SCOPE_LABELS = Object.freeze({ schedule: '录制档期' });
 const SCOPE_GROUPS = Object.freeze({ schedule: Object.freeze(['audio']) });
 const DEFAULT_USERS = Object.freeze([
@@ -71,6 +78,44 @@ const DEFAULT_USERS = Object.freeze([
   { account: 'v_pzknpan', name: '潘梓宽', group: 'audio' },
   { account: 'veigarjiang', name: '姜彦成', group: 'audio' },
   { account: 'yumuchen', name: '陈骏枫', group: 'audio' },
+  // ── 2026-09-18 只读查看者（PM 提供名单）：能看全站，不能改任何数据 ──
+  { account: 'kellyqing', name: '卿慧玲', group: 'guest' },
+  { account: 'amandaszhu', name: '朱爽', group: 'guest' },
+  { account: 'berniebao', name: '鲍点峰', group: 'guest' },
+  { account: 'casszhou', name: '周方正', group: 'guest' },
+  { account: 'chloejcguo', name: '郭俊辰', group: 'guest' },
+  { account: 'evvafan', name: '范芮', group: 'guest' },
+  { account: 'halechen', name: '陈灏', group: 'guest' },
+  { account: 'jasonlqu', name: '曲亮', group: 'guest' },
+  { account: 'jieruzhao', name: '赵杰儒', group: 'guest' },
+  { account: 'kuanni', name: '倪宽', group: 'guest' },
+  { account: 'licli', name: '厉长春', group: 'guest' },
+  { account: 'marchliang', name: '梁旭之', group: 'guest' },
+  { account: 'msun', name: '孙星', group: 'guest' },
+  { account: 'phillwang', name: '王相霏', group: 'guest' },
+  { account: 'scottxsong', name: '宋伯轩', group: 'guest' },
+  { account: 'shookychang', name: '常笑竹', group: 'guest' },
+  { account: 'shuxzhao', name: '赵树勋', group: 'guest' },
+  { account: 'sinyuhuang', name: '黄新玉', group: 'guest' },
+  { account: 'tomoriyuan', name: '袁嘉威', group: 'guest' },
+  { account: 'v_zynizhang', name: '张晏宁', group: 'guest' },
+  { account: 'wenali', name: '李卓纹', group: 'guest' },
+  { account: 'yararen', name: '任颖杰', group: 'guest' },
+  { account: 'yidingzhao', name: '赵一定', group: 'guest' },
+  { account: 'yongyilin', name: '林咏仪', group: 'guest' },
+  { account: 'yorkgao', name: '高楠', group: 'guest' },
+  { account: 'yuhuhe', name: '和玉虎', group: 'guest' },
+  { account: 'yuximao', name: '毛禹锡', group: 'guest' },
+  { account: 'zanechang', name: '常泽', group: 'guest' },
+  { account: 'zewenbu', name: '卜泽文', group: 'guest' },
+  { account: 'zhengguoxu', name: '徐正国', group: 'guest' },
+  { account: 'zimujia', name: '贾子木', group: 'guest' },
+  { account: 'cisong', name: '宋词', group: 'guest' },
+  { account: 'justinchow', name: 'JIAN YAO CHOW', group: 'guest' },
+  { account: 'kathydong', name: '董雪婷', group: 'guest' },
+  { account: 'v_pgypiao', name: '朴贵英', group: 'guest' },
+  { account: 'v_pshopeng', name: '彭少豪', group: 'guest' },
+  { account: 'kosmosun', name: '孙达', group: 'guest' },
 ]);
 
 function normAccount(value) {
@@ -113,7 +158,11 @@ function parseUsers() {
     if (!account) continue;
     if (!SUBJECT_PATTERN.test(account)) throw new Error(`Invalid user account: ${account}`);
     const group = String((row && row.group) || '').trim().toLowerCase();
-    if (group !== 'copy' && group !== 'audio') throw new Error(`Unsupported user group: ${group}`);
+    if (group !== 'copy' && group !== 'audio' && group !== 'guest') throw new Error(`Unsupported user group: ${group}`);
+    // guest 组只能是只读查看者：即使名单里误写了 role，也强制压成 viewer。
+    const role = group === 'guest'
+      ? 'viewer'
+      : String((row && row.role) || '').trim().toLowerCase() === 'admin' ? 'admin' : 'editor';
     map.set(account, {
       account,
       subject: account,
@@ -122,7 +171,7 @@ function parseUsers() {
       key: String((row && row.key) || ''),
       group,
       title: String((row && row.title) || '').trim().toLowerCase() === 'pm' ? 'pm' : 'member',
-      role: String((row && row.role) || '').trim().toLowerCase() === 'admin' ? 'admin' : 'editor',
+      role,
     });
   }
   return map;
@@ -161,6 +210,37 @@ const PER_ACCOUNT_KEYS = String(process.env.VOMI_PER_ACCOUNT_KEYS || '').toLower
 // VOMI_PER_ACCOUNT_KEYS 走每人专属口令，届时解锁接口会重新要求口令。
 const UNLOCK_REQUIRES_KEY =
   String(process.env.VOMI_UNLOCK_KEY || '').trim() !== '' || PER_ACCOUNT_KEYS;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2026-09-18 保密问题（PM 拍板）：不在权限名单里的人，必须答对问题才能进站。
+//   · 名单内：照旧只填企微账号，免答，按职能组签发令牌（可编辑 / 只读按名单）。
+//   · 名单外且没配问题：维持原行为 —— 直接 403 拒绝，看不到任何数据。
+//   · 名单外且配了问题：先返回题目；答对 → 以「访客」身份只读进入；答错 → 401 拒绝。
+//   开启方式（CVM .env）：
+//     VOMI_UNLOCK_QUESTION=PM的个人微信群，第一个字是什么？
+//     VOMI_UNLOCK_ANSWER=也
+//   答案改动后，之前发出的访客令牌会立刻失效（令牌里带答案指纹 vid）。
+// ─────────────────────────────────────────────────────────────────────────────
+const UNLOCK_QUESTION = String(process.env.VOMI_UNLOCK_QUESTION || '').trim();
+const UNLOCK_ANSWER = String(process.env.VOMI_UNLOCK_ANSWER || '').trim();
+
+/** 配了答案才出题（只有题目没有答案视为未开启，避免「人人可进」的空门禁）。 */
+function unlockQuestion() {
+  return UNLOCK_ANSWER ? UNLOCK_QUESTION : '';
+}
+
+/** 答案比对：去首尾空白、忽略大小写，其余严格相等。 */
+function checkUnlockAnswer(value) {
+  if (!UNLOCK_ANSWER) return false;
+  const given = String(value == null ? '' : value).trim().toLowerCase();
+  return safeEqual(given, UNLOCK_ANSWER.toLowerCase());
+}
+
+/** 答案指纹：写进访客令牌，改答案即踢掉所有旧访客令牌。 */
+function answerFingerprint() {
+  if (!UNLOCK_ANSWER) return '';
+  return b64url(crypto.createHash('sha256').update(`vomi-answer:${UNLOCK_ANSWER}`).digest()).slice(0, 16);
+}
 
 // 2026-09-18 PM：从输入账号起记住六个自然月，翻页不会滚动续期；月末落到目标月末。
 function identityExpiresAt(issuedAt) {
@@ -332,10 +412,43 @@ function issueOwnerToken(subject = OWNER_SUBJECT, ttlMs, issuedAt = Date.now()) 
         group: identity.group,
         title: identity.title,
         role: identity.role,
+        ep: TOKEN_EPOCH,
         iat: now,
         exp: expiresAt,
       }
-    : { sub: String(subject), name: String(subject), group: '', title: 'member', role: 'editor', iat: now, exp: expiresAt };
+    : {
+        sub: String(subject),
+        name: String(subject),
+        group: '',
+        title: 'member',
+        role: 'editor',
+        ep: TOKEN_EPOCH,
+        iat: now,
+        exp: expiresAt,
+      };
+  const body = b64url(Buffer.from(JSON.stringify(payload)));
+  return `${body}.${signPayload(body)}`;
+}
+
+/**
+ * 签发「访客只读令牌」（2026-09-18 保密问题路径）：不在名单里、但答对问题的人。
+ *   · group=guest / role=viewer —— 全站可读，任何写请求都被 requireRole('editor') 挡下。
+ *   · vid = 答案指纹：改了答案，这批令牌立刻全部失效，不用等人走完有效期。
+ *   · 有效期固定 7 天（名单内成员仍是六个月），泄露窗口更短。
+ */
+function issueGuestToken(account, issuedAt = Date.now()) {
+  const now = issuedAt;
+  const payload = {
+    sub: normAccount(account),
+    name: String(account || ''),
+    group: 'guest',
+    title: 'visitor',
+    role: 'viewer',
+    vid: answerFingerprint(),
+    ep: TOKEN_EPOCH,
+    iat: now,
+    exp: now + 7 * 24 * 60 * 60 * 1000,
+  };
   const body = b64url(Buffer.from(JSON.stringify(payload)));
   return `${body}.${signPayload(body)}`;
 }
@@ -343,6 +456,7 @@ function issueOwnerToken(subject = OWNER_SUBJECT, ttlMs, issuedAt = Date.now()) 
 /**
  * 校验编辑令牌，通过返回身份对象 {subject,name,group,title,role}，否则 null。
  * 名单是权限真源：账号被移出名单后，旧令牌里的 group/role 不再生效。
+ * 例外：保密问题进来的访客（group=guest/role=viewer）不在名单里，靠 vid 指纹认。
  */
 function verifySessionToken(token) {
   const raw = String(token || '').trim();
@@ -356,14 +470,33 @@ function verifySessionToken(token) {
   try {
     const payload = JSON.parse(Buffer.from(body.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));
     if (!payload || !payload.sub || !Number.isFinite(payload.exp) || !Number.isFinite(payload.iat)) return null;
+    // 世代不符 = 已被管理员强制下线：令牌虽然还在有效期内、签名也没问题，
+    // 但只要 ep 与当前世代不同就一律作废，持有人必须重新走一遍登录门禁
+    // （名单内输企微账号直接进，名单外答保密问题）。这是「全员强制重登」的开关。
+    if (String(payload.ep || '1') !== TOKEN_EPOCH) return null;
     const now = Date.now();
     const expiresAt = Math.min(payload.exp, identityExpiresAt(payload.iat));
     if (payload.iat > now || expiresAt <= now) return null;
     const identity = resolveIdentity(payload.sub);
+    if (identity) return { ...identity, issuedAt: payload.iat, expiresAt };
     // 浏览器身份必须仍在名单内；不能让已移出者回退成无组 editor。
     // 服务端 Bearer 令牌 / 回环作业仍走 apiAuth 独立分支，不受此处影响。
-    if (!identity) return null;
-    return { ...identity, issuedAt: payload.iat, expiresAt };
+    // 例外：保密问题进来的访客 —— group 必须是 guest、role 必须是 viewer，
+    // 且 vid 与当前答案指纹一致（答案一改，旧访客令牌立即作废）。
+    const fp = answerFingerprint();
+    if (fp && payload.group === 'guest' && payload.role === 'viewer' && safeEqual(String(payload.vid || ''), fp)) {
+      return {
+        subject: payload.sub,
+        account: payload.sub,
+        name: String(payload.name || payload.sub),
+        group: 'guest',
+        title: 'visitor',
+        role: 'viewer',
+        issuedAt: payload.iat,
+        expiresAt,
+      };
+    }
+    return null;
   } catch (_) {
     return null;
   }
@@ -555,6 +688,9 @@ module.exports = {
   corsGuard,
   hasScope,
   issueOwnerToken,
+  issueGuestToken,
+  unlockQuestion,
+  checkUnlockAnswer,
   listUsers,
   methodRbac,
   normalizeAccountInput,
@@ -571,6 +707,7 @@ module.exports = {
   requireScope,
   resolveIdentity,
   secureHeaders,
+  TOKEN_EPOCH,
   UNLOCK_REQUIRES_KEY,
   identityExpiresAt,
   verifyOwnerToken,

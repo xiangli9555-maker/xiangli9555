@@ -25,9 +25,23 @@ function el(id) {
   };
 }
 
-/** @param {{token?:string, url?:string, frame?:boolean, guestFlag?:string}} options */
-function runGuest({ token, url = 'http://vomi.test/', frame = false, guestFlag } = {}) {
-  const local = new Map(token ? [['vomi_owner_token_v1', token]] : []);
+/**
+ * 前端口令脚本里的「强制重登戳」：戳一变，本地旧身份作废。
+ * 直接从脚本里读，避免测试与实现两处硬编码漂移。
+ */
+const RELOGIN_STAMP = (SCRIPT.match(/var RELOGIN_STAMP = '([^']+)'/) || [])[1] || '';
+
+/**
+ * @param {{token?:string, url?:string, frame?:boolean, guestFlag?:string,
+ *          reloginStamp?:string|null}} options
+ * reloginStamp 默认取当前戳（模拟「已经按新规则登录过的人」）；
+ * 传一个旧字符串可模拟「戳还没更新、手里却有旧令牌的人」。
+ */
+function runGuest({ token, url = 'http://vomi.test/', frame = false, guestFlag, reloginStamp = RELOGIN_STAMP } = {}) {
+  const seed = [];
+  if (token) seed.push(['vomi_owner_token_v1', token]);
+  if (reloginStamp) seed.push(['vomi_relogin_stamp_v1', reloginStamp]);
+  const local = new Map(seed);
   const session = new Map(guestFlag ? [['vomi_guest_mode', guestFlag]] : []);
   const nodes = new Map();
   const events = {};
@@ -102,4 +116,4 @@ const memberPayload = (overrides = {}) => ({
   ...overrides,
 });
 
-module.exports = { runGuest, encode, memberPayload };
+module.exports = { runGuest, encode, memberPayload, RELOGIN_STAMP };

@@ -110,6 +110,34 @@ test('legacy hundred-year sessions are capped at six months without immediate lo
   } finally { Date.now = now; }
 });
 
+// 2026-09-18 全员强制重新登录：令牌世代（ep）一变，旧令牌立即失效。
+test('token epoch forces a global re-login: bumped epoch rejects old tokens', () => {
+  const securityPath = require.resolve('../src/security');
+  // 1) 默认世代（未设 VOMI_TOKEN_EPOCH）：payload 带 ep='1'，校验通过
+  const defaultToken = issueOwnerToken('lycheelli');
+  const defaultPayload = JSON.parse(Buffer.from(defaultToken.split('.')[0], 'base64url'));
+  assert.equal(defaultPayload.ep, '1');
+  assert.ok(verifySessionToken(defaultToken));
+
+  // 2) 世代改成 2 后重新加载模块：旧令牌立刻作废；同世代新签的令牌仍然可用
+  const previousEpoch = process.env.VOMI_TOKEN_EPOCH;
+  try {
+    process.env.VOMI_TOKEN_EPOCH = '2';
+    delete require.cache[securityPath];
+    const bumped = require(securityPath);
+    assert.equal(bumped.TOKEN_EPOCH, '2');
+    assert.equal(bumped.verifySessionToken(defaultToken), null);
+    const freshToken = bumped.issueOwnerToken('lycheelli');
+    assert.equal(JSON.parse(Buffer.from(freshToken.split('.')[0], 'base64url')).ep, '2');
+    assert.ok(bumped.verifySessionToken(freshToken));
+  } finally {
+    // 还原模块缓存与环境，避免污染同批次其它用例
+    delete require.cache[securityPath];
+    if (previousEpoch === undefined) delete process.env.VOMI_TOKEN_EPOCH;
+    else process.env.VOMI_TOKEN_EPOCH = previousEpoch;
+  }
+});
+
 test('signed session for an account outside current roster is rejected', () => {
   assert.equal(verifySessionToken(issueOwnerToken('removed-member')), null);
 });
@@ -185,11 +213,17 @@ test('roster resolves 文案 / 音频 groups', () => {
   assert.equal(resolveIdentity('nobody-here'), null);
   assert.equal(resolveIdentity(''), null);
 
-  // 名单完整性（2026-09-16 PM 名单 + 后续增补）
+  // 名单完整性（2026-09-16 PM 名单 + 2026-09-18 增补 37 名只读访客）
   const users = listUsers();
-  assert.equal(users.length, 29);
+  assert.equal(users.length, 66);
   assert.equal(users.filter((u) => u.group === 'copy').length, 12);
   assert.equal(users.filter((u) => u.group === 'audio').length, 17);
+  assert.equal(users.filter((u) => u.group === 'guest').length, 37);
+  // guest 组只能是只读查看者，不能被名单误配成 editor/admin
+  assert.equal(users.filter((u) => u.group === 'guest' && u.role !== 'viewer').length, 0);
+  const guest = resolveIdentity('jieruzhao');
+  assert.equal(guest.group, 'guest');
+  assert.equal(guest.role, 'viewer');
   assert.equal(resolveIdentity('twinkyli').name, '李莹莹'); // 不是 twinkli
   assert.equal(resolveIdentity('twinkli'), null);
   assert.equal(resolveIdentity('elliexiong').name, '熊雯玥');

@@ -4,7 +4,7 @@
 <meta charset="UTF-8" data-page-node-id="T5OUhW1qsjV6fDK3mKOKUO"/>
 <title>Preview · 需求汇总精修版 · Vo Manager</title>
 <link rel="stylesheet" href="assets/project-fonts.css?v=20260817c" data-page-node-id="L9LgoWURMDUgAQhS0ljej7"/>
-<script src="assets/guest-mode.js?v=20260918f"></script>
+<script src="assets/guest-mode.js?v=20260918g"></script>
 <style>
 :root{
   --c-primary:#0FF796; --c-primary-dark:#0BD980; --c-primary-glow:rgba(15,247,150,0.18);
@@ -576,8 +576,9 @@ body.embed .mid{width:100%}
   /* ===== 不透明背景：修复透光 (2026-09-02) ===== */
   /* 侧栏 */
   .sidebar{background:var(--c-sidebar)}
-  /* 主区 */
-  .main{background:var(--c-bg)}
+  /* 主区：2026-09-18 由 var(--c-bg) 改为 transparent —— 让通用背景图（assets/bg-universal.png）透出来。
+     可读性不受影响：.kpi / .filter-row / .card / thead th 等承载内容的元素仍保留各自不透明底色。 */
+  .main{background:transparent}
   /* KPI 卡 */
   .kpi{background:var(--c-surface)}
   /* 筛选行 */

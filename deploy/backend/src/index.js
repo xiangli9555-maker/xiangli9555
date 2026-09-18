@@ -17,6 +17,9 @@ const {
   corsGuard,
   hasScope,
   issueOwnerToken,
+  issueGuestToken,
+  unlockQuestion,
+  checkUnlockAnswer,
   methodRbac,
   normalizeAccountInput,
   OWNER_SUBJECT,
@@ -97,10 +100,41 @@ app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), async (
   }
   const identity = resolveIdentity(account);
   if (!identity) {
-    return res.status(403).json({
-      ok: false,
-      error: 'unknown_account',
-      message: `账号 ${account} 不在权限名单里，请找 ${OWNER_SUBJECT} 添加`,
+    // 2026-09-18 保密问题：名单外的人答对问题可以以「访客」身份只读查看；
+    // 没配问题（VOMI_UNLOCK_QUESTION/ANSWER）时维持原样直接拒绝，不留下空门禁。
+    const question = unlockQuestion();
+    if (!question) {
+      return res.status(403).json({
+        ok: false,
+        error: 'unknown_account',
+        message: `账号 ${account} 不在权限名单里，请找 ${OWNER_SUBJECT} 添加`,
+      });
+    }
+    const answer = String((req.body && req.body.answer) || '');
+    if (!answer) {
+      return res.status(400).json({ ok: false, error: 'question_required', question, message: '请回答问题后再进入' });
+    }
+    if (!checkUnlockAnswer(answer)) {
+      return res.status(401).json({ ok: false, error: 'bad_answer', question, message: '不足为外人道也~' });
+    }
+    // 答对了：只读访客，7 天有效期；登录统计照记（失败不阻断，访客不是核心成员）。
+    try {
+      await loginStats.record({ account, name: account, subject: account, group: 'guest', title: 'visitor', role: 'viewer' }, 'login');
+    } catch (e) {
+      console.error('[login-stats] guest login write failed:', e.message);
+    }
+    const guestIssuedAt = Date.now();
+    return res.json({
+      ok: true,
+      subject: account,
+      name: account,
+      group: 'guest',
+      groupLabel: GROUP_LABELS.guest || '访客',
+      title: 'visitor',
+      role: 'viewer',
+      token: issueGuestToken(account, guestIssuedAt),
+      expiresIn: Math.floor(7 * 24 * 60 * 60),
+      readonly: true,
     });
   }
   try {

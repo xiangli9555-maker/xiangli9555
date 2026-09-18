@@ -7,9 +7,23 @@
  */
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { runGuest, encode, memberPayload } = require('./helpers/guest_vm');
+const { runGuest, encode, memberPayload, RELOGIN_STAMP } = require('./helpers/guest_vm');
 
 const DAY = 86400000;
+
+// 2026-09-18 PM 拍板：新门禁上线后，之前已经打开过站点、手里还有旧令牌的人
+// 也必须重新走一遍规则 —— 前端靠「强制重登戳」实现，后端另有令牌世代兜底。
+test('bumped relogin stamp invalidates a remembered identity', () => {
+  const r = runGuest({ token: encode(memberPayload()), reloginStamp: '20260901' });
+  assert.ok(r.mask, '强制重登戳变了，已记住的身份也要重新登录');
+  assert.equal(r.local.has('vomi_owner_token_v1'), false, '旧令牌要立刻清掉');
+  assert.equal(r.local.get('vomi_relogin_stamp_v1'), RELOGIN_STAMP, '新戳要写回，避免每次刷新都弹');
+
+  // 戳已经同步的人不受影响：打开就进，六个月免输入照旧。
+  const kept = runGuest({ token: encode(memberPayload()) });
+  assert.equal(kept.mask, null, '戳已是最新时不该再被踢下线');
+  assert.equal(kept.local.has('vomi_owner_token_v1'), true);
+});
 
 test('remembered member enters directly, also on explicit read-only share links', () => {
   const shared = runGuest({ token: encode(memberPayload()), url: 'http://vomi.test/?role=guest' });

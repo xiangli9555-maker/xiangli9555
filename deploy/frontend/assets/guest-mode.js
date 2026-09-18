@@ -37,6 +37,11 @@
   // 与 deploy/backend/src/security.js 的 SCOPE_GROUPS / GROUP_LABELS 保持一致
   var GROUP_LABELS = { copy: '文案', audio: '音频' };
   var SCOPE_GROUPS = { schedule: ['audio'] };
+  // 登录后自动弹出的「身份操作指引」（2026-09-18）：站内全屏层内嵌，不用 window.open ——
+  // 登录成功后前端会 reload，reload 之后的新窗口属于非用户手势，几乎必被浏览器拦截。
+  var GUIDE_PAGE = 'Vomi-身份操作指引-C版-高音谱号.html';
+  var GUIDE_VER = '20260918f';   // 指引页内容更新时 bump，强制丢弃 iframe 缓存
+  var GUIDE_SEEN_KEY = 'vomi_guide_seen_v1';
 
   // ---------- 身份判定 ----------
   var TOKEN_PAYLOAD = null;
@@ -281,6 +286,43 @@
     // 延后一拍：等主页面渲染完再提示，避免被后续 DOM 重建清掉
     setTimeout(showUnlockHint, 900);
   }
+
+  // ---------- 自动弹出「身份操作指引」（每个账号一次）----------
+  // 口径（2026-09-18）：上线后每个账号第一次打开就弹一次，不要求「重新登录」——
+  // 否则六个月免登录期内的存量成员永远不会看到。关掉即记 seen，之后不再自动弹。
+  // 层里不加任何自加外壳/头部栏，iframe 直接铺满，用指引页自带的 × 关闭
+  // （页面点 × 时 postMessage 通知这里收层）。
+  function openGuide() {
+    if (document.getElementById('vomi-guide-mask')) return;
+    var mask = document.createElement('div');
+    mask.id = 'vomi-guide-mask';
+    mask.style.cssText = 'position:fixed;inset:0;z-index:100001;background:#0A1015';
+    mask.innerHTML = '<iframe src="' + encodeURI(GUIDE_PAGE) + '?v=' + GUIDE_VER +
+      '" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#0A1015" title="身份操作指引"></iframe>';
+    (document.body || document.documentElement).appendChild(mask);
+
+    function onMessage(e) { if (e && e.data === 'vomi-guide-close') dismiss(); }
+    function onKey(e) { if (e.key === 'Escape') dismiss(); }
+    function dismiss() {
+      try { localStorage.setItem(GUIDE_SEEN_KEY, String((IDENTITY && IDENTITY.subject) || '')); } catch (_) {}
+      window.removeEventListener('message', onMessage, false);
+      document.removeEventListener('keydown', onKey);
+      mask.remove();
+    }
+    window.addEventListener('message', onMessage, false);
+    document.addEventListener('keydown', onKey);
+  }
+  window.__vomiOpenGuide = openGuide;
+
+  function maybeShowGuide() {
+    if (IN_FRAME || !IDENTITY || READONLY) return;
+    var seen = '';
+    try { seen = localStorage.getItem(GUIDE_SEEN_KEY) || ''; } catch (_) {}
+    if (seen === IDENTITY.subject) return;
+    // 延后一拍：等主页面渲染完再弹，避免被后续 DOM 重建清掉。
+    setTimeout(openGuide, 600);
+  }
+  maybeShowGuide();
 
   // ---------- 写请求判定 ----------
   function isWrite(method) { return !!WRITE_METHODS[String(method || '').toUpperCase()]; }

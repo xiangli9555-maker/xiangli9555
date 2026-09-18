@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vomi · DAW 工作台 · 操作指引</title>
+<style>
+:root{--bg:#0b1c17;--panel:rgba(20,51,41,.94);--line:rgba(169,206,184,.18);--green:#0ff796;--text:#eff6f1;--muted:#adc5b8;--side-w:190px;--lane-inset:24px;font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",sans-serif;font-synthesis:none;font-variant-numeric:tabular-nums}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{width:100%;height:100%;margin:0}
+body{background:#060f0b;color:var(--text);height:100dvh;display:flex;align-items:center;justify-content:center;padding:0}
+.canvas-stage{position:relative;flex:none}
+/* 1520设计宽度聚焦四轨内容；高度自然收口，不缩小任务字号、不裁内容。 */
+.wrap{width:1520px;height:auto;flex:none;background:var(--bg);border:1px solid rgba(169,206,184,.22);border-radius:14px;padding:24px 32px 22px;display:flex;flex-direction:column;position:relative}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.logo{font-size:26px;line-height:32px;font-weight:800;color:var(--green);letter-spacing:2px}
+.hero{margin-bottom:18px}
+h1{font-size:32px;line-height:40px;font-weight:700;margin:2px 0 6px;letter-spacing:0}
+.slogan{color:var(--muted);opacity:.78;font-size:12px;line-height:18px;letter-spacing:2.4px}
+/* 右上角关闭：与段落小字同色系的低调灰，不抢主内容。 */
+.top-close{position:absolute;top:14px;right:16px;z-index:5;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(141,154,147,.32);border-radius:8px;background:transparent;color:#8d9a93;transition:color .18s,border-color .18s,background-color .18s}
+.top-close:hover{color:#b8c5be;border-color:rgba(141,154,147,.62);background:rgba(141,154,147,.1)}
+.top-close svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+
+/* ========== 原版四轨 · 卡带表头 ========== */
+.tape-win{position:relative;border-radius:7px;background:#08150f;border:1px solid rgba(169,206,184,.14);display:flex;align-items:center;justify-content:center;gap:16px;overflow:hidden}
+.tape-label{position:absolute;top:3px;left:8px;font-family:Consolas,"Courier New",monospace;font-size:8px;letter-spacing:1.5px;color:var(--muted);opacity:.7}
+.reel{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--rc);position:relative;flex:none}
+.reel::after{content:'';position:absolute;inset:5px;border-radius:50%;border:2px dashed rgba(255,255,255,.25)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.t-dot{width:9px;height:9px;border-radius:50%;flex:none}
+
+/* ========== 直接显示 · DAW 工作台 ========== */
+.daw{border:1px solid var(--line);border-radius:12px;background:#0e211a;overflow:hidden}
+
+.daw-scroll{width:100%;overflow:visible}
+.daw-inner{position:relative;width:100%;min-width:0}
+.daw-row{display:flex;border-bottom:1px solid rgba(169,206,184,.1)}
+.daw-row:last-child{border-bottom:none}
+.daw-side{position:relative;width:var(--side-w);flex:0 0 var(--side-w);padding:10px 12px;border-right:1px solid var(--line);background:rgba(0,0,0,.16);display:flex;align-items:center}
+
+/* ========== 轨道表头 · 点唱机卡带 ========== */
+.tape-card{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px 10px;background:#0d261e;transition:border-color .3s}
+.daw-row.trk:hover .tape-card{border-color:rgba(169,206,184,.45)}
+.tape-card .tape-win{height:44px;margin-bottom:8px}
+.sc-top{display:flex;align-items:center;gap:7px}
+.t-name{font-size:15px;line-height:22px;font-weight:600;white-space:nowrap}
+/* 只保留磁带窗和角色名，四轨说明/徽章/标语/计数不渲染。 */
+/* 段落、节点、任务共享左右留白，起点不再挤在卡带分隔线上。 */
+.daw-lane{position:relative;flex:1;min-width:0;margin-inline:var(--lane-inset)}
+.daw-lane.ruler{height:46px;background:rgba(0,0,0,.10)}
+/* TIMELINE 归属段落行左栏：绝对定位，纵向中心正好压在 top:26px 那条虚线刻度线上。
+   节点行左栏随之留空，不再出现「空一格 + 孤零零一个标签」的断层。 */
+.axis-side{position:absolute;left:12px;top:26px;transform:translateY(-50%);font-family:Consolas,"Courier New",monospace;font-size:9.5px;line-height:11px;color:var(--muted);letter-spacing:1.5px;white-space:nowrap}
+/* 独立音乐段落行：横向虚线 + 与下一行节点共用坐标的竖向引线。 */
+.song-row{border-bottom:none;background:rgba(0,0,0,.12)}
+.song-lane{height:56px;position:relative;overflow:visible}
+.song-lane::before{content:'';position:absolute;left:0;right:0;top:26px;border-top:1px dashed rgba(169,206,184,.32)}
+.song-anchor{position:absolute;top:0;height:56px;width:0}
+/* 音乐段落只是注解层：统一小号灰字，不做强调配色。 */
+.song-label{position:absolute;top:18px;left:0;transform:translateX(-50%);font-size:11px;font-weight:500;line-height:16px;color:#8d9a93;background:#0c1f17;padding:0 7px;white-space:nowrap;letter-spacing:0}
+.song-anchor::after{content:'';position:absolute;left:0;top:42px;height:22px;border-left:1px dashed rgba(169,206,184,.45);pointer-events:none;z-index:2}
+.song-anchor.zero .song-label{transform:none;padding-left:0}
+.song-anchor.last .song-label{transform:translateX(-100%);padding-right:0}
+.song-anchor.last::after{left:auto;right:0}
+.rmark{position:absolute;top:0;transform:translateX(-50%);font-size:13px;line-height:20px;color:var(--green);padding-top:14px;white-space:nowrap;transition:color .3s;text-align:center;letter-spacing:0;font-weight:600}
+.rmark.zero{transform:none;text-align:left}
+.rmark.last{transform:translateX(-100%);text-align:right}
+.rmark::after{content:'';position:absolute;left:50%;top:0;width:1px;height:9px;background:var(--green);transition:.3s}
+.rmark.zero::after{left:0}
+.rmark.last::after{left:auto;right:0}
+.rmark.hit::after{height:11px;box-shadow:0 0 6px rgba(15,247,150,.6)}
+
+.clip{position:absolute;z-index:2;height:34px;border-radius:5px;display:flex;align-items:center;gap:8px;padding:0 11px;font-size:13px;line-height:20px;font-weight:600;white-space:nowrap;border:1px solid;cursor:pointer;transition:filter .18s,background-color .18s;min-width:170px;text-align:left;letter-spacing:0}
+.clip:hover{filter:brightness(1.2)}
+.clip:active{filter:brightness(1.35)}
+.clip-writer{background:rgba(90,138,170,.16);border-color:rgba(90,138,170,.55);color:#aecbe3}
+.clip-audio{background:rgba(217,178,65,.10);border-color:rgba(217,178,65,.45);color:#D9B241}
+.clip-writerpm{background:rgba(214,153,190,.14);border-color:rgba(214,153,190,.5);color:#eec3da}
+.clip-audiopm{background:rgba(140,190,160,.10);border-color:rgba(140,175,155,.4);color:#C6D8CA}
+
+.sys-tag{font-size:10px;line-height:16px;padding:1px 6px;border-radius:3px;font-weight:700;letter-spacing:0;flex:none}
+.sys-tag.vomi{background:var(--green);color:#06251a}
+.sys-tag.sheet{background:transparent;border:1px solid rgba(15,247,150,.5);color:var(--green)}
+.sys-tag.off{background:rgba(255,255,255,.16);color:var(--text)}
+
+
+.daw-foot{display:flex;gap:10px;padding:9px 18px;border-top:1px solid var(--line);background:rgba(0,0,0,.24);font-size:11.5px;color:var(--muted);flex-wrap:wrap;align-items:center}
+.fchip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border:1px dashed rgba(169,206,184,.25);border-radius:16px;font-size:11px}
+
+/* ========== 详情弹窗 ========== */
+dialog{position:fixed;inset:auto;left:50%;top:50%;margin:0;width:570px;max-width:none;max-height:none;padding:0;color:var(--text);background:#133127;border:1px solid rgba(142,200,163,.4);border-radius:12px;overflow:visible;transform:translate(-50%,-50%) scale(var(--detail-scale,1));transform-origin:center}
+dialog::backdrop{background:rgba(0,12,7,.78)}
+.dialog-head{padding:28px 28px 18px;display:flex;justify-content:space-between;gap:16px}
+.eyebrow{font-size:11px;color:var(--green);font-weight:600;margin-bottom:10px}
+.dialog-head h2{font-size:23px;line-height:1.5;font-weight:650}
+.close{display:flex;justify-content:center;align-items:center;flex:none;width:36px;height:36px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted)}
+.close:hover{color:var(--green);border-color:var(--green)}
+.close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
+.dialog-body{padding:0 28px 28px}
+.dialog-meta{display:grid;grid-template-columns:44px minmax(0,1fr);gap:9px 12px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;line-height:1.8}
+.dialog-meta dt{color:var(--muted)}.dialog-meta dd{margin:0}
+.step-list{padding:0;margin:22px 0;list-style:none;counter-reset:steps}
+.step-list li{counter-increment:steps;display:flex;gap:13px;margin:14px 0;font-size:14px;line-height:1.9}
+.step-list li:before{content:counter(steps);color:var(--green);font-size:12px;line-height:26px;flex:none;width:16px}
+.detail-note{font-size:12px;line-height:1.8;color:var(--muted);border-left:2px solid var(--green);padding-left:12px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* 播放时全页唯一动态 = 四轨背后的 Vomi 水印呼吸；事项不再逐个弹跳、谱号固定在起点不移动。 */
+.clip{translate:0 0;transition:filter .18s,background-color .18s,border-color .18s}
+/* 段落小字保持统一灰（不再随播放变绿）；高亮只留给节点行。 */
+.rmark.stage-current{color:#0ff796}
+.clef-marker{position:absolute;left:0;top:0;width:24px;height:40px;display:flex;align-items:center;justify-content:center;border:0;border-radius:4px;padding:0;background:transparent;z-index:6;will-change:transform;touch-action:manipulation}
+.clef-marker img{width:14px;height:38px;object-fit:contain;pointer-events:none;user-select:none}
+.clef-marker:focus-visible{outline:1px solid var(--green);outline-offset:1px}
+/* Vomi 水印：沿用网站表头的品牌锁形（assets/vomi-mark.svg），压在四轨背后居中，随事项起拍。 */
+/* 水印改成「从左向右填充式」：整轮播放走到哪，水印就亮到哪；底纹始终极淡，只作背景暗示。 */
+.vomi-wm{position:absolute;left:0;top:0;z-index:0;pointer-events:none;user-select:none;display:grid;place-items:center;color:#0ff796}
+.vomi-wm svg{grid-area:1/1;display:block;width:100%;height:100%}
+.vomi-wm svg .wm-wave{stroke:currentColor}
+.vomi-wm svg .wm-word{fill:currentColor}
+/* 底纹：整枚水印的完整轮廓，压到几乎看不见。 */
+.vomi-wm .wm-base{opacity:.03}
+/* 填充层：按整轮进度从左向右裁开，亮度仍压在「不影响看文字」的范围内。 */
+.vomi-wm .wm-fill{opacity:.08;clip-path:inset(0 calc(100% - var(--wm-fill,0) * 100%) 0 0);will-change:clip-path}
+@media(prefers-reduced-motion:reduce){.clef-marker{will-change:auto}.vomi-wm .wm-fill{will-change:auto}}
+
+</style>
+</head>
+<body>
+<div class="canvas-stage" id="canvasStage">
+<main class="wrap">
+<button type="button" class="top-close" id="closeGuide" aria-label="关闭指引"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+<div class="hero">
+<div class="logo">Vomi</div>
+<h1>一人一声部，一曲一版本</h1>
+<div class="slogan">EVERY VOICE IN LINE · EVERY SONG ON TIME</div>
+</div>
+
+<!-- 按截图直接显示四轨，不经过视角选择页 -->
+<section id="daw" aria-label="四轨协作时间轴">
+  <div class="daw" id="dawBox">
+    <div class="daw-scroll">
+    <div class="daw-inner" id="dawInner">
+      <div class="daw-row song-row">
+        <div class="daw-side"><span class="axis-side">TIMELINE</span></div>
+        <div class="daw-lane song-lane" id="songSections" aria-label="音乐段落"></div>
+      </div>
+      <div class="daw-row timeline-row">
+        <div class="daw-side" aria-hidden="true"></div>
+        <div class="daw-lane ruler" id="ruler" aria-label="版本节点"></div>
+      </div>
+      <!-- Vomi 水印：与网站表头同一品牌锁形，波形在 JS 里按加长后的画幅生成，不联网 -->
+      <div class="vomi-wm" id="vomiWm" aria-hidden="true"></div>
+      <div id="tracks"></div>
+      <button type="button" class="clef-marker" id="clefMarker" aria-label="暂停" aria-pressed="false"><img src="data:image/png;base64,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" alt="" draggable="false"></button>
+    </div>
+    </div>
+    <div class="daw-foot">
+      <span class="fchip"><span class="sys-tag vomi">Vomi</span> 系统里点操作</span>
+      <span class="fchip"><span class="sys-tag sheet">Vomi 表格</span> 在线表格回填</span>
+      <span class="fchip"><span class="sys-tag off">OFF</span> 线下协作</span>
+    </div>
+  </div>
+</section>
+</main>
+</div>
+
+<dialog id="task-detail" aria-labelledby="detail-title" aria-describedby="detail-when">
+<header class="dialog-head"><div><p class="eyebrow" id="detail-role"></p><h2 id="detail-title"></h2></div><button class="close" id="close-detail" type="button" aria-label="关闭操作步骤" autofocus><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
+<div class="dialog-body"><dl class="dialog-meta"><dt>位置</dt><dd id="detail-place"></dd><dt>时间</dt><dd id="detail-when"></dd></dl><ol class="step-list" id="detail-steps"></ol><p class="detail-note" id="detail-note"></p></div>
+</dialog>
+<p class="sr-only" id="announcement" aria-live="polite" aria-atomic="true"></p>
+<script>
+'use strict';
+/* ============ 截图四轨数据：音乐段落与业务节点分层显示 ============ */
+/* 百分比沿用原版示意位置；Dev end 是终点，不将其假定为 W8。 */
+const MILES=[
+ {id:'assign',pct:0,section:'前奏（Intro）',label:'Vo需求锁 W0'},
+ {id:'talent',pct:37.5,section:'副歌（Chorus）',label:'声优锁 W3'},
+ {id:'script',pct:62.5,section:'主歌（Verse）',label:'台词锁 W5'},
+ {id:'schedule',pct:75,section:'高潮（Climax）',label:'录制Ing W6+'},
+ {id:'outro',pct:100,section:'尾奏（Outro）',label:'Vo资源回包合入 · Dev end'}
+];
+const MILE_LABELS=Object.fromEntries(MILES.map(m=>[m.id,m.label]));
+const ROLES=[
+ {key:'writer-pm',name:'文案 PM',color:'#D699BE',cls:'clip-writerpm'},
+ {key:'writer',name:'文案',color:'#5A8AAA',cls:'clip-writer'},
+ {key:'audio',name:'音频同学',color:'#D9B241',cls:'clip-audio'},
+ {key:'audio-pm',name:'音频 PM',color:'#C6D8CA',cls:'clip-audiopm'}
+];
+const TAG_TEXT={vomi:'Vomi',sheet:'Vomi 表格',off:'OFF'};
+const TRACK_LAYOUT={minHeight:116,pitch:40,inset:8};
+const TASKS={
+ sync:{owner:'writer',stage:'talent',start:37.5,tag:'vomi',title:'标记音画同步需求',place:'Vomi / 需求汇总 › 音画同步',when:'声优锁时齐备',steps:['找到自己负责的需求。','确认是否需要对视频录制，填写「音画同步」或「无需视频」。'],note:'先与玩法策划确认需求，再填写标记。'},
+ estimate:{owner:'writer',stage:'talent',start:37.5,tag:'vomi',title:'填写预估声优句数',place:'Vomi / 需求汇总 › 声优预估',when:'声优锁日 18:00 前',steps:['打开对应需求的声优预估。','选择角色，填写中英预估句数，确认保存成功。'],note:'北京时间声优锁日 18:00 前可编辑；实际操作需具备编辑权限。'},
+ upload:{owner:'writer',stage:'talent',start:37.5,tag:'vomi',title:'上传新声优选角资料',place:'Vomi / 声优库 › 从选角资料导入',when:'声优锁时齐备',steps:['有新增角色时，进入「从选角资料导入」。','上传选角需求文档（.docx），核对资料后提交。'],note:'需备齐新增角色中英选角需求资料，此时不要求最终人选已确定。'},
+ final:{owner:'writer',stage:'script',start:62.5,tag:'sheet',title:'终稿存档台词库在线表格',place:'版本台词库 › 对应需求的台词区域',when:'台词锁前',steps:['打开版本台词库在线表格，定位对应需求。','回填完整终稿，核对角色、语言及是否遗漏。'],note:'写完即回表，不只保存在本地；注意选择需求所属版本的台词库。'},
+ castingStore:{owner:'audio',stage:'talent',start:37.5,tag:'vomi',title:'新声优选角入库',place:'Vomi / 声优库 › 角色资料',when:'声优锁时齐备',steps:['打开 Vomi 声优库，筛选本版本新增角色。','核对中英选角资料已入库齐备，缺项找对应文案补齐。'],note:'文案负责上传资料，音频核对入库结果并推进选角。'},
+ reserve:{owner:'audio',stage:'talent',start:37.5,tag:'off',title:'预约版本所需声优档期',place:'系统外协作 / 联系声优 · 录制团队',when:'声优锁起',steps:['声优锁起开始联系声优及录制团队预约时间。','需要对视频录制的场次，与音频 PM 确认动画完成时间后安排。'],note:'确认的档期由音频同学回填在线表格。'},
+ checkScript:{owner:'audio',stage:'script',start:62.5,tag:'sheet',title:'检验台词库表格',place:'版本台词库 › 本版需求的台词区域',when:'台词锁时',steps:['收齐本版本在线台词表，检查需求、角色与中英台词是否完整。','核对实际句数与预估差异，缺失或疑问反馈文案与文案 PM。'],note:'验收实际台词内容，不以单据状态代替台词表验收。'},
+ schedule:{owner:'audio',stage:'schedule',start:75,tag:'sheet',title:'回填录制档期',place:'版本台词库 › 3.录制档期',when:'台词锁后 1 周内',steps:['打开对应版本台词库的「3.录制档期」。','回填已确认的声优、日期和时间，核对本版本场次齐全。'],note:'按表格现有字段登记；表格是档期真源，Vomi 档期页只读。'},
+ /* 录制Ing 起，音频同学与文案一起线下监棚：同一件事，两条轨各一张卡。 */
+ monitor:{owner:'audio',withRole:'文案',stage:'schedule',start:75,tag:'off',title:'OFF 监棚',place:'录制棚 / 线下协作',when:'录制Ing 起',steps:['按已确认的录制档期进棚，与文案一起跟录。','现场核对台词读法、情绪与表现，问题当场记下来。'],note:'音频同学与文案一起线下监棚；录制中的临时调整先记录，事后统一回填台词表。'},
+ assign:{owner:'writer-pm',stage:'assign',start:0,tag:'off',title:'分配文案TAPD选角&台词单',place:'TAPD / 关联「台词-中」单 › 处理人',when:'需求锁后',steps:['梳理本版本需求及关联的「台词-中」单。','将每条单据分发给负责文案，确认处理人。'],note:'单据流转在 TAPD 完成；本指引不会代为分发或同步 ND。'},
+ animation:{owner:'audio-pm',stage:'talent',start:37.5,tag:'off',title:'找演绎确认视频时间',place:'Vomi 音画同步信息 → 对应演绎同学',when:'声优锁后',steps:['读取需求汇总里已填写的音画同步信息。','找对应演绎同学确认动画何时完成，将时间同步给负责预约的音频同学。'],note:'音频 PM 负责协调动画时间；预约和档期回填由音频同学执行。'}
+};
+const PERSONAL={writer:['upload','estimate','sync','final','monitor'],audio:['castingStore','reserve','checkScript','schedule','monitor'],'writer-pm':['assign'],'audio-pm':['animation']};
+const OWNER_NAME=Object.fromEntries(ROLES.map(r=>[r.key,r.name]));
+const $=id=>document.getElementById(id);
+
+/* ============ 两行共享同一坐标，段落不会替换节点 ============ */
+const edgeClass=m=>m.pct===0?' zero':m.pct===100?' last':'';
+function renderRuler(){
+  $('songSections').innerHTML=MILES.map(m=>`<div class="song-anchor${edgeClass(m)}" data-mile="${m.id}" style="left:${m.pct}%"><span class="song-label">${m.section}</span></div>`).join('');
+  $('ruler').innerHTML=MILES.map(m=>`<div class="rmark act${edgeClass(m)}" data-mile="${m.id}" style="left:${m.pct}%">${m.label}</div>`).join('');
+}
+function renderTracks(){
+  let html='';
+  ROLES.forEach((r,ri)=>{
+    const ids=PERSONAL[r.key];
+    /* 同节点任务纵向堆叠；不同节点共用子行，保持时间位置且压低整轨。 */
+    const slots=new Map();
+    const placements=ids.map(id=>{const t=TASKS[id],slot=slots.get(t.start)||0;slots.set(t.start,slot+1);return {id,t,slot};});
+    const height=Math.max(TRACK_LAYOUT.minHeight,Math.max(...slots.values())*TRACK_LAYOUT.pitch+TRACK_LAYOUT.inset*2);
+    html+=`<div class="daw-row trk" data-t="${r.key}" style="--rc:${r.color}">
+      <div class="daw-side"><div class="tape-card">
+        <div class="tape-win"><span class="tape-label">TRACK 0${ri+1}</span><div class="reel"></div><div class="reel"></div></div>
+        <div class="sc-top"><span class="t-dot" style="background:${r.color}"></span><span class="t-name">${r.name}</span></div>
+      </div></div>
+      <div class="daw-lane track" data-lane="${r.key}" style="height:${height}px">`;
+    placements.forEach(({id,t,slot})=>{
+      const trans=t.start===0?'':'transform:translateX(-50%);';
+      html+=`<button type="button" class="clip ${r.cls}" data-task="${id}" data-start="${t.start}" style="left:${t.start}%;top:${slot*TRACK_LAYOUT.pitch+TRACK_LAYOUT.inset}px;${trans}" aria-label="${r.name} · ${t.title}，查看步骤"><span class="sys-tag ${t.tag}">${TAG_TEXT[t.tag]}</span>${t.title.replace(/&/g,'&amp;')}</button>`;
+    });
+    html+='</div></div>';
+  });
+  $('tracks').innerHTML=html;
+  $('tracks').querySelectorAll('.clip').forEach(b=>b.addEventListener('click',()=>openDetail(b.dataset.task,b)));
+}
+
+/* ============ 播放：整轮约 10 秒，全页唯一动态是四轨背后的水印呼吸 ============ */
+const QUEUE=['assign','upload','estimate','sync','animation','castingStore','reserve','final','checkScript','schedule','monitor'];
+const PLAYBACK_RATE=2,BASE_STEP_MS=1580,BASE_OUTRO_MS=2600;   /* 11×790ms + 尾奏 1300ms ≈ 10.0s */
+/* 水印填充按「整轮总进度」走（不是每事项一次呼吸）：从 0 单调涨到 1，暂停时停在当前位置。 */
+const WM_TOTAL=QUEUE.length*BASE_STEP_MS+BASE_OUTRO_MS;
+const wmProgress=()=>Math.min(1,(index*BASE_STEP_MS+Math.min(elapsed,duration()))/WM_TOTAL);
+const REDUCED=window.matchMedia('(prefers-reduced-motion: reduce)');
+let index=0,previousIndex=-1,elapsed=0,playing=false,finished=false,lastTime=0,raf=0,closed=false;
+const clips=()=>Array.from(document.querySelectorAll('.clip'));
+const taskAt=n=>TASKS[QUEUE[n]];
+const ownerAt=n=>taskAt(n)?.owner||'audio';
+const stageAt=n=>taskAt(n)?.stage||'outro';
+const duration=()=>index===QUEUE.length?BASE_OUTRO_MS:BASE_STEP_MS;
+function setPlaybackState(){
+  const box=$('dawBox'),clef=$('clefMarker');
+  if(closed||!box||!clef)return;   /* 关闭后页面已移除，避免异步回调再取节点 */
+  box.classList.toggle('running',playing);
+  clef.setAttribute('aria-label',finished?'重播':playing?'暂停':'播放');
+  clef.setAttribute('aria-pressed',String(!playing));
+}
+function markerPoint(n){
+  const container=$('dawInner'),bounds=container.getBoundingClientRect(),zoom=bounds.width/container.offsetWidth;
+  if(n===QUEUE.length){
+    const lane=document.querySelector('[data-lane="audio"]'),r=lane.getBoundingClientRect();
+    return {x:(r.right-bounds.left)/zoom-24,y:(r.top-bounds.top)/zoom+lane.offsetHeight/2-20};
+  }
+  const cl=document.querySelector(`[data-task="${QUEUE[n]}"]`);
+  if(!cl)return null;
+  const lane=cl.parentElement,r=lane.getBoundingClientRect();
+  const left=lane.clientWidth*Number(cl.dataset.start)/100-(Number(cl.dataset.start)===0?0:cl.offsetWidth/2);
+  return {x:(r.left-bounds.left)/zoom+left+cl.offsetWidth+4,y:(r.top-bounds.top)/zoom+parseFloat(cl.style.top)+(cl.offsetHeight-40)/2};
+}
+/* 谱号只做播放/暂停按钮，钉在起点不动；不再随事项跳动。 */
+function positionMarker(){
+  const to=markerPoint(0);if(!to)return;
+  $('clefMarker').style.transform=`translate(${to.x}px,${to.y}px)`;
+}
+/* 全页唯一动态：水印按整轮进度从左向右填充。 */
+function renderFrame(){
+  const box=$('dawBox');if(closed||!box)return;
+  box.style.setProperty('--wm-fill',wmProgress().toFixed(4));
+}
+function renderCurrent(){
+  if(closed)return;
+  clips().forEach(c=>c.setAttribute('aria-current',c.dataset.task===QUEUE[index]?'step':'false'));
+  document.querySelectorAll('[data-mile]').forEach(n=>n.classList.toggle('stage-current',n.dataset.mile===stageAt(index)));
+  // 只复用已有业务文字，不添加可见状态句或第15项任务。
+  $('announcement').textContent=taskAt(index)?OWNER_NAME[ownerAt(index)]+'，'+taskAt(index).title:MILE_LABELS.outro;
+  setPlaybackState();positionMarker();
+}
+/* 暂停不再把水印抹掉：填充位置就是进度，停在哪亮到哪。 */
+function pause(){
+  playing=false;cancelAnimationFrame(raf);setPlaybackState();
+}
+function play(){
+  if(closed||$('task-detail').open)return;
+  if(finished){index=0;previousIndex=-1;elapsed=0;finished=false;renderCurrent();renderFrame();}
+  if(playing)return;
+  playing=true;lastTime=performance.now();setPlaybackState();raf=requestAnimationFrame(tick);
+}
+function tick(now){
+  if(!playing)return;
+  // 从浏览器后台返回时不跨项快进；隐藏时另行暂停。
+  elapsed+=Math.min(100,Math.max(0,now-lastTime))*PLAYBACK_RATE;lastTime=now;
+  if(elapsed>=duration()){
+    if(index===QUEUE.length){elapsed=duration();finished=true;pause();renderFrame();return;}
+    elapsed-=duration();previousIndex=index;index++;renderCurrent();
+  }
+  renderFrame();raf=requestAnimationFrame(tick);
+}
+$('clefMarker').addEventListener('click',()=>playing?pause():play());
+/* 右上角关闭：先停播放，再整页淡出移除（刷新才会回来）。 */
+$('closeGuide').addEventListener('click',()=>{
+  closed=true;pause();
+  const stage=$('canvasStage');
+  stage.style.transition='opacity .26s ease';
+  stage.style.opacity='0';
+  setTimeout(()=>stage.remove(),280);
+  /* 被嵌进 Vomi 登录后的指引层时，通知父页收层并记「已看过」；独立打开无影响。 */
+  if (window.parent && window.parent !== window) { try { window.parent.postMessage('vomi-guide-close','*'); } catch(_){} }
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+REDUCED.addEventListener('change',()=>{if(REDUCED.matches)pause();renderFrame();});
+window.__dawMotion={getState:()=>({mode:'c',rate:PLAYBACK_RATE,index,elapsed,playing,finished,task:QUEUE[index]||null,owner:ownerAt(index),stage:stageAt(index)}),queue:QUEUE.map(id=>({id,owner:TASKS[id].owner,stage:TASKS[id].stage}))};
+
+/* ============ 详情弹窗 ============ */
+function openDetail(id,button){
+  pause();
+  const t=TASKS[id];
+  window.__returnFocus=button;
+  $('detail-role').textContent=(t.withRole?OWNER_NAME[t.owner]+' + '+t.withRole:OWNER_NAME[t.owner])+' · '+MILE_LABELS[t.stage].split(' ')[0];
+  $('detail-title').textContent=t.title;
+  $('detail-place').textContent=t.place;
+  $('detail-when').textContent=t.when;
+  $('detail-note').textContent=t.note;
+  $('detail-steps').replaceChildren(...t.steps.map(s=>{const li=document.createElement('li');li.textContent=s;return li;}));
+  $('task-detail').showModal();
+  fitDetail();
+}
+$('close-detail').addEventListener('click',()=>$('task-detail').close());
+$('task-detail').addEventListener('close',()=>{const b=window.__returnFocus;window.__returnFocus=null;if(b&&b.isConnected)b.focus();});
+$('task-detail').addEventListener('click',e=>{if(e.target!==$('task-detail'))return;const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();});
+
+/* ============ 初始化 ============ */
+renderRuler();renderTracks();
+/* 高度随内容收口；先测完整内容，再按窗口宽高等比适配，无裁切和滚动条。 */
+const FRAME_WIDTH=1520,VIEWPORT_INSET=16;
+const wrapEl=document.querySelector('.wrap');
+function layoutTrackClips(){
+  document.querySelectorAll('.track').forEach(lane=>{
+    const occupied=[];
+    lane.querySelectorAll('.clip').forEach(clip=>{
+      const start=Number(clip.dataset.start),width=clip.offsetWidth;
+      const left=lane.clientWidth*start/100-(start===0?0:width/2),right=left+width+28;
+      let slot=0;
+      while(occupied[slot]?.some(box=>left<box.right+10&&right>box.left-10))slot++;
+      (occupied[slot]||=[]).push({left,right});
+      clip.style.top=`${slot*TRACK_LAYOUT.pitch+TRACK_LAYOUT.inset}px`;
+    });
+    lane.style.height=`${Math.max(TRACK_LAYOUT.minHeight,occupied.length*TRACK_LAYOUT.pitch+TRACK_LAYOUT.inset*2)}px`;
+  });
+}
+/* ============ Vomi 水印 ============ */
+/* 品牌锁形沿用网站表头 assets/vomi-mark.svg 的画法：两侧波形 + 中间「-Vomi-」字标。
+   这里把画幅从 176×32 拉长到 256×40（同比例放大后再加长波形），字标保持原比例不被拉伸。 */
+const WM_VB={w:256,h:40},WM_FONT=20,WM_FLAT=6,WM_STEP=3;
+const WM_L=[4,89],WM_R=[167,252];
+const WM_Y_L=[13,19,7,25,11,21,14,18,12,20,15,17,13,19];
+const WM_Y_R=[13,18,14,20,12,18,11,21,7,25,12,19,13,17];
+function wmWave([x0,x1],ys){
+  const mid=WM_VB.h/2,k=WM_VB.h/32;
+  let d=`M${x0} ${mid}H${x0+WM_FLAT}`,x=x0+WM_FLAT,i=0;
+  while(x+WM_STEP<=x1-WM_FLAT){d+=`L${x+WM_STEP} ${(ys[i%ys.length]*k).toFixed(1)}`;x+=WM_STEP;i++;}
+  return d+`H${x1}`;
+}
+function wmLayer(cls){
+  return `<svg class="${cls}" viewBox="0 0 ${WM_VB.w} ${WM_VB.h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">`
+    +`<g class="wm-wave" fill="none" stroke-width="${(1.8*WM_VB.h/32).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round">`
+    +`<path d="${wmWave(WM_L,WM_Y_L)}"/><path d="${wmWave(WM_R,WM_Y_R)}"/></g>`
+    +`<text class="wm-word" x="${WM_VB.w/2}" y="${WM_VB.h/2+0.5}" font-family="Microsoft YaHei UI, Microsoft YaHei, Segoe UI, sans-serif" font-size="${WM_FONT}" font-weight="600" letter-spacing="0" text-anchor="middle" dominant-baseline="middle">-Vomi-</text></svg>`;
+}
+/* 两层同图叠加：底纹全程在，填充层被 clip-path 从左向右裁开，形成填充式进度。 */
+function buildWatermark(){
+  const el=document.getElementById('vomiWm');if(!el)return;
+  el.innerHTML=wmLayer('wm-base')+wmLayer('wm-fill');
+}
+buildWatermark();
+/* 水印横向居中在时间轴区域，高度约等于一条职能组轨道；按画幅比例缩放，不拉伸。 */
+const WM_ASPECT=WM_VB.w/WM_VB.h;
+function positionWatermark(){
+  const wm=$('vomiWm'),inner=$('dawInner'),tracks=$('tracks');
+  if(!wm||!tracks||!inner)return;
+  const rows=[...tracks.querySelectorAll('.trk')];
+  const rowH=rows.length?Math.max(...rows.map(r=>r.offsetHeight)):TRACK_LAYOUT.minHeight;
+  const cs=getComputedStyle(document.documentElement);
+  const sideW=parseFloat(cs.getPropertyValue('--side-w'))||190;
+  const laneInset=parseFloat(cs.getPropertyValue('--lane-inset'))||24;
+  const laneLeft=sideW+laneInset,laneRight=inner.offsetWidth-laneInset;
+  const w=Math.round(rowH*WM_ASPECT);
+  wm.style.width=`${w}px`;
+  wm.style.height=`${rowH}px`;
+  wm.style.left=`${Math.round(laneLeft+(laneRight-laneLeft-w)/2)}px`;
+  wm.style.top=`${Math.round(tracks.offsetTop+tracks.offsetHeight/2-rowH/2)}px`;
+}
+function fitDetail(){
+  const dialog=$('task-detail');
+  if(!dialog.open)return;
+  const s=Math.min(1,(document.documentElement.clientWidth-32)/dialog.offsetWidth,(document.documentElement.clientHeight-32)/dialog.offsetHeight);
+  dialog.style.setProperty('--detail-scale',String(Math.max(.01,s)));
+}
+function fitScale(){
+  if(closed)return;
+  const availableWidth=Math.max(1,window.innerWidth-VIEWPORT_INSET*2);
+  const availableHeight=Math.max(1,window.innerHeight-VIEWPORT_INSET*2);
+  wrapEl.style.zoom='1';
+  layoutTrackClips();
+  positionWatermark();
+  const contentHeight=wrapEl.offsetHeight;
+  let s=Math.min(1,availableWidth/FRAME_WIDTH,availableHeight/contentHeight);
+  wrapEl.style.zoom=String(s);
+  /* 浏览器会把细边框取整到物理像素；回测实际尺寸，短窗口也不越界。 */
+  for(let pass=0;pass<4;pass++){
+    const actual=wrapEl.getBoundingClientRect();
+    const correction=Math.min(1,availableWidth/actual.width,availableHeight/actual.height);
+    if(correction>=.9999)break;
+    s*=correction;
+    wrapEl.style.zoom=String(s);
+  }
+  const bounds=wrapEl.getBoundingClientRect();
+  $('canvasStage').style.width=`${bounds.width}px`;
+  $('canvasStage').style.height=`${bounds.height}px`;
+  fitDetail();
+  positionMarker();
+}
+window.addEventListener('resize',fitScale);fitScale();
+document.fonts.ready.then(async()=>{await $('clefMarker').querySelector('img').decode();fitScale();renderCurrent();if(!REDUCED.matches&&!document.hidden)play();});
+</script>
+</body>
+</html>

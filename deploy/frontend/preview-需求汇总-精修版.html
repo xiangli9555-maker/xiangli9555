@@ -148,7 +148,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* KPI 战术仪表盘 */
-.dash{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;background:rgba(15,247,150,0.03);border-radius:8px;padding:10px}
+.dash{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;background:rgba(15,247,150,0.03);border-radius:8px;padding:10px}
 .kpi{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;padding:14px 16px;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c-primary)}
 .kpi.kpi-info::before{background:var(--c-info)}
@@ -742,7 +742,7 @@ body.embed .mid{width:100%}
       </div>
     </div>
 
-    <!-- KPI 4 卡横幅 -->
+    <!-- KPI 3 卡横幅（完成度卡 2026-09-16 隐藏后由 4 列改 3 列，2026-09-18：修复行尾空一列） -->
     <div class="dash" id="kpiStrip" data-page-node-id="4SDHi0fwZGxWN18DVYWKYJ">
       <div class="kpi" data-page-node-id="U6f9sVDeLTWpKDX48FfEV3">
         <div class="kpi-label" data-page-node-id="9MjkWLbPSp5KRHQhKVyskE">STORIES · 需求</div>

@@ -108,8 +108,8 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
    WEEK-COLUMN TABLE — per-version group × per-week column
    每个版本一行；周格内蓝=文案策划 / 绿=音频策划 并列节点
    ================================================================ */
-/* timeline-wrap = 外壳布局容器（永不滚动，确保表头绿线是绝对上边界） */
-.timeline-wrap{flex:1 1 0;display:flex;flex-direction:column;min-height:0;gap:12px;background:var(--c-bg);border:1px solid var(--c-hairline);border-radius:6px;padding:0 12px 12px;overflow:hidden;position:relative}
+/* timeline-wrap = 外壳布局容器（永不滚动，确保表头绿线是绝对上边界）；2026-09-18 底色改透明：版本筛选不满时下方露出通用背景图（表格自身仍有 var(--c-bg) 底） */
+.timeline-wrap{flex:1 1 0;display:flex;flex-direction:column;min-height:0;gap:12px;background:transparent;border:1px solid var(--c-hairline);border-radius:6px;padding:0 12px 12px;overflow:hidden;position:relative}
 /* yc-scroll = 唯一可滚动的内层容器；sticky 表头锁定在此容器的 top:0 = 视觉上 = 绿线位置 */
 /* NOTE: 严禁给此容器加 transform / will-change / filter / contain / perspective —— 会破坏 sticky 表头 */
 .yc-scroll{flex:1 1 0;min-height:0;overflow:auto;overscroll-behavior-y:contain}
@@ -502,9 +502,7 @@ html.embed{background:transparent !important}
 html.embed .brand-bar,
 html.embed aside.sidebar{display:none !important}
 html.embed .layout{padding-left:0}
-/* 不透明背景：修复透光 (2026-09-02) */
-.timeline-wrap{background:var(--c-surface)}
-.yc-table{background:transparent}
+/* 2026-09-18：容器底色改透明（PM 要求版本筛选不满时下方露出通用背景图），取代 2026-09-02 的「不透明修复透光」；表格恢复自身 var(--c-bg) 底保证可读，年份/里程碑/日期列保留 surface-2 底 */
 .yc-table tbody td.yc-year,.yc-table tbody td.yc-ms,.yc-table tbody td.yc-days{background:var(--c-surface-2)!important}
 
 /* ================================================================

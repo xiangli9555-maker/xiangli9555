@@ -55,7 +55,7 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .cmd-item svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8;color:var(--c-primary);flex-shrink:0}
 
 /* 中：对话区 */
-.chat-col{display:flex;flex-direction:column;overflow:hidden;background:var(--c-bg)}
+.chat-col{display:flex;flex-direction:column;overflow:hidden;background:transparent}/* 2026-09-18: 聊天主列改透明，露出通用背景图（消息气泡/输入区自带底色） */
 .chat-head{padding:14px 20px 12px;border-bottom:1px solid var(--c-hairline);display:flex;align-items:center;gap:12px}
 .assistant-badge{width:36px;height:36px;border-radius:50%;background:var(--c-bg-0);border:1px solid var(--c-primary);display:flex;align-items:center;justify-content:center;color:var(--c-primary);position:relative}
 .assistant-badge::after{content:'';position:absolute;bottom:2px;right:2px;width:8px;height:8px;background:var(--c-primary);border-radius:50%;border:1.5px solid var(--c-bg-0);box-shadow:0 0 8px var(--c-primary)}
@@ -141,8 +141,8 @@ body.embed .mid{width:100%}
   font-family:'Inter','JetBrains Mono',-apple-system,"PingFang SC",sans-serif;
 }
 
-/* 不透明背景：修复透光 (2026-09-02) */
-.cmd-col,.chat-col,.data-col{background:var(--c-surface)}
+/* 2026-09-18：三列底色改透明（PM 要求 Vomi 页露出通用背景图），取代 2026-09-02 的「不透明修复透光」；气泡/卡片自带底色保证可读 */
+.cmd-col,.chat-col,.data-col{background:transparent}
 
 /* 响应式断点（2026-08-18） */
 @media (max-width: 1500px){

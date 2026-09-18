@@ -88,6 +88,32 @@ test('owner session token elevates to admin and is tamper proof', () => {
   assert.equal(req.auth.via, 'owner-session');
 });
 
+test('identity session lasts six calendar months, with month-end clamping', () => {
+  const { identityExpiresAt } = require('../src/security');
+  assert.equal(typeof identityExpiresAt, 'function');
+  assert.equal(new Date(identityExpiresAt(Date.parse('2026-09-18T02:49:12Z'))).toISOString(), '2027-03-18T02:49:12.000Z');
+  assert.equal(new Date(identityExpiresAt(Date.parse('2026-08-31T12:00:00Z'))).toISOString(), '2027-02-28T12:00:00.000Z');
+  const payload = JSON.parse(Buffer.from(issueOwnerToken('twinkyli').split('.')[0], 'base64url'));
+  assert.equal(payload.exp, identityExpiresAt(payload.iat));
+});
+
+test('legacy hundred-year sessions are capped at six months without immediate logout', () => {
+  const { identityExpiresAt } = require('../src/security');
+  assert.equal(typeof identityExpiresAt, 'function');
+  const token = issueOwnerToken('twinkyli', 100 * 365.25 * 86400000);
+  const payload = JSON.parse(Buffer.from(token.split('.')[0], 'base64url'));
+  assert.ok(verifySessionToken(token));
+  const now = Date.now;
+  try {
+    Date.now = () => identityExpiresAt(payload.iat) + 1;
+    assert.equal(verifySessionToken(token), null);
+  } finally { Date.now = now; }
+});
+
+test('signed session for an account outside current roster is rejected', () => {
+  assert.equal(verifySessionToken(issueOwnerToken('removed-member')), null);
+});
+
 test('expired owner session token is rejected', () => {
   const token = issueOwnerToken(OWNER_SUBJECT, -1000);
   assert.equal(verifyOwnerToken(token), null);

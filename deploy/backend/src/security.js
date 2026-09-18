@@ -6,15 +6,14 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const ALLOW_INSECURE_DEV = process.env.ALLOW_INSECURE_DEV === 'true';
 const ROLE_LEVEL = Object.freeze({ viewer: 1, editor: 2, admin: 3 });
 
-// ★ 2026-09-14 编辑权限收口：站点默认只读浏览，仅 lycheelli 用编辑口令解锁后可写。
-//   口令用 VOMI_OWNER_KEY 覆盖（docker-compose / .env）；未配则用下面的内置默认口令。
-//   签发的是 HMAC 签名的短期令牌（默认 30 天），前端存 localStorage，每次请求带 X-Vomi-Editor。
+// 名单即授权：默认只读；成员输入企微账号后按 copy/audio 组获得权限。
+// HMAC 令牌记住六个自然月，存 localStorage，每次请求带 X-Vomi-Editor。
+// 身份是本站声明账号，不是企微 OAuth 身份认证；签名密钥由环境变量配置。
 const OWNER_SUBJECT = 'lycheelli';
 const DENY_MESSAGE = '请找 lycheelli 申请权限';
 const DEFAULT_OWNER_KEY = 'vomi-owner-2026';
 const OWNER_KEY = String(process.env.VOMI_OWNER_KEY || DEFAULT_OWNER_KEY);
 const SESSION_SECRET = String(process.env.VOMI_SESSION_SECRET || OWNER_KEY || 'vomi-session-secret');
-const OWNER_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const SUBJECT_PATTERN = /^[\w.@()\-\u4e00-\u9fff]{1,64}$/;
 const ALLOWED_ORIGINS = new Set(
   String(process.env.ALLOWED_ORIGINS || '')
@@ -129,8 +128,7 @@ function parseUsers() {
 const USERS = parseUsers();
 
 // 可选：VOMI_USER_KEYS_JSON='{"archili":"...","ukongwang":"..."}' 给指定账号单独发口令。
-// ⚠️ 目前默认是「共享编辑口令 + 自己填账号」，拿到口令的人可以填别人的账号冒充。
-//    对内工具可接受；要收紧时给每人发独立口令即可，无需改代码。
+// 当前默认只报账号，不做企微身份认证；账号可被冒用。需收紧时配置专属口令并开启校验。
 const USER_KEYS = new Map();
 (() => {
   const raw = String(process.env.VOMI_USER_KEYS_JSON || '').trim();
@@ -161,10 +159,17 @@ const PER_ACCOUNT_KEYS = String(process.env.VOMI_PER_ACCOUNT_KEYS || '').toLower
 const UNLOCK_REQUIRES_KEY =
   String(process.env.VOMI_UNLOCK_KEY || '').trim() !== '' || PER_ACCOUNT_KEYS;
 
-// 2026-09-17 PM：名单内的人**填一次账号就永久记住**，不做 30 天过期——解锁令牌按
-// 100 年有效期签发（等同永久；仍保留 exp 字段以兼容前端过期校验）。移出名单才是
-// 真正的"踢出"手段（名单即真源，旧令牌立刻降级）。
-const IDENTITY_TOKEN_TTL_MS = 100 * 365.25 * 24 * 3600 * 1000;
+// 2026-09-18 PM：从输入账号起记住六个自然月，翻页不会滚动续期；月末落到目标月末。
+function identityExpiresAt(issuedAt) {
+  const start = new Date(issuedAt);
+  const end = new Date(issuedAt);
+  const day = start.getUTCDate();
+  end.setUTCDate(1);
+  end.setUTCMonth(end.getUTCMonth() + 6);
+  const lastDay = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth() + 1, 0)).getUTCDate();
+  end.setUTCDate(Math.min(day, lastDay));
+  return end.getTime();
+}
 
 function deriveAccountKey(account) {
   return b64url(
@@ -311,11 +316,12 @@ function checkOwnerKey(key) {
 /**
  * 签发编辑令牌：`<base64url(payload)>.<hmac>`。
  * 2026-09-16：payload 带上 group / title / role，使后端能按职能组做 scope 鉴权。
- * 名单外的 subject 只给 editor 且不带组（等价于「能写但受域限制」）。
+ * 浏览器令牌验证时必须仍命中名单；服务端 Bearer 凭据不走此令牌路径。
  */
-function issueOwnerToken(subject = OWNER_SUBJECT, ttlMs = OWNER_SESSION_TTL_MS) {
+function issueOwnerToken(subject = OWNER_SUBJECT, ttlMs, issuedAt = Date.now()) {
   const identity = resolveIdentity(subject);
-  const now = Date.now();
+  const now = issuedAt;
+  const expiresAt = ttlMs === undefined ? identityExpiresAt(now) : now + ttlMs;
   const payload = identity
     ? {
         sub: identity.account,
@@ -324,9 +330,9 @@ function issueOwnerToken(subject = OWNER_SUBJECT, ttlMs = OWNER_SESSION_TTL_MS) 
         title: identity.title,
         role: identity.role,
         iat: now,
-        exp: now + ttlMs,
+        exp: expiresAt,
       }
-    : { sub: String(subject), name: String(subject), group: '', title: 'member', role: 'editor', iat: now, exp: now + ttlMs };
+    : { sub: String(subject), name: String(subject), group: '', title: 'member', role: 'editor', iat: now, exp: expiresAt };
   const body = b64url(Buffer.from(JSON.stringify(payload)));
   return `${body}.${signPayload(body)}`;
 }
@@ -346,19 +352,15 @@ function verifySessionToken(token) {
   if (!crypto.timingSafeEqual(given, expect)) return null;
   try {
     const payload = JSON.parse(Buffer.from(body.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));
-    if (!payload || !payload.sub || !Number.isFinite(payload.exp) || payload.exp < Date.now()) return null;
+    if (!payload || !payload.sub || !Number.isFinite(payload.exp) || !Number.isFinite(payload.iat)) return null;
+    const now = Date.now();
+    const expiresAt = Math.min(payload.exp, identityExpiresAt(payload.iat));
+    if (payload.iat > now || expiresAt <= now) return null;
     const identity = resolveIdentity(payload.sub);
-    if (identity) return identity;
-    // 名单外的主体：只认 payload 自带的最小权限（默认 editor，无组）
-    const role = ROLE_LEVEL[String(payload.role)] ? String(payload.role) : 'editor';
-    return {
-      account: String(payload.sub),
-      subject: String(payload.sub),
-      name: String(payload.name || payload.sub),
-      group: '',
-      title: 'member',
-      role,
-    };
+    // 浏览器身份必须仍在名单内；不能让已移出者回退成无组 editor。
+    // 服务端 Bearer 令牌 / 回环作业仍走 apiAuth 独立分支，不受此处影响。
+    if (!identity) return null;
+    return { ...identity, issuedAt: payload.iat, expiresAt };
   } catch (_) {
     return null;
   }
@@ -539,7 +541,7 @@ module.exports = {
   resolveIdentity,
   secureHeaders,
   UNLOCK_REQUIRES_KEY,
-  IDENTITY_TOKEN_TTL_MS,
+  identityExpiresAt,
   verifyOwnerToken,
   verifySessionToken,
 };

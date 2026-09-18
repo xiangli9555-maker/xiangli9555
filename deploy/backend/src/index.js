@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const pool = require('./db');
+const loginStats = require('./login_stats').createLoginStats(pool);
 const { deletePrecondition, updatePrecondition } = require('./soft_delete');
 const { ensureAuditTable, writeAudit, ensureVoiceRolesAuditTable, diffVoiceRoleChanges, writeVoiceRoleAudit } = require('./audit');
 const { assertRoleNameBalanced } = require('./role_name');
@@ -28,7 +29,8 @@ const {
   GROUP_LABELS,
   secureHeaders,
   UNLOCK_REQUIRES_KEY,
-  IDENTITY_TOKEN_TTL_MS,
+  identityExpiresAt,
+  listUsers,
 } = require('./security');
 const { pullLiveDemands, isLiveReady } = require('./tapd_live');
 const voiceEstimates = require('./voice_estimates');
@@ -70,7 +72,7 @@ app.get('/api/auth/me', (req, res) => {
 // 编辑权限解锁：2026-09-17 起**名单即授权** —— 只填企业微信账号，命中名单就按职能组
 // 签发令牌（前端存 localStorage，之后每个请求带 X-Vomi-Editor）。
 // 只有当 CVM 配了 VOMI_UNLOCK_KEY / 开启 VOMI_PER_ACCOUNT_KEYS 时才重新要求口令。
-app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), (req, res) => {
+app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), async (req, res) => {
   const key = String((req.body && req.body.key) || '');
   // 账号容错：粘贴「twinkyli(李莹莹)」、带邮箱后缀、只写中文名都能认出来。
   const account = normalizeAccountInput((req.body && req.body.account) || '') || accountForKey(key) || '';
@@ -97,6 +99,13 @@ app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), (req, r
       message: `账号 ${account} 不在权限名单里，请找 ${OWNER_SUBJECT} 添加`,
     });
   }
+  try {
+    await loginStats.record(identity, 'login');
+  } catch (e) {
+    console.error('[login-stats] login write failed:', e.message);
+    return res.status(503).json({ ok: false, error: 'login_record_unavailable', message: '登录记录未入库，请稍后重试' });
+  }
+  const issuedAt = Date.now();
   res.json({
     ok: true,
     subject: identity.account,
@@ -105,9 +114,33 @@ app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), (req, r
     groupLabel: GROUP_LABELS[identity.group] || '',
     title: identity.title,
     role: identity.role,
-    token: issueOwnerToken(identity.account, IDENTITY_TOKEN_TTL_MS),
-    expiresIn: Math.floor(IDENTITY_TOKEN_TTL_MS / 1000),
+    token: issueOwnerToken(identity.account, undefined, issuedAt),
+    expiresIn: Math.floor((identityExpiresAt(issuedAt) - issuedAt) / 1000),
   });
+});
+
+// 老登录凭据继续使用：不重新输入，不延长原来的六个月窗口；访问与登录分开计数。
+app.post('/api/session/resume', async (req, res) => {
+  const identity = req.auth && req.auth.via === 'owner-session' && resolveIdentity(req.auth.subject);
+  if (!identity) return res.status(401).json({ ok: false, error: 'session_invalid' });
+  try {
+    await loginStats.record(identity, 'resume');
+    const { issuedAt, expiresAt } = req.auth;
+    res.json({ ok: true, token: issueOwnerToken(identity.account, expiresAt - issuedAt, issuedAt),
+      subject: identity.account, name: identity.name, group: identity.group, role: identity.role, expiresAt });
+  } catch (e) {
+    console.error('[login-stats] resume write failed:', e.message);
+    res.status(503).json({ ok: false, error: 'login_record_unavailable', message: '访问记录未入库，请稍后刷新重试' });
+  }
+});
+
+// 仅管理员可读：不向普通同事暴露登录记录，不提供修改/清空入口。
+app.get('/api/admin/login-stats', requireRole('admin'), async (req, res) => {
+  try { res.json(await loginStats.report(listUsers())); }
+  catch (e) {
+    console.error('[login-stats] report failed:', e.message);
+    res.status(503).json({ ok: false, error: 'login_stats_unavailable' });
+  }
 });
 
 // 音频文件上传 · 存 /data/audio

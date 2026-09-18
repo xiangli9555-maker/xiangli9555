@@ -25,8 +25,8 @@
  *      X-Vomi-Editor 携带有效令牌才升为 editor/admin，并按 group 校验资源域。
  *
  * 解锁：顶部横幅「申请编辑权限」→ 输入企微账号 → POST /api/session/unlock
- *       → 返回 token 存 localStorage（长期有效）→ 之后所有请求带 X-Vomi-Editor。
- *       同一台电脑同一浏览器再打开不用重输（名单内填一次永久记住）；换人/退出用 __vomiLogout()。
+ *       → 返回 token 存 localStorage（六个自然月）→ 之后所有请求带 X-Vomi-Editor。
+ *       同一地址同一浏览器六个月内再打开不用重输；换人/退出用 __vomiLogout()。
  * 强制只读分享：URL 带 ?role=guest（或 hash 里 role=guest）→ 即使已解锁也按只读渲染。
  * 兼容：仍导出 window.__VOMI_GUEST__（= 只读且由 guest 链接触发），老代码不用改。
  */
@@ -41,15 +41,25 @@
 
   // ---------- 身份判定 ----------
   var TOKEN_PAYLOAD = null;
+  function identityExpiresAt(issuedAt) {
+    var start = new Date(issuedAt);
+    var end = new Date(issuedAt);
+    var day = start.getUTCDate();
+    end.setUTCDate(1);
+    end.setUTCMonth(end.getUTCMonth() + 6);
+    var lastDay = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth() + 1, 0)).getUTCDate();
+    end.setUTCDate(Math.min(day, lastDay));
+    return end.getTime();
+  }
   function readToken() {
     try {
       var raw = localStorage.getItem(TOKEN_KEY) || '';
       if (!raw) return '';
       var body = raw.split('.')[0] || '';
       var json = JSON.parse(decodeB64(body));
-      // 2026-09-17 起令牌长期有效（名单即授权，填一次永久记住）；旧 30 天令牌过期照样清。
-      if (!json || !json.sub) return '';
-      if (json.exp && Number(json.exp) < Date.now()) {
+      // 与后端同口径：从原始登录时刻起六个自然月，不因访问滚动续期。
+      if (!json || !json.sub || !Number.isFinite(json.iat) || !Number.isFinite(json.exp)) return '';
+      if (json.iat > Date.now() || Math.min(json.exp, identityExpiresAt(json.iat)) <= Date.now()) {
         localStorage.removeItem(TOKEN_KEY);
         return '';
       }
@@ -73,13 +83,18 @@
       var url = new URL(window.location.href);
       if ((url.searchParams.get('role') || '').toLowerCase() === 'guest') return true;
       if (/[?&]role=guest\b/i.test(url.hash || '')) return true;
+      // 2026-09-18 PM 拍板：只要输入过企微账号（localStorage 里有有效令牌），
+      // 同一标签页继续浏览普通链接就不再按访客渲染 —— 之前点开过 ?role=guest
+      // 分享链接会在 sessionStorage 留下 vomi_guest_mode=1，把已解锁的人压回只读。
+      if (readToken()) return false;
       if (sessionStorage.getItem('vomi_guest_mode') === '1') return true;
     } catch (_) {}
     return false;
   }
 
+  var REMEMBERED_TOKEN = readToken();
   var FORCED_GUEST = forcedGuest();
-  var TOKEN = FORCED_GUEST ? '' : readToken();
+  var TOKEN = FORCED_GUEST ? '' : REMEMBERED_TOKEN;
   var READONLY = !TOKEN;
   window.__VOMI_READONLY__ = READONLY;
   window.__VOMI_GUEST__ = READONLY && FORCED_GUEST;
@@ -144,7 +159,8 @@
 
   // ---------- 顶部横幅（只在顶层窗口渲染，避免每个 iframe 叠一条） ----------
   function installBanner() {
-    if (!READONLY || IN_FRAME) return;
+    // 已记住身份即不再展示黄色申请横幅；显式分享链接仍保留只读拦截。
+    if (REMEMBERED_TOKEN || !READONLY || IN_FRAME) return;
     if (document.getElementById('vomi-guest-banner')) return;
     var bar = document.createElement('div');
     bar.id = 'vomi-guest-banner';
@@ -231,10 +247,18 @@
       });
       Promise.resolve(req).then(function (r) { return r.json(); }).then(function (j) {
         if (j && j.ok && j.token) {
-          try { localStorage.setItem(TOKEN_KEY, j.token); } catch (_) {}
+          try { localStorage.setItem(TOKEN_KEY, j.token); }
+          catch (_) { err.textContent = '浏览器无法保存登录状态，请允许网站存储后重试'; return; }
           try { sessionStorage.removeItem('vomi_guest_mode'); } catch (_) {}
           close();
-          try { window.location.reload(); } catch (_) {}
+          // 用户主动解锁后退出当前分享预览，不让 role=guest 再次压回只读。
+          try {
+            var target = new URL(window.location.href);
+            target.searchParams.delete('role');
+            target.hash = target.hash.replace(/([?&])role=guest\b&?/ig, function (all, sep) { return /&$/.test(all) ? sep : ''; });
+            if (target.href !== window.location.href) window.location.replace(target.href);
+            else window.location.reload();
+          } catch (_) { window.location.reload(); }
         } else {
           // 后端要求口令时（VOMI_UNLOCK_KEY / 专属口令模式）才把口令框显示出来
           if (j && (j.error === 'key_required' || j.error === 'bad_key')) {
@@ -252,8 +276,13 @@
   }
   window.__vomiOpenUnlock = openUnlock;
 
+  // 同域其他标签页解锁/退出后同步当前页；相同 token 不重载，避免相互刷新。
+  window.addEventListener('storage', function (e) {
+    if (e.key === TOKEN_KEY && e.oldValue !== e.newValue) window.location.reload();
+  });
+
   // ---------- 已解锁提示（每个标签页只提示一次）----------
-  // 令牌存 localStorage、长期有效（100 年，等同永久）：再次打开不用重新输账号。
+  // 令牌存 localStorage，六个月内不重输账号；清理网站数据/主动退出除外。
   if (!READONLY && IDENTITY && !IN_FRAME) {
     var showUnlockHint = function () {
       try {
@@ -345,6 +374,36 @@
         return res;
       });
     };
+  }
+
+  // 顶层页面验证已存身份并记一次到访；不把刷新/翻页算成重新登录。
+  // 旧长效令牌以原 iat 收口六个月，不强迫当前成员再输入账号。
+  if (TOKEN && !IN_FRAME && _fetch) {
+    var resumeToken = TOKEN;
+    _fetch('/api/session/resume', { method: 'POST', headers: { 'X-Vomi-Editor': resumeToken } })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) {
+          if (localStorage.getItem(TOKEN_KEY) === resumeToken) {
+            localStorage.removeItem(TOKEN_KEY);
+            window.location.reload();
+          }
+          return null;
+        }
+        if (!r.ok) throw new Error('resume_failed');
+        return r.json();
+      }).then(function (j) {
+        if (!j || !j.ok || !j.token) return;
+        if (localStorage.getItem(TOKEN_KEY) !== resumeToken) return;
+        localStorage.setItem(TOKEN_KEY, j.token);
+        TOKEN = j.token;
+        REMEMBERED_TOKEN = j.token;
+        window.__vomiOwnerToken = j.token;
+        var payload = JSON.parse(decodeB64(j.token.split('.')[0]));
+        if (IDENTITY && (IDENTITY.group !== payload.group || IDENTITY.role !== payload.role)) window.location.reload();
+      }).catch(function () {
+        // 临时网络/存储故障不清身份，但明确说明本次统计未完成。
+        setTimeout(function () { toast('访问记录未入库，请稍后刷新重试'); }, 1200);
+      });
   }
 
   // ---------- XHR（少量老代码兜底） ----------

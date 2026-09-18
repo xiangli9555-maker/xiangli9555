@@ -46,9 +46,9 @@ test('后端：解锁接口注册在写权限中间件白名单里', () => {
   assert.match(INDEX, /app\.post\('\/api\/session\/unlock'/);
   // 2026-09-16：解锁按企微账号签发带职能组的令牌
   assert.match(INDEX, /resolveIdentity\(account\)/);
-  // 2026-09-17：名单内填一次永久记住 —— 令牌按 100 年有效期签发
-  assert.match(INDEX, /issueOwnerToken\(identity\.account, IDENTITY_TOKEN_TTL_MS\)/);
-  assert.match(SECURITY, /IDENTITY_TOKEN_TTL_MS = 100 \* 365\.25/);
+  // 2026-09-18：六个自然月免输入，保留原始 iat 防止刷新滚动续期。
+  assert.match(INDEX, /issueOwnerToken\(identity\.account, undefined, issuedAt\)/);
+  assert.match(SECURITY, /function identityExpiresAt\(/);
   assert.match(INDEX, /unknown_account/);
   assert.match(INDEX, /account_required/);
   // 2026-09-17：名单即授权 —— 只有开了 VOMI_UNLOCK_KEY / 专属口令才校验口令
@@ -94,4 +94,11 @@ test('前端：解锁弹窗收集企微账号，删除走二次确认', () => {
   assert.match(GUEST, /localStorage\.setItem\(TOKEN_KEY, j\.token\)/);
   assert.match(GUEST, /身份已记住，下次免登录/);
   assert.doesNotMatch(GUEST, /30 天内免登录/);
+  // 2026-09-18：有有效令牌时 sessionStorage 访客标记不再把人压回只读
+  // （曾点开 ?role=guest 分享链接的标签页，之后浏览普通链接不再弹只读横幅）
+  assert.match(GUEST, /if \(readToken\(\)\) return false;/);
+  assert.match(
+    GUEST,
+    /if \(readToken\(\)\) return false;[\s\S]{0,200}sessionStorage\.getItem\('vomi_guest_mode'\)/
+  );
 });

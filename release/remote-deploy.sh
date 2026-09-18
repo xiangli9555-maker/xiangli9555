@@ -96,15 +96,21 @@ for i in $(seq 1 30); do
 done
 [[ "${code:-000}" == "200" ]] || { docker logs vo-backend --tail 80 >&2; exit 1; }
 
-# 关键页面和关键数据接口验证。
+# 关键页面验证（静态页，应 200）。
 for url in \
   /vo-manager-refined.html \
   /preview-需求汇总-精修版.html \
-  /preview-版本节点-精修版.html \
-  /api/demands \
-  /api/release-plans; do
+  /preview-版本节点-精修版.html; do
   code="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost$url" || true)"
   [[ "$code" == "200" ]] || { echo "HTTP 检查失败：$url => $code"; exit 1; }
+done
+
+# 2026-09-18 进站登录门禁：业务接口对匿名请求必须返回 401 且带 X-Vomi-Login-Required。
+# 这里断言的是「未登录读不到数据」，所以 200 反而说明门禁失效，不能再按旧口径放行。
+for url in /api/demands /api/release-plans; do
+  code="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost$url" || true)"
+  gate="$(curl -s -D - -o /dev/null "http://localhost$url" | grep -ci 'X-Vomi-Login-Required')"
+  [[ "$code" == "401" && "$gate" != "0" ]] || { echo "登录门禁检查失败：$url => code=$code gate=$gate"; exit 1; }
 done
 
 printf '%s\n' "$COMMIT" > "$DEPLOY/DEPLOYED_GIT_COMMIT"

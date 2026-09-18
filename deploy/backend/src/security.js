@@ -75,6 +75,23 @@ function normAccount(value) {
   return String(value == null ? '' : value).trim().toLowerCase();
 }
 
+/**
+ * 用户手输/粘贴的账号清洗（2026-09-17）：同事习惯从通讯录里复制「twinkyli(李莹莹)」
+ * 或直接写中文名，这里统一归一成名单里的 key。
+ *   'twinkyli(李莹莹)' / 'twinkyli (李莹莹)' / 'twinkyli@xxx.com' → 'twinkyli'
+ *   '李莹莹' → '李莹莹'（交给 resolveIdentity 按中文名反查）
+ * 取第一段连续 ASCII 账号串；全中文时原样返回（去空白）。
+ */
+function normalizeAccountInput(value) {
+  let s = String(value == null ? '' : value).trim();
+  if (!s) return '';
+  const at = s.indexOf('@');
+  if (at > 0) s = s.slice(0, at);
+  const m = s.match(/[A-Za-z][A-Za-z0-9._-]*/);
+  if (m) return m[0];
+  return s.replace(/\s+/g, '');
+}
+
 function parseUsers() {
   const raw = String(process.env.VOMI_USERS_JSON || '').trim();
   let source = DEFAULT_USERS;
@@ -137,6 +154,18 @@ const USER_KEYS = new Map();
 // 开启方式：CVM .env 里 VOMI_PER_ACCOUNT_KEYS=true（配合强 VOMI_OWNER_KEY）。
 const PER_ACCOUNT_KEYS = String(process.env.VOMI_PER_ACCOUNT_KEYS || '').toLowerCase() === 'true';
 
+// 2026-09-17 PM 拍板：**名单即授权** —— 解锁只要填企业微信账号，命中权限名单就按
+// 职能组签发令牌，不必再输口令（内网工具，账号本身就是凭证）。
+// 需要口令的场合（对外分享 / 更严场景）在 CVM .env 设 VOMI_UNLOCK_KEY，或开启
+// VOMI_PER_ACCOUNT_KEYS 走每人专属口令，届时解锁接口会重新要求口令。
+const UNLOCK_REQUIRES_KEY =
+  String(process.env.VOMI_UNLOCK_KEY || '').trim() !== '' || PER_ACCOUNT_KEYS;
+
+// 2026-09-17 PM：名单内的人**填一次账号就永久记住**，不做 30 天过期——解锁令牌按
+// 100 年有效期签发（等同永久；仍保留 exp 字段以兼容前端过期校验）。移出名单才是
+// 真正的"踢出"手段（名单即真源，旧令牌立刻降级）。
+const IDENTITY_TOKEN_TTL_MS = 100 * 365.25 * 24 * 3600 * 1000;
+
 function deriveAccountKey(account) {
   return b64url(
     crypto.createHmac('sha256', OWNER_KEY).update(`vomi-acct:${normAccount(account)}`).digest()
@@ -174,8 +203,19 @@ function checkAccountKey(account, key) {
 
 /** 企微账号 → 身份（{account,subject,name,group,title,role,key}），不在名单返回 null。 */
 function resolveIdentity(account) {
-  const user = USERS.get(normAccount(account));
-  return user ? { ...user } : null;
+  const cleaned = normalizeAccountInput(account);
+  const direct = USERS.get(normAccount(cleaned));
+  if (direct) return { ...direct };
+  // 中文名反查：同事只记得名字时也能解锁。要求名单内唯一命中，重名一律拒绝。
+  const target = normAccount(cleaned);
+  if (!target || !/[\u4e00-\u9fff]/.test(target)) return null;
+  let hit = null;
+  for (const user of USERS.values()) {
+    if (normAccount(user.name) !== target) continue;
+    if (hit) return null;
+    hit = user;
+  }
+  return hit ? { ...hit } : null;
 }
 
 /** 名单里的所有人（供 /api/auth/me 等只读用途）。 */
@@ -485,6 +525,7 @@ module.exports = {
   issueOwnerToken,
   listUsers,
   methodRbac,
+  normalizeAccountInput,
   OWNER_SUBJECT,
   DENY_MESSAGE,
   GROUP_LABELS,
@@ -497,6 +538,8 @@ module.exports = {
   requireScope,
   resolveIdentity,
   secureHeaders,
+  UNLOCK_REQUIRES_KEY,
+  IDENTITY_TOKEN_TTL_MS,
   verifyOwnerToken,
   verifySessionToken,
 };

@@ -44,11 +44,22 @@ test('后端：无凭据请求默认 viewer（不是 admin）', () => {
 test('后端：解锁接口注册在写权限中间件白名单里', () => {
   assert.match(INDEX, /PUBLIC_API_PATHS\s*=\s*new Set\(\['\/health',\s*'\/session\/unlock'\]\)/);
   assert.match(INDEX, /app\.post\('\/api\/session\/unlock'/);
-  // 2026-09-16：解锁改成「企微账号 + 编辑口令」，令牌按账号所属职能组签发
+  // 2026-09-16：解锁按企微账号签发带职能组的令牌
   assert.match(INDEX, /resolveIdentity\(account\)/);
-  assert.match(INDEX, /issueOwnerToken\(identity\.account\)/);
+  // 2026-09-17：名单内填一次永久记住 —— 令牌按 100 年有效期签发
+  assert.match(INDEX, /issueOwnerToken\(identity\.account, IDENTITY_TOKEN_TTL_MS\)/);
+  assert.match(SECURITY, /IDENTITY_TOKEN_TTL_MS = 100 \* 365\.25/);
   assert.match(INDEX, /unknown_account/);
   assert.match(INDEX, /account_required/);
+  // 2026-09-17：名单即授权 —— 只有开了 VOMI_UNLOCK_KEY / 专属口令才校验口令
+  assert.match(INDEX, /normalizeAccountInput\(\(req\.body && req\.body\.account\) \|\| ''\)/);
+  assert.match(INDEX, /if \(UNLOCK_REQUIRES_KEY\)/);
+  assert.match(INDEX, /key_required/);
+  // 口令校验必须落在 UNLOCK_REQUIRES_KEY 分支内（默认不校验）
+  assert.ok(
+    INDEX.indexOf('if (UNLOCK_REQUIRES_KEY)') < INDEX.indexOf('checkAccountKey(account, key)'),
+    'checkAccountKey 必须位于 UNLOCK_REQUIRES_KEY 分支内'
+  );
 });
 
 test('后端：录制档期写接口只对音频组开放（scope 鉴权）', () => {
@@ -71,4 +82,16 @@ test('前端：解锁弹窗收集企微账号，删除走二次确认', () => {
   assert.match(GUEST, /body:\s*JSON\.stringify\(\{\s*account:/);
   assert.match(GUEST, /__VOMI_IDENTITY__/);
   assert.match(GUEST, /确认删除|删除后不可恢复/);
+  // 2026-09-17：只填账号即可解锁 —— 保留一句说明 + 输入框灰色示例占位 + 口令框默认隐藏 + 账号容错
+  assert.match(GUEST, /placeholder="Vomi（温米）"/);
+  assert.match(GUEST, /#vomi-unlock-account::placeholder/);
+  assert.match(GUEST, /输入企业微信账号/);
+  assert.doesNotMatch(GUEST, /在权限名单里即可编辑/);
+  assert.doesNotMatch(GUEST, /粘贴「Vomi（温米）」或直接写中文名/);
+  assert.match(GUEST, /display:none;width:100%;box-sizing:border-box;margin-top:8px/);
+  assert.match(GUEST, /function cleanAccount\(/);
+  // 解锁后本地记住身份：2026-09-17 起令牌长期有效（填一次永久记住，不做 30 天过期）
+  assert.match(GUEST, /localStorage\.setItem\(TOKEN_KEY, j\.token\)/);
+  assert.match(GUEST, /身份已记住，下次免登录/);
+  assert.doesNotMatch(GUEST, /30 天内免登录/);
 });

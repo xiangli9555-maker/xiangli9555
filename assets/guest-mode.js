@@ -5,11 +5,16 @@
  * 2026-09-14 PM 拍板：站点默认对所有人「只读浏览」——可以看、可以点、可以试填，
  * 但任何写请求都不会落库，并提示「请找 lycheelli 申请权限」。
  *
- * 2026-09-16 升级为职能组鉴权：解锁要填「企业微信账号 + 编辑口令」，后端按名单
- * 签发带 group（copy 文案 / audio 音频）的令牌。
+ * 2026-09-16 升级为职能组鉴权：解锁填企业微信账号，后端按名单签发带 group
+ * （copy 文案 / audio 音频）的令牌。
  *   · 文案组：除「录制档期」外都能编辑
  *   · 音频组：全部页面都能编辑
  *   · 删除不设特权，但前端统一二次确认
+ *
+ * 2026-09-17 简化为**名单即授权**：只填企微账号，命中名单即解锁，不必输口令
+ * （账号容错：'twinkyli(李莹莹)' / 'twinkyli@xx' / '李莹莹' 都能认）。
+ * 需要口令的场合由后端 VOMI_UNLOCK_KEY / VOMI_PER_ACCOUNT_KEYS 开启，此时前端
+ * 才把口令框显示出来。
  *
  * 三层保护（缺一层都能被绕过，所以都留着）：
  *   1) 前端拦截：fetch / XHR 的 POST·PUT·PATCH·DELETE 直接返回 403 假响应 + toast，
@@ -19,8 +24,9 @@
  *   3) 后端默认 viewer + scope 鉴权：security.js 里无凭据请求一律 viewer；
  *      X-Vomi-Editor 携带有效令牌才升为 editor/admin，并按 group 校验资源域。
  *
- * 解锁：顶部横幅「申请编辑权限」→ 输入企微账号 + 编辑口令 → POST /api/session/unlock
- *       → 返回 token 存 localStorage（30 天）→ 之后所有请求带 X-Vomi-Editor。
+ * 解锁：顶部横幅「申请编辑权限」→ 输入企微账号 → POST /api/session/unlock
+ *       → 返回 token 存 localStorage（长期有效）→ 之后所有请求带 X-Vomi-Editor。
+ *       同一台电脑同一浏览器再打开不用重输（名单内填一次永久记住）；换人/退出用 __vomiLogout()。
  * 强制只读分享：URL 带 ?role=guest（或 hash 里 role=guest）→ 即使已解锁也按只读渲染。
  * 兼容：仍导出 window.__VOMI_GUEST__（= 只读且由 guest 链接触发），老代码不用改。
  */
@@ -41,7 +47,9 @@
       if (!raw) return '';
       var body = raw.split('.')[0] || '';
       var json = JSON.parse(decodeB64(body));
-      if (!json || !json.sub || !json.exp || Number(json.exp) < Date.now()) {
+      // 2026-09-17 起令牌长期有效（名单即授权，填一次永久记住）；旧 30 天令牌过期照样清。
+      if (!json || !json.sub) return '';
+      if (json.exp && Number(json.exp) < Date.now()) {
         localStorage.removeItem(TOKEN_KEY);
         return '';
       }
@@ -162,6 +170,19 @@
     installBanner();
   }
 
+  // ---------- 账号输入容错（2026-09-17）----------
+  // 同事习惯从通讯录复制「twinkyli(李莹莹)」或直接写中文名：这里归一成名单里的英文账号；
+  // 全中文时原样交给后端按姓名反查（名单内唯一命中才认）。
+  function cleanAccount(v) {
+    var s = String(v == null ? '' : v).trim();
+    if (!s) return '';
+    var at = s.indexOf('@');
+    if (at > 0) s = s.slice(0, at);
+    var m = s.match(/[A-Za-z][A-Za-z0-9._-]*/);
+    if (m) return m[0];
+    return s.replace(/\s+/g, '');
+  }
+
   // ---------- 解锁 / 申请权限弹层 ----------
   function openUnlock() {
     if (document.getElementById('vomi-unlock-mask')) return;
@@ -170,12 +191,13 @@
     mask.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(6,10,13,.72);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center';
     mask.innerHTML =
       '<div style="width:min(380px,92vw);background:#0F171C;border:1px solid rgba(15,247,150,.35);box-shadow:0 18px 48px rgba(0,0,0,.6);clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);padding:20px 22px;font:400 13px/1.6 \'Microsoft YaHei UI\',\'PingFang SC\',sans-serif;color:#D3DFDD">' +
-        '<div style="font:700 13px/1.4 inherit;color:#0FF796;letter-spacing:.4px;margin-bottom:6px">编辑权限</div>' +
-        '<div style="color:#8FA0A8;font-size:12px;margin-bottom:14px">本站默认只读。需要修改数据，请联系 <b style="color:#FFD24C">' + OWNER + '</b> 获取编辑口令；权限按你的职能组发放（文案组不可改录制档期）。</div>' +
-        '<input id="vomi-unlock-account" type="text" placeholder="企业微信账号（可留空 · 用专属口令登录则不必填）" autocomplete="off" autocapitalize="off" spellcheck="false" ' +
+        '<style>#vomi-unlock-account::placeholder{color:#5F7078;font-size:12px;letter-spacing:.3px}</style>' +
+        '<div style="font:700 13px/1.4 inherit;color:#0FF796;letter-spacing:.4px;margin-bottom:10px">编辑权限</div>' +
+        '<div style="color:#8FA0A8;font-size:12px;margin-bottom:12px">输入企业微信账号</div>' +
+        '<input id="vomi-unlock-account" type="text" placeholder="Vomi（温米）" autocomplete="off" autocapitalize="off" spellcheck="false" ' +
           'style="width:100%;box-sizing:border-box;background:#0A1015;border:1px solid rgba(255,255,255,.14);color:#E9E6DF;padding:9px 11px;font:400 13px inherit;outline:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)">' +
         '<input id="vomi-unlock-input" type="password" placeholder="编辑口令" autocomplete="off" ' +
-          'style="width:100%;box-sizing:border-box;margin-top:8px;background:#0A1015;border:1px solid rgba(255,255,255,.14);color:#E9E6DF;padding:9px 11px;font:400 13px inherit;outline:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)">' +
+          'style="display:none;width:100%;box-sizing:border-box;margin-top:8px;background:#0A1015;border:1px solid rgba(255,255,255,.14);color:#E9E6DF;padding:9px 11px;font:400 13px inherit;outline:none;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)">' +
         '<div id="vomi-unlock-err" style="color:#D699BE;font-size:12px;min-height:18px;margin-top:8px"></div>' +
         '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">' +
           '<button type="button" id="vomi-unlock-cancel" style="background:transparent;border:1px solid rgba(255,255,255,.18);color:#8FA0A8;padding:6px 14px;font:600 12px inherit;cursor:pointer;clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)">取消</button>' +
@@ -197,10 +219,10 @@
       });
     });
     function submit() {
-      var account = String(accountInput.value || '').trim();
+      var account = cleanAccount(accountInput.value);
       var key = String(input.value || '').trim();
-      // 账号可留空：后端能用专属口令反查身份（口令即身份），留空也能解锁。
-      if (!key) { err.textContent = '请输入编辑口令或专属口令'; input.focus(); return; }
+      // 名单即授权：只填账号就能解锁；口令框默认隐藏，只有后端要求时才出现。
+      if (!account) { err.textContent = '请输入企业微信账号'; accountInput.focus(); return; }
       err.textContent = '校验中…';
       var req = (window.__vomiRawFetch || window.fetch).call(window, '/api/session/unlock', {
         method: 'POST',
@@ -214,7 +236,12 @@
           close();
           try { window.location.reload(); } catch (_) {}
         } else {
-          err.textContent = (j && j.message) || '口令不正确，请找 ' + OWNER + ' 索取';
+          // 后端要求口令时（VOMI_UNLOCK_KEY / 专属口令模式）才把口令框显示出来
+          if (j && (j.error === 'key_required' || j.error === 'bad_key')) {
+            input.style.display = 'block';
+            if (j.error === 'key_required') { err.textContent = ''; input.focus(); return; }
+          }
+          err.textContent = (j && j.message) || ('账号不在权限名单里，请找 ' + OWNER + ' 添加');
         }
       }).catch(function () {
         err.textContent = '无法连接服务，请稍后再试';
@@ -224,6 +251,21 @@
     setTimeout(function () { try { accountInput.focus(); } catch (_) {} }, 30);
   }
   window.__vomiOpenUnlock = openUnlock;
+
+  // ---------- 已解锁提示（每个标签页只提示一次）----------
+  // 令牌存 localStorage、长期有效（100 年，等同永久）：再次打开不用重新输账号。
+  if (!READONLY && IDENTITY && !IN_FRAME) {
+    var showUnlockHint = function () {
+      try {
+        if (sessionStorage.getItem('vomi_unlock_hint') === '1') return;
+        sessionStorage.setItem('vomi_unlock_hint', '1');
+      } catch (_) {}
+      toast('已解锁 · ' + (IDENTITY.name || IDENTITY.subject) + ' · ' +
+        (IDENTITY.groupLabel || '成员') + ' · 身份已记住，下次免登录');
+    };
+    // 延后一拍：等主页面渲染完再提示，避免被后续 DOM 重建清掉
+    setTimeout(showUnlockHint, 900);
+  }
 
   // ---------- 写请求判定 ----------
   function isWrite(method) { return !!WRITE_METHODS[String(method || '').toUpperCase()]; }

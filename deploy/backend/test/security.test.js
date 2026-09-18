@@ -29,6 +29,7 @@ const {
   issueOwnerToken,
   listUsers,
   methodRbac,
+  normalizeAccountInput,
   OWNER_SUBJECT,
   requireScope,
   resolveIdentity,
@@ -167,6 +168,27 @@ test('roster resolves 文案 / 音频 groups', () => {
   assert.equal(resolveIdentity('twinkli'), null);
   assert.equal(resolveIdentity('elliexiong').name, '熊雯玥');
   assert.equal(resolveIdentity('elliexiong').group, 'copy');
+});
+
+test('账号输入容错：通讯录复制带中文名 / 邮箱后缀 / 只写中文名都能解锁', () => {
+  // 归一化：'twinkyli(李莹莹)'、'twinkyli (李莹莹)'、'twinkyli@corp.com' → 'twinkyli'
+  assert.equal(normalizeAccountInput('twinkyli(李莹莹)'), 'twinkyli');
+  assert.equal(normalizeAccountInput('twinkyli (李莹莹)'), 'twinkyli');
+  assert.equal(normalizeAccountInput('twinkyli@corp.com'), 'twinkyli');
+  assert.equal(normalizeAccountInput('  TWINKYLI '), 'TWINKYLI');
+  assert.equal(normalizeAccountInput('李莹莹'), '李莹莹');
+  assert.equal(normalizeAccountInput(''), '');
+
+  // 名单即授权：粘贴带中文名的账号同样命中，并拿到正确职能组
+  const pasted = resolveIdentity('twinkyli(李莹莹)');
+  assert.equal(pasted.account, 'twinkyli');
+  assert.equal(pasted.name, '李莹莹');
+  assert.equal(pasted.group, 'audio');
+  // 只写中文名也能反查（名单内唯一命中）
+  assert.equal(resolveIdentity('李莹莹').account, 'twinkyli');
+  assert.equal(resolveIdentity('熊雯玥').group, 'copy');
+  // 不在名单里的一律 null
+  assert.equal(resolveIdentity('路人甲'), null);
 });
 
 test('session token carries group and is honoured by scope guard', () => {

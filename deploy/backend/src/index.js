@@ -17,6 +17,7 @@ const {
   hasScope,
   issueOwnerToken,
   methodRbac,
+  normalizeAccountInput,
   OWNER_SUBJECT,
   positiveInt,
   publicError,
@@ -26,6 +27,8 @@ const {
   resolveIdentity,
   GROUP_LABELS,
   secureHeaders,
+  UNLOCK_REQUIRES_KEY,
+  IDENTITY_TOKEN_TTL_MS,
 } = require('./security');
 const { pullLiveDemands, isLiveReady } = require('./tapd_live');
 const voiceEstimates = require('./voice_estimates');
@@ -64,21 +67,27 @@ app.get('/api/auth/me', (req, res) => {
   });
 });
 
-// 编辑权限解锁：提交「企业微信账号 + 编辑口令」→ 返回带职能组的签名令牌
-// （前端存 localStorage，之后每个请求带 X-Vomi-Editor）
+// 编辑权限解锁：2026-09-17 起**名单即授权** —— 只填企业微信账号，命中名单就按职能组
+// 签发令牌（前端存 localStorage，之后每个请求带 X-Vomi-Editor）。
+// 只有当 CVM 配了 VOMI_UNLOCK_KEY / 开启 VOMI_PER_ACCOUNT_KEYS 时才重新要求口令。
 app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), (req, res) => {
   const key = String((req.body && req.body.key) || '');
-  // 账号可留空：专属口令能反查出唯一账号时，输口令即可，不必手填账号。
-  const account = String((req.body && req.body.account) || '').trim() || accountForKey(key) || '';
+  // 账号容错：粘贴「twinkyli(李莹莹)」、带邮箱后缀、只写中文名都能认出来。
+  const account = normalizeAccountInput((req.body && req.body.account) || '') || accountForKey(key) || '';
   if (!account) {
     return res.status(400).json({
       ok: false,
       error: 'account_required',
-      message: '请输入你的企业微信账号，或直接输入你的专属口令',
+      message: '请输入你的企业微信账号',
     });
   }
-  if (!checkAccountKey(account, key)) {
-    return res.status(401).json({ ok: false, error: 'bad_key', message: `口令不正确，请找 ${OWNER_SUBJECT} 索取` });
+  if (UNLOCK_REQUIRES_KEY) {
+    if (!key) {
+      return res.status(400).json({ ok: false, error: 'key_required', message: '请输入编辑口令' });
+    }
+    if (!checkAccountKey(account, key)) {
+      return res.status(401).json({ ok: false, error: 'bad_key', message: `口令不正确，请找 ${OWNER_SUBJECT} 索取` });
+    }
   }
   const identity = resolveIdentity(account);
   if (!identity) {
@@ -96,8 +105,8 @@ app.post('/api/session/unlock', rateLimit({ windowMs: 60_000, max: 8 }), (req, r
     groupLabel: GROUP_LABELS[identity.group] || '',
     title: identity.title,
     role: identity.role,
-    token: issueOwnerToken(identity.account),
-    expiresIn: 30 * 24 * 3600,
+    token: issueOwnerToken(identity.account, IDENTITY_TOKEN_TTL_MS),
+    expiresIn: Math.floor(IDENTITY_TOKEN_TTL_MS / 1000),
   });
 });
 

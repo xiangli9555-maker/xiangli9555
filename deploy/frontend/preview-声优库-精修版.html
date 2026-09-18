@@ -450,7 +450,10 @@ body.embed .mid{width:100%}
 @media (max-width: 1500px){
   /* 1470 compact: no horizontal scroll */
   html,body{overflow-x:hidden}
-  .main{padding:10px 12px 12px;gap:8px;min-width:0}
+  /* 2026-09-18 方案A：不再压缩主区留白（原为 padding:10px 12px 12px;gap:8px）。
+     压缩后留白只剩 6%，通用背景图（assets/bg-universal.png）几乎看不出来；
+     恢复成基础档的 18px 22px / gap 14px 后留白回到 9% 量级。表格底色不动，可读性不受影响。 */
+  .main{min-width:0}
   .page-title{font-size:18px}
   .table-wrap{overflow-y:auto;overflow-x:hidden;min-width:0}
   #rosterTable{width:100%;table-layout:fixed;min-width:0}

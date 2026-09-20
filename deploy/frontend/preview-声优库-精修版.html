@@ -144,7 +144,9 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .sh-clear:hover{background:rgba(15,247,150,.08)}
 
 /* 卡片 & 表格 */
-.card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0}
+/* 2026-09-20 学版本日历：卡片高度由内容决定（原 flex:1 会把卡片拉伸占满剩余高度，
+   数据筛选不满屏时卡片底色把通用背景图盖死）。数据多时由 .table-wrap 的 max-height 兜底内部滚动。 */
+.card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
 
 .tool-btn{background:transparent;border:1px solid var(--c-border);color:var(--c-text-mute);cursor:pointer;padding:6px 12px;border-radius:5px;font-size:12.5px;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:all .12s;line-height:1.2}
 .tool-btn:hover{color:var(--c-primary);border-color:var(--c-primary)}
@@ -196,7 +198,9 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .rep-btn:disabled{opacity:.55;cursor:not-allowed}
 @media (max-width:1500px){ .row-editor-pop{width:420px} }
 
-.table-wrap{overflow:auto;flex:1}
+/* 2026-09-20 配合 .card 去拉伸：给滚动区一个上限（约等于卡片满屏时的可视高度），
+   数据多时仍在卡片内滚动、表头 sticky 吸顶；数据少时高度=内容、卡片收缩露出背景。 */
+.table-wrap{overflow:auto;max-height:calc(100vh - 240px)}
 table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
 thead{position:sticky;top:0;background:var(--c-bg-0);z-index:5}
 th{padding:12px 12px;text-align:left;font-size:12.5px;color:var(--c-primary);font-weight:900;border-bottom:1px solid var(--c-hairline);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;font-family:'Inter','JetBrains Mono',sans-serif;text-shadow:0 0 8px rgba(15,247,150,.15)}

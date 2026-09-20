@@ -237,7 +237,9 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .search-input:focus{border-color:var(--c-primary)}
 
 /* Card & Table */
-.card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0}
+/* 2026-09-20 学版本日历 / 同声优库：卡片高度由内容决定（原 flex:1 拉伸会把卡片底色铺满整屏盖死背景）。
+   .main 是 overflow:hidden，滚动必须留在 .table-wrap 内部，故给它 max-height 兜底。 */
+.card{background:var(--c-surface);border:1px solid var(--c-hairline);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .card-head{padding:12px 16px;border-bottom:1px solid var(--c-hairline);display:flex;align-items:center;gap:12px;background:var(--c-bg-0)}
 .head-title{font-size:11px;letter-spacing:2px;font-weight:700;color:var(--c-primary);font-family:'JetBrains Mono',monospace;text-transform:uppercase}
 .head-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c-text-mute);padding:2px 8px;border:1px solid var(--c-border);border-radius:3px}
@@ -250,7 +252,9 @@ body:not(.sidebar-collapsed) .brand-toggle{border-color:var(--c-primary);color:v
 .result-summary .rb-tag i{width:5px;height:5px;border-radius:50%;background:var(--c-primary);opacity:.7}
 .result-summary .rb-clear{margin-left:2px;color:var(--c-text-dim);cursor:pointer;border:none;background:transparent;font-size:11px;text-decoration:underline}
 .result-summary .rb-clear:hover{color:var(--c-danger)}
-.table-wrap{overflow:auto;flex:1;scrollbar-gutter:stable}
+/* 2026-09-20 配套 .card 去拉伸：数据多时仍在卡片内滚动 + 表头吸顶；数据少时高度=内容、卡片收缩露出背景。
+   余量 280px = 顶部 topbar+KPI+filter+card-head+padding 之和，比声优库(240)大因头部更高。 */
+.table-wrap{overflow:auto;max-height:calc(100vh - 280px);scrollbar-gutter:stable}
 table.demand-table{width:100%;min-width:2190px;table-layout:fixed;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
 table.demand-table th{font-size:12px!important;font-weight:600!important;letter-spacing:.35px!important;padding:9px 8px!important;text-shadow:none!important;text-align:center!important}
 table.demand-table td{font-size:13px!important;height:48px;padding-left:8px;padding-right:8px}

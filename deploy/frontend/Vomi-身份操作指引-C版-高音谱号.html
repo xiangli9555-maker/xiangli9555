@@ -222,7 +222,7 @@ const TASKS={
  checkScript:{owner:'audio',stage:'script',start:60,tag:'sheet',title:'检验台词库表',place:'版本台词库 › 本版需求的台词区域',when:'台词锁时',steps:['收齐本版本在线台词表，检查需求、角色与中英台词是否完整。','核对实际句数与预估差异，缺失或疑问反馈文案与文案 PM。'],note:'验收实际台词内容，不以单据状态代替台词表验收。'},
  schedule:{owner:'audio',stage:'script',start:60,tag:'sheet',title:'回填录制档期',place:'版本台词库 › 3.录制档期',when:'台词锁后 1 周内',steps:['打开对应版本台词库的「3.录制档期」。','回填已确认的声优、日期和时间，核对本版本场次齐全。'],note:'按表格现有字段登记；表格是档期真源，Vomi 档期页只读。'},
  /* 录制Ing 起，音频同学与文案一起线下监棚：同一件事，两条轨各一张卡。 */
- monitor:{owner:'audio',withRole:'文案',stage:'schedule',start:75,w:260,tag:'off',title:'OFF 监棚',place:'录制棚 / 线下协作',when:'录制Ing 起',steps:['按已确认的录制档期进棚，与文案一起跟录。','现场核对台词读法、情绪与表现，问题当场记下来。'],note:'音频同学与文案一起线下监棚；录制中的临时调整先记录，事后统一回填台词表。'},
+ monitor:{owner:'audio',withRole:'文案',stage:'schedule',start:75,w:260,tag:'off',title:'监棚',place:'录制棚 / 线下协作',when:'录制Ing 起',steps:['按已确认的录制档期进棚，与文案一起跟录。','现场核对台词读法、情绪与表现，问题当场记下来。'],note:'音频同学与文案一起线下监棚；录制中的临时调整先记录，事后统一回填台词表。'},
  assign:{owner:'writer-pm',stage:'assign',start:0,tag:'off',title:'分配文案TAPD选角&台词单',place:'TAPD / 关联「台词-中」单 › 处理人',when:'需求锁后',steps:['梳理本版本需求及关联的「台词-中」单。','将每条单据分发给负责文案，确认处理人。'],note:'单据流转在 TAPD 完成；本指引不会代为分发或同步 ND。'},
  animation:{owner:'audio-pm',stage:'talent',start:37.5,tag:'off',title:'找演绎确认视频时间',place:'Vomi 音画同步信息 → 对应演绎同学',when:'声优锁后',steps:['读取需求汇总里已填写的音画同步信息。','找对应演绎同学确认动画何时完成，将时间同步给负责预约的音频同学。'],note:'音频 PM 负责协调动画时间；预约和档期回填由音频同学执行。'}
 };

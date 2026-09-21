@@ -15,10 +15,15 @@ body{background:#060f0b;color:var(--text);height:100dvh;display:flex;align-items
 .wrap{width:1520px;height:auto;flex:none;background:var(--bg);border:1px solid rgba(169,206,184,.22);border-radius:14px;padding:24px 32px 22px;display:flex;flex-direction:column;position:relative}
 button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
 button:focus-visible{outline:2px solid var(--green);outline-offset:3px}
-.logo{font-size:26px;line-height:32px;font-weight:800;color:var(--green);letter-spacing:2px}
-.hero{margin-bottom:18px}
-h1{font-size:32px;line-height:40px;font-weight:700;margin:2px 0 6px;letter-spacing:0}
-.slogan{color:var(--muted);opacity:.78;font-size:12px;line-height:18px;letter-spacing:2.4px}
+.brand-green{color:var(--green)}
+/* hero 排版（2026-09-21 PM「整体排版不好看」重排）：左绿竖线=DAW 轨道选中指示，给标题组一个锚；右侧静止电平柱补右空（纯装饰，不跳动——全页唯一动态仍是时间轴）。 */
+.hero{margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;border-left:3px solid var(--green);padding-left:14px}
+h1{font-size:32px;line-height:40px;font-weight:700;margin:0 0 7px;letter-spacing:0}
+.slogan{color:#9fc0ae;font-size:11px;line-height:16px;letter-spacing:2px}
+.slogan .dot{color:var(--green)}
+.hero-meter{display:flex;align-items:flex-end;gap:5px;height:30px;margin-right:6px}
+.hero-meter i{width:4px;border-radius:2px;background:var(--green)}
+.hero-meter i:nth-child(1){height:9px;opacity:.35}.hero-meter i:nth-child(2){height:17px;opacity:.5}.hero-meter i:nth-child(3){height:26px;opacity:.9}.hero-meter i:nth-child(4){height:13px;opacity:.45}.hero-meter i:nth-child(5){height:21px;opacity:.65}
 /* 右上角关闭：与段落小字同色系的低调灰，不抢主内容。 */
 .top-close{position:absolute;top:14px;right:16px;z-index:5;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(141,154,147,.32);border-radius:8px;background:transparent;color:#8d9a93;transition:color .18s,border-color .18s,background-color .18s}
 .top-close:hover{color:#b8c5be;border-color:rgba(141,154,147,.62);background:rgba(141,154,147,.1)}
@@ -68,19 +73,22 @@ h1{font-size:32px;line-height:40px;font-weight:700;margin:2px 0 6px;letter-spaci
 /* 时间轴不是直虚线了：改成分两层的声波波浪线，底纹全程在，填充层随播放从左向右点亮。 */
 .song-wave{position:absolute;left:0;right:0;top:18px;height:16px;z-index:0;pointer-events:none;display:grid;place-items:stretch}
 .song-wave svg{grid-area:1/1;width:100%;height:100%;display:block}
-.song-wave path{fill:none;stroke:currentColor;stroke-width:1.2;stroke-linejoin:miter;stroke-linecap:butt}
-/* 底纹：整条波形是中性灰，代表"还没播放到"的部分。 */
+.song-wave path{fill:none;stroke:currentColor;stroke-width:1.2;stroke-linejoin:round;stroke-linecap:round}.song-wave .wave-fill path{stroke-width:1.6}
+/* 底纹：整条波形是中性灰半透明填充，代表"还没播放到"的部分。 */
 .song-wave .wave-base{color:rgba(203,216,209,.46)}
-/* 填充层：按整轮进度从左向右裁开，前奏的起点开始点亮（灰 → 绿）。 */
-.song-wave .wave-fill{color:var(--green);opacity:1;clip-path:inset(0 calc(100% - var(--wave-fill,0) * 100%) 0 0);will-change:clip-path}
-.song-wave .wave-fill path{stroke-width:1.6}
-@media(prefers-reduced-motion:reduce){.song-wave .wave-fill{will-change:auto}}
+/* 填充层：绿填充按整轮进度从左向右裁开（灰 → 绿）。2026-09-21 PM 对照 Shutterstock 视频判「不对」：参考里只有脉冲头亮、扫过即暗——填充层压暗到 .34 退居进度底衬、去掉整层光晕（糊线真凶），彗星火头做唯一亮点。 */
+.song-wave .wave-fill{color:var(--green);opacity:.34;clip-path:inset(0 calc(100% - var(--wave-fill,0) * 100%) 0 0);will-change:clip-path}
+/* 彗星脉冲层（2026-09-21 学 Shutterstock neon heartbeat 动态，PM 拍板「我要这种」）：叠在填充层上的亮尾——火头白炽、向左拖尾渐隐、头端 6px 光晕余量；渐变窗每帧由 JS 锚到播放头。替代已拆除的播放头竖线光点。 */
+.song-wave .wave-comet{clip-path:inset(0 calc(100% - var(--wave-fill,0) * 100% - 6px) 0 0);will-change:clip-path}
+.song-wave .wave-comet path{stroke-width:2;filter:drop-shadow(0 0 3px rgba(15,247,150,.85))}
+@media(prefers-reduced-motion:reduce){.song-wave .wave-fill,.song-wave .wave-comet{will-change:auto}}
+
 .song-anchor{position:absolute;top:0;height:56px;width:0}
 /* 音乐段落只是注解层：统一小号灰字，不做强调配色。 */
-.song-label{position:absolute;top:18px;left:0;transform:translateX(-50%);font-size:11px;font-weight:500;line-height:16px;color:#8d9a93;background:#0c1f17;padding:0 7px;white-space:nowrap;letter-spacing:0}
+.song-label{position:absolute;top:18px;left:0;transform:translateX(-50%) scale(calc(1 + var(--pulse,0) * .06));font-size:11px;font-weight:500;line-height:16px;color:#8d9a93;background:#0c1f17;padding:0 7px;white-space:nowrap;letter-spacing:0;transition:transform .12s}
 .song-anchor::after{content:'';position:absolute;left:0;top:42px;height:22px;border-left:1px dashed rgba(169,206,184,.45);pointer-events:none;z-index:2}
-.song-anchor.zero .song-label{transform:none;padding-left:0}
-.song-anchor.last .song-label{transform:translateX(-100%);padding-right:0}
+.song-anchor.zero .song-label{transform:translateX(0) scale(calc(1 + var(--pulse,0) * .06));padding-left:0}
+.song-anchor.last .song-label{transform:translateX(-100%) scale(calc(1 + var(--pulse,0) * .06));padding-right:0}
 .song-anchor.last::after{left:auto;right:0}
 .rmark{position:absolute;top:0;transform:translateX(-50%);font-size:13px;line-height:20px;color:var(--green);padding-top:14px;white-space:nowrap;transition:color .3s;text-align:center;letter-spacing:0;font-weight:600}
 .rmark.zero{transform:none;text-align:left}
@@ -90,7 +98,9 @@ h1{font-size:32px;line-height:40px;font-weight:700;margin:2px 0 6px;letter-spaci
 .rmark.last::after{left:auto;right:0}
 .rmark.hit::after{height:11px;box-shadow:0 0 6px rgba(15,247,150,.6)}
 
-.clip{position:absolute;z-index:2;height:34px;border-radius:5px;display:flex;align-items:center;gap:8px;padding:0 11px;font-size:13px;line-height:20px;font-weight:600;white-space:nowrap;border:1px solid;cursor:pointer;transition:filter .18s,background-color .18s;min-width:170px;text-align:left;letter-spacing:0}
+.clip{position:absolute;z-index:2;height:34px;border-radius:5px;display:flex;align-items:center;gap:8px;padding:0 11px;font-size:13px;line-height:20px;font-weight:600;white-space:nowrap;border:1px solid;cursor:pointer;transition:filter .18s,background-color .18s,box-shadow .18s;min-width:170px;text-align:left;letter-spacing:0;box-shadow:0 0 calc(var(--halo,0) * 14px) rgba(15,247,150,calc(var(--halo,0) * .45))}
+/* 区间点亮的「选中态」叠加层：描边变绿 + 底色提绿，随 --halo 淡入淡出（职能组配色不动，绿色叠在上面）。 */
+.clip::after{content:"";position:absolute;inset:-1px;border-radius:5px;border:1px solid rgba(15,247,150,.85);background:rgba(15,247,150,.10);opacity:var(--halo,0);pointer-events:none;transition:opacity .12s}
 .clip:hover{filter:brightness(1.2)}
 .clip:active{filter:brightness(1.35)}
 .clip-writer{background:rgba(90,138,170,.16);border-color:rgba(90,138,170,.55);color:#aecbe3}
@@ -143,9 +153,11 @@ dialog::backdrop{background:rgba(0,12,7,.78)}
 <main class="wrap">
 <button type="button" class="top-close" id="closeGuide" aria-label="关闭指引"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
 <div class="hero">
-<div class="logo">Vomi</div>
-<h1>一人一声部，一曲一版本</h1>
-<div class="slogan">EVERY VOICE IN LINE · EVERY SONG ON TIME</div>
+<div class="hero-text">
+<h1>曲在<span class="brand-green">Vomi</span>, 声声如期</h1>
+<div class="slogan">EVERY VOICE IN LINE <span class="dot">·</span> EVERY SONG ON TIME</div>
+</div>
+<div class="hero-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 </div>
 
 <!-- 按截图直接显示四轨，不经过视角选择页 -->
@@ -208,9 +220,9 @@ const TASKS={
  castingStore:{owner:'audio',stage:'talent',start:37.5,tag:'vomi',title:'新声优选角入库',place:'Vomi / 声优库 › 角色资料',when:'声优锁时齐备',steps:['打开 Vomi 声优库，筛选本版本新增角色。','核对中英选角资料已入库齐备，缺项找对应文案补齐。'],note:'文案负责上传资料，音频核对入库结果并推进选角。'},
  reserve:{owner:'audio',stage:'talent',start:37.5,tag:'off',title:'预约版本所需声优档期',place:'系统外协作 / 联系声优 · 录制团队',when:'声优锁起',steps:['声优锁起开始联系声优及录制团队预约时间。','需要对视频录制的场次，与音频 PM 确认动画完成时间后安排。'],note:'确认的档期由音频同学回填在线表格。'},
  checkScript:{owner:'audio',stage:'script',start:60,tag:'sheet',title:'检验台词库表',place:'版本台词库 › 本版需求的台词区域',when:'台词锁时',steps:['收齐本版本在线台词表，检查需求、角色与中英台词是否完整。','核对实际句数与预估差异，缺失或疑问反馈文案与文案 PM。'],note:'验收实际台词内容，不以单据状态代替台词表验收。'},
- schedule:{owner:'audio',stage:'schedule',start:75,tag:'sheet',title:'回填录制档期',place:'版本台词库 › 3.录制档期',when:'台词锁后 1 周内',steps:['打开对应版本台词库的「3.录制档期」。','回填已确认的声优、日期和时间，核对本版本场次齐全。'],note:'按表格现有字段登记；表格是档期真源，Vomi 档期页只读。'},
+ schedule:{owner:'audio',stage:'script',start:60,tag:'sheet',title:'回填录制档期',place:'版本台词库 › 3.录制档期',when:'台词锁后 1 周内',steps:['打开对应版本台词库的「3.录制档期」。','回填已确认的声优、日期和时间，核对本版本场次齐全。'],note:'按表格现有字段登记；表格是档期真源，Vomi 档期页只读。'},
  /* 录制Ing 起，音频同学与文案一起线下监棚：同一件事，两条轨各一张卡。 */
- monitor:{owner:'audio',withRole:'文案',stage:'schedule',start:75,w:200,tag:'off',title:'OFF 监棚',place:'录制棚 / 线下协作',when:'录制Ing 起',steps:['按已确认的录制档期进棚，与文案一起跟录。','现场核对台词读法、情绪与表现，问题当场记下来。'],note:'音频同学与文案一起线下监棚；录制中的临时调整先记录，事后统一回填台词表。'},
+ monitor:{owner:'audio',withRole:'文案',stage:'schedule',start:75,w:260,tag:'off',title:'OFF 监棚',place:'录制棚 / 线下协作',when:'录制Ing 起',steps:['按已确认的录制档期进棚，与文案一起跟录。','现场核对台词读法、情绪与表现，问题当场记下来。'],note:'音频同学与文案一起线下监棚；录制中的临时调整先记录，事后统一回填台词表。'},
  assign:{owner:'writer-pm',stage:'assign',start:0,tag:'off',title:'分配文案TAPD选角&台词单',place:'TAPD / 关联「台词-中」单 › 处理人',when:'需求锁后',steps:['梳理本版本需求及关联的「台词-中」单。','将每条单据分发给负责文案，确认处理人。'],note:'单据流转在 TAPD 完成；本指引不会代为分发或同步 ND。'},
  animation:{owner:'audio-pm',stage:'talent',start:37.5,tag:'off',title:'找演绎确认视频时间',place:'Vomi 音画同步信息 → 对应演绎同学',when:'声优锁后',steps:['读取需求汇总里已填写的音画同步信息。','找对应演绎同学确认动画何时完成，将时间同步给负责预约的音频同学。'],note:'音频 PM 负责协调动画时间；预约和档期回填由音频同学执行。'}
 };
@@ -221,7 +233,7 @@ const $=id=>document.getElementById(id);
 /* ============ 两行共享同一坐标，段落不会替换节点 ============ */
 const edgeClass=m=>m.pct===0?' zero':m.pct===100?' last':'';
 function renderRuler(){
-  $('songSections').innerHTML=waveMarkup()+MILES.map(m=>`<div class="song-anchor${edgeClass(m)}" data-mile="${m.id}" style="left:${m.pct}%"><span class="song-label">${m.section}</span></div>`).join('');
+  $('songSections').innerHTML=waveMarkup()+MILES.map(m=>`<div class="song-anchor${edgeClass(m)}" data-mile="${m.id}" data-pct="${m.pct}" style="left:${m.pct}%"><span class="song-label">${m.section}</span></div>`).join('');
   $('ruler').innerHTML=MILES.map(m=>`<div class="rmark act${edgeClass(m)}" data-mile="${m.id}" style="left:${m.pct}%">${m.label}</div>`).join('');
 }
 function renderTracks(){
@@ -269,10 +281,31 @@ function setPlaybackState(){
   clef.setAttribute('aria-pressed',String(!playing));
 }
 /* 谱号已挪到段落行左栏、TIMELINE 前面，靠 CSS 与标签成组居中；不再有随播放位移的标记逻辑。 */
-/* 全页唯一动态：时间轴声波波浪线按整轮进度从左向右点亮。 */
+/* 全页唯一动态：时间轴声波波浪线按整轮进度从左向右点亮，彗星火头随播放头走（Shutterstock neon heartbeat 式）。 */
 function renderFrame(){
   const box=$('dawBox');if(closed||!box)return;
-  box.style.setProperty('--wave-fill',waveProgress().toFixed(4));
+  const p=waveProgress();
+  box.style.setProperty('--wave-fill',p.toFixed(4));
+  /* 彗星渐变窗跟播放头：火头锚在进度点，亮尾向左拖 WAVE_COMET_TRAIL 长。 */
+  const headX=p*WAVE_VB.w;
+  document.querySelectorAll('.comet-grad').forEach(g=>{
+    g.setAttribute('x1',(headX-WAVE_COMET_TRAIL).toFixed(1));
+    g.setAttribute('x2',headX.toFixed(1));
+  });
+  /* 卡片光晕接力（2026-09-21 改区间点亮，PM 选 A+B）：播放头进入卡片横跨区间（左边缘→右边缘）整段亮起，
+     区间外左右各留 1.2% 平滑过渡带；描边变绿 + 底色提绿由 .clip::after 叠加层随 --halo 淡入。 */
+  document.querySelectorAll('.clip').forEach(c=>{
+    const s=Number(c.dataset.start||0)/100;
+    const w=c._spanPct||0.1;
+    const fade=0.012;
+    const h=p<s?Math.max(0,1-(s-p)/fade):p<=s+w?1:Math.max(0,1-(p-s-w)/fade);
+    c.style.setProperty('--halo',h.toFixed(3));
+  });
+  /* 节点 chip 脉冲：播放头走到里程碑 ±4% 邻域时轻微放大、走开复原。 */
+  document.querySelectorAll('.song-anchor').forEach(a=>{
+    const s=Number(a.dataset.pct||0)/100;
+    a.style.setProperty('--pulse',Math.max(0,1-Math.abs(p-s)/0.04).toFixed(3));
+  });
 }
 /* 左栏磁带轮：播放到当前事项时，对应该职能组（含协作组）的磁带轮转动，其余静止；暂停/播完一律停转。 */
 const ROLE_KEY={'文案':'writer','音频':'audio','文案PM':'writer-pm','音频PM':'audio-pm'};
@@ -353,33 +386,25 @@ $('task-detail').addEventListener('close',()=>{const b=window.__returnFocus;wind
 $('task-detail').addEventListener('click',e=>{if(e.target!==$('task-detail'))return;const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();});
 
 /* ============ 初始化 ============ */
-/* ============ 时间轴电音波纹线（取代原来的直虚线） ============ */
-/* 两层同图叠放：底纹全程在（极淡），填充层按整轮进度从左向右裁开 —— 从前奏的起点开始点亮。
-   画幅用固定 viewBox + preserveAspectRatio="none" 横向铺满整条时间轴，纵向 1:1 不缩放（振幅就是设计值）；
-   描边加 non-scaling-stroke，横向拉伸时线粗不会被带偏。
-   形状是「音频波形」：上下对称的密集尖刺，幅度由「多簇音量包络 × 逐点伪随机抖动」决定，两端渐弱。
-   尖刺的峰谷落在采样点上，所以是锐利的 V 形，不是正弦/三角/方波那种规则波形。 */
-const WAVE_VB={w:600,h:16},WAVE_MID=8;
-const WAVE_AMP=12.5;                   /* 振幅系数：乘上簇高（0.32~0.72）再封顶到 WAVE_CEIL */
-const WAVE_CEIL=7.2;                   /* 封顶振幅：最高刺 y=0.8 / 15.2，画幅内留白不裁切 */
-const WAVE_SAMPLE=5;                   /* 采样步长：600 画幅 120 个尖刺，屏幕上约 10px 一个 */
-const WAVE_IN=6,WAVE_EDGE=26;          /* 两端渐入渐出的起点与宽度 */
-const WAVE_PEAKS=[[96,30,.5],[164,24,.72],[246,26,.56],[318,34,.38],[392,26,.5],[472,30,.42],[540,26,.32]];   /* 音量簇：位置 / 宽度 / 高度（高低拉开才有起伏） */
-function waveRnd(i){const s=Math.sin(i*12.9898)*43758.5453;return s-Math.floor(s);}   /* 确定性伪随机：每次渲染必须一致 */
-function waveEnv(x){
-  let e=0;
-  for(const [c,w,a] of WAVE_PEAKS)e+=a*Math.exp(-Math.pow((x-c)/w,2));
-  return Math.min(1,e)*Math.min(1,Math.max(0,(x-WAVE_IN)/WAVE_EDGE))*Math.min(1,Math.max(0,(WAVE_VB.w-WAVE_IN-x)/WAVE_EDGE));
-}
+/* ============ 时间轴声波线（真源：心电心跳脉冲，PM 2026-09-21 发心跳图标参考图拍板「做成这样的」） ============ */
+/* 三层同图叠放：底纹灰半透明全程在 + 填充层暗绿（opacity .34）按整轮进度从左向右裁开 + 彗星脉冲层随播放头走。
+   画幅用固定 viewBox + preserveAspectRatio="none" 横向铺满整条时间轴，纵向 1:1 不缩放（振幅就是设计值）。
+   形状 = 心跳脉冲（对齐参考图）：长平基线 + 每搏一簇——小凸(P)→微凹(Q)→大尖峰(R 上冲 y=2)→深谷(S 下探 y=14)
+   →中凸(T 恢复)→平；7 搏、搏簇宽 ~54、主歌/尾奏标签前两搏前移 24 不贴标签、首尾都收在中线 y=8。描边非填充：fill:none + stroke，圆头圆角。 */
+
+const WAVE_VB={w:600,h:16};const WAVE_COMET_TRAIL=180; /* 彗尾长度（viewBox 单位）≈ 整宽 30%，对齐 Shutterstock 脉冲亮尾占比 */
+let waveUid=0; /* 彗星渐变 id 计数器：须在首次 waveMarkup() 调用前初始化（let 有 TDZ，别往后挪） */
+/* 心跳参数：中线 y=8 / 满幅 ±6（R=2、S=14）/ 6 搏。 */
+const WAVE_MID=8;
+/* 单搏折线控制点 [dx,y]（相对搏动起点）：平→P 小凸→Q 微凹→R 尖峰→S 深谷→T 中凸→平。 */
+const WAVE_BEAT=[[0,8],[18,8],[22,6.2],[26,8],[29,8.7],[33,2],[37,14],[41,8],[47,5.4],[53,8]];
+/* 各搏起点：前奏区 3 搏匀开（20/85/150，PM 2026-09-21「这里加一个波动」补中段平档）；副歌起 220 等距；
+   主歌标签前（296）与尾奏标签前（496）两搏按 PM 要求前移 24，不贴段落标签。相邻搏簇间距均 ≥12。 */
+const WAVE_BEATS_X=[20,85,150,220,296,420,496];
 function wavePathData(){
-  /* 音频波形：上下交替的密集尖刺，幅度由「多簇音量包络 × 逐点伪随机抖动」决定，两端渐弱。 */
-  const seg=[`M0 ${WAVE_MID}`];
-  for(let i=1;i*WAVE_SAMPLE<=WAVE_VB.w+1e-6;i++){
-    const x=i*WAVE_SAMPLE,a=Math.min(WAVE_CEIL,WAVE_AMP*waveEnv(x)*(.62+.38*waveRnd(i)));
-    seg.push(`L${x.toFixed(2)} ${(WAVE_MID-a*(i%2?1:-1)).toFixed(2)}`);
-  }
-  seg.push(`L${WAVE_VB.w} ${WAVE_MID}`);
-  return seg.join('');
+  let d=`M0 ${WAVE_MID}`;
+  for(const x0 of WAVE_BEATS_X)for(const pt of WAVE_BEAT)d+=` L${x0+pt[0]} ${pt[1]}`;
+  return d+` L${WAVE_VB.w} ${WAVE_MID}`;
 }
 renderRuler();renderTracks();
 /* 高度随内容收口；先测完整内容，再按窗口宽高等比适配，无裁切和滚动条。 */
@@ -400,6 +425,7 @@ function layoutTrackClips(){
     const occupied=[];
     lane.querySelectorAll('.clip').forEach(clip=>{
       const start=Number(clip.dataset.start),width=clip.offsetWidth;
+      clip._spanPct=width/lane.clientWidth; /* 卡片横跨的时间轴进度区间宽，renderFrame 区间点亮用 */
       const left=lane.clientWidth*start/100,right=left+width+28;
       let slot=0;
       while(occupied[slot]?.some(box=>left<box.right+10&&right>box.left-10))slot++;
@@ -410,9 +436,11 @@ function layoutTrackClips(){
   });
 }
 function waveMarkup(){
-  const d=wavePathData();
+  const d=wavePathData(),gid='cometG'+(++waveUid);
   const svg=cls=>`<svg class="${cls}" viewBox="0 0 ${WAVE_VB.w} ${WAVE_VB.h}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true"><path d="${d}" vector-effect="non-scaling-stroke"/></svg>`;
-  return `<div class="song-wave" aria-hidden="true">${svg('wave-base')}${svg('wave-fill')}</div>`;
+  /* 彗星层：同一波形描边改挂 userSpaceOnUse 渐变（尾透明 → 绿 → 头白炽 → 头端渐透），渐变窗随播放头右移；id 逐实例唯一，防多条段落行串色。 */
+  const comet=`<svg class="wave-comet" viewBox="0 0 ${WAVE_VB.w} ${WAVE_VB.h}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true"><defs><linearGradient id="${gid}" class="comet-grad" gradientUnits="userSpaceOnUse" x1="-180" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#0ff796" stop-opacity="0"/><stop offset=".5" stop-color="#0ff796" stop-opacity=".3"/><stop offset=".82" stop-color="#7dffc8" stop-opacity=".68"/><stop offset=".95" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><path d="${d}" vector-effect="non-scaling-stroke" style="stroke:url(#${gid})"/></svg>`;
+  return `<div class="song-wave" aria-hidden="true">${svg('wave-base')}${svg('wave-fill')}${comet}</div>`;
 }
 function fitDetail(){
   const dialog=$('task-detail');

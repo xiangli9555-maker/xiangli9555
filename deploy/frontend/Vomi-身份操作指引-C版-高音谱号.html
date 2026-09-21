@@ -355,9 +355,13 @@ function tick(now){
   renderFrame();raf=requestAnimationFrame(tick);
 }
 $('clefMarker').addEventListener('click',()=>playing?pause():play());
-/* 右上角关闭：先停播放，再整页淡出移除（刷新才会回来）。 */
+/* 右上角关闭：先停播放，再整页淡出移除（刷新才会回来）。
+   在弹层 iframe 里运行时必须先 postMessage('vomi-guide-close') 通知父层收 mask——
+   否则只移除自身内容，父层黑底 mask 还盖着整站 = 黑屏（2026-09-21 线上事故）。
+   该 postMessage 是弹层契约，任何时候都不许删；独立打开（无父层）时静默跳过。 */
 $('closeGuide').addEventListener('click',()=>{
   closed=true;pause();
+  try{ if(window.parent&&window.parent!==window) window.parent.postMessage('vomi-guide-close','*'); }catch(_){}
   const stage=$('canvasStage');
   stage.style.transition='opacity .26s ease';
   stage.style.opacity='0';

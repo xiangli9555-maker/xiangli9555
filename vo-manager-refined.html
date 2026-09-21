@@ -596,7 +596,9 @@ const VIEW_SEARCH_MAP = { demands:'searchInput', actors:'rosterSearch', calendar
 let _pendingGlobalSearch = null;
 const VIEW_KEY = 'vo_shell_view_v1';   // localStorage 持久化当前所在页面
 let _curView = null, _curRelease = '', _restored = null;
-const SHELL_RELEASE_STATE = { current: '', currentCount: 0, archiveCount: 0, total: 0 };
+// currentCount/archiveCount/total = 需求计数（/api/demands 链）；sched* = 档期计数（/api/schedules + 企微表格快照链）
+// 两条链各写各的 DOM 与缓存——2026-09-21 前共用一个 applyReleaseCounts，档期链（空表）后跑完把需求计数冲成 0（侧栏恒 0 事故）。
+const SHELL_RELEASE_STATE = { current: '', currentCount: 0, archiveCount: 0, total: 0, schedCount: 0, schedArchiveCount: 0, schedTotal: 0 };
 // 统一 loader 控制：显示 → 等 onload 或 5s 超时（超时显示 file:// 提示）
 function showLoader(loader){
   loader.classList.remove('timeout');
@@ -760,6 +762,7 @@ async function loadRosterCounts(){
 }
 /* 侧栏发布计划子页签：当前版本 + 历史归档 */
 const CAL_RELEASE_COUNT_CACHE_KEY = 'vo_calendar_release_counts_cache_v1';
+const DEMAND_RELEASE_COUNT_CACHE_KEY = 'vo_demand_release_counts_cache_v1';
 const RELEASE_SCOPE_START = 'Yang1.0';
 function normReleaseShell(v){ if(!v) return ''; return String(v).replace(/\s+/g,'').replace(/\.0$/,''); }
 function releaseInScopeShell(row){
@@ -772,46 +775,65 @@ function pickCurrentRelease(){
     ? normReleaseShell(window.VOMI_RELEASE_CALENDAR.clampFromCached(window.VOMI_RELEASE_CALENDAR.currentCached(), RELEASE_SCOPE_START))
     : normReleaseShell(RELEASE_SCOPE_START);
 }
-function renderReleaseSubs(currentName, currentCount, archiveCount){
+function renderReleaseSubs(currentName){
   const demandBox = document.getElementById('demandReleaseSubs');
   const calBox = document.getElementById('calendarReleaseSubs');
   const curRel = currentName || '';
   const curLabel = curRel ? curRel : '未指定版本';
+  const curAttr = curRel ? curRel.replace(/"/g,'&quot;') : '';
+  const curArg = curRel ? curRel.replace(/'/g,"\\'") : '';
   if(demandBox){
     demandBox.innerHTML =
-      `<button class="nav-sub-item" data-release="${curRel ? curRel.replace(/"/g,'&quot;') : ''}" onclick="switchDemandRelease(this,'${curRel ? curRel.replace(/'/g,"\\'") : ''}')"><span class="dot"></span>${curLabel}<span class="count" id="cnt-rel-current">${currentCount}</span></button>`+
-      `<button class="nav-sub-item" data-release="__archive__" onclick="switchDemandRelease(this,'__archive__')"><span class="dot"></span>历史归档<span class="count" id="cnt-rel-archive">${archiveCount}</span></button>`;
+      `<button class="nav-sub-item" data-release="${curAttr}" onclick="switchDemandRelease(this,'${curArg}')"><span class="dot"></span>${curLabel}<span class="count" id="cnt-rel-current">${SHELL_RELEASE_STATE.currentCount}</span></button>`+
+      `<button class="nav-sub-item" data-release="__archive__" onclick="switchDemandRelease(this,'__archive__')"><span class="dot"></span>历史归档<span class="count" id="cnt-rel-archive">${SHELL_RELEASE_STATE.archiveCount}</span></button>`;
   }
   if(calBox){
     calBox.innerHTML =
-      `<button class="nav-sub-item" data-release="${curRel ? curRel.replace(/"/g,'&quot;') : ''}" onclick="switchCalendarRelease(this,'${curRel ? curRel.replace(/'/g,"\\'") : ''}')"><span class="dot"></span>${curLabel}<span class="count" id="cnt-cal-current">${currentCount}</span></button>`+
-      `<button class="nav-sub-item" data-release="__archive__" onclick="switchCalendarRelease(this,'__archive__')"><span class="dot"></span>历史归档<span class="count" id="cnt-cal-archive">${archiveCount}</span></button>`;
+      `<button class="nav-sub-item" data-release="${curAttr}" onclick="switchCalendarRelease(this,'${curArg}')"><span class="dot"></span>${curLabel}<span class="count" id="cnt-cal-current">${SHELL_RELEASE_STATE.schedCount}</span></button>`+
+      `<button class="nav-sub-item" data-release="__archive__" onclick="switchCalendarRelease(this,'__archive__')"><span class="dot"></span>历史归档<span class="count" id="cnt-cal-archive">${SHELL_RELEASE_STATE.schedArchiveCount}</span></button>`;
   }
 }
-function applyReleaseCounts(currentCount, archiveCount, total, persist=true){
+function applyDemandCounts(currentCount, archiveCount, total, persist=true){
   SHELL_RELEASE_STATE.currentCount = Number(currentCount)||0;
   SHELL_RELEASE_STATE.archiveCount = Number(archiveCount)||0;
   SHELL_RELEASE_STATE.total = Number(total)||0;
   const setTxt=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=String(v); };
   setTxt('cnt-rel-current', SHELL_RELEASE_STATE.currentCount);
   setTxt('cnt-rel-archive', SHELL_RELEASE_STATE.archiveCount);
-  setTxt('cnt-cal-current', SHELL_RELEASE_STATE.currentCount);
-  setTxt('cnt-cal-archive', SHELL_RELEASE_STATE.archiveCount);
   if(persist){
-    try{ localStorage.setItem(CAL_RELEASE_COUNT_CACHE_KEY, JSON.stringify({current:SHELL_RELEASE_STATE.current,currentCount:SHELL_RELEASE_STATE.currentCount,archiveCount:SHELL_RELEASE_STATE.archiveCount,total:SHELL_RELEASE_STATE.total,at:Date.now()})); }catch(_){}
+    try{ localStorage.setItem(DEMAND_RELEASE_COUNT_CACHE_KEY, JSON.stringify({current:SHELL_RELEASE_STATE.current,currentCount:SHELL_RELEASE_STATE.currentCount,archiveCount:SHELL_RELEASE_STATE.archiveCount,total:SHELL_RELEASE_STATE.total,at:Date.now()})); }catch(_){}
   }
 }
-function hydrateCalendarReleaseCountCache(){
+function applyScheduleCounts(currentCount, archiveCount, total, persist=true){
+  SHELL_RELEASE_STATE.schedCount = Number(currentCount)||0;
+  SHELL_RELEASE_STATE.schedArchiveCount = Number(archiveCount)||0;
+  SHELL_RELEASE_STATE.schedTotal = Number(total)||0;
+  const setTxt=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=String(v); };
+  setTxt('cnt-cal-current', SHELL_RELEASE_STATE.schedCount);
+  setTxt('cnt-cal-archive', SHELL_RELEASE_STATE.schedArchiveCount);
+  if(persist){
+    try{ localStorage.setItem(CAL_RELEASE_COUNT_CACHE_KEY, JSON.stringify({current:SHELL_RELEASE_STATE.current,currentCount:SHELL_RELEASE_STATE.schedCount,archiveCount:SHELL_RELEASE_STATE.schedArchiveCount,total:SHELL_RELEASE_STATE.schedTotal,at:Date.now()})); }catch(_){}
+  }
+}
+function hydrateDemandReleaseCountCache(){
+  try{
+    const c = JSON.parse(localStorage.getItem(DEMAND_RELEASE_COUNT_CACHE_KEY)||'null');
+    if(!c) return;
+    if(c.current && !SHELL_RELEASE_STATE.current) SHELL_RELEASE_STATE.current = c.current;
+    applyDemandCounts(c.currentCount, c.archiveCount, c.total, false);
+  }catch(_){}
+}
+function hydrateScheduleReleaseCountCache(){
   try{
     const c = JSON.parse(localStorage.getItem(CAL_RELEASE_COUNT_CACHE_KEY)||'null');
     if(!c) return;
     if(c.current && !SHELL_RELEASE_STATE.current) SHELL_RELEASE_STATE.current = c.current;
-    applyReleaseCounts(c.currentCount, c.archiveCount, c.total, false);
+    applyScheduleCounts(c.currentCount, c.archiveCount, c.total, false);
   }catch(_){}
 }
 async function loadCalendarReleaseCounts(){
-  if(!SHELL_RELEASE_STATE.current){ hydrateCalendarReleaseCountCache(); return; }
-  hydrateCalendarReleaseCountCache();
+  if(!SHELL_RELEASE_STATE.current){ hydrateScheduleReleaseCountCache(); return; }
+  hydrateScheduleReleaseCountCache();
   try{
     const r = await fetch('/api/schedules', {cache:'no-store'});
     if(!r.ok) throw new Error('HTTP '+r.status);
@@ -819,17 +841,31 @@ async function loadCalendarReleaseCounts(){
     let rows = Array.isArray(list) ? list : [];
     rows = rows.filter(releaseInScopeShell);
     const curKey = normReleaseShell(SHELL_RELEASE_STATE.current);
-    let currentCount = 0;
-    rows.forEach(it=>{ if(normReleaseShell(it.release_plan||it.plan)===curKey) currentCount++; });
-    applyReleaseCounts(currentCount, Math.max(0, rows.length-currentCount), rows.length, true);
+    let publishedCurrent = 0;
+    rows.forEach(it=>{ if(normReleaseShell(it.release_plan||it.plan)===curKey) publishedCurrent++; });
+    // 档期计数 = 已发布档期（/api/schedules）+ 企微表格快照里当前版本「已排期」条数——
+    // 表格才是档期真源，recording_schedules 空表时快照兜底，侧栏不再恒 0。
+    let sheetScheduled = 0;
+    try{
+      const s = await fetch('/api/schedule-from-sheet?release='+encodeURIComponent(SHELL_RELEASE_STATE.current), {cache:'no-store'});
+      if(s.ok){
+        const j = await s.json();
+        const recs = Array.isArray(j && j.records) ? j.records : [];
+        sheetScheduled = recs.filter(x=>String(x.status_cn||x.status||'').indexOf('已排期')>=0).length;
+      }
+    }catch(_){ /* 快照缺失就只算已发布 */ }
+    applyScheduleCounts(publishedCurrent + sheetScheduled, Math.max(0, rows.length-publishedCurrent), rows.length + sheetScheduled, true);
   }catch(_){ /* 保留缓存值 */ }
 }
 async function loadReleases(){
   let rows = [];
+  let demandsOk = false;
   try{
     const r = await fetch('/api/demands', {cache:'no-store'});
-    if(r.ok){ const list = await r.json(); rows = Array.isArray(list) ? list : []; }
+    if(r.ok){ const list = await r.json(); rows = Array.isArray(list) ? list : []; demandsOk = true; }
   }catch(_){}
+  // 拉取失败（未登录 401 / 后端暂不可达）时不覆盖缓存值，更不能把 0 写进缓存（2026-09-21 教训）
+  if(!demandsOk){ hydrateDemandReleaseCountCache(); return; }
   try{
     if(window.VOMI_RELEASE_CALENDAR) await window.VOMI_RELEASE_CALENDAR.load();
   }catch(_){}
@@ -851,8 +887,8 @@ async function loadReleases(){
   const total = rows.length;
   const archiveCount = Math.max(0, total - currentCount);
   SHELL_RELEASE_STATE.current = currentName;
-  renderReleaseSubs(currentName, currentCount, archiveCount);
-  applyReleaseCounts(currentCount, archiveCount, total, true);
+  applyDemandCounts(currentCount, archiveCount, total, true);
+  renderReleaseSubs(currentName);
 
   const activeRelease = (_curView==='demands' || _curView==='calendar') ? (_curRelease || '') : '';
   const activeOutOfScope = activeRelease && activeRelease!=='__archive__' && !releaseInScopeShell(activeRelease);
@@ -882,7 +918,7 @@ window.addEventListener('message', (e)=>{
       if(rel==='' || rel==='total' || rel==='type') return;
       if(normReleaseShell(rel)===curKey) currentCount += Number(cnt)||0;
     });
-    applyReleaseCounts(currentCount, Math.max(0, total-currentCount), total, true);
+    applyDemandCounts(currentCount, Math.max(0, total-currentCount), total, true);
   }
   if(d.type === 'roster-status-counts'){
     // 声优库子页上报（含未保存草稿）优先，并同步持久缓存供下次刷新即时回显
@@ -992,7 +1028,8 @@ setTimeout(()=>{
 loadReleases();
 hydrateRosterCountCache();
 loadRosterCounts();
-hydrateCalendarReleaseCountCache();
+hydrateDemandReleaseCountCache();
+hydrateScheduleReleaseCountCache();
 loadCalendarReleaseCounts();
 // bfcache恢复/网络重连时主动校准，避免旧页面长时间停留在占位符或缓存值
 window.addEventListener('pageshow',e=>{ if(e.persisted){ loadReleases(); loadRosterCounts(); loadCalendarReleaseCounts(); } });
